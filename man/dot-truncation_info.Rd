@@ -17,4 +17,11 @@ List with k summary.
 \description{
 Summarize truncation results from draws
 }
+\details{
+After \code{.extract_draws()} applies draw-level component truncation, the chosen
+number of retained components is stored as an attribute. This helper condenses
+that bookkeeping into min, median, and max summaries for the effective
+retained component count under both the cumulative-mass and per-weight
+criteria.
+}
 \keyword{internal}

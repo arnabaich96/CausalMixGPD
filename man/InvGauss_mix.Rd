@@ -61,6 +61,22 @@ is parameterized by \code{mean[j]} and \code{shape[j]}.
 \details{
 The scalar functions in this topic are the compiled building blocks for inverse-Gaussian bulk
 kernels. For vectorized R usage, use \code{\link[=invgauss_lowercase]{invgauss_lowercase()}}.
+
+The mixture distribution is
+\deqn{
+F(x) = \sum_{k=1}^K \tilde{w}_k F_{IG}(x \mid \mu_k,\lambda_k),
+}
+where each inverse Gaussian component has mean \eqn{\mu_k} and variance \eqn{\mu_k^3/\lambda_k}.
+Random generation selects a component using the normalized weights and then generates from the
+corresponding inverse Gaussian law. Quantiles are computed numerically because the finite-mixture
+inverse CDF is not available in closed form.
+
+The analytical mixture mean is
+\deqn{
+E(X) = \sum_{k=1}^K \tilde{w}_k \mu_k.
+}
+That expression is used by the package whenever inverse-Gaussian mixtures contribute to
+posterior predictive means.
 }
 \section{Functions}{
 \itemize{

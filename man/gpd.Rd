@@ -58,8 +58,18 @@ the distribution reduces to the exponential tail limit.
 These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
 For vectorized R usage, use \code{\link[=base_lowercase]{base_lowercase()}}.
 
-If a bulk distribution has CDF \eqn{F_{bulk}}, the package's spliced families typically use the
-tail construction
+The associated density is
+\deqn{
+g(x) = \frac{1}{\sigma_u}
+\left(1 + \xi \frac{x - u}{\sigma_u}\right)^{-1/\xi - 1},
+}
+on the support where \eqn{1 + \xi (x-u)/\sigma_u > 0}. When \eqn{\xi = 0}, this reduces to the
+exponential density with mean excess \eqn{\sigma_u}. The GPD has finite mean only when
+\eqn{\xi < 1}, and finite variance only when \eqn{\xi < 1/2}. Those existence conditions matter
+for downstream predictive means in the package: spliced models with \eqn{\xi \ge 1} require
+restricted means rather than ordinary means.
+
+If a bulk distribution has CDF \eqn{F_{bulk}}, the package's spliced families use the tail construction
 \deqn{
 F(x) =
 \left\{

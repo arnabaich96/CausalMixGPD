@@ -10,8 +10,8 @@ bundle(
   treat = NULL,
   data = NULL,
   formula = NULL,
-  ...,
-  GPD = FALSE
+  GPD = FALSE,
+  ...
 )
 }
 \arguments{
@@ -25,10 +25,10 @@ bundle(
 
 \item{formula}{Optional formula.}
 
+\item{GPD}{Logical; include GPD tail in build mode.}
+
 \item{...}{Additional arguments passed to \code{build_nimble_bundle()} or
 \code{build_causal_bundle()}.}
-
-\item{GPD}{Logical; include GPD tail in build mode.}
 }
 \value{
 A \code{"causalmixgpd_bundle"} for one-arm models or a

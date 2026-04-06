@@ -30,6 +30,20 @@
 #' @return Mixture density/CDF/RNG functions return numeric scalars. `qAmorosoMix()` returns a
 #'   numeric vector with the same length as `p`.
 #'
+#' @details
+#' The Amoroso family is especially useful for positive-support data because it can reproduce a wide
+#' range of skewed and heavy-right-tail shapes while remaining analytically tractable through its
+#' gamma transformation. The mixture CDF is
+#' \deqn{
+#' F(x) = \sum_{k=1}^K \tilde{w}_k F_{Amoroso}(x \mid a_k,\theta_k,\alpha_k,\beta_k),
+#' }
+#' and random generation proceeds by selecting a component and sampling from that component.
+#'
+#' Closed-form mixture quantiles are not available, so \code{qAmorosoMix()} inverts the mixture CDF
+#' numerically. The analytical mixture mean is the weighted average of the component means,
+#' \eqn{a_k + \theta_k \Gamma(\alpha_k + 1/\beta_k) / \Gamma(\alpha_k)}, whenever those component
+#' moments exist.
+#'
 #' @seealso [amoroso_mixgpd()], [amoroso_gpd()], [amoroso_lowercase()],
 #'   [build_nimble_bundle()], [kernel_support_table()].
 #' @family amoroso kernel families
@@ -280,6 +294,21 @@ meanAmorosoMixTrunc <- function(w, loc, scale, shape1, shape2, threshold) {
 #' @return Spliced density/CDF/RNG functions return numeric scalars. `qAmorosoMixGpd()` returns a
 #'   numeric vector with the same length as `p`.
 #'
+#' @details
+#' The Amoroso mixture describes the bulk up to the threshold and the generalized Pareto describes
+#' exceedances above it. If \eqn{F_{mix}(u)=p_u}, then the splice uses
+#' \deqn{
+#' f(x) =
+#' \left\{
+#' \begin{array}{ll}
+#' f_{mix}(x), & x < u, \\
+#' (1-p_u) g_{GPD}(x \mid u,\sigma_u,\xi), & x \ge u.
+#' \end{array}
+#' \right.
+#' }
+#' Bulk quantiles are computed numerically from the Amoroso mixture CDF and tail quantiles are
+#' obtained from the GPD inverse after rescaling the tail probability.
+#'
 #' @seealso [amoroso_mix()], [amoroso_gpd()], [gpd()], [amoroso_lowercase()], [dpmgpd()].
 #' @family amoroso kernel families
 #'
@@ -453,6 +482,12 @@ qAmorosoMixGpd <- function(p, w, loc, scale, shape1, shape2,
 #'
 #' @return Spliced density/CDF/RNG functions return numeric scalars. `qAmorosoGpd()` returns a
 #'   numeric vector with the same length as `p`.
+#'
+#' @details
+#' This is the single-component Amoroso splice. The Amoroso law controls the distribution below the
+#' threshold and the GPD controls exceedances above it, scaled so that the resulting CDF is
+#' continuous at the threshold. The ordinary mean of the spliced law exists only when the tail
+#' satisfies \eqn{\xi < 1}; otherwise users should rely on restricted means or quantile summaries.
 #'
 #' @seealso [amoroso_mix()], [amoroso_mixgpd()], [gpd()], [amoroso_lowercase()].
 #' @family amoroso kernel families
@@ -659,6 +694,12 @@ qAmorosoGpd <- function(p, loc, scale, shape1, shape2,
 #' @param tol,maxiter Tolerance and max iterations for numerical inversion.
 #'
 #' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @details
+#' These are vectorized wrappers around the scalar Amoroso routines used internally by the package.
+#' They preserve the same location-scale-shape parameterization and the same piecewise splice logic
+#' for GPD tails. Quantile wrappers therefore continue to rely on the scalar numerical inversion or
+#' scalar GPD inverse exactly as documented for the uppercase functions.
 #'
 #' @seealso [amoroso_mix()], [amoroso_mixgpd()], [amoroso_gpd()], [bundle()],
 #'   [get_kernel_registry()].

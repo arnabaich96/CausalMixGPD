@@ -67,6 +67,21 @@ numeric vector with the same length as \code{p}.
 Spliced family obtained by attaching a generalized Pareto tail above \code{threshold} to a single
 lognormal bulk.
 }
+\details{
+This is the single-lognormal counterpart of \code{\link[=lognormal_mixgpd]{lognormal_mixgpd()}}. If \eqn{F_{LN}(u)} denotes the
+bulk probability below the threshold, then the spliced density is
+\deqn{
+f(x) =
+\left\{
+\begin{array}{ll}
+f_{LN}(x \mid \mu,\sigma), & x < u, \\
+\{1-F_{LN}(u)\} g_{GPD}(x \mid u,\sigma_u,\xi), & x \ge u.
+\end{array}
+\right.
+}
+The ordinary mean is finite only when the GPD tail has \eqn{\xi < 1}; otherwise the package
+requires restricted means or quantiles for tail-robust inference.
+}
 \section{Functions}{
 \itemize{
 \item \code{dLognormalGpd()}: Lognormal + GPD tail density

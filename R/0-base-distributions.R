@@ -42,8 +42,18 @@
 #'   `rGpd()` returns one random draw, and `qGpd()` returns a numeric quantile.
 #'
 #' @details
-#' If a bulk distribution has CDF \eqn{F_{bulk}}, the package's spliced families typically use the
-#' tail construction
+#' The associated density is
+#' \deqn{
+#' g(x) = \frac{1}{\sigma_u}
+#' \left(1 + \xi \frac{x - u}{\sigma_u}\right)^{-1/\xi - 1},
+#' }
+#' on the support where \eqn{1 + \xi (x-u)/\sigma_u > 0}. When \eqn{\xi = 0}, this reduces to the
+#' exponential density with mean excess \eqn{\sigma_u}. The GPD has finite mean only when
+#' \eqn{\xi < 1}, and finite variance only when \eqn{\xi < 1/2}. Those existence conditions matter
+#' for downstream predictive means in the package: spliced models with \eqn{\xi \ge 1} require
+#' restricted means rather than ordinary means.
+#'
+#' If a bulk distribution has CDF \eqn{F_{bulk}}, the package's spliced families use the tail construction
 #' \deqn{
 #' F(x) =
 #' \left\{
@@ -243,6 +253,22 @@ qGpd <- function(p, threshold, scale, shape,
 #' @return `dInvGauss()` returns a numeric scalar density, `pInvGauss()` returns a numeric scalar
 #'   CDF, `rInvGauss()` returns one random draw, and `qInvGauss()` returns a numeric quantile.
 #'
+#' @details
+#' The inverse Gaussian is the first-passage-time distribution of a Brownian motion with positive
+#' drift. Under the \eqn{(\mu, \lambda)} parameterization used here, the mean is \eqn{E(X)=\mu} and
+#' the variance is \eqn{\mathrm{Var}(X)=\mu^3/\lambda}. The implementation follows that
+#' parameterization throughout the package, so inverse-Gaussian mixture and splice families inherit
+#' the same interpretation.
+#'
+#' The distribution function is evaluated through the standard normal representation
+#' \deqn{
+#' F(x) =
+#' \Phi\left(\sqrt{\frac{\lambda}{x}}\left(\frac{x}{\mu}-1\right)\right) +
+#' \exp\left(\frac{2\lambda}{\mu}\right)
+#' \Phi\left(-\sqrt{\frac{\lambda}{x}}\left(\frac{x}{\mu}+1\right)\right),
+#' }
+#' and the quantile is obtained numerically because no simple closed form is available.
+#'
 #' @seealso [InvGauss_mix()], [InvGauss_gpd()], [base_lowercase()], [build_nimble_bundle()].
 #' @family base bulk distributions
 #'
@@ -415,6 +441,25 @@ qInvGauss <- function(p, mean, shape,
 #'
 #' @return Density/CDF/RNG functions return numeric scalars. The quantile function returns a numeric
 #'   scalar or vector matching the length of `p`.
+#'
+#' @details
+#' The Amoroso family used in the package is defined by the density
+#' \deqn{
+#' f(x) =
+#' \left|\frac{\beta}{\theta}\right|
+#' \frac{z^{\alpha \beta - 1}\exp(-z^\beta)}{\Gamma(\alpha)},
+#' \qquad
+#' z = \frac{x-a}{\theta},
+#' }
+#' on the side of the location parameter determined by the sign of \eqn{\theta}. Equivalently,
+#' \eqn{Z = ((X-a)/\theta)^\beta} follows a Gamma distribution with shape \eqn{\alpha} and unit
+#' scale. That representation explains why the quantile function is computed from a gamma quantile
+#' and then mapped back through the inverse transformation.
+#'
+#' The mean exists whenever \eqn{\alpha + 1/\beta} lies in the domain of the gamma function used by
+#' the moment formula. In the package this family serves as a flexible positive-support bulk kernel
+#' capable of reproducing gamma-like, Weibull-like, and other skewed shapes with a single
+#' parameterization.
 #'
 #' @seealso [amoroso_mix()], [amoroso_gpd()], [base_lowercase()], [kernel_support_table()].
 #' @family base bulk distributions
@@ -592,6 +637,22 @@ rAmoroso <- nimble::nimbleFunction(
 #' @return `dCauchy()` returns a numeric scalar density, `pCauchy()` returns a numeric scalar CDF,
 #'   `rCauchy()` returns one random draw, and `qCauchy()` returns a numeric quantile.
 #'
+#' @details
+#' The Cauchy law is a stable heavy-tailed distribution with undefined mean and variance. That is
+#' why the package allows the Cauchy kernel only as a bulk distribution and deliberately does not
+#' pair it with GPD tails in the kernel registry. For predictive summaries, ordinary means are not
+#' available under Cauchy kernels; tail-robust summaries such as medians, quantiles, survival
+#' curves, and restricted means remain well defined.
+#'
+#' The distribution function is
+#' \deqn{
+#' F(x) = \frac{1}{2} + \frac{1}{\pi}\arctan\left(\frac{x-\ell}{s}\right),
+#' }
+#' and the quantile is the corresponding inverse
+#' \deqn{
+#' Q(p) = \ell + s \tan\{\pi(p-1/2)\}.
+#' }
+#'
 #' @seealso [cauchy_mix()], [base_lowercase()], [kernel_support_table()].
 #' @family base bulk distributions
 #'
@@ -709,6 +770,19 @@ qCauchy <- function(p, location, scale,
 #' @param tol,maxiter Tolerance and max iterations for numerical inversion.
 #'
 #' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @details
+#' Each lowercase helper is a vectorized R wrapper around the corresponding uppercase scalar
+#' routine documented in this file. The wrapper keeps the same parameterization and simply applies
+#' the scalar kernel repeatedly over the supplied evaluation points or simulation index. These
+#' helpers are therefore appropriate for interactive analysis, testing, and examples, whereas the
+#' uppercase functions are the building blocks used inside NIMBLE model code.
+#'
+#' The wrappers do not change the underlying theory. For example, \code{qgpd()} still uses the
+#' closed-form GPD inverse, \code{qinvgauss()} still performs numerical inversion of the inverse
+#' Gaussian CDF, and \code{qamoroso()} still maps a gamma quantile through the Amoroso
+#' transformation. Random-generation wrappers call the corresponding scalar RNG repeatedly when
+#' \code{n > 1}.
 #'
 #' @seealso [gpd()], [InvGauss()], [amoroso()], [cauchy()], [build_nimble_bundle()],
 #'   [kernel_support_table()].

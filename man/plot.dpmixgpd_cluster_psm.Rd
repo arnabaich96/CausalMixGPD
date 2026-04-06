@@ -28,6 +28,18 @@ A \code{ggplot2} object or a \code{plotly}/\code{htmlwidget} object when \code{p
 \description{
 Heatmap of pairwise posterior co-clustering probabilities.
 }
+\details{
+The heatmap visualizes the matrix
+\deqn{
+\mathrm{PSM}_{ij} \approx \frac{1}{S} \sum_{s=1}^S I(z_i^{(s)} = z_j^{(s)}),
+}
+so larger values indicate pairs of observations that are stably allocated to
+the same cluster over the retained posterior draws.
+
+Because the PSM is an \eqn{n \times n} object, plotting and even storing it
+becomes expensive for large \code{n}. The \code{psm_max_n} argument is therefore a
+deliberate guard against accidental quadratic memory use.
+}
 \seealso{
 \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}}, \code{\link[=summary.dpmixgpd_cluster_psm]{summary.dpmixgpd_cluster_psm()}},
 \code{\link[=plot.dpmixgpd_cluster_fit]{plot.dpmixgpd_cluster_fit()}}.

@@ -15,4 +15,10 @@ A coda::mcmc.list object.
 \description{
 Safely coerce MCMC samples to coda::mcmc.list
 }
+\details{
+Downstream summary and plotting code relies on the \code{coda} interface. This
+helper validates the fit, locates the stored posterior draws, and converts a
+single-chain \code{mcmc} object into an \code{mcmc.list} so later code can treat the
+one-chain and multi-chain cases uniformly.
+}
 \keyword{internal}

@@ -9,4 +9,10 @@
 \description{
 Internal package initialization.
 }
+\details{
+The load hook initializes package-wide defaults that should exist as soon as
+the namespace is attached. In particular, it ensures that the kernel and tail
+registries are ready for later model-building code and sets the package plotly
+option if the user has not already chosen one.
+}
 \keyword{internal}

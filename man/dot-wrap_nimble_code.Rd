@@ -9,4 +9,9 @@
 \description{
 Wrap nimbleCode for bundle storage
 }
+\details{
+This helper is the inverse of \code{.extract_nimble_code()}. It stores a raw
+\code{nimbleCode} object inside a lightweight list so bundle objects can carry code
+alongside other metadata without ambiguity about the field layout.
+}
 \keyword{internal}

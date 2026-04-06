@@ -21,3 +21,12 @@
 \description{
 Print a causal-model summary object
 }
+\details{
+This is a formatter for the object returned by
+\code{summary.causalmixgpd_causal_fit()}. It prints the propensity-score summary
+first when that block is present, followed by the control and treated outcome
+summaries on the same scale of posterior diagnostics.
+
+No new computation is performed here. The method simply organizes the stored
+summary tables so that the three fitted blocks can be inspected together.
+}

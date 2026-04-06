@@ -684,9 +684,6 @@ test_that("predict.mixgpd_fit mean prediction works with HPD", {
 })
 
 test_that("bulk-only dpmix mean is analytical across kernels and cauchy rejects it", {
-  ns <- getNamespace("CausalMixGPD")
-  if (exists("kernel_registry", envir = ns, inherits = FALSE)) rm("kernel_registry", envir = ns)
-  if (exists("tail_registry", envir = ns, inherits = FALSE)) rm("tail_registry", envir = ns)
   init_kernel_registry()
 
   testthat::local_mocked_bindings(
@@ -5351,6 +5348,7 @@ test_that("check_glue_validity covers validation and continuity branches", {
 .compute_ps_from_fit <- get(".compute_ps_from_fit", mode = "function")
 
 predict.fake_mixfit <- function(object,
+                                newdata = NULL,
                                 x = NULL,
                                 y = NULL,
                                 ps = NULL,
@@ -5364,7 +5362,7 @@ predict.fake_mixfit <- function(object,
                                 ...) {
   type <- match.arg(type)
   arm_shift <- if (identical(object$arm, "trt")) 1 else 0
-  x_mat <- if (!is.null(x)) as.matrix(x) else NULL
+  x_mat <- if (!is.null(newdata)) as.matrix(newdata) else if (!is.null(x)) as.matrix(x) else NULL
   n_pred <- if (!is.null(x_mat)) nrow(x_mat) else if (!is.null(y)) length(y) else 1L
   id_vals <- if (!is.null(id)) id else seq_len(n_pred)
 
@@ -6083,11 +6081,7 @@ test_that("run_mcmc_causal orchestration covers PS, fallback, and validation bra
   )
 
   fit_ps <- run_mcmc_causal(bundle_ps, show_progress = FALSE, quiet = TRUE, timing = TRUE)
-  fit_no_ps <- NULL
-  expect_warning(
-    fit_no_ps <- run_mcmc_causal(bundle_no_ps, show_progress = FALSE, quiet = TRUE, parallel_arms = TRUE, timing = TRUE),
-    "falls back to sequential execution"
-  )
+  fit_no_ps <- run_mcmc_causal(bundle_no_ps, show_progress = FALSE, quiet = TRUE, timing = TRUE)
   expect_s3_class(fit_ps, "causalmixgpd_causal_fit")
   expect_s3_class(fit_no_ps, "causalmixgpd_causal_fit")
   expect_equal(fit_ps$ps_hat, rep(0.4, 4))

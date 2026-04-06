@@ -9,4 +9,10 @@
 \description{
 Wrap scalar CDF to handle q/x naming and vector inputs.
 }
+\details{
+Different scalar CDF helpers use either \code{q} or \code{x} for their evaluation
+argument. This wrapper normalizes those naming differences and then applies the
+same vector-lifting strategy used elsewhere so prediction code can call the
+resulting function consistently.
+}
 \keyword{internal}

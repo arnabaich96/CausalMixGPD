@@ -19,3 +19,12 @@ The object \code{x}, invisibly.
 \description{
 Print a QTE summary
 }
+\details{
+This formatter displays the summary object returned by
+\code{summary.causalmixgpd_qte()}. It reports the quantile grid, interval
+configuration, model metadata when available, and the tabulated quantile
+effect summaries.
+
+No additional causal computations are performed here. The method simply turns
+the stored summary tables into a readable report.
+}

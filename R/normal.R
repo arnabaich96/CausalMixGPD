@@ -28,6 +28,24 @@
 #' @return Density/CDF/RNG functions return numeric scalars. `qNormMix()` returns a numeric vector
 #'   with the same length as `p`.
 #'
+#' @details
+#' If \eqn{F_k} denotes the \eqn{k}-th component CDF, then the mixture distribution function is
+#' \deqn{
+#' F(x) = \sum_{k=1}^K \tilde{w}_k F_k(x)
+#' = \sum_{k=1}^K \tilde{w}_k \Phi\left(\frac{x-\mu_k}{\sigma_k}\right).
+#' }
+#' Random generation first draws a component index with probability \eqn{\tilde{w}_k} and then
+#' generates from the corresponding normal law. The quantile function has no closed form for a
+#' general finite mixture, so \code{qNormMix()} solves \eqn{F(x)=p} numerically by bracketing the
+#' root and applying \code{stats::uniroot()}.
+#'
+#' The mixture mean is
+#' \deqn{
+#' E(X) = \sum_{k=1}^K \tilde{w}_k \mu_k,
+#' }
+#' which is the analytical mean used by the package when a normal-mixture draw contributes to a
+#' posterior predictive mean calculation.
+#'
 #' @seealso [normal_mixgpd()], [normal_gpd()], [normal_lowercase()], [build_nimble_bundle()],
 #'   [kernel_support_table()].
 #' @family normal kernel families
@@ -259,6 +277,27 @@ meanNormMixTrunc <- function(w, mean, sd, threshold) {
 #' @return Spliced density/CDF/RNG functions return numeric scalars. `qNormMixGpd()` returns a
 #'   numeric vector with the same length as `p`.
 #'
+#' @details
+#' The construction keeps the normal mixture unchanged below the threshold \eqn{u} and replaces the
+#' upper tail by a generalized Pareto exceedance model. Writing \eqn{F_{mix}(u)=p_u}, the spliced
+#' density is
+#' \deqn{
+#' f(x) =
+#' \left\{
+#' \begin{array}{ll}
+#' f_{mix}(x), & x < u, \\
+#' \{1-p_u\} g_{GPD}(x \mid u,\sigma_u,\xi), & x \ge u.
+#' \end{array}
+#' \right.
+#' }
+#' This formulation preserves total probability because the GPD is attached only to the residual
+#' survival mass above the bulk threshold.
+#'
+#' The quantile is piecewise. If \eqn{p \le p_u}, \code{qNormMixGpd()} inverts the bulk mixture
+#' CDF; otherwise it rescales the tail probability to \eqn{(p-p_u)/(1-p_u)} and applies the
+#' closed-form GPD quantile. That same piecewise logic is what the fitted-model prediction code
+#' uses draw by draw.
+#'
 #' @seealso [normal_mix()], [normal_gpd()], [gpd()], [normal_lowercase()], [dpmgpd()].
 #' @family normal kernel families
 #' @examples
@@ -411,6 +450,26 @@ qNormMixGpd <- function(p, w, mean, sd, threshold, tail_scale, tail_shape,
 #'
 #' @return Spliced density/CDF/RNG functions return numeric scalars. `qNormGpd()` returns a numeric
 #'   vector with the same length as `p`.
+#'
+#' @details
+#' This is the single-component version of [normal_mixgpd()]. If \eqn{\Phi_u =
+#' \Phi((u-\mu)/\sigma)} denotes the normal bulk probability below the threshold, then the density
+#' is
+#' \deqn{
+#' f(x) =
+#' \left\{
+#' \begin{array}{ll}
+#' \phi(x \mid \mu, \sigma^2), & x < u, \\
+#' (1-\Phi_u) g_{GPD}(x \mid u,\sigma_u,\xi), & x \ge u.
+#' \end{array}
+#' \right.
+#' }
+#' The distribution is continuous at \eqn{u} by construction, although the derivative generally
+#' changes there because the tail is modeled by a different family.
+#'
+#' The ordinary mean exists only when the GPD tail satisfies \eqn{\xi < 1}. When that condition
+#' fails, downstream mean prediction is intentionally blocked and the package directs the user to
+#' restricted means or quantile-based summaries instead.
 #'
 #' @seealso [normal_mix()], [normal_mixgpd()], [gpd()], [normal_lowercase()].
 #' @family normal kernel families
@@ -565,6 +624,15 @@ qNormGpd <- function(p, mean, sd, threshold, tail_scale, tail_shape,
 #' @param tol,maxiter Tolerance and max iterations for numerical inversion.
 #'
 #' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @details
+#' These wrappers vectorize the scalar normal-kernel routines for ordinary R use. They preserve the
+#' same formulas, parameter meanings, and tail construction as the uppercase functions; the only
+#' change is that \code{x}, \code{q}, \code{p}, and \code{n} may now be length greater than one.
+#'
+#' For the mixture quantile and splice quantile functions, the numerical and piecewise logic is
+#' delegated directly to the corresponding scalar routine. As a result, the lowercase helpers are
+#' faithful front ends rather than separate implementations.
 #'
 #' @seealso [normal_mix()], [normal_mixgpd()], [normal_gpd()], [bundle()], [get_kernel_registry()].
 #' @family vectorized kernel helpers

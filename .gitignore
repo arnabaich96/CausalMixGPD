@@ -85,6 +85,7 @@ test_*.exit
 Rplots.pdf
 .codex_tmp_*.R
 tmp-*.R
+tmp_*.R
 vignettes/legacy/legacy-cache/
 inst/extdata/legacy-precomputed/
 

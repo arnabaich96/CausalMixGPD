@@ -76,6 +76,15 @@ Spliced density/CDF/RNG functions return numeric scalars.
 Spliced bulk-tail family formed by attaching a generalized Pareto tail to an inverse Gaussian
 mixture bulk.
 }
+\details{
+This family keeps the inverse-Gaussian mixture body below the threshold \eqn{u} and attaches a
+generalized Pareto exceedance law to the residual survival probability above \eqn{u}. If
+\eqn{F_{mix}(u)=p_u}, then the tail density is \eqn{(1-p_u)g_{GPD}(x \mid u,\sigma_u,\xi)}.
+
+Quantile evaluation is piecewise. For probabilities at or below \eqn{p_u}, the function solves
+the mixture inverse numerically; above \eqn{p_u}, it rescales the upper-tail probability and
+applies the GPD inverse directly.
+}
 \section{Functions}{
 \itemize{
 \item \code{dInvGaussMixGpd()}: Inverse Gaussian mixture + GPD tail density

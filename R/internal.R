@@ -90,7 +90,7 @@
 
 .cmgpd_progress_write <- function(text) {
   cat(text)
-  flush.console()
+  utils::flush.console()
   invisible(text)
 }
 
@@ -492,6 +492,12 @@
 }
 
 #' Extract nimbleCode from bundle code
+#'
+#' @details
+#' Bundle objects may store generated NIMBLE code either directly as a
+#' `nimbleCode` object or inside a small wrapper list used for package storage.
+#' This helper normalizes those storage conventions so downstream code can work
+#' with the underlying code object without repeatedly checking both cases.
 #' @keywords internal
 .extract_nimble_code <- function(code) {
   if (is.list(code) && !inherits(code, "nimbleCode")) {
@@ -502,6 +508,11 @@
 }
 
 #' Wrap nimbleCode for bundle storage
+#'
+#' @details
+#' This helper is the inverse of `.extract_nimble_code()`. It stores a raw
+#' `nimbleCode` object inside a lightweight list so bundle objects can carry code
+#' alongside other metadata without ambiguity about the field layout.
 #' @keywords internal
 .wrap_nimble_code <- function(code) {
   if (is.list(code) && !inherits(code, "nimbleCode")) return(code)
@@ -828,6 +839,12 @@ stick_breaking <- nimble::nimbleFunction(
 
 #'  Get epsilon value from object spec/meta or argument
 #'
+#' @details
+#' Many downstream summaries truncate mixture components according to the bundle
+#' or fit-level `epsilon` setting. This helper centralizes that lookup so an
+#' explicit function argument overrides the stored fit metadata, and the package
+#' fallback is used only when neither source is present.
+#'
 #' @param object A mixgpd_fit object.
 #' @param epsilon Numeric; if provided, overrides object spec/meta.
 #' @keywords internal
@@ -839,6 +856,16 @@ stick_breaking <- nimble::nimbleFunction(
 }
 
 #' Truncate component draws in a draws matrix
+#'
+#' @details
+#' Posterior draw matrices often contain more components than are effectively
+#' needed for reporting. This helper applies the package truncation rule
+#' draw-by-draw, keeping the retained component blocks, associated weights, and
+#' any linked coefficient matrices aligned after reordering and truncation.
+#'
+#' The bookkeeping attached to the returned matrix records both the cumulative
+#' mass rule and the per-component weight rule so later summaries can report how
+#' many components were effectively retained.
 #' @param object A mixgpd_fit object.
 #' @param mat Numeric matrix of draws (iter x parameters).
 #' @param epsilon Numeric in [0,1). Truncation level.
@@ -1119,6 +1146,12 @@ stick_breaking <- nimble::nimbleFunction(
 }
 
 #' Validate a fitted object
+#'
+#' @details
+#' This is a lightweight structural check used by multiple internal helpers. It
+#' verifies that the object inherits from `mixgpd_fit` and that posterior draws
+#' are available in one of the expected storage locations before later code tries
+#' to summarize or predict from the fit.
 #' @param object A fitted object.
 #' @return Invisibly TRUE, otherwise errors.
 #' @keywords internal
@@ -1133,6 +1166,12 @@ stick_breaking <- nimble::nimbleFunction(
 
 
 #' Safely coerce MCMC samples to coda::mcmc.list
+#'
+#' @details
+#' Downstream summary and plotting code relies on the `coda` interface. This
+#' helper validates the fit, locates the stored posterior draws, and converts a
+#' single-chain `mcmc` object into an `mcmc.list` so later code can treat the
+#' one-chain and multi-chain cases uniformly.
 #' @param object A mixgpd_fit.
 #' @return A coda::mcmc.list object.
 #' @keywords internal
@@ -1153,6 +1192,12 @@ stick_breaking <- nimble::nimbleFunction(
 
 
 #' Extract posterior draws as a numeric matrix (iter x parameters)
+#'
+#' @details
+#' This helper stacks the posterior chains into one numeric matrix, optionally
+#' removes stick-breaking `v` variables, and then applies the component
+#' truncation rule controlled by `epsilon`. The result is the standardized draw
+#' representation used by most internal summary and prediction helpers.
 #' @param object A mixgpd_fit.
 #' @param drop_v Logical; if TRUE, drop stick-breaking v parameters.
 #' @return Numeric matrix of draws.
@@ -1176,6 +1221,11 @@ stick_breaking <- nimble::nimbleFunction(
 
 
 #' Get number of observations used in fitting
+#'
+#' @details
+#' The fitted object may carry the response in slightly different storage slots
+#' depending on how it was built. This helper centralizes the lookup and returns
+#' the effective training sample size used by summaries and print methods.
 #' @param object A mixgpd_fit.
 #' @return Integer n.
 #' @keywords internal
@@ -1186,6 +1236,12 @@ stick_breaking <- nimble::nimbleFunction(
 }
 
 #' Safely coerce MCMC samples to a numeric matrix
+#'
+#' @details
+#' This is the matrix-oriented companion to `.get_samples_mcmclist()`. It can
+#' either stack all chains or keep only the first chain, always removes
+#' stick-breaking `v` variables, applies the standard component truncation rule,
+#' and optionally filters to an exact set of parameter names.
 #' @param object A mixgpd_fit.
 #' @param pars Optional character vector of parameter names to keep (exact match).
 #' @return Numeric matrix of draws (iter x parameters).
@@ -1229,6 +1285,13 @@ stick_breaking <- nimble::nimbleFunction(
 }
 
 #' Summarize truncation results from draws
+#'
+#' @details
+#' After `.extract_draws()` applies draw-level component truncation, the chosen
+#' number of retained components is stored as an attribute. This helper condenses
+#' that bookkeeping into min, median, and max summaries for the effective
+#' retained component count under both the cumulative-mass and per-weight
+#' criteria.
 #' @param object A mixgpd_fit.
 #' @param epsilon Numeric; optional override.
 #' @return List with k summary.
@@ -1263,6 +1326,12 @@ stick_breaking <- nimble::nimbleFunction(
 
 
 #' Format a short header for printing
+#'
+#' @details
+#' This helper builds the short header used by `print.mixgpd_fit()`. It extracts
+#' model identity, training size, truncation size, epsilon, and stored MCMC
+#' settings into a compact character vector so higher-level print methods do not
+#' duplicate formatting logic.
 #' @param x A mixgpd_fit.
 #' @return Character vector lines.
 #' @keywords internal
@@ -1308,6 +1377,14 @@ stick_breaking <- nimble::nimbleFunction(
 
 #' Summarize posterior draws for selected parameters
 #'
+#' @details
+#' This helper powers the one-arm summary methods. It extracts the retained draw
+#' matrix, chooses a default set of non-redundant parameters when `pars` is not
+#' supplied, and computes posterior means, standard deviations, quantiles,
+#' effective sample sizes, and Gelman diagnostics when available.
+#'
+#' The resulting table is parameter oriented rather than prediction oriented. It
+#' is the internal workhorse behind `summary.mixgpd_fit()`.
 #' @param object mixgpd_fit
 #' @param pars character vector; if NULL uses all non-v parameters
 #' @param probs quantiles to report
@@ -1455,6 +1532,13 @@ stick_breaking <- nimble::nimbleFunction(
 
 #' Resolve kernel dispatch functions (scalar)
 #' Dispatch returns raw scalar nimbleFunctions for codegen; do not wrap.
+#'
+#' @details
+#' This helper resolves the density, distribution, quantile, random-generation,
+#' and mean functions implied by a kernel, backend, and GPD setting. The result
+#' is intentionally scalar and wrapper-free because it is used in code-generation
+#' contexts where NIMBLE expects raw function objects rather than vectorized R
+#' adapters.
 #' @param spec_or_fit mixgpd_fit or spec list
 #' @return List with d/p/q/r/mean/mean_trunc functions and bulk_params.
 #' @keywords internal
@@ -1540,6 +1624,12 @@ stick_breaking <- nimble::nimbleFunction(
 
 #' Resolve kernel dispatch functions
 #' Dispatch returns vector-aware d/p/q and n-aware r via wrappers; do not mutate namespace.
+#'
+#' @details
+#' This is the prediction-oriented companion to `.get_dispatch_scalar()`. It
+#' starts from the same kernel dispatch lookup, then wraps the scalar functions
+#' so they can accept vector inputs and the package's preferred argument naming
+#' conventions in ordinary R evaluation.
 #' @param spec_or_fit mixgpd_fit or spec list
 #' @return List with d/p/q/r/mean/mean_trunc functions and bulk_params.
 #' @keywords internal
@@ -1593,6 +1683,13 @@ stick_breaking <- nimble::nimbleFunction(
 }
 
 #' Summarize posterior draws (mean + quantiles)
+#'
+#' @details
+#' The last dimension of `draws` is interpreted as the posterior-draw dimension.
+#' This helper collapses that dimension to posterior means and interval summaries,
+#' while preserving the leading dimensions of the input object. It is used
+#' throughout prediction and treatment-effect code to turn per-draw evaluations
+#' into reported posterior summaries.
 #' @param draws Numeric vector, matrix, or array with draws in last dimension.
 #' @param probs Numeric quantile probs.
 #' @param interval Character or NULL; interval type:
@@ -1669,6 +1766,12 @@ stick_breaking <- nimble::nimbleFunction(
 }
 
 #' Detect the first present argument name in dots.
+#'
+#' @details
+#' Some wrapped scalar functions accept either `q` or `x` as their first numeric
+#' argument depending on the original API. This helper inspects `...` and returns
+#' the first candidate name that is actually present so wrapper code can map user
+#' input onto the target function signature.
 #' @keywords internal
 .detect_first_present <- function(dots, candidates = c("q", "x")) {
   for (nm in candidates) {
@@ -1678,6 +1781,12 @@ stick_breaking <- nimble::nimbleFunction(
 }
 
 #' Wrap scalar first-argument functions to handle vector inputs.
+#'
+#' @details
+#' Many low-level distribution helpers are scalar in their first argument. This
+#' wrapper lifts such functions to vector inputs by evaluating the scalar
+#' function repeatedly and combining the results into either a numeric vector or
+#' a matrix, depending on the length of the original return value.
 #' @keywords internal
 .wrap_scalar_first_arg <- function(fun, first_arg_name) {
   if (isTRUE(attr(fun, "vectorized_wrapper"))) return(fun)
@@ -1711,6 +1820,12 @@ stick_breaking <- nimble::nimbleFunction(
 }
 
 #' Wrap scalar CDF to handle q/x naming and vector inputs.
+#'
+#' @details
+#' Different scalar CDF helpers use either `q` or `x` for their evaluation
+#' argument. This wrapper normalizes those naming differences and then applies the
+#' same vector-lifting strategy used elsewhere so prediction code can call the
+#' resulting function consistently.
 #' @keywords internal
 .wrap_scalar_p <- function(fun) {
   if (isTRUE(attr(fun, "vectorized_wrapper"))) return(fun)
@@ -1756,6 +1871,12 @@ stick_breaking <- nimble::nimbleFunction(
 }
 
 #' Wrap scalar RNG to handle n > 1.
+#'
+#' @details
+#' Random-generation helpers in the package are scalar-at-a-time. This wrapper
+#' promotes them to the standard `n` interface by repeating the scalar generator
+#' and returning either a numeric vector or a matrix of generated values,
+#' depending on the length of one draw.
 #' @keywords internal
 .wrap_scalar_r <- function(fun) {
   if (isTRUE(attr(fun, "vectorized_wrapper"))) return(fun)
@@ -1791,6 +1912,15 @@ stick_breaking <- nimble::nimbleFunction(
 
 #' Truncate and reorder mixture components by cumulative weight mass
 #'
+#' @details
+#' This helper operates on one posterior draw at a time. It first orders mixture
+#' components by decreasing weight, then keeps the smallest effective subset of
+#' components implied by the package truncation rule, and finally renormalizes
+#' the retained weights so they sum to one.
+#'
+#' The same permutation is applied to every component-specific parameter vector in
+#' `params`, which keeps the retained parameter blocks aligned with the retained
+#' weights.
 #' @param w Numeric vector of component weights (length K).
 #' @param params Named list of numeric vectors, each length K (component-specific params).
 #' @param epsilon Numeric in [0,1). Keep the smallest k s.t. cumweight >= 1-epsilon.
@@ -1866,6 +1996,18 @@ stick_breaking <- nimble::nimbleFunction(
 #' - quantile/sample/mean: y must be NULL; x may be provided (new X) or NULL (defaults to training X).
 #' - CRP predictions use posterior weights derived from z for each draw.
 #' - Stores per-draw results in object$cache$predict (environment) for reuse in treatment effects.
+#'
+#' @details
+#' This is the main internal workhorse behind `predict.mixgpd_fit()` and the
+#' causal effect helpers. It evaluates the requested predictive functional
+#' separately for each retained posterior draw, using either explicit SB weights
+#' or CRP weights reconstructed from latent cluster labels, and only then
+#' collapses the draw-level results into posterior summaries.
+#'
+#' The helper also manages caching of per-draw predictive quantities because
+#' treatment-effect functions repeatedly reuse the same arm-specific predictive
+#' draws. That cache avoids recomputation while keeping the public prediction
+#' interface simple.
 #'
 #' @keywords internal
 .predict_mixgpd <- function(object,
@@ -3352,7 +3494,7 @@ stick_breaking <- nimble::nimbleFunction(
           n_draws_valid = sum(.draw_valid),
           n_draws_dropped = S - sum(.draw_valid),
           nsim_mean = nsim_inner,
-          mean_infinite = any(infinite_rows)
+          mean_infinite = any(!is.finite(draw_rmeans))
         )
       )
       class(out) <- "mixgpd_predict"
@@ -3494,6 +3636,12 @@ stop(sprintf("Unsupported prediction type '%s'.", type), call. = FALSE)
 #' Extracts the posterior draws of cluster assignments \code{z[1:N]} from a fitted
 #' mixgpd_fit object and returns them as an integer matrix (iterations x N).
 #'
+#' @details
+#' Cluster samplers store latent labels as separate monitored nodes `z[i]`. This
+#' helper locates those nodes in every retained chain, orders them by observation
+#' index, stacks the chains, and returns the result as one integer matrix that is
+#' ready for PSM and representative-partition calculations.
+#'
 #' @param object A \code{mixgpd_fit} object.
 #' @return Integer matrix with rows = posterior draws, cols = observations.
 #' @keywords internal
@@ -3530,6 +3678,13 @@ stop(sprintf("Unsupported prediction type '%s'.", type), call. = FALSE)
 #' assignments. \code{PSM[i,j]} = probability that observations i and j are in the
 #' same cluster.
 #'
+#' @details
+#' If \eqn{z_i^{(s)}} denotes the cluster label of observation \eqn{i} at draw
+#' \eqn{s}, then this helper computes
+#' \deqn{\mathrm{PSM}_{ij} \approx \frac{1}{S} \sum_{s=1}^S I(z_i^{(s)} = z_j^{(s)}).}
+#' The resulting matrix is the basic posterior co-clustering summary used by the
+#' Dahl representative partition and several cluster diagnostics.
+#'
 #' @param z_matrix Integer matrix (iterations x N) of cluster assignments.
 #' @return Symmetric N x N matrix of co-clustering probabilities.
 #' @keywords internal
@@ -3553,6 +3708,12 @@ stop(sprintf("Unsupported prediction type '%s'.", type), call. = FALSE)
 #' Identifies the posterior draw that minimizes squared distance to the
 #' posterior similarity matrix, following Dahl (2006). Returns relabeled
 #' cluster assignments as consecutive integers 1, 2, ..., K.
+#'
+#' @details
+#' For each posterior draw, the helper forms its adjacency matrix and computes
+#' the squared Frobenius distance to the PSM. The selected representative draw is
+#' the one that minimizes that loss, which is Dahl's least-squares rule for
+#' choosing one clustering from the posterior sample.
 #'
 #' @param z_matrix Integer matrix (iterations x N) of cluster assignments.
 #' @param PSM Posterior similarity matrix (N x N).
@@ -3592,6 +3753,13 @@ stop(sprintf("Unsupported prediction type '%s'.", type), call. = FALSE)
 #' For each observation, computes the probability of membership in each cluster
 #' defined by the representative clustering, derived from the posterior
 #' similarity matrix.
+#'
+#' @details
+#' The representative labels define a reference partition with clusters
+#' \eqn{C_1, \dots, C_K}. For each observation \eqn{i}, this helper averages the
+#' posterior similarity scores \eqn{\mathrm{PSM}_{ij}} over members
+#' \eqn{j \in C_k} to obtain a cluster-membership score for cluster \eqn{k}, and
+#' then normalizes those scores to sum to one across clusters.
 #'
 #' @param z_matrix Integer matrix (iterations x N) of cluster assignments.
 #' @param labels_representative Integer vector of representative cluster labels.

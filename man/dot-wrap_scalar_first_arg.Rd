@@ -9,4 +9,10 @@
 \description{
 Wrap scalar first-argument functions to handle vector inputs.
 }
+\details{
+Many low-level distribution helpers are scalar in their first argument. This
+wrapper lifts such functions to vector inputs by evaluating the scalar
+function repeatedly and combining the results into either a numeric vector or
+a matrix, depending on the length of the original return value.
+}
 \keyword{internal}

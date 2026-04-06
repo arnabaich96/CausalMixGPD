@@ -22,4 +22,10 @@ Numeric matrix of draws (iter x parameters).
 \description{
 Safely coerce MCMC samples to a numeric matrix
 }
+\details{
+This is the matrix-oriented companion to \code{.get_samples_mcmclist()}. It can
+either stack all chains or keep only the first chain, always removes
+stick-breaking \code{v} variables, applies the standard component truncation rule,
+and optionally filters to an exact set of parameter names.
+}
 \keyword{internal}

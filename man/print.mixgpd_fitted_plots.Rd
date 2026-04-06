@@ -17,3 +17,11 @@ Invisibly returns the input object.
 \description{
 Print method for fitted value plots
 }
+\details{
+The fitted-value diagnostic object stores two plot panels. This print method
+renders them in sequence so both the observed-versus-fitted comparison and the
+residual-versus-fitted comparison are shown together.
+
+It is a display helper only and does not recompute fitted values or
+residuals.
+}

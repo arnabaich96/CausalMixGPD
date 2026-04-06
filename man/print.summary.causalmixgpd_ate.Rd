@@ -19,3 +19,11 @@ The object \code{x}, invisibly.
 \description{
 Print an ATE summary
 }
+\details{
+This method formats the object returned by \code{summary.causalmixgpd_ate()}. It
+prints the prediction design, interval settings, optional model metadata, and
+the resulting treatment-effect table on the mean or restricted-mean scale.
+
+The method is purely a reporting layer. All posterior aggregation has already
+been completed by the corresponding summary constructor.
+}

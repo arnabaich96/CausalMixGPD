@@ -53,6 +53,21 @@ where \code{location = ell} and \code{scale = s > 0}.
 
 These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
 For vectorized R usage, use \code{\link[=base_lowercase]{base_lowercase()}}.
+
+The Cauchy law is a stable heavy-tailed distribution with undefined mean and variance. That is
+why the package allows the Cauchy kernel only as a bulk distribution and deliberately does not
+pair it with GPD tails in the kernel registry. For predictive summaries, ordinary means are not
+available under Cauchy kernels; tail-robust summaries such as medians, quantiles, survival
+curves, and restricted means remain well defined.
+
+The distribution function is
+\deqn{
+F(x) = \frac{1}{2} + \frac{1}{\pi}\arctan\left(\frac{x-\ell}{s}\right),
+}
+and the quantile is the corresponding inverse
+\deqn{
+Q(p) = \ell + s \tan\{\pi(p-1/2)\}.
+}
 }
 \section{Functions}{
 \itemize{

@@ -74,6 +74,16 @@ Spliced density/CDF/RNG functions return numeric scalars.
 Spliced family obtained by attaching a generalized Pareto tail above \code{threshold} to a single
 inverse Gaussian bulk.
 }
+\details{
+This is the one-component version of \code{\link[=InvGauss_mixgpd]{InvGauss_mixgpd()}}. The inverse Gaussian governs the bulk
+region and the generalized Pareto governs exceedances over the threshold. The splice is
+continuous at \eqn{u} because the GPD is scaled by the inverse-Gaussian survival probability at
+the threshold.
+
+The ordinary mean of the spliced law exists only when the GPD tail has \eqn{\xi < 1}. When that
+condition fails, the package uses restricted means or quantile-based summaries instead of an
+ordinary mean.
+}
 \section{Functions}{
 \itemize{
 \item \code{dInvGaussGpd()}: Inverse Gaussian + GPD tail density

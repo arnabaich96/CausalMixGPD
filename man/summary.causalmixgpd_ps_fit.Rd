@@ -24,3 +24,15 @@ elements \code{model} and \code{table}.
 \code{summary.causalmixgpd_ps_fit()} returns posterior summaries for the
 monitored PS-model parameters.
 }
+\details{
+The summary is parameter based. For logit and probit models, it summarizes the
+posterior draws of the coefficients that determine the latent linear
+predictor, which is then mapped to \eqn{e(x)} by the chosen link function.
+For the naive Bayes option, it summarizes the class-conditional parameters
+used to factorize the treatment-assignment model.
+
+This function does not compute fitted propensity scores for specific covariate
+rows. It summarizes the posterior distribution of the PS model itself, which
+is the nuisance model later used by causal prediction and treatment-effect
+standardization.
+}

@@ -91,6 +91,12 @@ numeric vector with the same length as \code{p}.
 Spliced family obtained by attaching a generalized Pareto tail above \code{threshold} to a single
 Amoroso bulk.
 }
+\details{
+This is the single-component Amoroso splice. The Amoroso law controls the distribution below the
+threshold and the GPD controls exceedances above it, scaled so that the resulting CDF is
+continuous at the threshold. The ordinary mean of the spliced law exists only when the tail
+satisfies \eqn{\xi < 1}; otherwise users should rely on restricted means or quantile summaries.
+}
 \section{Functions}{
 \itemize{
 \item \code{dAmorosoGpd()}: Density Function of Amoroso Distribution with GPD Tail

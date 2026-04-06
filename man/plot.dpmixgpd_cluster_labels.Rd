@@ -48,6 +48,18 @@ summaries. For \code{type = "summary"}, the response view is shown as boxplots o
 cluster size or label. When \code{x} comes from \code{predict(..., newdata = ...)}, only clusters
 represented in the new sample are displayed.
 }
+\details{
+This method visualizes the representative partition stored in a
+\code{dpmixgpd_cluster_labels} object. The \code{sizes} view emphasizes the empirical
+distribution of the selected clusters, the \code{certainty} view summarizes the
+assignment scores \eqn{\max_k p_{ik}}, and the \code{summary} view compares the
+attached response data across representative clusters.
+
+For new-data prediction, the plots are always interpreted relative to the
+representative training clusters. That is why only clusters observed in the
+predicted sample are shown even though the training partition may contain
+additional occupied groups.
+}
 \seealso{
 \code{\link[=summary.dpmixgpd_cluster_labels]{summary.dpmixgpd_cluster_labels()}}, \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}}.
 

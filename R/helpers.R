@@ -288,3 +288,69 @@
   .wrap_plotly(p)
 }
 
+#' Plot location predictions (mean + median with CIs)
+#' @keywords internal
+#' @noRd
+.plot_location_pred <- function(pred, ...) {
+
+  fit_df <- pred$fit
+
+  if (!is.data.frame(fit_df)) {
+    stop("Location prediction 'fit' must be a data frame.", call. = FALSE)
+  }
+
+  has_id <- "id" %in% names(fit_df)
+
+  # Reshape to long format for plotting: one row per (id x measure)
+  rows <- list()
+  for (i in seq_len(nrow(fit_df))) {
+    id_val <- if (has_id) fit_df$id[i] else i
+    if ("mean" %in% names(fit_df)) {
+      rows[[length(rows) + 1L]] <- data.frame(
+        id = id_val,
+        measure = "mean",
+        estimate = fit_df$mean[i],
+        lower = if ("mean_lower" %in% names(fit_df)) fit_df$mean_lower[i] else NA_real_,
+        upper = if ("mean_upper" %in% names(fit_df)) fit_df$mean_upper[i] else NA_real_,
+        stringsAsFactors = FALSE
+      )
+    }
+    if ("median" %in% names(fit_df)) {
+      rows[[length(rows) + 1L]] <- data.frame(
+        id = id_val,
+        measure = "median",
+        estimate = fit_df$median[i],
+        lower = if ("median_lower" %in% names(fit_df)) fit_df$median_lower[i] else NA_real_,
+        upper = if ("median_upper" %in% names(fit_df)) fit_df$median_upper[i] else NA_real_,
+        stringsAsFactors = FALSE
+      )
+    }
+  }
+  plot_data <- do.call(rbind, rows)
+
+  pal <- .plot_palette(max(2L, length(unique(plot_data$measure))))
+
+  p <- ggplot2::ggplot(plot_data, ggplot2::aes(
+    x = factor(id), y = estimate, color = measure, shape = measure
+  )) +
+    ggplot2::geom_point(size = 3, position = ggplot2::position_dodge(width = 0.3)) +
+    {
+      if (any(!is.na(plot_data$lower)) && any(!is.na(plot_data$upper))) {
+        ggplot2::geom_errorbar(
+          ggplot2::aes(ymin = lower, ymax = upper),
+          width = 0.2,
+          position = ggplot2::position_dodge(width = 0.3)
+        )
+      }
+    } +
+    ggplot2::scale_color_manual(values = pal) +
+    .plot_theme() +
+    ggplot2::labs(
+      title = "Location Estimates (Mean & Median)",
+      x = if (has_id) "Observation" else "Index",
+      y = "Value"
+    )
+
+  .wrap_plotly(p)
+}
+

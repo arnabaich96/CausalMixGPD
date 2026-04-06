@@ -127,6 +127,12 @@ Numeric vector of densities, probabilities, quantiles, or random variates.
 \description{
 Vectorized R wrappers for the scalar gamma-kernel topics in this file.
 }
+\details{
+These wrappers are vectorized interfaces to the scalar gamma and gamma-plus-GPD routines. They
+preserve the package's shape-scale parameterization and the same splice definition used in the
+fitted-model prediction code. Quantile wrappers delegate to the scalar inversion code rather than
+implementing separate approximations.
+}
 \section{Functions}{
 \itemize{
 \item \code{dgammamix()}: Gamma mixture density (vectorized)

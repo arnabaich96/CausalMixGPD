@@ -87,6 +87,26 @@ F_{mix}(u) + \{1 - F_{mix}(u)\} G(x), & x \ge u,
 \right.
 }
 where \code{threshold = u} and \eqn{G} is the GPD CDF.
+
+The construction keeps the normal mixture unchanged below the threshold \eqn{u} and replaces the
+upper tail by a generalized Pareto exceedance model. Writing \eqn{F_{mix}(u)=p_u}, the spliced
+density is
+\deqn{
+f(x) =
+\left\{
+\begin{array}{ll}
+f_{mix}(x), & x < u, \\
+\{1-p_u\} g_{GPD}(x \mid u,\sigma_u,\xi), & x \ge u.
+\end{array}
+\right.
+}
+This formulation preserves total probability because the GPD is attached only to the residual
+survival mass above the bulk threshold.
+
+The quantile is piecewise. If \eqn{p \le p_u}, \code{qNormMixGpd()} inverts the bulk mixture
+CDF; otherwise it rescales the tail probability to \eqn{(p-p_u)/(1-p_u)} and applies the
+closed-form GPD quantile. That same piecewise logic is what the fitted-model prediction code
+uses draw by draw.
 }
 \section{Functions}{
 \itemize{

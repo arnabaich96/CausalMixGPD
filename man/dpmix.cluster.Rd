@@ -7,19 +7,16 @@
 dpmix.cluster(
   formula,
   data,
-  ...,
   type = c("weights", "param", "both"),
   default = "weights",
-  mcmc = list()
+  mcmc = list(),
+  ...
 )
 }
 \arguments{
 \item{formula}{Model formula. The response must be present in \code{data}.}
 
 \item{data}{Data frame containing the response and optional predictors.}
-
-\item{...}{Additional arguments passed to \code{build_cluster_bundle()}, including kernel settings,
-prior overrides, component counts, and monitoring controls.}
 
 \item{type}{Clustering mode:
 \itemize{
@@ -31,6 +28,9 @@ prior overrides, component counts, and monitoring controls.}
 \item{default}{Default mode used when \code{type} is omitted.}
 
 \item{mcmc}{MCMC control list passed into the cluster bundle.}
+
+\item{...}{Additional arguments passed to \code{build_cluster_bundle()}, including kernel settings,
+prior overrides, component counts, and monitoring controls.}
 }
 \value{
 Object of class \code{dpmixgpd_cluster_fit}.

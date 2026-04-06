@@ -161,6 +161,12 @@ Numeric vector of densities, probabilities, quantiles, or random variates.
 \description{
 Vectorized R wrappers for the scalar Amoroso-kernel topics in this file.
 }
+\details{
+These are vectorized wrappers around the scalar Amoroso routines used internally by the package.
+They preserve the same location-scale-shape parameterization and the same piecewise splice logic
+for GPD tails. Quantile wrappers therefore continue to rely on the scalar numerical inversion or
+scalar GPD inverse exactly as documented for the uppercase functions.
+}
 \section{Functions}{
 \itemize{
 \item \code{damorosomix()}: Amoroso mixture density (vectorized)

@@ -23,6 +23,15 @@
 \description{
 Print a MixGPD summary object
 }
+\details{
+This method formats the output of \code{summary.mixgpd_fit()}. It prints the model
+metadata, any stored WAIC value, the effective truncation information induced
+by \code{epsilon}, and the parameter-level posterior summary table.
+
+The printed rows correspond to monitored posterior parameters. They are not
+predictions of densities, quantiles, or means, which should instead be
+obtained from \code{predict.mixgpd_fit()}.
+}
 \examples{
 \dontrun{
 y <- abs(stats::rnorm(50)) + 0.1

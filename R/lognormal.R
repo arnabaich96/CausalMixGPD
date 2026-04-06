@@ -26,6 +26,23 @@
 #' @return Density/CDF/RNG functions return numeric scalars. `qLognormalMix()` returns a numeric
 #'   vector with the same length as `p`.
 #'
+#' @details
+#' Each component satisfies \eqn{\log X_k \sim N(\mu_k,\sigma_k^2)}, so the mixture CDF is
+#' \deqn{
+#' F(x) = \sum_{k=1}^K \tilde{w}_k
+#' \Phi\left(\frac{\log x-\mu_k}{\sigma_k}\right), \qquad x>0.
+#' }
+#' Random generation proceeds by drawing a component index with probability \eqn{\tilde{w}_k} and
+#' then sampling from the corresponding lognormal law. Because a finite mixture of lognormals does
+#' not admit a closed-form inverse CDF, \code{qLognormalMix()} computes quantiles by numerical
+#' inversion.
+#'
+#' The analytical mixture mean is
+#' \deqn{
+#' E(X) = \sum_{k=1}^K \tilde{w}_k \exp(\mu_k + \sigma_k^2/2),
+#' }
+#' which is the expression used by the package whenever an ordinary predictive mean exists.
+#'
 #' @seealso [lognormal_mixgpd()], [lognormal_gpd()], [lognormal_lowercase()],
 #'   [build_nimble_bundle()], [kernel_support_table()].
 #' @family lognormal kernel families
@@ -224,6 +241,23 @@ meanLognormalMixTrunc <- function(w, meanlog, sdlog, threshold) {
 #' @return Spliced density/CDF/RNG functions return numeric scalars.
 #'   `qLognormalMixGpd()` returns a numeric vector with the same length as `p`.
 #'
+#' @details
+#' Let \eqn{F_{mix}} be the lognormal-mixture CDF and let \eqn{u} denote the threshold. The splice
+#' uses the bulk law below \eqn{u} and attaches a GPD to the residual survival mass above
+#' \eqn{u}. The density therefore becomes
+#' \deqn{
+#' f(x) =
+#' \left\{
+#' \begin{array}{ll}
+#' f_{mix}(x), & x < u, \\
+#' \{1-F_{mix}(u)\} g_{GPD}(x \mid u,\sigma_u,\xi), & x \ge u.
+#' \end{array}
+#' \right.
+#' }
+#' The quantile is computed piecewise: bulk quantiles are obtained numerically from the mixture CDF,
+#' whereas tail quantiles use the closed-form GPD inverse after rescaling the upper-tail
+#' probability.
+#'
 #' @seealso [lognormal_mix()], [lognormal_gpd()], [gpd()], [lognormal_lowercase()], [dpmgpd()].
 #' @family lognormal kernel families
 #'
@@ -385,6 +419,21 @@ qLognormalMixGpd <- function(p, w, meanlog, sdlog, threshold, tail_scale, tail_s
 #' @return Spliced density/CDF/RNG functions return numeric scalars. `qLognormalGpd()` returns a
 #'   numeric vector with the same length as `p`.
 #'
+#' @details
+#' This is the single-lognormal counterpart of [lognormal_mixgpd()]. If \eqn{F_{LN}(u)} denotes the
+#' bulk probability below the threshold, then the spliced density is
+#' \deqn{
+#' f(x) =
+#' \left\{
+#' \begin{array}{ll}
+#' f_{LN}(x \mid \mu,\sigma), & x < u, \\
+#' \{1-F_{LN}(u)\} g_{GPD}(x \mid u,\sigma_u,\xi), & x \ge u.
+#' \end{array}
+#' \right.
+#' }
+#' The ordinary mean is finite only when the GPD tail has \eqn{\xi < 1}; otherwise the package
+#' requires restricted means or quantiles for tail-robust inference.
+#'
 #' @seealso [lognormal_mix()], [lognormal_mixgpd()], [gpd()], [lognormal_lowercase()].
 #' @family lognormal kernel families
 #'
@@ -529,6 +578,12 @@ qLognormalGpd <- function(p, meanlog, sdlog, threshold, tail_scale, tail_shape,
 #' @param tol,maxiter Tolerance and max iterations for numerical inversion.
 #'
 #' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @details
+#' These are direct vectorized wrappers around the scalar lognormal routines. They keep the same
+#' parameterization, support restrictions, and bulk-tail splice, while allowing ordinary vector
+#' inputs in R. Quantile wrappers continue to use the scalar inversion logic, so there is no
+#' separate approximation layer in the lowercase API.
 #'
 #' @seealso [lognormal_mix()], [lognormal_mixgpd()], [lognormal_gpd()], [bundle()],
 #'   [get_kernel_registry()].

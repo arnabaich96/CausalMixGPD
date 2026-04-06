@@ -14,6 +14,20 @@ Creates/refreshes registries used by the model specification compiler and
 code generators. Each kernel entry stores bulk parameters, supports, default
 regression/link behavior, and distribution signatures for SB/CRP backends.
 }
+\details{
+The kernel registry is the package-level contract that keeps model building,
+prediction, and documentation aligned. Each entry records the natural bulk
+parameters for one kernel, the support constraints they must satisfy, the
+default covariate-link strategy, and the backend-specific distribution names
+used when generating NIMBLE code.
+
+The companion tail registry records the generalized Pareto tail parameters
+\eqn{u} (threshold), \eqn{\sigma_u} (tail scale), and \eqn{\xi_u} (tail
+shape) together with their support and allowed modeling modes. Calling
+\code{init_kernel_registry()} makes those contracts available in the package
+namespace so later builders can validate requests without duplicating lookup
+logic.
+}
 \examples{
 init_kernel_registry()
 reg <- get_kernel_registry()

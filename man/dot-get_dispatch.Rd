@@ -17,4 +17,10 @@ List with d/p/q/r/mean/mean_trunc functions and bulk_params.
 Resolve kernel dispatch functions
 Dispatch returns vector-aware d/p/q and n-aware r via wrappers; do not mutate namespace.
 }
+\details{
+This is the prediction-oriented companion to \code{.get_dispatch_scalar()}. It
+starts from the same kernel dispatch lookup, then wraps the scalar functions
+so they can accept vector inputs and the package's preferred argument naming
+conventions in ordinary R evaluation.
+}
 \keyword{internal}

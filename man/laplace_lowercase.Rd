@@ -127,6 +127,12 @@ Numeric vector of densities, probabilities, quantiles, or random variates.
 \description{
 Vectorized R wrappers for the scalar Laplace-kernel topics in this file.
 }
+\details{
+These helpers vectorize the scalar Laplace and Laplace-plus-GPD routines for interactive R use.
+They retain the same location-scale parameterization and the same splice definition as the
+uppercase functions. Quantiles continue to use the scalar root-finding or piecewise logic rather
+than a separate approximation.
+}
 \section{Functions}{
 \itemize{
 \item \code{dlaplacemix()}: Laplace mixture density (vectorized)

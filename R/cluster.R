@@ -440,10 +440,10 @@ build_cluster_bundle <- function(formula,
 #' @export
 dpmix.cluster <- function(formula,
                           data,
-                          ...,
                           type = c("weights", "param", "both"),
                           default = "weights",
-                          mcmc = list()) {
+                          mcmc = list(),
+                          ...) {
   type <- .cluster_validate_type(type, default)
   bundle <- do.call(
     build_cluster_bundle,
@@ -489,10 +489,10 @@ dpmix.cluster <- function(formula,
 #' @export
 dpmgpd.cluster <- function(formula,
                            data,
-                           ...,
                            type = c("weights", "param", "both"),
                            default = "weights",
-                           mcmc = list()) {
+                           mcmc = list(),
+                           ...) {
   type <- .cluster_validate_type(type, default)
   bundle <- do.call(
     build_cluster_bundle,
@@ -522,6 +522,17 @@ dpmgpd.cluster <- function(formula,
 #'
 #' Compact display for a `dpmixgpd_cluster_bundle` before MCMC is run.
 #'
+#' @details
+#' A cluster bundle is the pre-sampling representation of the latent partition
+#' model. It stores the formula-derived design, kernel choice, truncation level,
+#' and the rule by which predictors enter the clustering model, but it does not
+#' yet contain posterior draws of the latent labels \eqn{z_1, \dots, z_n}.
+#'
+#' `print()` is intentionally brief. It is meant to confirm that the bundle
+#' matches the requested clustering structure before you run MCMC with
+#' `run_cluster_mcmc()` or the higher-level wrappers [dpmix.cluster()] and
+#' [dpmgpd.cluster()].
+#'
 #' @param x A cluster bundle.
 #' @param ... Unused.
 #'
@@ -547,6 +558,17 @@ print.dpmixgpd_cluster_bundle <- function(x, ...) {
 #' Summarize a cluster bundle
 #'
 #' Report the modeling choices encoded in a cluster bundle before fitting.
+#'
+#' @details
+#' This summary is a pre-flight check for the clustering workflow. It reports
+#' the latent-partition design, the chosen kernel family, whether a GPD tail
+#' will be spliced above the threshold, the effective sample and predictor
+#' dimensions, and the monitor set that will be carried into MCMC.
+#'
+#' Because no posterior simulation has occurred yet, the summary describes only
+#' the assumed model structure. Quantities such as representative labels,
+#' pairwise co-clustering probabilities, and cluster-specific summaries become
+#' available only after the fitted object has been created and post-processed.
 #'
 #' @param object A cluster bundle.
 #' @param ... Unused.
@@ -579,6 +601,17 @@ summary.dpmixgpd_cluster_bundle <- function(object, ...) {
 #' Plot a cluster bundle
 #'
 #' Produce a compact graphical summary of the cluster bundle metadata.
+#'
+#' @details
+#' The bundle plot is a metadata display rather than an inferential graphic. It
+#' mirrors the structural fields reported by `print()` and `summary()` in a
+#' single panel so the pre-MCMC clustering specification can be reviewed in a
+#' figure-oriented workflow or notebook.
+#'
+#' Because the object has not been sampled yet, no representative partition or
+#' posterior uncertainty is shown here. Use [plot.dpmixgpd_cluster_fit()],
+#' [plot.dpmixgpd_cluster_labels()], or [plot.dpmixgpd_cluster_psm()] after
+#' fitting when you need substantive clustering output.
 #'
 #' @param x A cluster bundle.
 #' @param plotly Logical; if `TRUE`, convert the `ggplot2` output to a `plotly` /
@@ -623,6 +656,18 @@ plot.dpmixgpd_cluster_bundle <- function(x,
 #' Print a cluster fit
 #'
 #' Compact display for a fitted clustering object.
+#'
+#' @details
+#' A fitted cluster object contains posterior draws for the latent labels and
+#' associated component parameters. The printed header identifies the model
+#' family that generated those draws, including whether the fit used a bulk-only
+#' kernel or a spliced bulk-tail specification.
+#'
+#' The printed `components` value is the truncation size used by the sampler. It
+#' is not the same thing as the number of occupied clusters in the Dahl
+#' representative partition, which is computed later by
+#' [predict.dpmixgpd_cluster_fit()] and summarized by
+#' [summary.dpmixgpd_cluster_fit()].
 #'
 #' @param x A cluster fit.
 #' @param ... Unused.
@@ -709,6 +754,19 @@ summary.dpmixgpd_cluster_fit <- function(object,
 #'
 #' Visualize either the posterior similarity matrix, the posterior number of occupied clusters, the
 #' size distribution of the representative clusters, or cluster-specific response summaries.
+#'
+#' @details
+#' This plot method exposes the main posterior diagnostics for clustering. The
+#' `which = "k"` view tracks the number of occupied clusters across retained
+#' draws, `which = "psm"` visualizes pairwise co-clustering probabilities,
+#' `which = "sizes"` displays the size profile of the representative partition,
+#' and `which = "summary"` shows response summaries conditional on the selected
+#' representative labels.
+#'
+#' The representative partition is obtained from
+#' [predict.dpmixgpd_cluster_fit()] using Dahl's least-squares rule. As a
+#' result, the `sizes` and `summary` views describe that representative
+#' clustering rather than the full posterior distribution over partitions.
 #'
 #' @param x A cluster fit.
 #' @param which Plot type:
@@ -798,6 +856,18 @@ plot.dpmixgpd_cluster_fit <- function(x,
 #'
 #' Compact display for a representative clustering.
 #'
+#' @details
+#' A `dpmixgpd_cluster_labels` object represents one partition, usually the Dahl
+#' representative partition for the training data or the induced allocation of
+#' `newdata` to those representative clusters. The printed output therefore
+#' describes the selected labels and their sizes, not the full posterior
+#' uncertainty over alternative partitions.
+#'
+#' When the object comes from `predict(..., return_scores = TRUE)`, richer
+#' assignment information is carried alongside the labels and can be inspected
+#' with [summary.dpmixgpd_cluster_labels()] or
+#' [plot.dpmixgpd_cluster_labels()].
+#'
 #' @param x Cluster labels object.
 #' @param ... Unused.
 #'
@@ -879,6 +949,18 @@ summary.dpmixgpd_cluster_labels <- function(object,
 #' cluster size or label. When `x` comes from `predict(..., newdata = ...)`, only clusters
 #' represented in the new sample are displayed.
 #'
+#' @details
+#' This method visualizes the representative partition stored in a
+#' `dpmixgpd_cluster_labels` object. The `sizes` view emphasizes the empirical
+#' distribution of the selected clusters, the `certainty` view summarizes the
+#' assignment scores \eqn{\max_k p_{ik}}, and the `summary` view compares the
+#' attached response data across representative clusters.
+#'
+#' For new-data prediction, the plots are always interpreted relative to the
+#' representative training clusters. That is why only clusters observed in the
+#' predicted sample are shown even though the training partition may contain
+#' additional occupied groups.
+#'
 #' @param x Cluster labels object.
 #' @param type Plot type:
 #'   \itemize{
@@ -946,6 +1028,16 @@ plot.dpmixgpd_cluster_labels <- function(x,
 #'
 #' Compact display for a posterior similarity matrix.
 #'
+#' @details
+#' A posterior similarity matrix records pairwise co-clustering probabilities on
+#' the training sample. Its \eqn{(i,j)} entry is the posterior probability that
+#' observations \eqn{i} and \eqn{j} share the same latent cluster across the
+#' retained MCMC draws.
+#'
+#' The printed header reports only matrix size and bookkeeping information. Use
+#' [summary.dpmixgpd_cluster_psm()] for numerical summaries and
+#' [plot.dpmixgpd_cluster_psm()] for a visual heatmap.
+#'
 #' @param x Cluster PSM object.
 #' @param ... Unused.
 #'
@@ -1000,6 +1092,18 @@ summary.dpmixgpd_cluster_psm <- function(object, ...) {
 #' Plot a cluster posterior similarity matrix
 #'
 #' Heatmap of pairwise posterior co-clustering probabilities.
+#'
+#' @details
+#' The heatmap visualizes the matrix
+#' \deqn{
+#' \mathrm{PSM}_{ij} \approx \frac{1}{S} \sum_{s=1}^S I(z_i^{(s)} = z_j^{(s)}),
+#' }
+#' so larger values indicate pairs of observations that are stably allocated to
+#' the same cluster over the retained posterior draws.
+#'
+#' Because the PSM is an \eqn{n \times n} object, plotting and even storing it
+#' becomes expensive for large `n`. The `psm_max_n` argument is therefore a
+#' deliberate guard against accidental quadratic memory use.
 #'
 #' @param x Cluster PSM object.
 #' @param psm_max_n Maximum allowed matrix size for plotting.

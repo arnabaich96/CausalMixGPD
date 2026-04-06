@@ -12,6 +12,18 @@ A list of tail metadata.
 \description{
 Get tail registry
 }
+\details{
+The tail registry is the authoritative description of the generalized Pareto
+splice used by bulk-tail models. It records the tail parameter names
+\code{threshold}, \code{tail_scale}, and \code{tail_shape}, together with the support each
+parameter must satisfy and the modeling modes the builders may assign to
+them.
+
+In mathematical terms, for a threshold \eqn{u} the upper tail is represented
+with a generalized Pareto law for excesses above \eqn{u}. Accessing this
+registry is useful when inspecting how the package encodes those tail
+parameters before model compilation.
+}
 \examples{
 init_kernel_registry()
 tail <- get_tail_registry()

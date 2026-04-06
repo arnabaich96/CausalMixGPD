@@ -20,3 +20,13 @@ Invisibly returns a list with the two plots.
 S3 method for visualizing fitted values from \code{fitted.mixgpd_fit()}.
 Produces a 2-panel figure: Q-Q plot and residuals vs fitted.
 }
+\details{
+These diagnostics compare the fitted values implied by the posterior summary
+on the training design against the observed responses. The first panel checks
+how closely fitted and observed values align, while the second panel looks for
+residual structure that would indicate lack of fit or remaining mean trends.
+
+This method is distinct from posterior predictive simulation on new data. It
+is a training-sample diagnostic built from \code{fitted.mixgpd_fit()} and the
+corresponding residuals.
+}

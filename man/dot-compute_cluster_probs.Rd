@@ -21,4 +21,11 @@ For each observation, computes the probability of membership in each cluster
 defined by the representative clustering, derived from the posterior
 similarity matrix.
 }
+\details{
+The representative labels define a reference partition with clusters
+\eqn{C_1, \dots, C_K}. For each observation \eqn{i}, this helper averages the
+posterior similarity scores \eqn{\mathrm{PSM}_{ij}} over members
+\eqn{j \in C_k} to obtain a cluster-membership score for cluster \eqn{k}, and
+then normalizes those scores to sum to one across clusters.
+}
 \keyword{internal}

@@ -23,3 +23,12 @@
 \description{
 Print a propensity-score summary object
 }
+\details{
+This is a display method for the object returned by
+\code{summary.causalmixgpd_ps_fit()}. It prints the PS model identity, the
+effective data dimension used by that model, and the posterior summary table
+for the monitored parameters.
+
+The method does not recompute propensity scores or refit the model. It is a
+formatting layer over already computed posterior summaries.
+}

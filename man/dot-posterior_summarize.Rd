@@ -29,4 +29,11 @@ List with estimate, lower, upper, and q.
 \description{
 Summarize posterior draws (mean + quantiles)
 }
+\details{
+The last dimension of \code{draws} is interpreted as the posterior-draw dimension.
+This helper collapses that dimension to posterior means and interval summaries,
+while preserving the leading dimensions of the input object. It is used
+throughout prediction and treatment-effect code to turn per-draw evaluations
+into reported posterior summaries.
+}
 \keyword{internal}

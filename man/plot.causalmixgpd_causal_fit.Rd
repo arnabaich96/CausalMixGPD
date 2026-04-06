@@ -21,6 +21,17 @@ The result of the underlying plot call (invisibly).
 \code{plot.causalmixgpd_causal_fit()} is a convenience router to the
 underlying one-arm diagnostic plots for the treated and control fits.
 }
+\details{
+Each arm-specific outcome model is itself a \code{mixgpd_fit}, so this method
+delegates to \code{plot.mixgpd_fit()} for the selected arm. With \code{arm = "both"},
+it returns a named list of treated and control diagnostics so the two fitted
+outcome models can be assessed side by side.
+
+These are MCMC diagnostics for the nuisance outcome models, not plots of
+causal estimands. Use \code{plot()} on objects from
+\code{predict.causalmixgpd_causal_fit()}, \code{qte()}, or \code{ate()} when the goal is to
+visualize treatment effects rather than chain behavior.
+}
 \seealso{
 \code{\link{plot.mixgpd_fit}},
 \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},

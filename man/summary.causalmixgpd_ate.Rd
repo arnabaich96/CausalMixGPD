@@ -20,6 +20,17 @@ An object of class \code{"summary.causalmixgpd_ate"} with
 \code{summary.causalmixgpd_ate()} converts ATE, ATT, CATE, or restricted-mean
 output into a tabular summary suitable for reporting.
 }
+\details{
+The summary reorganizes posterior treatment-effect output on the mean scale.
+Depending on the source object, the target estimand is a marginal ATE,
+treated-standardized ATT, conditional ATE, or a restricted-mean contrast
+based on
+\deqn{\int_0^c \{S_1(t) - S_0(t)\}\,dt.}
+
+The returned object stores overall metadata, effect tables, and interval
+summaries in a reporting-friendly format. It does not refit the model or
+recompute arm-specific predictions.
+}
 \examples{
 \dontrun{
 cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)

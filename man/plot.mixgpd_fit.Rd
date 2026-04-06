@@ -48,6 +48,17 @@ Invisibly returns a named list of ggplot objects.
 \description{
 Uses ggmcmc to produce standard MCMC diagnostic plots. Works with 1+ chains.
 }
+\details{
+The supported plots diagnose posterior simulation quality rather than data fit.
+Depending on the selected \code{family}, they show chain traces, marginal posterior
+densities, autocorrelation, cross-correlation, running means, or Gelman-style
+convergence summaries for the monitored parameters.
+
+These graphics should be read before interpreting posterior summaries or
+treatment-effect results. Poor mixing or strong autocorrelation in the MCMC
+output can invalidate downstream summaries even when the fitted model itself
+is correctly specified.
+}
 \examples{
 \dontrun{
 y <- abs(stats::rnorm(50)) + 0.1

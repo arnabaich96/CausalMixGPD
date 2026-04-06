@@ -17,6 +17,18 @@
 \description{
 Compact display for a representative clustering.
 }
+\details{
+A \code{dpmixgpd_cluster_labels} object represents one partition, usually the Dahl
+representative partition for the training data or the induced allocation of
+\code{newdata} to those representative clusters. The printed output therefore
+describes the selected labels and their sizes, not the full posterior
+uncertainty over alternative partitions.
+
+When the object comes from \code{predict(..., return_scores = TRUE)}, richer
+assignment information is carried alongside the labels and can be inspected
+with \code{\link[=summary.dpmixgpd_cluster_labels]{summary.dpmixgpd_cluster_labels()}} or
+\code{\link[=plot.dpmixgpd_cluster_labels]{plot.dpmixgpd_cluster_labels()}}.
+}
 \seealso{
 \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}}, \code{\link[=summary.dpmixgpd_cluster_labels]{summary.dpmixgpd_cluster_labels()}},
 \code{\link[=plot.dpmixgpd_cluster_labels]{plot.dpmixgpd_cluster_labels()}}.

@@ -24,6 +24,19 @@
 #' @return Density/CDF/RNG functions return numeric scalars. `qLaplaceMix()` returns a numeric
 #'   vector with the same length as `p`.
 #'
+#' @details
+#' Each component is a Laplace law with density
+#' \eqn{f(x \mid \mu,b) = (2b)^{-1}\exp\{-|x-\mu|/b\}}. The mixture CDF is the corresponding
+#' weighted average of component CDFs, and random generation selects a component first and then
+#' samples from that component. As with the other finite mixtures in the package, the quantile has
+#' no closed form and is therefore obtained numerically.
+#'
+#' The analytical mean of the mixture is simply
+#' \deqn{
+#' E(X) = \sum_{k=1}^K \tilde{w}_k \mu_k.
+#' }
+#' That is the formula used in downstream predictive mean calculations for Laplace-based fits.
+#'
 #' @seealso [laplace_MixGpd()], [laplace_gpd()], [laplace_lowercase()],
 #'   [build_nimble_bundle()], [kernel_support_table()].
 #' @family laplace kernel families
@@ -243,6 +256,16 @@ meanLaplaceMixTrunc <- function(w, location, scale, threshold) {
 #' @return Spliced density/CDF/RNG functions return numeric scalars. `qLaplaceMixGpd()` returns a
 #'   numeric vector with the same length as `p`.
 #'
+#' @details
+#' This family keeps the Laplace mixture body below the threshold and replaces the upper tail with a
+#' generalized Pareto exceedance model scaled by the residual survival mass at the threshold. The
+#' tail density is therefore
+#' \deqn{
+#' f(x) = \{1-F_{mix}(u)\} g_{GPD}(x \mid u,\sigma_u,\xi), \qquad x \ge u.
+#' }
+#' Bulk quantiles are found numerically from the mixture CDF, and tail quantiles are computed by
+#' rescaling the upper-tail probability and applying the GPD inverse.
+#'
 #' @seealso [laplace_mix()], [laplace_gpd()], [gpd()], [laplace_lowercase()], [dpmgpd()].
 #' @family laplace kernel families
 #'
@@ -403,6 +426,15 @@ qLaplaceMixGpd <- function(p, w, location, scale, threshold, tail_scale, tail_sh
 #' @return Spliced density/CDF/RNG functions return numeric scalars. `qLaplaceGpd()` returns a
 #'   numeric vector with the same length as `p`.
 #'
+#' @details
+#' This topic pairs a single Laplace bulk distribution with a generalized Pareto exceedance tail.
+#' The splice is continuous at the threshold because the tail density is multiplied by the Laplace
+#' survival probability at that threshold.
+#'
+#' The ordinary mean exists only when the GPD tail has \eqn{\xi < 1}. If the fitted tail is too
+#' heavy for an ordinary mean to exist, the package directs users to restricted means or quantiles
+#' rather than returning an unstable mean summary.
+#'
 #' @seealso [laplace_mix()], [laplace_MixGpd()], [gpd()], [laplace_lowercase()].
 #' @family laplace kernel families
 #'
@@ -543,6 +575,12 @@ qLaplaceGpd <- function(p, location, scale, threshold, tail_scale, tail_shape, l
 #' @param tol,maxiter Tolerance and max iterations for numerical inversion.
 #'
 #' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @details
+#' These helpers vectorize the scalar Laplace and Laplace-plus-GPD routines for interactive R use.
+#' They retain the same location-scale parameterization and the same splice definition as the
+#' uppercase functions. Quantiles continue to use the scalar root-finding or piecewise logic rather
+#' than a separate approximation.
 #'
 #' @seealso [laplace_mix()], [laplace_MixGpd()], [laplace_gpd()], [bundle()],
 #'   [get_kernel_registry()].

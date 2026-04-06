@@ -40,6 +40,20 @@ check_gpd_contract <- function(GPD, kernel) {
 #' code generators. Each kernel entry stores bulk parameters, supports, default
 #' regression/link behavior, and distribution signatures for SB/CRP backends.
 #'
+#' @details
+#' The kernel registry is the package-level contract that keeps model building,
+#' prediction, and documentation aligned. Each entry records the natural bulk
+#' parameters for one kernel, the support constraints they must satisfy, the
+#' default covariate-link strategy, and the backend-specific distribution names
+#' used when generating NIMBLE code.
+#'
+#' The companion tail registry records the generalized Pareto tail parameters
+#' \eqn{u} (threshold), \eqn{\sigma_u} (tail scale), and \eqn{\xi_u} (tail
+#' shape) together with their support and allowed modeling modes. Calling
+#' `init_kernel_registry()` makes those contracts available in the package
+#' namespace so later builders can validate requests without duplicating lookup
+#' logic.
+#'
 #' @return Invisibly returns TRUE.
 #' @examples
 #' init_kernel_registry()
@@ -309,6 +323,18 @@ init_kernel_registry <- function() {
 
 #' Get kernel registry
 #'
+#' @details
+#' This accessor returns the registry created by [init_kernel_registry()]. The
+#' returned object is a named list keyed by kernel name. Each kernel definition
+#' describes which bulk parameters are present, how those parameters may depend
+#' on covariates, whether a GPD tail is allowed, and which density or mean
+#' functions should be dispatched for the supported backends.
+#'
+#' Downstream builders treat this registry as the authoritative source of
+#' kernel-specific implementation metadata. Reading it is appropriate when you
+#' need to inspect what the package believes a kernel can do before constructing
+#' or debugging a model specification.
+#'
 #' @return A list of kernel metadata.
 #' @examples
 #' init_kernel_registry()
@@ -328,6 +354,18 @@ get_kernel_registry <- function() {
 }
 
 #' Get tail registry
+#'
+#' @details
+#' The tail registry is the authoritative description of the generalized Pareto
+#' splice used by bulk-tail models. It records the tail parameter names
+#' `threshold`, `tail_scale`, and `tail_shape`, together with the support each
+#' parameter must satisfy and the modeling modes the builders may assign to
+#' them.
+#'
+#' In mathematical terms, for a threshold \eqn{u} the upper tail is represented
+#' with a generalized Pareto law for excesses above \eqn{u}. Accessing this
+#' registry is useful when inspecting how the package encodes those tail
+#' parameters before model compilation.
 #'
 #' @return A list of tail metadata.
 #' @examples
@@ -352,8 +390,20 @@ get_tail_registry <- function() {
 NULL
 
 #' Kernel support matrix
-#
+#'
 #' Returns a data frame summarizing each kernel's supported features.
+#'
+#' @details
+#' The returned table is a compact view of the registry contracts. Each row
+#' corresponds to one kernel, while the logical columns indicate whether that
+#' kernel can be paired with a GPD tail, whether covariate-linked parameter
+#' models are defined, and whether the stick-breaking (`sb`) and
+#' Chinese-restaurant (`crp`) backends are implemented.
+#'
+#' This helper is intended for inspection and reporting rather than model
+#' fitting. It is a quick way to verify that a requested combination of kernel,
+#' tail, and backend is supported before calling higher-level workflow
+#' constructors.
 #'
 #' @param round Logical; `TRUE` to replace logical values with symbols.
 #' @return data.frame with columns `kernel`, `gpd`, `covariates`, `sb`, `crp`.

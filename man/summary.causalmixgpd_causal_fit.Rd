@@ -27,6 +27,17 @@ elements \code{ps}, \code{outcome}, and \code{probs}.
 \code{summary.causalmixgpd_causal_fit()} returns posterior summaries for the
 fitted PS block (when present) and both arm-specific outcome models.
 }
+\details{
+This summary stays at the model-parameter level. It aggregates posterior
+summaries for the nuisance model \eqn{e(x)} and for the arm-specific outcome
+models \eqn{f_0(y \mid x)} and \eqn{f_1(y \mid x)}, but it does not yet
+collapse those pieces into treatment-effect functionals.
+
+That separation is intentional. Parameters and treatment effects answer
+different questions: \code{summary.causalmixgpd_causal_fit()} summarizes posterior
+draws of the fitted model, whereas \code{ate()}, \code{att()}, \code{cate()}, \code{qte()},
+\code{qtt()}, and \code{cqte()} transform those draws into causal contrasts.
+}
 \seealso{
 \code{\link{print.causalmixgpd_causal_fit}},
 \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},

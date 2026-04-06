@@ -67,6 +67,15 @@ numeric vector with the same length as \code{p}.
 Spliced family obtained by attaching a generalized Pareto tail above \code{threshold} to a single
 Laplace bulk.
 }
+\details{
+This topic pairs a single Laplace bulk distribution with a generalized Pareto exceedance tail.
+The splice is continuous at the threshold because the tail density is multiplied by the Laplace
+survival probability at that threshold.
+
+The ordinary mean exists only when the GPD tail has \eqn{\xi < 1}. If the fitted tail is too
+heavy for an ordinary mean to exist, the package directs users to restricted means or quantiles
+rather than returning an unstable mean summary.
+}
 \section{Functions}{
 \itemize{
 \item \code{dLaplaceGpd()}: Laplace + GPD tail density

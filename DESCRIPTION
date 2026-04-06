@@ -1,7 +1,7 @@
 Package: CausalMixGPD
 Type: Package
 Title: Dirichlet Process Mixtures with Generalized Pareto Tail
-Version: 0.3.0
+Version: 0.4.0
 Author: Arnab Aich [aut, cre]
 Maintainer: Arnab Aich <aaich@fsu.edu>
 Authors@R: person("Arnab", "Aich", role = c("aut", "cre"), email = "aaich@fsu.edu")
@@ -21,8 +21,7 @@ Depends: R (>= 4.0.0), nimble
 Imports:
     stats,
     utils,
-    ggplot2,
-    progress
+    ggplot2
 Suggests:
     testthat (>= 3.0.0),
     knitr,

@@ -17,3 +17,11 @@ Invisibly returns the input object.
 \description{
 Print method for mixgpd_fit diagnostic plots
 }
+\details{
+Diagnostic plotting for \code{mixgpd_fit} can return a named collection of ggmcmc
+graphics. This print method iterates through that collection and prints each
+stored diagnostic plot with a section label so trace, density, and related
+views can be read in order.
+
+The method performs no additional posterior computation.
+}

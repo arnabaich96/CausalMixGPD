@@ -67,6 +67,26 @@ vector with the same length as \code{p}.
 Spliced family obtained by attaching a generalized Pareto tail above \code{threshold} to a single
 normal bulk component.
 }
+\details{
+This is the single-component version of \code{\link[=normal_mixgpd]{normal_mixgpd()}}. If \eqn{\Phi_u =
+\Phi((u-\mu)/\sigma)} denotes the normal bulk probability below the threshold, then the density
+is
+\deqn{
+f(x) =
+\left\{
+\begin{array}{ll}
+\phi(x \mid \mu, \sigma^2), & x < u, \\
+(1-\Phi_u) g_{GPD}(x \mid u,\sigma_u,\xi), & x \ge u.
+\end{array}
+\right.
+}
+The distribution is continuous at \eqn{u} by construction, although the derivative generally
+changes there because the tail is modeled by a different family.
+
+The ordinary mean exists only when the GPD tail satisfies \eqn{\xi < 1}. When that condition
+fails, downstream mean prediction is intentionally blocked and the package directs the user to
+restricted means or quantile-based summaries instead.
+}
 \section{Functions}{
 \itemize{
 \item \code{dNormGpd()}: Normal + GPD tail density

@@ -66,6 +66,21 @@ f(x) = \left(\frac{\lambda}{2 \pi x^3}\right)^{1/2}
 
 These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
 For vectorized R usage, use \code{\link[=base_lowercase]{base_lowercase()}}.
+
+The inverse Gaussian is the first-passage-time distribution of a Brownian motion with positive
+drift. Under the \eqn{(\mu, \lambda)} parameterization used here, the mean is \eqn{E(X)=\mu} and
+the variance is \eqn{\mathrm{Var}(X)=\mu^3/\lambda}. The implementation follows that
+parameterization throughout the package, so inverse-Gaussian mixture and splice families inherit
+the same interpretation.
+
+The distribution function is evaluated through the standard normal representation
+\deqn{
+F(x) =
+\Phi\left(\sqrt{\frac{\lambda}{x}}\left(\frac{x}{\mu}-1\right)\right) +
+\exp\left(\frac{2\lambda}{\mu}\right)
+\Phi\left(-\sqrt{\frac{\lambda}{x}}\left(\frac{x}{\mu}+1\right)\right),
+}
+and the quantile is obtained numerically because no simple closed form is available.
 }
 \section{Functions}{
 \itemize{

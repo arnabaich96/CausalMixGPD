@@ -115,6 +115,20 @@ is the GPD CDF for exceedances above \code{threshold}.
 The density, CDF, and RNG are implemented as \code{nimbleFunction}s for use in NIMBLE models.
 The quantile function is an R function that uses numerical inversion in the bulk region and
 the closed-form GPD quantile in the tail region.
+
+The Amoroso mixture describes the bulk up to the threshold and the generalized Pareto describes
+exceedances above it. If \eqn{F_{mix}(u)=p_u}, then the splice uses
+\deqn{
+f(x) =
+\left\{
+\begin{array}{ll}
+f_{mix}(x), & x < u, \\
+(1-p_u) g_{GPD}(x \mid u,\sigma_u,\xi), & x \ge u.
+\end{array}
+\right.
+}
+Bulk quantiles are computed numerically from the Amoroso mixture CDF and tail quantiles are
+obtained from the GPD inverse after rescaling the tail probability.
 }
 \section{Functions}{
 \itemize{

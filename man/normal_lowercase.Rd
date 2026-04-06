@@ -119,6 +119,15 @@ Numeric vector of densities, probabilities, quantiles, or random variates.
 Vectorized R wrappers for the scalar normal-kernel topics in this file. These helpers are meant
 for interactive use and examples rather than direct use inside NIMBLE code.
 }
+\details{
+These wrappers vectorize the scalar normal-kernel routines for ordinary R use. They preserve the
+same formulas, parameter meanings, and tail construction as the uppercase functions; the only
+change is that \code{x}, \code{q}, \code{p}, and \code{n} may now be length greater than one.
+
+For the mixture quantile and splice quantile functions, the numerical and piecewise logic is
+delegated directly to the corresponding scalar routine. As a result, the lowercase helpers are
+faithful front ends rather than separate implementations.
+}
 \section{Functions}{
 \itemize{
 \item \code{dnormmix()}: Normal mixture density (vectorized)

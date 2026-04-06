@@ -2,8 +2,8 @@ data("lalonde", package = "MatchIt")
 library(ggplot2)
 library(CausalMixGPD)
 mcmc_fixed <- list(
-  niter = 250,
-  nburnin = 50,
+  niter = 1000,
+  nburnin = 250,
   thin = 1,
   nchains = 1,
   seed = 2026,
@@ -49,7 +49,8 @@ app_lalonde_fit <- dpmgpd.causal(
   backend = "crp",
   kernel = "gamma",
   components = 10,
-  mcmc = mcmc_fixed
+  mcmc = mcmc_fixed,
+  parallel_arms =TRUE
 )
 
 data.frame(app_lalonde_fit$timing, row.names = NULL)

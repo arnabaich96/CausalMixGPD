@@ -17,4 +17,10 @@ Numeric matrix of draws.
 \description{
 Extract posterior draws as a numeric matrix (iter x parameters)
 }
+\details{
+This helper stacks the posterior chains into one numeric matrix, optionally
+removes stick-breaking \code{v} variables, and then applies the component
+truncation rule controlled by \code{epsilon}. The result is the standardized draw
+representation used by most internal summary and prediction helpers.
+}
 \keyword{internal}

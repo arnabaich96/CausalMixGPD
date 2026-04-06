@@ -17,6 +17,17 @@
 \description{
 Compact display for a \code{dpmixgpd_cluster_bundle} before MCMC is run.
 }
+\details{
+A cluster bundle is the pre-sampling representation of the latent partition
+model. It stores the formula-derived design, kernel choice, truncation level,
+and the rule by which predictors enter the clustering model, but it does not
+yet contain posterior draws of the latent labels \eqn{z_1, \dots, z_n}.
+
+\code{print()} is intentionally brief. It is meant to confirm that the bundle
+matches the requested clustering structure before you run MCMC with
+\code{run_cluster_mcmc()} or the higher-level wrappers \code{\link[=dpmix.cluster]{dpmix.cluster()}} and
+\code{\link[=dpmgpd.cluster]{dpmgpd.cluster()}}.
+}
 \seealso{
 \code{\link[=dpmix.cluster]{dpmix.cluster()}}, \code{\link[=dpmgpd.cluster]{dpmgpd.cluster()}}, \code{\link[=summary.dpmixgpd_cluster_bundle]{summary.dpmixgpd_cluster_bundle()}}.
 

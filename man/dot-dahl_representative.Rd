@@ -20,6 +20,12 @@ Identifies the posterior draw that minimizes squared distance to the
 posterior similarity matrix, following Dahl (2006). Returns relabeled
 cluster assignments as consecutive integers 1, 2, ..., K.
 }
+\details{
+For each posterior draw, the helper forms its adjacency matrix and computes
+the squared Frobenius distance to the PSM. The selected representative draw is
+the one that minimizes that loss, which is Dahl's least-squares rule for
+choosing one clustering from the posterior sample.
+}
 \references{
 Dahl, D. B. (2006). Model-based clustering for expression data
 via a Dirichlet process mixture model. In M. Vannucci, et al. (Eds.),

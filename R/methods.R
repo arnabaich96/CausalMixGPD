@@ -9,6 +9,18 @@
 #' \code{print.causalmixgpd_bundle()} gives a compact structural summary of the
 #' pre-run bundle created by \code{\link{build_nimble_bundle}}.
 #'
+#' @details
+#' The bundle is the compiled representation of the predictive model before
+#' MCMC. For a bulk-only fit, the underlying target law is
+#' \deqn{f(y \mid x) = \sum_{k=1}^{K} w_k(x) f_k(y \mid x, \theta_k).}
+#' When a GPD tail is enabled, the same bulk mixture is spliced to a generalized
+#' Pareto tail above the threshold recorded in the bundle specification.
+#'
+#' `print()` is intentionally brief. It is meant to confirm that the stored
+#' backend, kernel, truncation size, covariate structure, and code-generation
+#' artifacts match the intended model before you compile and sample with
+#' \code{\link{run_mcmc_bundle_manual}}.
+#'
 #' @param x A \code{"causalmixgpd_bundle"} object.
 #' @param code Logical; if TRUE, print the generated NIMBLE model code.
 #' @param max_code_lines Integer; maximum number of code lines to print when \code{code=TRUE}.
@@ -118,6 +130,18 @@ print.causalmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ..
 #'
 #' \code{print.causalmixgpd_causal_bundle()} gives a compact structural summary
 #' of the pre-run causal bundle created by \code{\link{build_causal_bundle}}.
+#'
+#' @details
+#' A causal bundle collects three pre-MCMC building blocks: the optional
+#' propensity-score model for \eqn{e(x) = \Pr(A = 1 \mid X = x)}, the control
+#' outcome model for \eqn{Y^0}, and the treated outcome model for \eqn{Y^1}. The
+#' printed output aligns those blocks side by side so the user can verify that
+#' the treated and control outcome specifications are coherent before sampling.
+#'
+#' No causal estimand is computed at this stage. The bundle only records the
+#' structural assumptions that will later support estimands such as
+#' \eqn{E(Y^1 - Y^0 \mid X = x)} or
+#' \eqn{Q_{Y^1}(\tau \mid X = x) - Q_{Y^0}(\tau \mid X = x)}.
 #'
 #' @param x A \code{"causalmixgpd_causal_bundle"} object.
 #' @param code Logical; if TRUE, print generated NIMBLE code for each block.
@@ -229,6 +253,18 @@ print.causalmixgpd_causal_bundle <- function(x, code = FALSE, max_code_lines = 2
 #' \code{summary.causalmixgpd_causal_bundle()} is the bundle-level validation
 #' checkpoint for the causal workflow.
 #'
+#' @details
+#' This summary is meant to be read before posterior sampling. It reports the
+#' stored propensity-score specification, the treated and control outcome model
+#' definitions, and the sample split across treatment arms. In other words, it
+#' verifies the model ingredients for the causal decomposition
+#' \eqn{(e(x), f_0(y \mid x), f_1(y \mid x))}.
+#'
+#' Since no MCMC has been run yet, the summary contains only structural
+#' information. Posterior treatment-effect summaries become available after
+#' \code{\link{run_mcmc_causal}} through functions such as \code{\link{ate}} and
+#' \code{\link{qte}}.
+#'
 #' @param object A \code{"causalmixgpd_causal_bundle"} object.
 #' @param code Logical; if TRUE, print generated NIMBLE code for each block.
 #' @param max_code_lines Integer; maximum number of code lines to print when \code{code=TRUE}.
@@ -264,6 +300,16 @@ summary.causalmixgpd_causal_bundle <- function(object, code = FALSE, max_code_li
 }
 
 #' Print a propensity score bundle
+#'
+#' @details
+#' A PS bundle is the pre-sampling representation of the treatment-assignment
+#' model \eqn{e(x) = \Pr(A = 1 \mid X = x)}. Depending on the stored model type,
+#' the latent linear predictor is later mapped to a probability through a logit
+#' link, a probit link, or a naive Bayes factorization.
+#'
+#' The printed output is limited to the structural PS choices because posterior
+#' draws do not exist yet. Use this method as a quick check that the requested
+#' treatment model was encoded correctly before fitting the full causal bundle.
 #'
 #' @param x A \code{"causalmixgpd_ps_bundle"} object.
 #' @param code Logical; if TRUE, print generated NIMBLE code for the PS model.
@@ -310,6 +356,18 @@ summary.causalmixgpd_ps_bundle <- function(object, code = FALSE, max_code_lines 
 #' \code{print.causalmixgpd_causal_fit()} provides a compact overview of the
 #' fitted treated/control outcome blocks and the PS component when present.
 #'
+#' @details
+#' A fitted causal object combines posterior draws for the treated outcome model,
+#' the control outcome model, and optionally the propensity-score model. Those
+#' fitted blocks are the ingredients used later to evaluate causal estimands such
+#' as \eqn{\mu_1(x) - \mu_0(x)} or
+#' \eqn{Q_{Y^1}(\tau \mid x) - Q_{Y^0}(\tau \mid x)}.
+#'
+#' The print method is deliberately high level. It identifies which models were
+#' fitted and whether GPD tails are active, but it does not report posterior
+#' summaries or treatment-effect estimates. Use `summary()`, `predict()`, or the
+#' dedicated causal estimand helpers for inferential output.
+#'
 #' @param x A \code{"causalmixgpd_causal_fit"} object.
 #' @param ... Unused.
 #' @return The input object (invisibly).
@@ -347,6 +405,17 @@ print.causalmixgpd_causal_fit <- function(x, ...) {
 #'
 #' \code{summary.causalmixgpd_causal_fit()} returns posterior summaries for the
 #' fitted PS block (when present) and both arm-specific outcome models.
+#'
+#' @details
+#' This summary stays at the model-parameter level. It aggregates posterior
+#' summaries for the nuisance model \eqn{e(x)} and for the arm-specific outcome
+#' models \eqn{f_0(y \mid x)} and \eqn{f_1(y \mid x)}, but it does not yet
+#' collapse those pieces into treatment-effect functionals.
+#'
+#' That separation is intentional. Parameters and treatment effects answer
+#' different questions: `summary.causalmixgpd_causal_fit()` summarizes posterior
+#' draws of the fitted model, whereas `ate()`, `att()`, `cate()`, `qte()`,
+#' `qtt()`, and `cqte()` transform those draws into causal contrasts.
 #'
 #' @param object A \code{"causalmixgpd_causal_fit"} object.
 #' @param pars Optional character vector of outcome-model parameters to
@@ -475,6 +544,15 @@ summary.causalmixgpd_causal_fit <- function(object, pars = NULL, ps_pars = NULL,
 
 #' Print a causal-model summary object
 #'
+#' @details
+#' This is a formatter for the object returned by
+#' `summary.causalmixgpd_causal_fit()`. It prints the propensity-score summary
+#' first when that block is present, followed by the control and treated outcome
+#' summaries on the same scale of posterior diagnostics.
+#'
+#' No new computation is performed here. The method simply organizes the stored
+#' summary tables so that the three fitted blocks can be inspected together.
+#'
 #' @param x A \code{"summary.causalmixgpd_causal_fit"} object.
 #' @param digits Number of digits to print in summary tables.
 #' @param max_rows Maximum rows to print from each summary table.
@@ -497,6 +575,15 @@ print.summary.causalmixgpd_causal_fit <- function(x, digits = 3, max_rows = 60, 
 
 #' Print a propensity score fit
 #'
+#' @details
+#' A propensity-score fit models the treatment assignment probability
+#' \eqn{e(x) = \Pr(A = 1 \mid X = x)}. The printed header identifies which PS
+#' family was fitted, but it intentionally omits coefficient-level summaries.
+#'
+#' Use `summary()` on the same object when you need posterior means, spread, and
+#' intervals for the monitored PS parameters. The compact print method is mainly
+#' an identity check inside larger causal workflows.
+#'
 #' @param x A \code{"causalmixgpd_ps_fit"} object.
 #' @param ... Unused.
 #' @return The input object (invisibly).
@@ -518,6 +605,18 @@ print.causalmixgpd_ps_fit <- function(x, ...) {
 #'
 #' \code{summary.causalmixgpd_ps_fit()} returns posterior summaries for the
 #' monitored PS-model parameters.
+#'
+#' @details
+#' The summary is parameter based. For logit and probit models, it summarizes the
+#' posterior draws of the coefficients that determine the latent linear
+#' predictor, which is then mapped to \eqn{e(x)} by the chosen link function.
+#' For the naive Bayes option, it summarizes the class-conditional parameters
+#' used to factorize the treatment-assignment model.
+#'
+#' This function does not compute fitted propensity scores for specific covariate
+#' rows. It summarizes the posterior distribution of the PS model itself, which
+#' is the nuisance model later used by causal prediction and treatment-effect
+#' standardization.
 #'
 #' @param object A \code{"causalmixgpd_ps_fit"} object.
 #' @param pars Optional character vector of PS parameters to summarize. If
@@ -558,6 +657,15 @@ summary.causalmixgpd_ps_fit <- function(object, pars = NULL,
 }
 
 #' Print a propensity-score summary object
+#'
+#' @details
+#' This is a display method for the object returned by
+#' `summary.causalmixgpd_ps_fit()`. It prints the PS model identity, the
+#' effective data dimension used by that model, and the posterior summary table
+#' for the monitored parameters.
+#'
+#' The method does not recompute propensity scores or refit the model. It is a
+#' formatting layer over already computed posterior summaries.
 #'
 #' @param x A \code{"summary.causalmixgpd_ps_fit"} object.
 #' @param digits Number of digits to print in summary tables.
@@ -604,6 +712,17 @@ print.summary.causalmixgpd_ps_fit <- function(x, digits = 3, max_rows = 60, show
 #'
 #' \code{plot.causalmixgpd_causal_fit()} is a convenience router to the
 #' underlying one-arm diagnostic plots for the treated and control fits.
+#'
+#' @details
+#' Each arm-specific outcome model is itself a `mixgpd_fit`, so this method
+#' delegates to `plot.mixgpd_fit()` for the selected arm. With `arm = "both"`,
+#' it returns a named list of treated and control diagnostics so the two fitted
+#' outcome models can be assessed side by side.
+#'
+#' These are MCMC diagnostics for the nuisance outcome models, not plots of
+#' causal estimands. Use `plot()` on objects from
+#' `predict.causalmixgpd_causal_fit()`, `qte()`, or `ate()` when the goal is to
+#' visualize treatment effects rather than chain behavior.
 #'
 #' @param x A \code{"causalmixgpd_causal_fit"} object.
 #' @param arm Integer or character; \code{1} or \code{"treated"} for treatment,
@@ -774,6 +893,18 @@ summary.causalmixgpd_bundle <- function(object, ...) {
 #'
 #' \code{print.mixgpd_fit()} gives a compact header for a fitted one-arm model.
 #' It is meant as a quick identity check rather than a full posterior summary.
+#'
+#' @details
+#' The fitted object represents posterior draws from a bulk mixture model, or
+#' from its spliced bulk-tail extension when `GPD = TRUE`. For the bulk part, the
+#' predictive law has the mixture form
+#' \deqn{f(y \mid x) = \sum_{k=1}^{K} w_k(x) f_k(y \mid x, \theta_k).}
+#' When a GPD tail is active, exceedances above the threshold are instead routed
+#' through the generalized Pareto tail attached to the same bulk mixture.
+#'
+#' The print method reports only the model identity and basic metadata. Use
+#' `summary()` for parameter-level posterior summaries, `predict()` for
+#' predictive functionals, and `plot()` for chain diagnostics.
 #'
 #' @param x A fitted object of class \code{"mixgpd_fit"}.
 #' @param ... Unused.
@@ -1254,6 +1385,15 @@ summary.mixgpd_fit <- function(object, pars = NULL, probs = c(0.025, 0.5, 0.975)
 
 #' Print a MixGPD summary object
 #'
+#' @details
+#' This method formats the output of `summary.mixgpd_fit()`. It prints the model
+#' metadata, any stored WAIC value, the effective truncation information induced
+#' by `epsilon`, and the parameter-level posterior summary table.
+#'
+#' The printed rows correspond to monitored posterior parameters. They are not
+#' predictions of densities, quantiles, or means, which should instead be
+#' obtained from `predict.mixgpd_fit()`.
+#'
 #' @param x A \code{"mixgpd_summary"} object.
 #' @param digits Number of digits to print.
 #' @param max_rows Maximum rows to print.
@@ -1551,6 +1691,17 @@ summary.mixgpd_ess_summary <- function(object, ...) {
 #' Plot MCMC diagnostics for a MixGPD fit (ggmcmc backend)
 #'
 #' Uses ggmcmc to produce standard MCMC diagnostic plots. Works with 1+ chains.
+#'
+#' @details
+#' The supported plots diagnose posterior simulation quality rather than data fit.
+#' Depending on the selected `family`, they show chain traces, marginal posterior
+#' densities, autocorrelation, cross-correlation, running means, or Gelman-style
+#' convergence summaries for the monitored parameters.
+#'
+#' These graphics should be read before interpreting posterior summaries or
+#' treatment-effect results. Poor mixing or strong autocorrelation in the MCMC
+#' output can invalidate downstream summaries even when the fitted model itself
+#' is correctly specified.
 #'
 #' @param x A fitted object of class \code{"mixgpd_fit"}.
 #' @param family Character vector of plot names (ggmcmc plot types)
@@ -2674,6 +2825,18 @@ residuals.mixgpd_fit <- function(object,
 #'   \item \code{survival}: Survival function (decreasing y values)
 #' }
 #'
+#' @details
+#' The plotting method is tied to the predictive functional stored in the input
+#' object. Quantile and mean outputs display posterior point summaries and
+#' intervals, density and survival outputs show evaluated functions on the
+#' supplied grid, and posterior samples are visualized as empirical predictive
+#' draws.
+#'
+#' In every case the plot reflects the quantity requested from
+#' `predict.mixgpd_fit()` after integrating over the retained posterior draws. It
+#' is therefore distinct from parameter-level summaries and from chain
+#' diagnostics.
+#'
 #' @param x A prediction object returned by \code{predict.mixgpd_fit()}.
 #' @param y Ignored; included for S3 compatibility.
 #' @param ... Additional arguments passed to ggplot2 functions.
@@ -2723,6 +2886,7 @@ plot.mixgpd_predict <- function(x, y = NULL, ...) {
          mean = .plot_mean_pred(x, ...),
          density = .plot_density_pred(x, ...),
          survival = .plot_survival_pred(x, ...),
+         location = .plot_location_pred(x, ...),
          {warning("Unknown prediction type: ", pred_type); NULL})
 
   if (!is.null(result)) {
@@ -2737,6 +2901,18 @@ plot.mixgpd_predict <- function(x, y = NULL, ...) {
 #' For mean/quantile, plots treated/control and treatment effect versus PS (or index).
 #' For \code{type = "sample"}, plots arm-level posterior predictive samples alongside
 #' treatment-effect samples. For density/prob, plots treated/control values versus y.
+#'
+#' @details
+#' The causal prediction object carries arm-specific predictions together with the
+#' implied contrast. For mean predictions, the contrast is
+#' \eqn{m_1(x) - m_0(x)}. For quantile predictions, the contrast is
+#' \eqn{Q_{Y^1}(\tau \mid x) - Q_{Y^0}(\tau \mid x)}. The plotting method keeps
+#' those arm and contrast views synchronized.
+#'
+#' Unlike `plot.causalmixgpd_causal_fit()`, which diagnoses MCMC behavior inside
+#' the outcome models, this method visualizes predictive quantities after
+#' posterior integration. It is therefore the natural plotting method once the
+#' user has already accepted the fitted-model diagnostics.
 #'
 #' @param x Object of class \code{causalmixgpd_causal_predict}.
 #' @param y Ignored.
@@ -3000,6 +3176,19 @@ plot.causalmixgpd_causal_predict <- function(x, y = NULL, ...) {
 #' \code{print.causalmixgpd_qte()} prints a compact summary for objects produced
 #' by \code{\link{qte}}, \code{\link{qtt}}, or \code{\link{cqte}}.
 #'
+#' @details
+#' These objects store posterior summaries of quantile treatment contrasts. In
+#' the marginal case,
+#' \deqn{\Delta(\tau) = Q_{Y^1}(\tau) - Q_{Y^0}(\tau).}
+#' For `qtt()`, the same contrast is standardized to the treated covariate
+#' distribution, and for `cqte()` it is evaluated conditionally at the supplied
+#' covariate profiles.
+#'
+#' The print method is intentionally compact: it reports the prediction setup and
+#' the resulting effect table, but it does not attempt to reproduce all
+#' posterior draws. Use `summary()` or `plot()` on the same object for more
+#' structured reporting.
+#'
 #' @param x A \code{"causalmixgpd_qte"} object from \code{qte()}.
 #' @param digits Number of digits to display.
 #' @param max_rows Maximum number of estimate rows to display.
@@ -3119,6 +3308,19 @@ print.causalmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
 #' \code{print.causalmixgpd_ate()} prints a compact summary for objects
 #' produced by \code{\link{ate}}, \code{\link{att}}, \code{\link{cate}}, or
 #' \code{\link{ate_rmean}}.
+#'
+#' @details
+#' These objects summarize posterior treatment contrasts on the mean scale. For
+#' the marginal average treatment effect,
+#' \deqn{\Delta = E(Y^1) - E(Y^0).}
+#' `att()` changes the standardization target to the treated population,
+#' `cate()` conditions on supplied covariate profiles, and `ate_rmean()` replaces
+#' the ordinary mean by a restricted mean
+#' \eqn{\int_0^c S_a(t)\,dt} up to the chosen truncation point.
+#'
+#' The print method shows the main effect table and setup metadata, but it is not
+#' a full diagnostic report. Use `summary()` for tabular summaries and `plot()`
+#' for graphical inspection of the same treatment-effect object.
 #'
 #' @param x A \code{"causalmixgpd_ate"} object from \code{ate()}.
 #' @param digits Number of digits to display.
@@ -3297,6 +3499,19 @@ print.causalmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
 #' \code{summary.causalmixgpd_qte()} converts QTE, QTT, or CQTE output into a
 #' tabular summary suitable for reporting.
 #'
+#' @details
+#' The summary reorganizes the posterior effect object into reporting tables. The
+#' target estimand remains a quantile contrast,
+#' \deqn{\Delta(\tau) = Q_{Y^1}(\tau) - Q_{Y^0}(\tau),}
+#' with the appropriate marginal, treated-standardized, or conditional
+#' interpretation depending on whether the source object came from `qte()`,
+#' `qtt()`, or `cqte()`.
+#'
+#' Besides the effect table itself, the summary records the quantile grid, the
+#' interval settings, and per-quantile distributional summaries when posterior
+#' draws are available. This makes the object convenient for reporting and
+#' downstream printing without recomputing the estimand.
+#'
 #' @param object A \code{"causalmixgpd_qte"} object from \code{qte()}.
 #' @param ... Unused.
 #' @return An object of class \code{"summary.causalmixgpd_qte"} with
@@ -3459,6 +3674,15 @@ summary.causalmixgpd_qte <- function(object, ...) {
 }
 
 #' Print a QTE summary
+#'
+#' @details
+#' This formatter displays the summary object returned by
+#' `summary.causalmixgpd_qte()`. It reports the quantile grid, interval
+#' configuration, model metadata when available, and the tabulated quantile
+#' effect summaries.
+#'
+#' No additional causal computations are performed here. The method simply turns
+#' the stored summary tables into a readable report.
 #'
 #' @param x A \code{"summary.causalmixgpd_qte"} object.
 #' @param digits Number of digits to display.
@@ -3647,6 +3871,17 @@ print.summary.causalmixgpd_qte <- function(x, digits = 3, ...) {
 #' \code{summary.causalmixgpd_ate()} converts ATE, ATT, CATE, or restricted-mean
 #' output into a tabular summary suitable for reporting.
 #'
+#' @details
+#' The summary reorganizes posterior treatment-effect output on the mean scale.
+#' Depending on the source object, the target estimand is a marginal ATE,
+#' treated-standardized ATT, conditional ATE, or a restricted-mean contrast
+#' based on
+#' \deqn{\int_0^c \{S_1(t) - S_0(t)\}\,dt.}
+#'
+#' The returned object stores overall metadata, effect tables, and interval
+#' summaries in a reporting-friendly format. It does not refit the model or
+#' recompute arm-specific predictions.
+#'
 #' @param object A \code{"causalmixgpd_ate"} object from \code{ate()}.
 #' @param ... Unused.
 #' @return An object of class \code{"summary.causalmixgpd_ate"} with
@@ -3732,6 +3967,14 @@ summary.causalmixgpd_ate <- function(object, ...) {
 }
 
 #' Print an ATE summary
+#'
+#' @details
+#' This method formats the object returned by `summary.causalmixgpd_ate()`. It
+#' prints the prediction design, interval settings, optional model metadata, and
+#' the resulting treatment-effect table on the mean or restricted-mean scale.
+#'
+#' The method is purely a reporting layer. All posterior aggregation has already
+#' been completed by the corresponding summary constructor.
 #'
 #' @param x A \code{"summary.causalmixgpd_ate"} object.
 #' @param digits Number of digits to display.
@@ -3854,6 +4097,17 @@ print.summary.causalmixgpd_ate <- function(x, digits = 3, ...) {
 #'   \item \code{"effect"}: QTE curve vs quantile levels (\code{probs}) with pointwise CI error bars
 #'   \item \code{"arms"}: Treated and control quantile curves vs \code{probs}, with pointwise CI error bars
 #' }
+#'
+#' @details
+#' The effect view emphasizes the quantile contrast
+#' \eqn{\tau \mapsto Q_{Y^1}(\tau) - Q_{Y^0}(\tau)}, while the arms view shows the
+#' treated and control quantile functions that generate that contrast. For
+#' conditional CQTE objects, faceting can separate covariate profiles so the
+#' same quantile contrast is compared across prediction settings.
+#'
+#' These graphics visualize posterior summaries of the effect object itself. They
+#' are therefore downstream of model fitting and downstream of the causal
+#' prediction step.
 #'
 #' @param x Object of class \code{causalmixgpd_qte}.
 #' @param y Ignored.
@@ -4277,6 +4531,16 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
 #'   \item \code{"arms"}: Treated mean vs control mean, with pointwise CI error bars
 #' }
 #'
+#' @details
+#' The effect panel visualizes the posterior summary of the treatment contrast on
+#' the mean scale, namely \eqn{E(Y^1) - E(Y^0)} or its conditional or
+#' treated-standardized analogue. The arms panel instead shows the treated and
+#' control mean predictions whose difference defines that contrast.
+#'
+#' For `cate()` objects, the x-axis follows the prediction profiles; otherwise it
+#' uses the estimated propensity score when available or a simple index order.
+#' This keeps the comparison aligned with how the effect object was standardized.
+#'
 #' @param x Object of class \code{causalmixgpd_ate}.
 #' @param y Ignored.
 #' @param type Character; plot type:
@@ -4573,6 +4837,15 @@ plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"
 
 #' Print method for causal prediction plots
 #'
+#' @details
+#' The causal prediction plotting methods can return either a single plot or a
+#' named list of plots. This print method renders those stored plot objects in
+#' sequence so both arm-level and contrast-level graphics appear in console or
+#' notebook workflows without manual extraction.
+#'
+#' It is a display helper only and does not modify the underlying prediction
+#' summaries.
+#'
 #' @param x Object of class \code{causalmixgpd_causal_predict_plots}.
 #' @param ... Additional arguments (ignored).
 #' @return Invisibly returns the input object.
@@ -4593,6 +4866,16 @@ print.causalmixgpd_causal_predict_plots <- function(x, ...) {
 #'
 #' S3 method for visualizing fitted values from \code{fitted.mixgpd_fit()}.
 #' Produces a 2-panel figure: Q-Q plot and residuals vs fitted.
+#'
+#' @details
+#' These diagnostics compare the fitted values implied by the posterior summary
+#' on the training design against the observed responses. The first panel checks
+#' how closely fitted and observed values align, while the second panel looks for
+#' residual structure that would indicate lack of fit or remaining mean trends.
+#'
+#' This method is distinct from posterior predictive simulation on new data. It
+#' is a training-sample diagnostic built from `fitted.mixgpd_fit()` and the
+#' corresponding residuals.
 #'
 #' @param x Object of class \code{mixgpd_fitted} from \code{fitted.mixgpd_fit()}.
 #' @param y Ignored; included for S3 compatibility.
@@ -4677,6 +4960,14 @@ plot.mixgpd_fitted <- function(x, y = NULL, ...) {
 
 #' Print method for fitted value plots
 #'
+#' @details
+#' The fitted-value diagnostic object stores two plot panels. This print method
+#' renders them in sequence so both the observed-versus-fitted comparison and the
+#' residual-versus-fitted comparison are shown together.
+#'
+#' It is a display helper only and does not recompute fitted values or
+#' residuals.
+#'
 #' @param x Object of class \code{mixgpd_fitted_plots}.
 #' @param ... Additional arguments (ignored).
 #' @return Invisibly returns the input object.
@@ -4690,6 +4981,14 @@ print.mixgpd_fitted_plots <- function(x, ...) {
 
 #' Print method for mixgpd_fit diagnostic plots
 #'
+#' @details
+#' Diagnostic plotting for `mixgpd_fit` can return a named collection of ggmcmc
+#' graphics. This print method iterates through that collection and prints each
+#' stored diagnostic plot with a section label so trace, density, and related
+#' views can be read in order.
+#'
+#' The method performs no additional posterior computation.
+#'
 #' @param x Object of class \code{mixgpd_fit_plots}.
 #' @param ... Additional arguments (ignored).
 #' @return Invisibly returns the input object.
@@ -4702,6 +5001,19 @@ print.mixgpd_fit_plots <- function(x, ...) {
   invisible(x)
 }
 
+#' Print method for paired causal-fit diagnostic plots
+#'
+#' @details
+#' When `plot.causalmixgpd_causal_fit()` is called with `arm = "both"`, the
+#' result is a named pair of treated and control diagnostic-plot objects. This
+#' print method renders those two stored plot collections one after the other so
+#' arm-specific diagnostics remain clearly separated.
+#'
+#' It is a formatting helper and does not recompute any diagnostics.
+#'
+#' @param x Object of class \code{causalmixgpd_causal_fit_plots}.
+#' @param ... Additional arguments passed to the stored plot-print methods.
+#' @return Invisibly returns the input object.
 #' @export
 print.causalmixgpd_causal_fit_plots <- function(x, ...) {
   cat("\n=== treated ===\n")
@@ -4712,6 +5024,13 @@ print.causalmixgpd_causal_fit_plots <- function(x, ...) {
 }
 
 #' Print method for prediction plots
+#'
+#' @details
+#' Prediction plotting methods may return a single plot or a richer plot object
+#' with an additional wrapper class. This print method temporarily drops that
+#' wrapper class so the underlying graphics object uses its native print method.
+#'
+#' The stored predictive summaries are not changed.
 #'
 #' @param x Object of class \code{mixgpd_predict_plots}.
 #' @param ... Additional arguments (ignored).

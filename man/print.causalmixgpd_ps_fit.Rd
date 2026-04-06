@@ -17,3 +17,12 @@ The input object (invisibly).
 \description{
 Print a propensity score fit
 }
+\details{
+A propensity-score fit models the treatment assignment probability
+\eqn{e(x) = \Pr(A = 1 \mid X = x)}. The printed header identifies which PS
+family was fitted, but it intentionally omits coefficient-level summaries.
+
+Use \code{summary()} on the same object when you need posterior means, spread, and
+intervals for the monitored PS parameters. The compact print method is mainly
+an identity check inside larger causal workflows.
+}

@@ -22,6 +22,19 @@ The object \code{x}, invisibly.
 \code{print.causalmixgpd_qte()} prints a compact summary for objects produced
 by \code{\link{qte}}, \code{\link{qtt}}, or \code{\link{cqte}}.
 }
+\details{
+These objects store posterior summaries of quantile treatment contrasts. In
+the marginal case,
+\deqn{\Delta(\tau) = Q_{Y^1}(\tau) - Q_{Y^0}(\tau).}
+For \code{qtt()}, the same contrast is standardized to the treated covariate
+distribution, and for \code{cqte()} it is evaluated conditionally at the supplied
+covariate profiles.
+
+The print method is intentionally compact: it reports the prediction setup and
+the resulting effect table, but it does not attempt to reproduce all
+posterior draws. Use \code{summary()} or \code{plot()} on the same object for more
+structured reporting.
+}
 \examples{
 \dontrun{
 cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)

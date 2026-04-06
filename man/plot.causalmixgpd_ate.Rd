@@ -51,6 +51,16 @@ control means) and \code{treatment_effect} (ATE curve) plots
 \item \code{"arms"}: Treated mean vs control mean, with pointwise CI error bars
 }
 }
+\details{
+The effect panel visualizes the posterior summary of the treatment contrast on
+the mean scale, namely \eqn{E(Y^1) - E(Y^0)} or its conditional or
+treated-standardized analogue. The arms panel instead shows the treated and
+control mean predictions whose difference defines that contrast.
+
+For \code{cate()} objects, the x-axis follows the prediction profiles; otherwise it
+uses the estimated propensity score when available or a simple index order.
+This keeps the comparison aligned with how the effect object was standardized.
+}
 \examples{
 \dontrun{
 ate_result <- cate(fit, newdata = X_new, interval = "credible")

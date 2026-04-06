@@ -31,7 +31,7 @@ qGammaMix(
 \item{w}{Numeric vector of mixture weights of length \eqn{K}. The functions normalize \code{w}
 internally when needed.}
 
-\item{shape, scale}{Numeric vectors of length \eqn{K} giving Gamma shapes and rates.}
+\item{shape, scale}{Numeric vectors of length \eqn{K} giving Gamma shape and scale parameters.}
 
 \item{log}{Logical; if \code{TRUE}, return the log-density.}
 
@@ -64,6 +64,22 @@ f(x) = \sum_{k = 1}^K \tilde{w}_k f_{\Gamma}(x \mid \alpha_k, \theta_k),
 \qquad x > 0,
 }
 with normalized weights \eqn{\tilde{w}_k}. For vectorized R usage, use \code{\link[=gamma_lowercase]{gamma_lowercase()}}.
+
+Under the package parameterization, each component has density
+\eqn{f_\Gamma(x \mid \alpha,\theta) = x^{\alpha-1}\exp(-x/\theta) /
+\{\Gamma(\alpha)\theta^\alpha\}} on \eqn{x>0}. The mixture CDF is therefore
+\deqn{
+F(x) = \sum_{k=1}^K \tilde{w}_k F_\Gamma(x \mid \alpha_k,\theta_k).
+}
+Random generation first selects a component according to the normalized mixture weights and then
+draws from the corresponding gamma distribution. Since finite gamma mixtures do not have closed
+form quantiles, \code{qGammaMix()} obtains them numerically by inverting the mixture CDF.
+
+The analytical mean is
+\deqn{
+E(X) = \sum_{k=1}^K \tilde{w}_k \alpha_k \theta_k.
+}
+This expression is reused in posterior predictive mean calculations for gamma-based fits.
 }
 \section{Functions}{
 \itemize{

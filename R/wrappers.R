@@ -333,9 +333,9 @@
 #' @param treat Optional binary treatment indicator.
 #' @param data Optional data.frame used with \code{formula}.
 #' @param formula Optional formula.
+#' @param GPD Logical; include GPD tail in build mode.
 #' @param ... Additional arguments passed to \code{build_nimble_bundle()} or
 #'   \code{build_causal_bundle()}.
-#' @param GPD Logical; include GPD tail in build mode.
 #' @return A \code{"causalmixgpd_bundle"} for one-arm models or a
 #'   \code{"causalmixgpd_causal_bundle"} for causal models. The bundle stores
 #'   code-generation inputs, monitor policy, and default MCMC settings, but it
@@ -343,7 +343,7 @@
 #' @seealso \code{\link{build_nimble_bundle}}, \code{\link{build_causal_bundle}},
 #'   \code{\link{mcmc}}, \code{\link{dpmix}}, \code{\link{dpmgpd}}.
 #' @export
-bundle <- function(y = NULL, X = NULL, treat = NULL, data = NULL, formula = NULL, ..., GPD = FALSE) {
+bundle <- function(y = NULL, X = NULL, treat = NULL, data = NULL, formula = NULL, GPD = FALSE, ...) {
   if (.is_bundle(y)) return(y)
 
   treat_expr <- substitute(treat)

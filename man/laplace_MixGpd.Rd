@@ -86,6 +86,16 @@ numeric vector with the same length as \code{p}.
 Spliced bulk-tail family formed by attaching a generalized Pareto tail to a Laplace mixture
 bulk.
 }
+\details{
+This family keeps the Laplace mixture body below the threshold and replaces the upper tail with a
+generalized Pareto exceedance model scaled by the residual survival mass at the threshold. The
+tail density is therefore
+\deqn{
+f(x) = \{1-F_{mix}(u)\} g_{GPD}(x \mid u,\sigma_u,\xi), \qquad x \ge u.
+}
+Bulk quantiles are found numerically from the mixture CDF, and tail quantiles are computed by
+rescaling the upper-tail probability and applying the GPD inverse.
+}
 \section{Functions}{
 \itemize{
 \item \code{dLaplaceMixGpd()}: Laplace mixture + GPD tail density

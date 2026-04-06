@@ -135,6 +135,12 @@ Numeric vector of densities, probabilities, quantiles, or random variates.
 \description{
 Vectorized R wrappers for the scalar lognormal-kernel topics in this file.
 }
+\details{
+These are direct vectorized wrappers around the scalar lognormal routines. They keep the same
+parameterization, support restrictions, and bulk-tail splice, while allowing ordinary vector
+inputs in R. Quantile wrappers continue to use the scalar inversion logic, so there is no
+separate approximation layer in the lowercase API.
+}
 \section{Functions}{
 \itemize{
 \item \code{dlognormalmix()}: Lognormal mixture density (vectorized)

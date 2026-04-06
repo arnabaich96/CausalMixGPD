@@ -23,6 +23,23 @@
 #' @return Density/CDF/RNG functions return numeric scalars. `qInvGaussMix()` returns a numeric
 #'   vector with the same length as `p`.
 #'
+#' @details
+#' The mixture distribution is
+#' \deqn{
+#' F(x) = \sum_{k=1}^K \tilde{w}_k F_{IG}(x \mid \mu_k,\lambda_k),
+#' }
+#' where each inverse Gaussian component has mean \eqn{\mu_k} and variance \eqn{\mu_k^3/\lambda_k}.
+#' Random generation selects a component using the normalized weights and then generates from the
+#' corresponding inverse Gaussian law. Quantiles are computed numerically because the finite-mixture
+#' inverse CDF is not available in closed form.
+#'
+#' The analytical mixture mean is
+#' \deqn{
+#' E(X) = \sum_{k=1}^K \tilde{w}_k \mu_k.
+#' }
+#' That expression is used by the package whenever inverse-Gaussian mixtures contribute to
+#' posterior predictive means.
+#'
 #' @seealso [InvGauss_mixgpd()], [InvGauss_gpd()], [invgauss_lowercase()],
 #'   [build_nimble_bundle()], [kernel_support_table()].
 #' @family inverse-gaussian kernel families
@@ -264,6 +281,15 @@ meanInvGaussMixTrunc <- function(w, mean, shape, threshold) {
 #' @return Spliced density/CDF/RNG functions return numeric scalars.
 #'   `qInvGaussMixGpd()` returns a numeric vector with the same length as `p`.
 #'
+#' @details
+#' This family keeps the inverse-Gaussian mixture body below the threshold \eqn{u} and attaches a
+#' generalized Pareto exceedance law to the residual survival probability above \eqn{u}. If
+#' \eqn{F_{mix}(u)=p_u}, then the tail density is \eqn{(1-p_u)g_{GPD}(x \mid u,\sigma_u,\xi)}.
+#'
+#' Quantile evaluation is piecewise. For probabilities at or below \eqn{p_u}, the function solves
+#' the mixture inverse numerically; above \eqn{p_u}, it rescales the upper-tail probability and
+#' applies the GPD inverse directly.
+#'
 #' @seealso [InvGauss_mix()], [InvGauss_gpd()], [gpd()], [invgauss_lowercase()], [dpmgpd()].
 #' @family inverse-gaussian kernel families
 #'
@@ -430,6 +456,16 @@ qInvGaussMixGpd <- function(p, w, mean, shape, threshold, tail_scale, tail_shape
 #' @return Spliced density/CDF/RNG functions return numeric scalars.
 #'   `qInvGaussGpd()` returns a numeric vector with the same length as `p`.
 #'
+#' @details
+#' This is the one-component version of [InvGauss_mixgpd()]. The inverse Gaussian governs the bulk
+#' region and the generalized Pareto governs exceedances over the threshold. The splice is
+#' continuous at \eqn{u} because the GPD is scaled by the inverse-Gaussian survival probability at
+#' the threshold.
+#'
+#' The ordinary mean of the spliced law exists only when the GPD tail has \eqn{\xi < 1}. When that
+#' condition fails, the package uses restricted means or quantile-based summaries instead of an
+#' ordinary mean.
+#'
 #' @seealso [InvGauss_mix()], [InvGauss_mixgpd()], [gpd()], [invgauss_lowercase()].
 #' @family inverse-gaussian kernel families
 #'
@@ -591,6 +627,11 @@ qInvGaussGpd <- function(p, mean, shape, threshold, tail_scale, tail_shape,
 #' @param tol,maxiter Tolerance and max iterations for numerical inversion.
 #'
 #' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @details
+#' These functions are vectorized R front ends to the scalar inverse-Gaussian and splice routines.
+#' They retain the \eqn{(\mu,\lambda)} parameterization used everywhere else in the package and
+#' simply apply the scalar evaluator repeatedly over the supplied input vector or draw index.
 #'
 #' @seealso [InvGauss_mix()], [InvGauss_mixgpd()], [InvGauss_gpd()], [bundle()],
 #'   [get_kernel_registry()].

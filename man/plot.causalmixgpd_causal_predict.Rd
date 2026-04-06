@@ -22,3 +22,15 @@ For mean/quantile, plots treated/control and treatment effect versus PS (or inde
 For \code{type = "sample"}, plots arm-level posterior predictive samples alongside
 treatment-effect samples. For density/prob, plots treated/control values versus y.
 }
+\details{
+The causal prediction object carries arm-specific predictions together with the
+implied contrast. For mean predictions, the contrast is
+\eqn{m_1(x) - m_0(x)}. For quantile predictions, the contrast is
+\eqn{Q_{Y^1}(\tau \mid x) - Q_{Y^0}(\tau \mid x)}. The plotting method keeps
+those arm and contrast views synchronized.
+
+Unlike \code{plot.causalmixgpd_causal_fit()}, which diagnoses MCMC behavior inside
+the outcome models, this method visualizes predictive quantities after
+posterior integration. It is therefore the natural plotting method once the
+user has already accepted the fitted-model diagnostics.
+}

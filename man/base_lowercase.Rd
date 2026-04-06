@@ -91,6 +91,18 @@ outside compiled NIMBLE code.
 \details{
 The wrappers preserve the same parameterizations as the uppercase scalar functions, but accept
 vector inputs for \code{x}, \code{q}, or \code{p} and allow \code{n > 1} for random generation.
+
+Each lowercase helper is a vectorized R wrapper around the corresponding uppercase scalar
+routine documented in this file. The wrapper keeps the same parameterization and simply applies
+the scalar kernel repeatedly over the supplied evaluation points or simulation index. These
+helpers are therefore appropriate for interactive analysis, testing, and examples, whereas the
+uppercase functions are the building blocks used inside NIMBLE model code.
+
+The wrappers do not change the underlying theory. For example, \code{qgpd()} still uses the
+closed-form GPD inverse, \code{qinvgauss()} still performs numerical inversion of the inverse
+Gaussian CDF, and \code{qamoroso()} still maps a gamma quantile through the Amoroso
+transformation. Random-generation wrappers call the corresponding scalar RNG repeatedly when
+\code{n > 1}.
 }
 \section{Functions}{
 \itemize{

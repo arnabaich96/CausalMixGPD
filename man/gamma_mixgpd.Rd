@@ -43,7 +43,7 @@ qGammaMixGpd(
 
 \item{w}{Numeric vector of mixture weights of length \eqn{K}.}
 
-\item{shape, scale}{Numeric vectors of length \eqn{K} giving Gamma shapes and rates.}
+\item{shape, scale}{Numeric vectors of length \eqn{K} giving Gamma shape and scale parameters.}
 
 \item{threshold}{Numeric scalar threshold at which the GPD tail is attached.}
 
@@ -73,6 +73,21 @@ numeric vector with the same length as \code{p}.
 }
 \description{
 Spliced bulk-tail family formed by attaching a generalized Pareto tail to a gamma mixture bulk.
+}
+\details{
+The gamma mixture governs the body of the distribution up to the threshold \eqn{u}. Beyond
+\eqn{u}, only the remaining survival mass is modeled by the GPD, giving
+\deqn{
+f(x) =
+\left\{
+\begin{array}{ll}
+f_{mix}(x), & x < u, \\
+\{1-F_{mix}(u)\} g_{GPD}(x \mid u,\sigma_u,\xi), & x \ge u.
+\end{array}
+\right.
+}
+This is the positive-support analogue of the normal and lognormal splice families. Bulk quantiles
+are still found by numerical inversion, while tail quantiles use the explicit GPD inverse.
 }
 \section{Functions}{
 \itemize{

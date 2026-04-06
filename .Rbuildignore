@@ -50,7 +50,7 @@
 ^vignettes/renv$
 ^website$
 ^website/
-^tmp-.*\.R$
+^tmp[-_].*\.R$
 ^.*\.RData$
 ^.*\.rdx$
 ^\.Rhistory$
@@ -119,6 +119,7 @@
 ^tests/testthat/.*/_cache/
 ^tests/testthat/fragments/.*/tests$
 ^tests/testthat/fragments/.*/tests/
+^tests/testthat/\.ci-passed-files\.txt$
 ^covr$
 ^covr/
 ^quarto_abs_test$

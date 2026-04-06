@@ -22,6 +22,18 @@ The input object (invisibly).
 \code{print.causalmixgpd_causal_bundle()} gives a compact structural summary
 of the pre-run causal bundle created by \code{\link{build_causal_bundle}}.
 }
+\details{
+A causal bundle collects three pre-MCMC building blocks: the optional
+propensity-score model for \eqn{e(x) = \Pr(A = 1 \mid X = x)}, the control
+outcome model for \eqn{Y^0}, and the treated outcome model for \eqn{Y^1}. The
+printed output aligns those blocks side by side so the user can verify that
+the treated and control outcome specifications are coherent before sampling.
+
+No causal estimand is computed at this stage. The bundle only records the
+structural assumptions that will later support estimands such as
+\eqn{E(Y^1 - Y^0 \mid X = x)} or
+\eqn{Q_{Y^1}(\tau \mid X = x) - Q_{Y^0}(\tau \mid X = x)}.
+}
 \examples{
 \dontrun{
 cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")

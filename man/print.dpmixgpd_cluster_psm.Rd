@@ -17,6 +17,16 @@
 \description{
 Compact display for a posterior similarity matrix.
 }
+\details{
+A posterior similarity matrix records pairwise co-clustering probabilities on
+the training sample. Its \eqn{(i,j)} entry is the posterior probability that
+observations \eqn{i} and \eqn{j} share the same latent cluster across the
+retained MCMC draws.
+
+The printed header reports only matrix size and bookkeeping information. Use
+\code{\link[=summary.dpmixgpd_cluster_psm]{summary.dpmixgpd_cluster_psm()}} for numerical summaries and
+\code{\link[=plot.dpmixgpd_cluster_psm]{plot.dpmixgpd_cluster_psm()}} for a visual heatmap.
+}
 \seealso{
 \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}}, \code{\link[=summary.dpmixgpd_cluster_psm]{summary.dpmixgpd_cluster_psm()}},
 \code{\link[=plot.dpmixgpd_cluster_psm]{plot.dpmixgpd_cluster_psm()}}.

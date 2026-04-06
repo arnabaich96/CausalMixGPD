@@ -55,6 +55,24 @@ quantity \eqn{((X - a) / \theta)^\beta} follows a gamma law with shape \eqn{\alp
 
 These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
 For vectorized R usage, use \code{\link[=base_lowercase]{base_lowercase()}}.
+
+The Amoroso family used in the package is defined by the density
+\deqn{
+f(x) =
+\left|\frac{\beta}{\theta}\right|
+\frac{z^{\alpha \beta - 1}\exp(-z^\beta)}{\Gamma(\alpha)},
+\qquad
+z = \frac{x-a}{\theta},
+}
+on the side of the location parameter determined by the sign of \eqn{\theta}. Equivalently,
+\eqn{Z = ((X-a)/\theta)^\beta} follows a Gamma distribution with shape \eqn{\alpha} and unit
+scale. That representation explains why the quantile function is computed from a gamma quantile
+and then mapped back through the inverse transformation.
+
+The mean exists whenever \eqn{\alpha + 1/\beta} lies in the domain of the gamma function used by
+the moment formula. In the package this family serves as a flexible positive-support bulk kernel
+capable of reproducing gamma-like, Weibull-like, and other skewed shapes with a single
+parameterization.
 }
 \section{Functions}{
 \itemize{

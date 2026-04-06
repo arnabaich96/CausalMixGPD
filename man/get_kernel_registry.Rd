@@ -12,6 +12,18 @@ A list of kernel metadata.
 \description{
 Get kernel registry
 }
+\details{
+This accessor returns the registry created by \code{\link[=init_kernel_registry]{init_kernel_registry()}}. The
+returned object is a named list keyed by kernel name. Each kernel definition
+describes which bulk parameters are present, how those parameters may depend
+on covariates, whether a GPD tail is allowed, and which density or mean
+functions should be dispatched for the supported backends.
+
+Downstream builders treat this registry as the authoritative source of
+kernel-specific implementation metadata. Reading it is appropriate when you
+need to inspect what the package believes a kernel can do before constructing
+or debugging a model specification.
+}
 \examples{
 init_kernel_registry()
 reg <- get_kernel_registry()

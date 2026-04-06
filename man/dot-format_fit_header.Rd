@@ -15,4 +15,10 @@ Character vector lines.
 \description{
 Format a short header for printing
 }
+\details{
+This helper builds the short header used by \code{print.mixgpd_fit()}. It extracts
+model identity, training size, truncation size, epsilon, and stored MCMC
+settings into a compact character vector so higher-level print methods do not
+duplicate formatting logic.
+}
 \keyword{internal}

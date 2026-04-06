@@ -17,4 +17,11 @@ List with d/p/q/r/mean/mean_trunc functions and bulk_params.
 Resolve kernel dispatch functions (scalar)
 Dispatch returns raw scalar nimbleFunctions for codegen; do not wrap.
 }
+\details{
+This helper resolves the density, distribution, quantile, random-generation,
+and mean functions implied by a kernel, backend, and GPD setting. The result
+is intentionally scalar and wrapper-free because it is used in code-generation
+contexts where NIMBLE expects raw function objects rather than vectorized R
+adapters.
+}
 \keyword{internal}

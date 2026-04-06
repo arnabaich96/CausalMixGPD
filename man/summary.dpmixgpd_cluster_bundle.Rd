@@ -18,6 +18,17 @@ monitor configuration.
 \description{
 Report the modeling choices encoded in a cluster bundle before fitting.
 }
+\details{
+This summary is a pre-flight check for the clustering workflow. It reports
+the latent-partition design, the chosen kernel family, whether a GPD tail
+will be spliced above the threshold, the effective sample and predictor
+dimensions, and the monitor set that will be carried into MCMC.
+
+Because no posterior simulation has occurred yet, the summary describes only
+the assumed model structure. Quantities such as representative labels,
+pairwise co-clustering probabilities, and cluster-specific summaries become
+available only after the fitted object has been created and post-processed.
+}
 \seealso{
 \code{\link[=print.dpmixgpd_cluster_bundle]{print.dpmixgpd_cluster_bundle()}}, \code{\link[=plot.dpmixgpd_cluster_bundle]{plot.dpmixgpd_cluster_bundle()}},
 \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}}.

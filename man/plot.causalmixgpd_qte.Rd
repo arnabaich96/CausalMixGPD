@@ -61,6 +61,17 @@ control quantile curves) and \code{treatment_effect} (QTE curve) plots
 \item \code{"arms"}: Treated and control quantile curves vs \code{probs}, with pointwise CI error bars
 }
 }
+\details{
+The effect view emphasizes the quantile contrast
+\eqn{\tau \mapsto Q_{Y^1}(\tau) - Q_{Y^0}(\tau)}, while the arms view shows the
+treated and control quantile functions that generate that contrast. For
+conditional CQTE objects, faceting can separate covariate profiles so the
+same quantile contrast is compared across prediction settings.
+
+These graphics visualize posterior summaries of the effect object itself. They
+are therefore downstream of model fitting and downstream of the causal
+prediction step.
+}
 \examples{
 \dontrun{
 qte_result <- cqte(fit, probs = c(0.1, 0.5, 0.9), newdata = X_new)

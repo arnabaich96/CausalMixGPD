@@ -2,8 +2,7 @@
 % Please edit documentation in R/1-registry.R
 \name{kernel_support_table}
 \alias{kernel_support_table}
-\title{Kernel support matrix
-Returns a data frame summarizing each kernel's supported features.}
+\title{Kernel support matrix}
 \usage{
 kernel_support_table(round = TRUE)
 }
@@ -14,6 +13,17 @@ kernel_support_table(round = TRUE)
 data.frame with columns \code{kernel}, \code{gpd}, \code{covariates}, \code{sb}, \code{crp}.
 }
 \description{
-Kernel support matrix
 Returns a data frame summarizing each kernel's supported features.
+}
+\details{
+The returned table is a compact view of the registry contracts. Each row
+corresponds to one kernel, while the logical columns indicate whether that
+kernel can be paired with a GPD tail, whether covariate-linked parameter
+models are defined, and whether the stick-breaking (\code{sb}) and
+Chinese-restaurant (\code{crp}) backends are implemented.
+
+This helper is intended for inspection and reporting rather than model
+fitting. It is a quick way to verify that a requested combination of kernel,
+tail, and backend is supported before calling higher-level workflow
+constructors.
 }

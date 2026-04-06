@@ -64,6 +64,22 @@ f(x) = \sum_{k = 1}^K \tilde{w}_k f_{LN}(x \mid \mu_k, \sigma_k),
 \qquad x > 0,
 }
 with normalized weights \eqn{\tilde{w}_k}. For vectorized R usage, use \code{\link[=lognormal_lowercase]{lognormal_lowercase()}}.
+
+Each component satisfies \eqn{\log X_k \sim N(\mu_k,\sigma_k^2)}, so the mixture CDF is
+\deqn{
+F(x) = \sum_{k=1}^K \tilde{w}_k
+\Phi\left(\frac{\log x-\mu_k}{\sigma_k}\right), \qquad x>0.
+}
+Random generation proceeds by drawing a component index with probability \eqn{\tilde{w}_k} and
+then sampling from the corresponding lognormal law. Because a finite mixture of lognormals does
+not admit a closed-form inverse CDF, \code{qLognormalMix()} computes quantiles by numerical
+inversion.
+
+The analytical mixture mean is
+\deqn{
+E(X) = \sum_{k=1}^K \tilde{w}_k \exp(\mu_k + \sigma_k^2/2),
+}
+which is the expression used by the package whenever an ordinary predictive mean exists.
 }
 \section{Functions}{
 \itemize{

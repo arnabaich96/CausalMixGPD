@@ -16,7 +16,7 @@
 #' @param n Integer giving the number of draws. The RNG implementation supports \code{n = 1}.
 #' @param w Numeric vector of mixture weights of length \eqn{K}. The functions normalize \code{w}
 #'   internally when needed.
-#' @param shape,scale Numeric vectors of length \eqn{K} giving Gamma shapes and rates.
+#' @param shape,scale Numeric vectors of length \eqn{K} giving Gamma shape and scale parameters.
 #' @param log Logical; if \code{TRUE}, return the log-density.
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.
@@ -25,6 +25,23 @@
 #'
 #' @return Density/CDF/RNG functions return numeric scalars. `qGammaMix()` returns a numeric vector
 #'   with the same length as `p`.
+#'
+#' @details
+#' Under the package parameterization, each component has density
+#' \eqn{f_\Gamma(x \mid \alpha,\theta) = x^{\alpha-1}\exp(-x/\theta) /
+#' \{\Gamma(\alpha)\theta^\alpha\}} on \eqn{x>0}. The mixture CDF is therefore
+#' \deqn{
+#' F(x) = \sum_{k=1}^K \tilde{w}_k F_\Gamma(x \mid \alpha_k,\theta_k).
+#' }
+#' Random generation first selects a component according to the normalized mixture weights and then
+#' draws from the corresponding gamma distribution. Since finite gamma mixtures do not have closed
+#' form quantiles, \code{qGammaMix()} obtains them numerically by inverting the mixture CDF.
+#'
+#' The analytical mean is
+#' \deqn{
+#' E(X) = \sum_{k=1}^K \tilde{w}_k \alpha_k \theta_k.
+#' }
+#' This expression is reused in posterior predictive mean calculations for gamma-based fits.
 #'
 #' @seealso [gamma_mixgpd()], [gamma_gpd()], [gamma_lowercase()], [build_nimble_bundle()],
 #'   [kernel_support_table()].
@@ -221,7 +238,7 @@ meanGammaMixTrunc <- function(w, shape, scale, threshold) {
 #' @param p Numeric scalar probability in \eqn{(0,1)} for the quantile function.
 #' @param n Integer giving the number of draws. The RNG implementation supports \code{n = 1}.
 #' @param w Numeric vector of mixture weights of length \eqn{K}.
-#' @param shape,scale Numeric vectors of length \eqn{K} giving Gamma shapes and rates.
+#' @param shape,scale Numeric vectors of length \eqn{K} giving Gamma shape and scale parameters.
 #' @param threshold Numeric scalar threshold at which the GPD tail is attached.
 #' @param tail_scale Numeric scalar GPD scale parameter; must be positive.
 #' @param tail_shape Numeric scalar GPD shape parameter.
@@ -233,6 +250,21 @@ meanGammaMixTrunc <- function(w, shape, scale, threshold) {
 #'
 #' @return Spliced density/CDF/RNG functions return numeric scalars. `qGammaMixGpd()` returns a
 #'   numeric vector with the same length as `p`.
+#'
+#' @details
+#' The gamma mixture governs the body of the distribution up to the threshold \eqn{u}. Beyond
+#' \eqn{u}, only the remaining survival mass is modeled by the GPD, giving
+#' \deqn{
+#' f(x) =
+#' \left\{
+#' \begin{array}{ll}
+#' f_{mix}(x), & x < u, \\
+#' \{1-F_{mix}(u)\} g_{GPD}(x \mid u,\sigma_u,\xi), & x \ge u.
+#' \end{array}
+#' \right.
+#' }
+#' This is the positive-support analogue of the normal and lognormal splice families. Bulk quantiles
+#' are still found by numerical inversion, while tail quantiles use the explicit GPD inverse.
 #'
 #' @seealso [gamma_mix()], [gamma_gpd()], [gpd()], [gamma_lowercase()], [dpmgpd()].
 #' @family gamma kernel families
@@ -390,6 +422,16 @@ qGammaMixGpd <- function(p, w, shape, scale, threshold, tail_scale, tail_shape,
 #' @return Spliced density/CDF/RNG functions return numeric scalars.
 #'   `qGammaGpd()` returns a numeric vector with the same length as `p`.
 #'
+#' @details
+#' This topic combines a single gamma bulk with a generalized Pareto exceedance model. If
+#' \eqn{F_\Gamma(u)} is the bulk probability below the threshold, then the splice replaces the
+#' upper tail by \eqn{\{1-F_\Gamma(u)\}g_{GPD}(x)} while leaving the lower region unchanged. The
+#' resulting distribution is continuous at the threshold and preserves the gamma body exactly below
+#' \eqn{u}.
+#'
+#' The ordinary mean is finite only when the GPD shape satisfies \eqn{\xi < 1}. For heavier tails,
+#' predictive mean summaries should be replaced by restricted means or quantile summaries.
+#'
 #' @seealso [gamma_mix()], [gamma_mixgpd()], [gpd()], [gamma_lowercase()].
 #' @family gamma kernel families
 #'
@@ -543,6 +585,12 @@ qGammaGpd <- function(p, shape, scale, threshold, tail_scale, tail_shape,
 #' @param tol,maxiter Tolerance and max iterations for numerical inversion.
 #'
 #' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @details
+#' These wrappers are vectorized interfaces to the scalar gamma and gamma-plus-GPD routines. They
+#' preserve the package's shape-scale parameterization and the same splice definition used in the
+#' fitted-model prediction code. Quantile wrappers delegate to the scalar inversion code rather than
+#' implementing separate approximations.
 #'
 #' @seealso [gamma_mix()], [gamma_mixgpd()], [gamma_gpd()], [bundle()], [get_kernel_registry()].
 #' @family vectorized kernel helpers

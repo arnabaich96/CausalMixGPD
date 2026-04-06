@@ -66,6 +66,23 @@ f(x) = \sum_{k = 1}^K \tilde{w}_k \phi(x \mid \mu_k, \sigma_k^2),
 }
 where \eqn{\tilde{w}_k = w_k / \sum_j w_j}. These uppercase functions are scalar
 NIMBLE-compatible building blocks. For vectorized R usage, use \code{\link[=normal_lowercase]{normal_lowercase()}}.
+
+If \eqn{F_k} denotes the \eqn{k}-th component CDF, then the mixture distribution function is
+\deqn{
+F(x) = \sum_{k=1}^K \tilde{w}_k F_k(x)
+= \sum_{k=1}^K \tilde{w}_k \Phi\left(\frac{x-\mu_k}{\sigma_k}\right).
+}
+Random generation first draws a component index with probability \eqn{\tilde{w}_k} and then
+generates from the corresponding normal law. The quantile function has no closed form for a
+general finite mixture, so \code{qNormMix()} solves \eqn{F(x)=p} numerically by bracketing the
+root and applying \code{stats::uniroot()}.
+
+The mixture mean is
+\deqn{
+E(X) = \sum_{k=1}^K \tilde{w}_k \mu_k,
+}
+which is the analytical mean used by the package when a normal-mixture draw contributes to a
+posterior predictive mean calculation.
 }
 \section{Functions}{
 \itemize{

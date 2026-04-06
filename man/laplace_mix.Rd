@@ -65,6 +65,18 @@ The mixture density is
 f(x) = \sum_{k = 1}^K \tilde{w}_k f_{Lap}(x \mid \mu_k, b_k),
 }
 with normalized weights \eqn{\tilde{w}_k}. For vectorized R usage, use \code{\link[=laplace_lowercase]{laplace_lowercase()}}.
+
+Each component is a Laplace law with density
+\eqn{f(x \mid \mu,b) = (2b)^{-1}\exp\{-|x-\mu|/b\}}. The mixture CDF is the corresponding
+weighted average of component CDFs, and random generation selects a component first and then
+samples from that component. As with the other finite mixtures in the package, the quantile has
+no closed form and is therefore obtained numerically.
+
+The analytical mean of the mixture is simply
+\deqn{
+E(X) = \sum_{k=1}^K \tilde{w}_k \mu_k.
+}
+That is the formula used in downstream predictive mean calculations for Laplace-based fits.
 }
 \section{Functions}{
 \itemize{

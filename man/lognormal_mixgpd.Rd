@@ -91,6 +91,22 @@ is the GPD CDF for exceedances above \code{threshold}.
 \details{
 The density, CDF, and RNG are implemented as \code{nimbleFunction}s. The quantile is an R function:
 it uses numerical inversion in the bulk region and the closed-form GPD quantile in the tail.
+
+Let \eqn{F_{mix}} be the lognormal-mixture CDF and let \eqn{u} denote the threshold. The splice
+uses the bulk law below \eqn{u} and attaches a GPD to the residual survival mass above
+\eqn{u}. The density therefore becomes
+\deqn{
+f(x) =
+\left\{
+\begin{array}{ll}
+f_{mix}(x), & x < u, \\
+\{1-F_{mix}(u)\} g_{GPD}(x \mid u,\sigma_u,\xi), & x \ge u.
+\end{array}
+\right.
+}
+The quantile is computed piecewise: bulk quantiles are obtained numerically from the mixture CDF,
+whereas tail quantiles use the closed-form GPD inverse after rescaling the upper-tail
+probability.
 }
 \section{Functions}{
 \itemize{

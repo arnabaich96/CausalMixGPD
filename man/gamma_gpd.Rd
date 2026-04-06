@@ -74,6 +74,16 @@ Spliced density/CDF/RNG functions return numeric scalars.
 Spliced family obtained by attaching a generalized Pareto tail above \code{threshold} to a single
 gamma bulk distribution.
 }
+\details{
+This topic combines a single gamma bulk with a generalized Pareto exceedance model. If
+\eqn{F_\Gamma(u)} is the bulk probability below the threshold, then the splice replaces the
+upper tail by \eqn{\{1-F_\Gamma(u)\}g_{GPD}(x)} while leaving the lower region unchanged. The
+resulting distribution is continuous at the threshold and preserves the gamma body exactly below
+\eqn{u}.
+
+The ordinary mean is finite only when the GPD shape satisfies \eqn{\xi < 1}. For heavier tails,
+predictive mean summaries should be replaced by restricted means or quantile summaries.
+}
 \section{Functions}{
 \itemize{
 \item \code{dGammaGpd()}: Gamma + GPD tail density

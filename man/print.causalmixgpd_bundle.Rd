@@ -22,6 +22,18 @@ The object \code{x}, invisibly.
 \code{print.causalmixgpd_bundle()} gives a compact structural summary of the
 pre-run bundle created by \code{\link{build_nimble_bundle}}.
 }
+\details{
+The bundle is the compiled representation of the predictive model before
+MCMC. For a bulk-only fit, the underlying target law is
+\deqn{f(y \mid x) = \sum_{k=1}^{K} w_k(x) f_k(y \mid x, \theta_k).}
+When a GPD tail is enabled, the same bulk mixture is spliced to a generalized
+Pareto tail above the threshold recorded in the bundle specification.
+
+\code{print()} is intentionally brief. It is meant to confirm that the stored
+backend, kernel, truncation size, covariate structure, and code-generation
+artifacts match the intended model before you compile and sample with
+\code{\link{run_mcmc_bundle_manual}}.
+}
 \examples{
 \dontrun{
 y <- abs(stats::rnorm(50)) + 0.1

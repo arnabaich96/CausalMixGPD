@@ -25,6 +25,20 @@
 #' @return Density/CDF/RNG functions return numeric scalars. `qCauchyMix()` returns a numeric
 #'   vector with the same length as `p`.
 #'
+#' @details
+#' The mixture CDF is the weighted average of component CDFs,
+#' \deqn{
+#' F(x) = \sum_{k=1}^K \tilde{w}_k
+#' \left\{\frac{1}{2} + \frac{1}{\pi}\arctan\left(\frac{x-\ell_k}{s_k}\right)\right\}.
+#' }
+#' Random generation first selects a component according to the normalized weights and then draws
+#' from the chosen Cauchy law by inverse-CDF sampling.
+#'
+#' Because each Cauchy component has undefined mean and variance, the mixture also lacks an
+#' ordinary mean in general. That is why the package exposes Cauchy kernels for densities, CDFs,
+#' quantiles, medians, survival functions, and restricted means, but not for ordinary predictive
+#' means.
+#'
 #' @seealso [cauchy()], [cauchy_mix_lowercase()], [build_nimble_bundle()], [kernel_support_table()].
 #' @family cauchy kernel families
 #'
@@ -237,6 +251,12 @@ meanCauchyMix <- function(w, location, scale) {
 #' @param tol,maxiter Tolerance and max iterations for numerical inversion.
 #'
 #' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @details
+#' These are vectorized R wrappers around the scalar Cauchy-mixture routines. They retain the same
+#' location-scale parameterization and the same inverse-CDF logic for simulation and quantiles. The
+#' lowercase functions do not alter the heavy-tail theory of the underlying Cauchy components; they
+#' simply make the scalar routines convenient to use on vectors in R.
 #'
 #' @seealso [cauchy_mix()], [cauchy()], [bundle()], [get_kernel_registry()].
 #' @family vectorized kernel helpers

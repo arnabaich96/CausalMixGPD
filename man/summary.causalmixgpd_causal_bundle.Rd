@@ -22,6 +22,18 @@ The input object (invisibly).
 \code{summary.causalmixgpd_causal_bundle()} is the bundle-level validation
 checkpoint for the causal workflow.
 }
+\details{
+This summary is meant to be read before posterior sampling. It reports the
+stored propensity-score specification, the treated and control outcome model
+definitions, and the sample split across treatment arms. In other words, it
+verifies the model ingredients for the causal decomposition
+\eqn{(e(x), f_0(y \mid x), f_1(y \mid x))}.
+
+Since no MCMC has been run yet, the summary contains only structural
+information. Posterior treatment-effect summaries become available after
+\code{\link{run_mcmc_causal}} through functions such as \code{\link{ate}} and
+\code{\link{qte}}.
+}
 \examples{
 \dontrun{
 cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")

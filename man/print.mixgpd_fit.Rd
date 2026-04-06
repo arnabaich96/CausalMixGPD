@@ -18,6 +18,18 @@
 \code{print.mixgpd_fit()} gives a compact header for a fitted one-arm model.
 It is meant as a quick identity check rather than a full posterior summary.
 }
+\details{
+The fitted object represents posterior draws from a bulk mixture model, or
+from its spliced bulk-tail extension when \code{GPD = TRUE}. For the bulk part, the
+predictive law has the mixture form
+\deqn{f(y \mid x) = \sum_{k=1}^{K} w_k(x) f_k(y \mid x, \theta_k).}
+When a GPD tail is active, exceedances above the threshold are instead routed
+through the generalized Pareto tail attached to the same bulk mixture.
+
+The print method reports only the model identity and basic metadata. Use
+\code{summary()} for parameter-level posterior summaries, \code{predict()} for
+predictive functionals, and \code{plot()} for chain diagnostics.
+}
 \examples{
 \dontrun{
 y <- abs(stats::rnorm(50)) + 0.1

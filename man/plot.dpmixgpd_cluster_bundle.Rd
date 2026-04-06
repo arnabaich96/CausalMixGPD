@@ -21,6 +21,17 @@ A \code{ggplot2} object or a \code{plotly}/\code{htmlwidget} object when \code{p
 \description{
 Produce a compact graphical summary of the cluster bundle metadata.
 }
+\details{
+The bundle plot is a metadata display rather than an inferential graphic. It
+mirrors the structural fields reported by \code{print()} and \code{summary()} in a
+single panel so the pre-MCMC clustering specification can be reviewed in a
+figure-oriented workflow or notebook.
+
+Because the object has not been sampled yet, no representative partition or
+posterior uncertainty is shown here. Use \code{\link[=plot.dpmixgpd_cluster_fit]{plot.dpmixgpd_cluster_fit()}},
+\code{\link[=plot.dpmixgpd_cluster_labels]{plot.dpmixgpd_cluster_labels()}}, or \code{\link[=plot.dpmixgpd_cluster_psm]{plot.dpmixgpd_cluster_psm()}} after
+fitting when you need substantive clustering output.
+}
 \seealso{
 \code{\link[=summary.dpmixgpd_cluster_bundle]{summary.dpmixgpd_cluster_bundle()}}, \code{\link[=dpmix.cluster]{dpmix.cluster()}}, \code{\link[=dpmgpd.cluster]{dpmgpd.cluster()}}.
 

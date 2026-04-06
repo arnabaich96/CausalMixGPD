@@ -56,6 +56,19 @@ A \code{ggplot2} object or a \code{plotly}/\code{htmlwidget} object when \code{p
 Visualize either the posterior similarity matrix, the posterior number of occupied clusters, the
 size distribution of the representative clusters, or cluster-specific response summaries.
 }
+\details{
+This plot method exposes the main posterior diagnostics for clustering. The
+\code{which = "k"} view tracks the number of occupied clusters across retained
+draws, \code{which = "psm"} visualizes pairwise co-clustering probabilities,
+\code{which = "sizes"} displays the size profile of the representative partition,
+and \code{which = "summary"} shows response summaries conditional on the selected
+representative labels.
+
+The representative partition is obtained from
+\code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}} using Dahl's least-squares rule. As a
+result, the \code{sizes} and \code{summary} views describe that representative
+clustering rather than the full posterior distribution over partitions.
+}
 \seealso{
 \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}}, \code{\link[=summary.dpmixgpd_cluster_fit]{summary.dpmixgpd_cluster_fit()}},
 \code{\link[=plot.dpmixgpd_cluster_psm]{plot.dpmixgpd_cluster_psm()}}, \code{\link[=plot.dpmixgpd_cluster_labels]{plot.dpmixgpd_cluster_labels()}}.

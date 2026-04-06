@@ -63,6 +63,19 @@ f(x) = \sum_{k = 1}^K \tilde{w}_k f_C(x \mid \ell_k, s_k),
 }
 with normalized weights \eqn{\tilde{w}_k}. These scalar functions are NIMBLE-compatible; for
 vectorized R usage, use \code{\link[=cauchy_mix_lowercase]{cauchy_mix_lowercase()}}.
+
+The mixture CDF is the weighted average of component CDFs,
+\deqn{
+F(x) = \sum_{k=1}^K \tilde{w}_k
+\left\{\frac{1}{2} + \frac{1}{\pi}\arctan\left(\frac{x-\ell_k}{s_k}\right)\right\}.
+}
+Random generation first selects a component according to the normalized weights and then draws
+from the chosen Cauchy law by inverse-CDF sampling.
+
+Because each Cauchy component has undefined mean and variance, the mixture also lacks an
+ordinary mean in general. That is why the package exposes Cauchy kernels for densities, CDFs,
+quantiles, medians, survival functions, and restricted means, but not for ordinary predictive
+means.
 }
 \section{Functions}{
 \itemize{

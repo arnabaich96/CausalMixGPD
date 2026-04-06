@@ -17,4 +17,11 @@ Computes the posterior similarity matrix (PSM) from a matrix of cluster
 assignments. \code{PSM[i,j]} = probability that observations i and j are in the
 same cluster.
 }
+\details{
+If \eqn{z_i^{(s)}} denotes the cluster label of observation \eqn{i} at draw
+\eqn{s}, then this helper computes
+\deqn{\mathrm{PSM}_{ij} \approx \frac{1}{S} \sum_{s=1}^S I(z_i^{(s)} = z_j^{(s)}).}
+The resulting matrix is the basic posterior co-clustering summary used by the
+Dahl representative partition and several cluster diagnostics.
+}
 \keyword{internal}

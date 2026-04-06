@@ -27,6 +27,18 @@ Generates type-specific visualizations for prediction objects returned by
 \item \code{survival}: Survival function (decreasing y values)
 }
 }
+\details{
+The plotting method is tied to the predictive functional stored in the input
+object. Quantile and mean outputs display posterior point summaries and
+intervals, density and survival outputs show evaluated functions on the
+supplied grid, and posterior samples are visualized as empirical predictive
+draws.
+
+In every case the plot reflects the quantity requested from
+\code{predict.mixgpd_fit()} after integrating over the retained posterior draws. It
+is therefore distinct from parameter-level summaries and from chain
+diagnostics.
+}
 \examples{
 \dontrun{
 y <- abs(stats::rnorm(50)) + 0.1

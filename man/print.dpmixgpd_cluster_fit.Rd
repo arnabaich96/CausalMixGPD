@@ -17,6 +17,18 @@
 \description{
 Compact display for a fitted clustering object.
 }
+\details{
+A fitted cluster object contains posterior draws for the latent labels and
+associated component parameters. The printed header identifies the model
+family that generated those draws, including whether the fit used a bulk-only
+kernel or a spliced bulk-tail specification.
+
+The printed \code{components} value is the truncation size used by the sampler. It
+is not the same thing as the number of occupied clusters in the Dahl
+representative partition, which is computed later by
+\code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}} and summarized by
+\code{\link[=summary.dpmixgpd_cluster_fit]{summary.dpmixgpd_cluster_fit()}}.
+}
 \seealso{
 \code{\link[=summary.dpmixgpd_cluster_fit]{summary.dpmixgpd_cluster_fit()}}, \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}},
 \code{\link[=plot.dpmixgpd_cluster_fit]{plot.dpmixgpd_cluster_fit()}}.

@@ -15,4 +15,10 @@ Invisibly TRUE, otherwise errors.
 \description{
 Validate a fitted object
 }
+\details{
+This is a lightweight structural check used by multiple internal helpers. It
+verifies that the object inherits from \code{mixgpd_fit} and that posterior draws
+are available in one of the expected storage locations before later code tries
+to summarize or predict from the fit.
+}
 \keyword{internal}

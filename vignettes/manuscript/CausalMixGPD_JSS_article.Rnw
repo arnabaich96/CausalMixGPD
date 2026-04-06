@@ -109,7 +109,7 @@ library(ggplot2)
 library(patchwork)
 
 knitr::opts_knit$set(
-  concordance = TRUE,
+  concordance = FALSE,
   root.dir = manuscript_dir
 )
 cmgpd_fig_width <- 7
@@ -129,7 +129,8 @@ knitr::opts_chunk$set(
   error = FALSE,
   tidy.opts = list(width.cutoff = 60),
   autodep = TRUE,
-  comment = NA
+  comment = NA,
+  cache = TRUE
 )
 knitr::opts_hooks$set(
   fig.width = function(options) {
@@ -186,10 +187,10 @@ cmgpd_theme <- function(base_size = 14) {
 }
 
 mcmc_fixed <- list(
-  niter = 250,
-  nburnin = 50,
+  niter = 2500,
+  nburnin = 500,
   thin = 1,
-  nchains = 1,
+  nchains = 3,
   seed = 2026
 )
 @
@@ -1139,8 +1140,8 @@ determines the truncation level, and \code{mcmc} controls the sampler
 configuration.
 
 <<overview-fit-model1, echo=TRUE, eval=FALSE>>=
-fit <- dpmgpd(formula = y ~ x1 + x2 + x3, data = dat, mcmc = mcmc_fixed)
-
+fit <- dpmgpd(formula = y ~ x1 + x2 + x3, data = dat,
+  mcmc = mcmc_fixed)
 @
 
 Given the spliced density in~\eqref{eq:splice_pdf}, the likelihood is
@@ -1174,8 +1175,8 @@ mixture over the bulk alone.  A convenience interface to this bulk-only
 model is provided by the \code{dpmix()} wrapper.
 
 <<overview-fit-model2, echo=TRUE, eval=FALSE>>=
-fit <- dpmix(formula = y ~ x1 + x2 + x3,  data = dat, mcmc = mcmc_fixed)
-
+fit <- dpmix(formula = y ~ x1 + x2 + x3, data = dat,
+  mcmc = mcmc_fixed)
 @
 
 Prior distributions for $\Theta$ and $\Phi$ can be specified by the
@@ -1202,8 +1203,8 @@ posterior summaries, \code{plot()} for standard MCMC diagnostics, and
 <<overview-fit-diagnostics, echo=TRUE, eval=FALSE>>=
 summary(fit)
 params(fit)
-plot(fit, family = "traceplot",params = "alpha")  # DPM concentration parameter
-plot(fit, family = "auto")     #  Default set of diagnostics for all parameters
+plot(fit, family = "traceplot", params = "alpha")
+plot(fit, family = "auto")
 @
 
 The package provides posterior summaries for several functionals of the
@@ -1238,8 +1239,8 @@ Predictions at new covariate values are obtained by calling
 same structure as the training data.
 
 <<overview-predict-quantile-prep, echo=TRUE, eval=FALSE>>=
-x_new <- as.data.frame(lapply(dat[, c("x1", "x2", "x3")],quantile,
-                        probs = c(0.25, 0.50, 0.75),na.rm = TRUE))
+x_new <- as.data.frame(lapply(dat[, c("x1", "x2", "x3")],
+  quantile, probs = c(0.25, 0.50, 0.75), na.rm = TRUE))
 y_grid <- seq(0, 10, length.out = 200)
 @
 
@@ -1257,8 +1258,10 @@ covariate profiles constructed from the empirical quartiles of the
 training predictors.
 
 <<overview-predict-quantile, echo=TRUE, eval=FALSE>>=
-predict(fit, newdata = x_new, y = y_grid, type = "survival", level = 0.95)
-predict(fit, newdata = x_new, type = "quantile", index = c(0.5, 0.99), interval = "credible")
+predict(fit, newdata = x_new, y = y_grid,
+  type = "survival", level = 0.95)
+predict(fit, newdata = x_new, type = "quantile",
+  index = c(0.5, 0.99), interval = "credible")
 @
 
 
@@ -1268,7 +1271,8 @@ predict(fit, newdata = x_new, type = "quantile", index = c(0.5, 0.99), interval 
 
 <<cluster_example_data, echo=TRUE, eval=FALSE>>=
 data("nc_realX100_p3_k2", package = "CausalMixGPD")
-dat_cl <- data.frame(y = nc_realX100_p3_k2$y[1:100], nc_realX100_p3_k2$X[1:100,])
+dat_cl <- data.frame(y = nc_realX100_p3_k2$y[1:100],
+  nc_realX100_p3_k2$X[1:100, ])
 @
 
 The clustering framework reinterprets the fitted mixture as a latent
@@ -1288,8 +1292,8 @@ fitted in the code below, where \code{type = "param"} specifies that
 predictors enter through component-specific kernel parameters.
 
 <<cluster_example_fit, echo=TRUE, eval=FALSE>>=
-fit_cluster <- dpmix.cluster(y ~ x1 + x2 + x3, data = dat_cl[1:100,], kernel = "laplace",
-                              type = "both", components = 10, mcmc = mcmc_fixed )
+fit_cluster <- dpmix.cluster(y ~ x1 + x2 + x3, data = dat_cl[1:100,],
+  kernel = "laplace", type = "both", components = 10, mcmc = mcmc_fixed)
 @
 
 The same \code{predict()} interface returns either the posterior
@@ -1349,8 +1353,8 @@ outcome, treatment indicator, and covariates.
 <<overview-causal-data, echo=FALSE, eval=FALSE>>=
 data("causal_pos500_p3_k2", package = "CausalMixGPD")
 causal_dat <- causal_pos500_p3_k2
-causal_df  <- data.frame(y = causal_dat$y,A = causal_dat$A,
-                                         causal_dat$X)
+causal_df  <- data.frame(y = causal_dat$y,
+  A = causal_dat$A, causal_dat$X)
 @
 
 The call to \code{dpmgpd.causal()} fits arm-specific spliced mixture
@@ -1360,11 +1364,11 @@ arguments controlling the propensity-score model (\code{PS},
 the outcome and PS stages (\code{mcmc\_outcome}, \code{mcmc\_ps}).
 
 <<overview-causal-fit-model, echo=TRUE, eval=FALSE>>=
-causal_fit <- dpmgpd.causal( formula = y ~ x1 + x2 + x3, data = causal_df,
-                                        treat = "A", backend = "crp", kernel = "laplace",
-                                            components = 5, PS = "logit", ps_scale = "logit",
-                                            ps_summary = "mean", mcmc_outcome = mcmc_fixed,
-                                            mcmc_ps = mcmc_fixed)
+causal_fit <- dpmgpd.causal(formula = y ~ x1 + x2 + x3,
+  data = causal_df, treat = "A", backend = "crp",
+  kernel = "laplace", components = 5, PS = "logit",
+  ps_scale = "logit", ps_summary = "mean",
+  mcmc_outcome = mcmc_fixed, mcmc_ps = mcmc_fixed)
 @
 
 Population-standardized estimates are obtained via the functions
@@ -1391,11 +1395,13 @@ predictions at a grid of covariate profiles spanning the empirical
 quartiles of the training predictors.
 
 <<overview-causal-predict-contrast-prep, echo=FALSE, eval=FALSE>>=
-causal_xgrid <- expand.grid(lapply(causal_df[c("x1", "x2", "x3")], quantile, probs = c(0.25, 0.50, 0.75)))
+causal_xgrid <- expand.grid(lapply(causal_df[c("x1", "x2", "x3")],
+  quantile, probs = c(0.25, 0.50, 0.75)))
 @
 
 <<overview-causal-predict-contrast, echo=TRUE, eval=FALSE>>=
-predict(causal_fit,newdata = causal_xgrid,type = "survival",y = rep(4, nrow(causal_xgrid)))
+predict(causal_fit, newdata = causal_xgrid,
+  type = "survival", y = rep(4, nrow(causal_xgrid)))
 @
 
 The bulk-only analogue is \code{dpmix.causal()}, which retains the
@@ -1431,6 +1437,17 @@ and the clustering model is fitted on the observed covariate scale.
 <<app_cluster_data, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
 library(CausalMixGPD)
 library(MASS)
+mcmc_fixed <- list(
+  niter = 1000,
+  nburnin = 200,
+  thin = 1,
+  nchains = 1,
+  seed = 2026,
+  show_progress = TRUE,
+  quiet = FALSE,
+  waic = FALSE,
+  timing = TRUE
+)
 set.seed(123)
 data("Boston", package = "MASS")
 
@@ -1453,8 +1470,14 @@ This formulation highlights how cluster prevalence varies with
 predictors while maintaining a common within-cluster response model.
 
 <<app_cluster_fit-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
-fit_clust <- dpmix.cluster( formula = medv ~ lstat + rm + nox, data = train_dat, kernel = "normal",
-                                  type = "weights", components = 10, mcmc = mcmc_fixed)
+fit_clust <- dpmix.cluster(
+  formula    = medv ~ lstat + rm + nox,
+  data       = train_dat,
+  kernel     = "normal",
+  type       = "weights",
+  components = 10,
+  mcmc       = mcmc_fixed
+)
 @
 
 Because mixture components are not identifiable up to permutation, the
@@ -1489,7 +1512,11 @@ representative training clusters, obtained by aggregating posterior
 predictive co-clustering evidence at the cluster level.
 
 <<app_cluster_predict_new-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
-z_test <- predict(fit_clust, newdata = test_dat, type  = "label")
+z_test <- predict(
+  fit_clust,
+  newdata = test_dat,
+  type    = "label"
+)
 @
 
 Figure~\ref{fig:app_cluster_test_sizes} displays the distribution of
@@ -1497,8 +1524,18 @@ predicted cluster assignments across the test sample, produced by the
 package \code{plot()} method applied to the test labels object.
 
 <<app_cluster_test_sizes, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=7, fig.height=4, out.width='0.8\\linewidth', fig.pos='H', fig.cap='Predicted cluster assignment distribution for the test sample (\\code{medv} data). Each bar corresponds to one representative training cluster; bar heights show the number of test observations assigned to that cluster.'>>=
-summary(z_test)$cluster_profiles
+summary(z_test)
 plot(z_test, type = "size")
+@
+
+<<app_cluster_restore_mcmc, echo=FALSE, eval=TRUE, include=FALSE>>=
+mcmc_fixed <- list(
+  niter = 2500,
+  nburnin = 500,
+  thin = 1,
+  nchains = 3,
+  seed = 2026
+)
 @
 
 This analysis illustrates the intended clustering workflow: inference
@@ -1550,28 +1587,14 @@ covars <- within(lalonde, {
   race <- factor(race, levels = c("white", "black", "hispan"))
   married <- factor(married, levels = c(0, 1), labels = c("no", "yes"))
   nodegree <- factor(nodegree, levels = c(0, 1), labels = c("no", "yes"))
-  age_z <- as.numeric(scale(age))
-  educ_z <- as.numeric(scale(educ))
-  re74_z <- as.numeric(scale(re74))
-  re75_z <- as.numeric(scale(re75))
 })
-x_formula <- ~ age_z + educ_z + race + married + nodegree + re74_z + re75_z
-scale_center <- c(
-  age = mean(covars$age, na.rm = TRUE),
-  educ = mean(covars$educ, na.rm = TRUE),
-  re74 = mean(covars$re74, na.rm = TRUE),
-  re75 = mean(covars$re75, na.rm = TRUE)
-)
-scale_scale <- c(
-  age = stats::sd(covars$age, na.rm = TRUE),
-  educ = stats::sd(covars$educ, na.rm = TRUE),
-  re74 = stats::sd(covars$re74, na.rm = TRUE),
-  re75 = stats::sd(covars$re75, na.rm = TRUE)
-)
-y <- (covars$re78 / 1000) + 0.1  # Rescale to thousands and shift away from zero
+x_formula <- ~ age + educ + race + married +
+  nodegree + re74 + re75
+y <- (covars$re78 + 0.5) / 1000
 A <- as.integer(covars$treat)
 taus <- c(0.25, 0.50, 0.75, 0.90, 0.95)
-X <- stats::model.matrix(x_formula, data = covars)[, -1, drop = FALSE]
+X <- stats::model.matrix(x_formula, data = covars)[,
+  -1, drop = FALSE]
 @
 
 \subsection{Model and fit}
@@ -1601,8 +1624,8 @@ standardized and profile-specific Lalonde earnings contrasts under the
 spliced DPM--GPD workflow.
 
 <<fit-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
-fit <- dpmgpd.causal(y = y, X = X, treat = A, backend = "sb", kernel = "gamma", components = 10,
-                     mcmc = mcmc_fixed, PS = "logit", parallel_arms = FALSE)
+fit <- dpmgpd.causal(y = y, X = X, treat = A, backend = "sb",
+  kernel = "gamma", components = 10, mcmc = mcmc_fixed)
 @
 
 
@@ -1629,7 +1652,8 @@ summary(ate_fit)
 
 
 <<qte-call, echo=TRUE, message=FALSE, warning=FALSE, results='hide', eval=TRUE>>=
-qte_fit <- qte(fit, probs = c(0.25, 0.50, 0.75, 0.9),interval = "credible")
+qte_fit <- qte(fit, probs = c(0.25, 0.50, 0.75, 0.9),
+  interval = "credible")
 @
 
 Figure~\ref{fig:qte_plot} displays two standardized QTE views side by
@@ -1639,7 +1663,6 @@ treated-versus-control quantile curves with uncertainty intervals.
 <<qte_plot, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, out.width='0.95\\linewidth', fig.pos='H', fig.cap='Standardized QTE visual summaries for Lalonde 1978 earnings: effect curve (left) and treated-versus-control quantiles (right), each with pointwise credible intervals.'>>=
 qte_effect_plot <- plot(qte_fit, type = "effect")
 qte_arms_plot <- plot(qte_fit, type = "arms")
-
 qte_effect_plot + qte_arms_plot + plot_layout(ncol = 2)
 @
 
@@ -1701,20 +1724,9 @@ profile_raw <- data.frame(
   check.names = FALSE
 )
 
-profile_model <- within(profile_raw, {
-  age_z <- (age - scale_center[["age"]]) /
-    scale_scale[["age"]]
-  educ_z <- (educ - scale_center[["educ"]]) /
-    scale_scale[["educ"]]
-  re74_z <- (re74 - scale_center[["re74"]]) /
-    scale_scale[["re74"]]
-  re75_z <- (re75 - scale_center[["re75"]]) /
-    scale_scale[["re75"]]
-})
-
 xnew <- stats::model.matrix(
   x_formula,
-  data = profile_model
+  data = profile_raw
 )[, -1, drop = FALSE]
 xnew <- xnew[, colnames(X), drop = FALSE]
 rownames(xnew) <- profile_raw$profile
@@ -1731,12 +1743,18 @@ rownames(profile_display) <- NULL
 @
 
 <<xnew-results, echo=FALSE, eval=TRUE, results='asis'>>=
+profile_t <- as.data.frame(t(profile_display[, -which(names(profile_display) == "profile")]))
+colnames(profile_t) <- profile_display$profile
+profile_t[] <- lapply(profile_t, function(x) {
+  num <- suppressWarnings(as.numeric(as.character(x)))
+  ifelse(!is.na(num), formatC(round(num, 4), format = "f", digits = 4), as.character(x))
+})
 kableExtra::kbl(
-  profile_display,
+  profile_t,
   format = "latex",
   booktabs = TRUE,
   caption = "Representative Lalonde participant profiles used for conditional causal contrasts",
-  row.names = FALSE
+  row.names = TRUE
 ) |>
   kableExtra::kable_styling(
     latex_options = c("HOLD_position", "scale_down"),
@@ -1745,14 +1763,8 @@ kableExtra::kbl(
 @
 
 <<cate-call, echo=TRUE, message=FALSE, warning=FALSE, results='hide', eval=TRUE>>=
-cate_fit <- cate(
-  fit,
-  newdata = xnew,
-  type = "mean",
-  interval = "hpd",
-  show_progress = FALSE
-)
-
+cate_fit <- cate(fit, newdata = xnew, type = "mean",
+  interval = "hpd", show_progress = FALSE)
 summary(cate_fit)
 @
 
@@ -1765,13 +1777,8 @@ plot(cate_fit)
 @
 
 <<cqte-call, echo=TRUE, message=FALSE, warning=FALSE, results='hide', eval=TRUE>>=
-cqte_fit <- cqte(
-  fit,
-  probs = c(0.25, 0.50, 0.75, 0.90, 0.95),
-  newdata = xnew,
-  interval = "credible",
-  show_progress = FALSE
-)
+cqte_fit <- cqte(fit, probs = c(0.25, 0.50, 0.75, 0.90, 0.95),
+  newdata = xnew, interval = "credible", show_progress = FALSE)
 @
 
 Table~\ref{tab:cqte_table} reports CQTE summaries at the four
@@ -1850,6 +1857,714 @@ confounding.
 
 \bibliography{CausalMixGPD_JSS_refs}
 
+
+\clearpage
+\appendix
+\section{Package Customization and Additional Features}
+\label{sec:appendix-features}
+
+This appendix provides a comprehensive reference for the
+customization options and additional features available in
+\pkg{CausalMixGPD} that extend beyond the workflows demonstrated in
+the main text.  While the preceding sections focused on specific
+analysis pipelines, the package supports a substantially richer set
+of modeling choices, prior specifications, computational controls,
+and output summaries.  These are documented below in a self-contained
+manner so that users can adapt the package to a wide range of applied
+settings.
+
+
+\subsection{Kernel families and distributional support}
+\label{subsec:app-kernels}
+
+The bulk component of the Dirichlet process mixture can be
+instantiated with any of seven kernel families, selected through the
+\code{kernel} argument of the fitting functions.  Each kernel defines
+the parametric family used for the mixture components, and the choice
+should reflect the support and shape characteristics of the outcome
+variable.
+
+Three kernels are designed for outcomes on the positive real line.
+The \code{"gamma"} kernel parameterizes each component through a
+shape and scale parameter, making it well suited for right-skewed
+positive outcomes such as earnings, costs, or durations.  The
+\code{"lognormal"} kernel models each component on the log scale
+through a mean-log and standard-deviation-log parameterization,
+providing an alternative for positive outcomes where log-normality is
+a reasonable component-level assumption.  The \code{"invgauss"}
+kernel uses the inverse Gaussian distribution with a mean and shape
+parameterization, which can capture right-skewed behavior with a
+different tail profile than the gamma or lognormal.  A fourth
+positive-support kernel, \code{"amoroso"}, provides a four-parameter
+generalization (location, scale, and two shape parameters) that nests
+the gamma, Weibull, and other classical families as special cases,
+offering substantial flexibility at the cost of additional
+parameters.
+
+Three kernels are designed for outcomes on the entire real line.  The
+\code{"normal"} kernel is the standard Gaussian component with mean
+and standard deviation parameters.  The \code{"laplace"} kernel
+specifies a double-exponential component with a location and scale
+parameterization, which can better accommodate peaked distributions
+with heavier-than-Gaussian tails at the component level.  The
+\code{"cauchy"} kernel uses a Cauchy distribution with location and
+scale, providing extremely heavy-tailed components; because the
+Cauchy distribution already has undefined moments and heavy tails,
+the GPD tail extension is not permitted when this kernel is selected.
+
+A summary of kernel capabilities can be retrieved programmatically
+through \code{kernel\_support\_table()}, which returns a data frame
+indicating for each kernel whether it supports GPD splicing,
+covariate dependence, and each backend representation.  The
+\code{get\_kernel\_registry()} function provides full access to the
+internal metadata for each kernel, including parameter names, support
+constraints, default prior modes, and the distributional functions
+registered for density, CDF, quantile, and random generation
+evaluations.
+
+
+\subsection{Backend representations}
+\label{subsec:app-backends}
+
+The \code{backend} argument controls how the Dirichlet process
+mixture weights and component parameters are represented internally.
+Two primary backends are available, and a third specialized variant
+exists for component-level tail modeling.
+
+The stick-breaking backend (\code{backend = "sb"}) implements the
+truncated stick-breaking representation described in
+Section~\ref{subsec:dpm}.  Mixture weights are constructed explicitly
+from Beta-distributed stick-breaking fractions, and the truncation
+level is set by the \code{components} argument.  This representation
+is natural when the analyst wishes to work with an explicit finite
+set of mixture components and when monitoring individual component
+weights is of interest.
+
+The Chinese restaurant process backend (\code{backend = "crp"})
+implements a finite approximation to the CRP-based Dirichlet process
+mixture.  Rather than maintaining explicit weight vectors,
+observations are assigned to clusters through latent allocation
+variables, and the number of occupied clusters is determined by the
+data and the concentration parameter.  The \code{components} argument
+sets the maximum number of clusters permitted in the finite
+approximation.  This backend is often preferred when the number of
+distinct subpopulations is unknown or potentially large, as it avoids
+maintaining parameters for unoccupied components.
+
+A third option, \code{backend = "spliced"}, is a CRP variant that
+enables component-level GPD tail parameterization.  Under this
+backend, the threshold, tail scale, and tail shape parameters can
+vary across mixture components, allowing different clusters to
+exhibit different extremal behavior.  This backend requires
+\code{GPD = TRUE} and is appropriate when the analyst suspects that
+tail heaviness varies across latent subpopulations.
+
+In the causal workflow, each treatment arm can use a different
+backend.  The \code{backend} argument accepts either a single string
+(applied to both arms) or a length-two character vector specifying
+the backend for each arm separately, providing maximum flexibility
+when the distributional structure of the two arms differs
+qualitatively.
+
+
+\subsection{Truncation level and effective component count}
+\label{subsec:app-components}
+
+The \code{components} argument specifies the maximum number of
+mixture components (for stick-breaking) or the maximum number of
+clusters (for CRP-based backends).  It must be an integer of at
+least~2.  When omitted, the package defaults to the sample size,
+which provides a conservative upper bound but may increase
+computational cost.
+
+In practice, the effective number of occupied components is
+determined jointly by the data, the concentration parameter, and the
+truncation level.  The \code{epsilon} argument (a numeric value in
+$[0,1)$, defaulting to~0.025) controls post-estimation pruning of
+negligible components for prediction and summary purposes.
+Components whose cumulative posterior weight falls below
+$1-\epsilon$, or whose individual weight is below~$\epsilon$, are
+excluded from posterior predictive calculations, and the remaining
+weights are renormalized.  This mechanism prevents components with
+vanishingly small weight from introducing numerical noise into
+density, quantile, and mean calculations.
+
+For causal models, both \code{components} and \code{epsilon} accept
+either a single value (shared by both arms) or a length-two vector
+to specify arm-specific truncation and pruning thresholds.
+
+
+\subsection{Prior specification and the \code{param\_specs} interface}
+\label{subsec:app-priors}
+
+Every kernel parameter and every tail parameter can be customized
+through the \code{param\_specs} argument, which accepts a named list
+with two top-level entries: \code{bulk} (for kernel parameters) and
+\code{tail} (for GPD parameters).  Each entry is itself a named list
+keyed by parameter name, and each parameter specification is a list
+that determines how that parameter enters the model.
+
+Three modes are available for each parameter.  In \emph{fixed mode}
+(\code{mode = "fixed"}), the parameter is held constant at a
+user-supplied value throughout the MCMC, which is useful for
+anchoring parameters that are known from external information or for
+conducting sensitivity analyses.  In \emph{distribution mode}
+(\code{mode = "dist"}), the parameter receives a prior distribution
+and is sampled during MCMC; available prior families include the
+normal, gamma, inverse-gamma, and lognormal distributions, whose
+hyperparameters are specified as additional list elements.  In
+\emph{link mode} (\code{mode = "link"}), the parameter is modeled as
+a function of covariates through a regression specification of the
+form $g(\psi_j(x)) = x^\top \beta_{j,\psi}$, where the link
+function~$g(\cdot)$ is controlled by the \code{link} element.
+Available link functions include \code{"identity"} (no
+transformation), \code{"exp"} (log link, enforcing positivity),
+\code{"log"} (exponential link), \code{"softplus"} (a smooth
+approximation to the positive part), and \code{"power"} (a
+power-function link whose exponent is specified via
+\code{link\_power}).  Link mode requires that covariates be present
+in the model.
+
+The default prior mode for each parameter is determined by the kernel
+registry.  For instance, the normal kernel uses link mode with an
+identity link for the component mean (so that the mean is a linear
+function of covariates) and distribution mode for the standard
+deviation.  The gamma kernel uses distribution mode for the shape
+parameter and link mode with an exponential link for the scale
+parameter (ensuring positivity through a log-linear predictor).
+These defaults are designed to be weakly informative and can be
+inspected through \code{get\_kernel\_registry()}.
+
+The tail parameters---threshold, tail scale, and tail
+shape---follow the same three-mode interface.  The threshold and
+tail scale default to link mode with a log link when covariates are
+present, allowing the splice point and tail dispersion to vary
+smoothly with the predictor values.  The tail-shape parameter, which
+governs the heaviness of the extreme tail, typically uses
+distribution mode with a weakly informative prior centered near zero.
+Users who wish to fix the threshold at a known quantile of the
+data (a common practice in peaks-over-threshold analysis) can do so
+by specifying \code{threshold = list(mode = "fixed", value = u0)},
+where \code{u0} is the desired threshold value.
+
+
+\subsection{Concentration parameter}
+\label{subsec:app-alpha}
+
+The Dirichlet process concentration parameter $\kappa$ (referred to
+as \code{alpha} in the package output) governs the prior expected
+number of distinct clusters.  By default, $\kappa$ is treated as a
+random variable with a gamma prior and is updated during MCMC
+(\code{alpha\_random = TRUE}).  Setting \code{alpha\_random = FALSE}
+fixes $\kappa$ at its initial value, which can be useful for
+sensitivity analysis or when external knowledge informs the expected
+number of clusters.  The posterior trace and summary of $\kappa$ are
+accessible through the standard diagnostic and summary methods.
+
+
+\subsection{MCMC configuration}
+\label{subsec:app-mcmc}
+
+The MCMC sampler is configured through a named list passed to the
+\code{mcmc} argument (or, for causal models, through the separate
+\code{mcmc\_outcome} and \code{mcmc\_ps} arguments).  The list
+supports the following elements.
+
+The \code{niter} element specifies the total number of MCMC
+iterations per chain (default~2000).  The \code{nburnin} element
+specifies the number of initial iterations discarded as burn-in
+(default~500).  The \code{thin} element controls thinning: only every
+$k$-th post-burn-in iteration is retained (default~1, i.e., no
+thinning).  The \code{nchains} element sets the number of independent
+chains (default~1); running multiple chains enables convergence
+diagnostics such as the Gelman--Rubin statistic.  The \code{seed}
+element sets the random seed for reproducibility.
+
+Additional runtime options can be passed when executing the sampler.
+Setting \code{show\_progress = TRUE} displays progress messages
+during sampling.  Setting \code{quiet = TRUE} suppresses verbose
+output from the \pkg{nimble} compiler.  The
+\code{parallel\_chains} flag enables parallel execution of multiple
+chains using the \code{workers} argument to control the number of
+parallel processes.  For causal models, \code{parallel\_arms}
+enables parallel fitting of the treated and control outcome models.
+The \code{timing} flag records wall-clock execution time, which is
+stored in the fitted object and can be accessed for benchmarking.
+
+For CRP-based backends, the \code{z\_update\_every} argument
+controls the frequency (in iterations) at which latent cluster
+labels are globally updated.  This can be tuned to balance mixing
+quality against computational cost.
+
+
+\subsection{Monitoring and posterior output}
+\label{subsec:app-monitors}
+
+The \code{monitor} argument controls which model parameters are
+retained in the posterior output.  Two profiles are available.  The
+\code{"core"} profile (default) retains only the essential
+parameters: the concentration parameter, mixture weights or cluster
+labels, and the kernel and tail parameter vectors.  The \code{"full"}
+profile retains all model nodes, including auxiliary quantities.
+
+Finer control is available through two additional flags.  Setting
+\code{monitor\_latent = TRUE} includes the latent cluster allocation
+variables $z_1, \ldots, z_n$ in the output, which is necessary for
+post-hoc clustering analyses on one-arm models fitted outside the
+dedicated clustering wrappers.  For CRP and spliced backends, latent
+labels are monitored by default.  Setting \code{monitor\_v = TRUE}
+(relevant only for the stick-breaking backend) includes the raw
+stick-breaking fractions $V_1, \ldots, V_{J-1}$ in the posterior
+output, which can be useful for diagnosing the truncation
+approximation.
+
+
+\subsection{Model fitting interfaces}
+\label{subsec:app-interfaces}
+
+The package provides two interfaces for model specification.  The
+\emph{formula interface} uses standard \textsf{R} formula syntax
+together with a \code{data} argument:
+
+\begin{verbatim}
+fit <- dpmgpd(formula = y ~ x1 + x2, data = dat, kernel = "gamma")
+\end{verbatim}
+
+\noindent The formula is parsed to extract the response and construct
+a design matrix automatically, including handling of factors and
+interactions through the standard \code{model.matrix()} machinery.
+
+The \emph{matrix interface} supplies the response vector and design
+matrix directly:
+
+\begin{verbatim}
+fit <- dpmgpd(y = y_vec, X = X_mat, kernel = "gamma")
+\end{verbatim}
+
+\noindent This interface is useful when the design matrix has already
+been constructed externally (for example, after centering, scaling,
+or one-hot encoding categorical variables).  For causal models, the
+treatment indicator is supplied through the \code{treat} argument
+(accepting either a column name when using the formula interface or a
+binary vector when using the matrix interface).
+
+A third, two-stage workflow is available through the
+\code{bundle()} function, which constructs the model specification
+and compiles the \pkg{nimble} code without running the sampler.  The
+returned bundle object can be inspected, modified, and then passed to
+\code{mcmc()} for execution.  This workflow is useful when the
+analyst wishes to verify the model structure, review the generated
+code, or programmatically adjust settings before committing to a
+potentially long MCMC run.
+
+
+\subsection{Prediction types and posterior functionals}
+\label{subsec:app-predict}
+
+The \code{predict()} method for fitted objects supports eight
+prediction types, each corresponding to a different functional of the
+posterior predictive distribution.
+
+Setting \code{type = "density"} evaluates the posterior predictive
+density $f(y \mid x)$ at a user-supplied grid of outcome values
+(provided through the \code{y} argument).  For each combination of
+covariate profile and grid point, the density is evaluated
+draw-by-draw from the spliced model, and the retained draws are
+summarized by their posterior mean and, optionally, credible or
+highest posterior density (HPD) intervals.  This type is appropriate
+for visualizing the shape of the fitted conditional distribution at
+specific covariate values.
+
+Setting \code{type = "survival"} computes the posterior survival
+function $S(y \mid x) = 1 - F(y \mid x)$ at a grid of outcome
+values.  This is the natural summary for time-to-event or
+exceedance-probability analyses, and it shares the same computational
+machinery as the density type.
+
+Setting \code{type = "quantile"} inverts the posterior predictive CDF
+to obtain conditional quantiles $Q(\tau \mid x)$ at probability
+levels specified through the \code{index} (or equivalently \code{p})
+argument.  Quantiles are computed draw-by-draw from the spliced
+quantile function, ensuring that the GPD tail component governs
+extreme quantiles beyond the bulk threshold.  This type is
+particularly valuable for characterizing the full distributional
+shape, including extreme tails, without the quantile-crossing
+problems that arise when quantiles are estimated independently.
+
+Setting \code{type = "mean"} returns the posterior predictive mean
+$\mathrm{E}(Y \mid x)$.  When the bulk kernel possesses a
+closed-form mean and the GPD shape parameter satisfies $\xi < 1$,
+the mean is computed analytically on each posterior draw, providing
+an exact (up to MCMC error) posterior summary of the conditional
+expectation.  If the ordinary mean does not exist (as when $\xi \ge
+1$), the function issues a warning and directs the user to the
+restricted-mean type.
+
+Setting \code{type = "rmean"} computes the restricted (truncated)
+mean $\mathrm{E}[\min(Y, c) \mid x]$ for a user-supplied cutoff
+\code{c} provided through the \code{cutoff} argument.  The
+restricted mean remains well defined regardless of the tail-shape
+parameter and provides a robust location summary when the ordinary
+mean is infinite or does not exist.  This type uses posterior
+predictive Monte Carlo simulation with the number of draws controlled
+by the \code{nsim\_mean} argument.
+
+Setting \code{type = "median"} is a convenience shorthand that
+returns the posterior predictive median, equivalent to calling
+\code{type = "quantile"} with \code{index = 0.5}.
+
+Setting \code{type = "sample"} generates random draws from the
+posterior predictive distribution $p(y^\star \mid x^\star, \mathcal{D})$.
+The number of draws per covariate profile is controlled by
+\code{nsim}, and the output consists of raw simulated values rather
+than summary statistics.
+
+Setting \code{type = "fit"} returns the per-observation posterior
+predictive draws themselves (one draw per retained MCMC iteration per
+observation), which can be useful for custom downstream summaries or
+model checking.
+
+
+\subsection{Interval estimation}
+\label{subsec:app-intervals}
+
+All prediction and causal estimand functions support two types of
+posterior interval estimates, controlled through the \code{interval}
+argument.  Setting \code{interval = "credible"} produces equal-tailed
+credible intervals at the level specified by \code{level} (default
+0.95), constructed from the empirical quantiles of the posterior
+draws.  Setting \code{interval = "hpd"} produces highest posterior
+density intervals, which are the shortest intervals containing the
+specified posterior probability mass; these can be preferable for
+skewed posteriors.  Setting \code{interval = NULL} suppresses
+interval computation entirely, returning only point estimates.  The
+\code{probs} argument provides additional control over the quantiles
+reported in the output (default \code{c(0.025, 0.5, 0.975)}).
+
+
+\subsection{Causal estimand functions}
+\label{subsec:app-causal-estimands}
+
+Beyond the \code{ate()}, \code{qte()}, \code{cate()}, and
+\code{cqte()} functions demonstrated in
+Section~\ref{sec:app-causal}, the package provides several additional
+causal estimand functions.
+
+The \code{att()} function computes the average treatment effect on
+the treated, which marginalizes the arm-specific conditional means
+over the covariate distribution of treated units only (rather than
+the full population).  Its interface mirrors \code{ate()} exactly.
+
+The \code{qtt()} function computes quantile treatment effects on the
+treated, marginalizing the arm-specific conditional quantile
+functions over the treated covariate distribution.  Its interface
+mirrors \code{qte()}.
+
+The \code{ate\_rmean()} function is a convenience wrapper that
+computes average treatment effects using the restricted mean rather
+than the ordinary mean, which is necessary when the outcome
+distribution has a heavy enough tail that the ordinary mean does not
+exist.  This function accepts a \code{cutoff} argument specifying the
+truncation point and dispatches to either \code{ate()} or
+\code{cate()} (when \code{newdata} is supplied) with
+\code{type = "rmean"}.
+
+Both the \code{ate()} and \code{cate()} families accept a
+\code{type} argument that can be set to \code{"mean"} (the default)
+or \code{"rmean"} for restricted-mean contrasts with an accompanying
+\code{cutoff} value.  All causal estimand functions return objects
+with \code{summary()}, \code{print()}, and \code{plot()} methods.
+
+
+\subsection{Propensity score customization}
+\label{subsec:app-ps}
+
+In observational studies, the causal fitting functions support
+propensity-score augmentation through several arguments that control
+the PS model, its summary, and how it enters the outcome model.
+
+The \code{PS} argument selects the propensity-score model.  Setting
+\code{PS = "logit"} (the default) fits a Bayesian logistic regression
+of the treatment indicator on the covariates.  Setting
+\code{PS = "probit"} uses a Bayesian probit specification instead.
+Setting \code{PS = "naive"} employs a Gaussian naive Bayes
+classifier for the propensity scores.  Setting \code{PS = FALSE}
+disables propensity-score estimation entirely, which is appropriate
+for randomized experiments where covariate balance is ensured by
+design.
+
+The \code{ps\_scale} argument determines the scale on which the
+estimated propensity score is appended to the outcome model
+covariates.  Setting \code{ps\_scale = "logit"} augments the
+covariate vector with the log-odds of the estimated score, which
+tends to have better distributional properties for regression.
+Setting \code{ps\_scale = "prob"} augments with the probability-scale
+score directly.
+
+The \code{ps\_summary} argument controls how the posterior
+distribution over propensity scores is summarized into a single
+point estimate for augmentation: \code{"mean"} uses the posterior
+mean (the default), while \code{"median"} uses the posterior median.
+
+The \code{ps\_clamp} argument provides numerical stability by
+clamping extreme propensity scores to the interval
+$(\varepsilon, 1 - \varepsilon)$, where $\varepsilon$ is specified
+by \code{ps\_clamp} (default $10^{-6}$).  This prevents logarithmic
+overflow when the logit scale is used for augmentation.
+
+The \code{ps\_prior} argument controls the prior on the
+propensity-score regression coefficients, specified as a list with
+\code{mean} and \code{sd} elements (defaulting to a mean of~0 and a
+standard deviation of~2), providing a weakly informative shrinkage
+prior.
+
+The propensity-score model and the outcome models are fitted in
+separate MCMC stages, each with its own MCMC configuration specified
+through \code{mcmc\_ps} and \code{mcmc\_outcome}, respectively.
+This two-stage structure allows the analyst to allocate more
+iterations to whichever stage requires finer posterior resolution.
+
+
+\subsection{Clustering workflow and prediction types}
+\label{subsec:app-clustering-details}
+
+The clustering wrappers \code{dpmix.cluster()} and
+\code{dpmgpd.cluster()} accept a \code{type} argument that specifies
+how covariates influence the mixture structure.  Three options are
+available, corresponding to the three forms of predictor dependence
+described in Section~\ref{subsec:clustering-theory}.
+
+Setting \code{type = "weights"} introduces covariate dependence
+through the mixture weights only, using a predictor-dependent
+stick-breaking construction.  Component-specific kernel parameters
+remain shared across covariate values, so the within-cluster response
+model is the same everywhere but cluster prevalence varies with
+predictors.
+
+Setting \code{type = "param"} introduces covariate dependence
+through the component-specific kernel parameters only.  Mixture
+weights remain global, but the response distribution within each
+cluster varies with covariates through the link specifications
+described in Section~\ref{subsec:app-priors}.
+
+Setting \code{type = "both"} combines both forms of dependence,
+allowing covariates to influence both which clusters are prevalent
+and how the response is distributed within each cluster.  This is the
+most flexible specification but also the most parameter-rich.
+
+The \code{predict()} method for clustering fits supports two types.
+Setting \code{type = "psm"} computes the posterior similarity matrix,
+whose $(i,\ell)$ entry estimates the posterior probability that
+observations $i$ and $\ell$ belong to the same cluster.  The PSM is
+computed from the MCMC output by averaging indicator functions of
+co-cluster membership across retained draws.  Setting
+\code{type = "label"} returns representative cluster labels obtained
+by selecting the sampled partition closest to the PSM under squared
+Frobenius loss, following the Dahl criterion.  For new observations
+supplied through \code{newdata}, cluster labels are assigned by
+aggregating posterior predictive co-clustering evidence relative to
+the representative training partition.
+
+The \code{summary()} method for cluster label objects returns
+cluster-level descriptive statistics, including cluster sizes and
+covariate and response profiles within each cluster.  These
+summaries provide interpretable characterizations of the discovered
+subgroups.
+
+
+\subsection{Visualization methods}
+\label{subsec:app-plots}
+
+The package provides dedicated \code{plot()} methods for each class
+of fitted and predicted object, built on top of \pkg{ggplot2}.
+
+For fitted one-arm models, \code{plot()} produces MCMC diagnostic
+visualizations selected through the \code{family} argument.
+Available diagnostic families include: \code{"traceplot"} for trace
+plots of sampled parameter values across iterations;
+\code{"density"} and \code{"histogram"} for posterior density
+estimates and histograms; \code{"running"} for running-mean plots
+that help assess stationarity; \code{"autocorrelation"} for
+autocorrelation function plots at a user-specified number of lags
+(controlled by \code{nLags}); \code{"crosscorrelation"} for
+pairwise cross-correlation matrices; \code{"Rhat"} and \code{"grb"}
+for the Gelman--Rubin convergence diagnostic and
+Gelman--Rubin--Brooks evolution plot (both requiring at least two
+chains); \code{"effective"} for effective sample size bar plots;
+\code{"geweke"} for the Geweke stationarity diagnostic;
+\code{"caterpillar"} for forest-style plots of posterior intervals;
+and \code{"pairs"} for pairwise posterior scatter plots.  Setting
+\code{family = "auto"} automatically produces the set of diagnostics
+appropriate for the number of chains in the fitted object.  The
+\code{params} argument accepts parameter names, partial matches, or
+regular expressions to restrict the diagnostic plots to a subset of
+parameters.
+
+For fitted causal models, the \code{plot()} method routes to the
+underlying one-arm diagnostics with an \code{arm} argument that
+selects the treated arm (\code{arm = 1} or \code{"treated"}), the
+control arm (\code{arm = 0} or \code{"control"}), or both
+(\code{arm = "both"}).
+
+For causal estimand objects returned by \code{ate()}, \code{att()},
+and \code{cate()}, the \code{plot()} method produces treatment effect
+visualizations with three styles: \code{type = "effect"} displays
+the estimated effect with uncertainty intervals, \code{type = "arms"}
+displays the arm-specific estimates side by side, and
+\code{type = "both"} combines the two views.
+
+For quantile treatment effect objects returned by \code{qte()},
+\code{qtt()}, and \code{cqte()}, the \code{plot()} method supports
+the same three styles.  The effect curve view displays the estimated
+QTE as a function of the quantile index with pointwise uncertainty
+bands, while the arms view displays the treated and control quantile
+curves together.  For conditional QTE objects with multiple covariate
+profiles, the \code{facet\_by} argument controls whether faceting is
+organized by quantile level (\code{"tau"}) or by covariate profile
+(\code{"id"}).
+
+For cluster model objects, several specialized plot methods are
+available.  The PSM object supports a heatmap visualization through
+\code{plot()}, with a \code{psm\_max\_n} argument that prevents
+accidentally rendering prohibitively large matrices.  The cluster
+labels object supports three plot types: \code{type = "sizes"} for
+bar plots of cluster membership counts, \code{type = "certainty"}
+for histograms of assignment certainty (the maximum posterior
+assignment probability per observation), and \code{type = "summary"}
+for a composite display combining cluster sizes with response and
+covariate profiles within each cluster.
+
+All plot methods return \pkg{ggplot2} objects that can be further
+customized using the standard \pkg{ggplot2} grammar.  Setting the
+global option \code{options(CausalMixGPD.plotly = TRUE)} or passing
+\code{plotly = TRUE} to individual plot calls converts the output to
+interactive \pkg{plotly} visualizations.
+
+
+\subsection{Summary, extraction, and diagnostic methods}
+\label{subsec:app-summaries}
+
+Several methods support inspection of fitted models and extraction
+of posterior quantities.
+
+The \code{summary()} method for one-arm fits returns a structured
+object containing the posterior mean, standard deviation, and
+user-specified quantiles (controlled by the \code{probs} argument,
+defaulting to \code{c(0.025, 0.5, 0.975)}) for all monitored
+parameters, together with effective sample size (ESS) estimates.  The
+optional \code{pars} argument restricts the summary to parameters
+matching a name pattern or regular expression.  For causal fits,
+\code{summary()} returns separate summaries for the propensity-score
+model (if applicable) and for each treatment arm's outcome model,
+with the \code{ps\_pars} argument available for filtering
+propensity-score parameters.
+
+The \code{params()} function reshapes the posterior means into a
+natural parameter layout: scalar quantities remain scalar,
+component-specific parameters are organized as vectors indexed by
+component, and regression coefficient blocks are formatted as
+matrices with covariate names as row labels.  For causal fits,
+\code{params()} returns a structured list with entries for the
+treated arm, the control arm, and (when applicable) the
+propensity-score block.
+
+The \code{fitted()} method returns the posterior predictive mean at
+each training observation, and \code{residuals()} returns the
+difference between the observed outcome and the fitted value.  These
+are useful for informal model-checking diagnostics.
+
+The \code{ess\_summary()} function provides a detailed effective
+sample size analysis, with options for per-chain ESS (controlled by
+\code{per\_chain}), wall-time-normalized ESS rates (by supplying
+\code{wall\_time}), and robust handling of missing parameters
+(\code{robust = TRUE}).
+
+
+\subsection{Distributional utility functions}
+\label{subsec:app-distutils}
+
+The package exports a complete set of distributional functions for
+the generalized Pareto distribution, each kernel-mixture family, and
+each spliced kernel-mixture-GPD family.  These are available for
+standalone use outside the MCMC workflow and follow the standard
+\textsf{R} naming convention.
+
+For the generalized Pareto distribution, \code{dgpd()},
+\code{pgpd()}, \code{qgpd()}, and \code{rgpd()} provide the
+density, distribution function, quantile function, and random
+generation, respectively, parameterized by threshold, scale, and
+shape.
+
+For each bulk kernel family, mixture versions are available.  For
+example, \code{dgammamix()}, \code{pgammamix()},
+\code{qgammamix()}, and \code{rgammamix()} evaluate the density,
+CDF, quantile function, and random generation of a finite gamma
+mixture specified by weight, shape, and scale vectors.  Analogous
+functions exist for the normal (\code{dnormmix()}, etc.), lognormal,
+inverse Gaussian, Laplace, Cauchy, and Amoroso mixture families.
+
+Spliced kernel-mixture-GPD functions are also available.  For
+instance, \code{dgammamixgpd()}, \code{pgammamixgpd()},
+\code{qgammamixgpd()}, and \code{rgammamixgpd()} evaluate the
+spliced gamma-mixture-plus-GPD density, CDF, quantile function, and
+random generation.  These functions accept the same bulk parameters
+as the corresponding mixture functions, together with the threshold,
+tail scale, and tail shape parameters that define the GPD splice.
+
+These utility functions are useful for prior predictive checks,
+simulation studies, computing ground-truth quantities in benchmarks,
+and manual evaluation of fitted model quantities outside the
+automated prediction machinery.
+
+
+\subsection{Simulation functions and bundled data sets}
+\label{subsec:app-simulation}
+
+Three simulation functions are provided for generating synthetic data
+that exercises the package's modeling capabilities.
+
+The function \code{sim\_bulk\_tail()} generates positive-valued
+outcomes with a bulk-plus-tail structure, controlled by the sample
+size (\code{n}) and the proportion of tail observations
+(\code{tail\_prob}).  The function \code{sim\_causal\_qte()} generates
+a complete causal data set with a binary treatment indicator,
+covariates, and outcomes exhibiting heterogeneous location and tail
+effects across arms.  The function \code{sim\_survival\_tail()}
+produces survival-style data with event times, censoring indicators,
+and covariates.  All three functions accept a \code{seed} argument
+for reproducibility.
+
+The package also bundles twelve pre-generated data sets covering a
+range of design configurations: unconditional and conditional models,
+real-line and positive-support outcomes, varying numbers of
+covariates and true components, and presence or absence of GPD
+tails.  Four of these are causal data sets with both treatment arms.
+Each bundled data set is a list containing the outcome vector, the
+covariate matrix (when applicable), the treatment indicator (for
+causal data), metadata describing the generating configuration, and
+ground-truth parameter values for benchmarking.  These data sets are
+accessible through \code{data()} and are used throughout the
+package's documentation and testing infrastructure.
+
+
+\subsection{Computational considerations}
+\label{subsec:app-computation}
+
+Several features address the computational demands of Bayesian
+nonparametric mixture modeling.  Parallel execution of multiple MCMC
+chains is supported through the \code{parallel\_chains} flag and the
+\code{workers} argument, which specifies the number of parallel
+processes.  For causal models, the \code{parallel\_arms} flag
+enables simultaneous fitting of the treated and control outcome
+models.  Large prediction tasks can be chunked through the
+\code{chunk\_size} argument in the prediction functions, and
+posterior draws can be subsampled through \code{ndraws\_pred} to
+reduce prediction time when the full posterior is not required.
+Progress reporting is controlled through the \code{show\_progress}
+flag, and verbose \pkg{nimble} compilation output can be suppressed
+through the \code{quiet} flag.  Wall-clock timing information is
+available when \code{timing = TRUE} and is stored in the fitted
+object for benchmarking and comparison across model specifications.
 
 
 \end{document}

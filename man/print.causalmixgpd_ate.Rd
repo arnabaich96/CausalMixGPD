@@ -23,6 +23,19 @@ The object \code{x}, invisibly.
 produced by \code{\link{ate}}, \code{\link{att}}, \code{\link{cate}}, or
 \code{\link{ate_rmean}}.
 }
+\details{
+These objects summarize posterior treatment contrasts on the mean scale. For
+the marginal average treatment effect,
+\deqn{\Delta = E(Y^1) - E(Y^0).}
+\code{att()} changes the standardization target to the treated population,
+\code{cate()} conditions on supplied covariate profiles, and \code{ate_rmean()} replaces
+the ordinary mean by a restricted mean
+\eqn{\int_0^c S_a(t)\,dt} up to the chosen truncation point.
+
+The print method shows the main effect table and setup metadata, but it is not
+a full diagnostic report. Use \code{summary()} for tabular summaries and \code{plot()}
+for graphical inspection of the same treatment-effect object.
+}
 \examples{
 \dontrun{
 cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)

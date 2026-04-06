@@ -20,6 +20,19 @@ An object of class \code{"summary.causalmixgpd_qte"} with
 \code{summary.causalmixgpd_qte()} converts QTE, QTT, or CQTE output into a
 tabular summary suitable for reporting.
 }
+\details{
+The summary reorganizes the posterior effect object into reporting tables. The
+target estimand remains a quantile contrast,
+\deqn{\Delta(\tau) = Q_{Y^1}(\tau) - Q_{Y^0}(\tau),}
+with the appropriate marginal, treated-standardized, or conditional
+interpretation depending on whether the source object came from \code{qte()},
+\code{qtt()}, or \code{cqte()}.
+
+Besides the effect table itself, the summary records the quantile grid, the
+interval settings, and per-quantile distributional summaries when posterior
+draws are available. This makes the object convenient for reporting and
+downstream printing without recomputing the estimand.
+}
 \examples{
 \dontrun{
 cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)

@@ -9,4 +9,10 @@
 \description{
 Detect the first present argument name in dots.
 }
+\details{
+Some wrapped scalar functions accept either \code{q} or \code{x} as their first numeric
+argument depending on the original API. This helper inspects \code{...} and returns
+the first candidate name that is actually present so wrapper code can map user
+input onto the target function signature.
+}
 \keyword{internal}
