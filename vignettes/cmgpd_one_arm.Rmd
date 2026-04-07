@@ -1,0 +1,286 @@
+---
+title: "Getting Started with One-Arm Modeling in CausalMixGPD"
+output: rmarkdown::html_vignette
+bibliography: CausalMixGPD.bib
+link-citations: true
+vignette: >
+  %\VignetteIndexEntry{Getting Started with One-Arm Modeling in CausalMixGPD}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4.8,
+  out.width = "85%",
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+# Introduction
+
+`CausalMixGPD` is designed for flexible Bayesian modeling of outcome distributions when the central part of the distribution may be heterogeneous and the upper tail may be heavier than standard parametric models can accommodate. The package combines Dirichlet process mixtures (DPM) for the bulk of the distribution with an optional generalized Pareto distribution (GPD) tail, yielding a single posterior object from which densities, survival functions, quantiles, means, and restricted means can be obtained coherently [@EscobarWest1995; @BalkemaDeHaan1974; @Pickands1975; @Coles2001]. The same software framework also supports clustering and causal inference, but this vignette focuses on the one-arm workflow.
+
+The article describes the one-arm interface as the core workflow on which the package builds: a conditional distribution is estimated first, and then posterior summaries are derived from that fitted distribution through prediction methods such as `predict()`, `summary()`, and `plot()` fileciteturn1file0L108-L154. This vignette follows that logic using one of the package's bundled simulated datasets rather than an external application dataset.
+
+# Short theory background
+
+## Bulk model: Dirichlet process mixtures
+
+Suppose the response is $Y$ and the predictor vector is $X=x$. In the package, the bulk conditional density is represented as a mixture
+
+$$
+  f_{\mathrm{DP}}(y \mid x) = \sum_{j=1}^{\infty} w_j k(y \mid x; \theta_j),
+$$
+
+where $k(\cdot)$ is a user-chosen kernel and the weights arise from a Dirichlet process mixture specification [@Ferguson1973; @Lo1984; @Sethuraman1994]. This allows the model to adapt to multimodality, skewness, and latent heterogeneity without fixing a small number of components in advance.
+
+## Tail model: generalized Pareto exceedances
+
+When tail extrapolation is needed, `CausalMixGPD` can splice a GPD component above a threshold $u(x)$. If $Y > u(x)$, the exceedance $Y-u(x)$ is modeled through a GPD with scale $\sigma(x)$ and shape $\xi$ [@BalkemaDeHaan1974; @Pickands1975; @Coles2001]. The article gives the resulting spliced construction as a DPM below the threshold and a scaled GPD above it, with continuity enforced at the splice point fileciteturn1file0L62-L75.
+
+## Why this is useful in practice
+
+The main practical advantage is that one fitted model supports a range of posterior functionals. In the package overview, the article emphasizes that densities, survival probabilities, quantiles, means, and restricted means are all produced as summaries of the same posterior predictive distribution rather than as disconnected estimators fileciteturn1file0L132-L154. That is exactly the workflow illustrated below.
+
+# Package setup
+
+```{r libraries}
+library(CausalMixGPD)
+library(ggplot2)
+```
+
+For a vignette, it is reasonable to use modest MCMC settings so the code remains runnable on ordinary hardware. In a substantive analysis, longer runs and sensitivity checks are recommended.
+
+```{r mcmc-settings}
+mcmc_vig <- list(
+  niter = 1200,
+  nburnin = 300,
+  thin = 2,
+  nchains = 2,
+  seed = 2026
+)
+```
+
+# Data
+
+We use the bundled dataset `nc_posX100_p3_k2`, which contains a positive response and three predictors. It is convenient for illustrating both the bulk-only and spliced workflows.
+
+```{r load-data}
+data("nc_posX100_p3_k2", package = "CausalMixGPD")
+onearm_dat <- data.frame(
+  y = nc_posX100_p3_k2$y,
+  nc_posX100_p3_k2$X
+)
+
+str(onearm_dat)
+summary(onearm_dat)
+```
+
+A quick visual check helps motivate flexible modeling.
+
+```{r exploratory-plots, fig.height=4.5, fig.width=7}
+p1 <- ggplot(onearm_dat, aes(x = y)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 25,
+                 fill = "grey85", colour = "grey35") +
+  geom_density(linewidth = 0.9) +
+  labs(x = "y", y = "Density",
+       title = "Observed response distribution") +
+  theme_minimal()
+
+p2 <- ggplot(onearm_dat, aes(sample = y)) +
+  stat_qq() +
+  stat_qq_line(colour = 2) +
+  labs(title = "Normal Q-Q plot for the response") +
+  theme_minimal()
+
+p1
+p2
+```
+
+The response is positive and the empirical distribution is typically skewed in these benchmark data. That makes the dataset a natural candidate for kernels such as `gamma`, `lognormal`, or `invgauss`, with optional GPD splicing when attention is directed toward the upper tail.
+
+# Fitting a spliced one-arm model
+
+We begin with `dpmgpd()`, which fits the bulk mixture together with an active GPD tail. The article presents this as the main one-arm interface for the spliced workflow, with the formula describing the conditional outcome model and the backend selecting the latent DPM representation fileciteturn1file0L117-L131.
+
+```{r fit-spliced}
+fit_spliced <- dpmgpd(
+  formula = y ~ x1 + x2 + x3,
+  data = onearm_dat,
+  backend = "sb",
+  kernel = "lognormal",
+  components = 5,
+  mcmc = mcmc_vig
+)
+
+fit_spliced
+```
+
+A fitted one-arm object supports posterior summaries and diagnostic plots.
+
+```{r summary-spliced}
+summary(fit_spliced)
+```
+
+```{r params-spliced}
+head(params(fit_spliced))
+```
+
+```{r plot-spliced-trace, fig.height=5.2, fig.width=7}
+plot(fit_spliced, family = "traceplot", params = "alpha")
+```
+
+The exact parameter names stored by the object depend on the chosen kernel and backend, but the general interpretation is stable. The concentration parameter controls the effective complexity of the mixture, while the monitored bulk and tail parameters determine the conditional distribution used for all later prediction tasks.
+
+# Posterior prediction from the spliced model
+
+## Conditional density and survival summaries
+
+The package article notes that density and survival summaries are returned by evaluating the corresponding functional draw by draw and then summarizing over retained MCMC draws fileciteturn1file0L138-L154. We illustrate that at three representative predictor profiles formed from empirical quartiles.
+
+```{r newdata-grid}
+x_new <- as.data.frame(lapply(
+  onearm_dat[, c("x1", "x2", "x3")],
+  quantile,
+  probs = c(0.25, 0.50, 0.75),
+  na.rm = TRUE
+))
+rownames(x_new) <- c("q25", "q50", "q75")
+x_new
+```
+
+```{r density-prediction}
+y_grid <- seq(min(onearm_dat$y), quantile(onearm_dat$y, 0.99), length.out = 120)
+
+pred_dens <- predict(
+  fit_spliced,
+  newdata = x_new,
+  y = y_grid,
+  type = "density",
+  interval = "credible",
+  level = 0.95
+)
+
+plot(pred_dens, type = "density", facet = "covariate")
+```
+
+```{r survival-prediction}
+pred_surv <- predict(
+  fit_spliced,
+  newdata = x_new,
+  y = y_grid,
+  type = "survival",
+  interval = "credible",
+  level = 0.95
+)
+
+plot(pred_surv)
+```
+
+These summaries show how the fitted conditional distribution changes across covariate profiles. In practice, that is often the most direct way to inspect whether predictor effects are acting mainly on location, dispersion, or tail behavior.
+
+## Quantiles, means, and restricted means
+
+The one-arm workflow is especially useful when the scientific target is not just the density itself but one or more functionals of the conditional distribution. The article highlights quantiles and mean-type summaries as central examples, with restricted means remaining available even when the ordinary mean is unstable or undefined under a heavy tail fileciteturn1file0L138-L154.
+
+```{r quantile-prediction}
+pred_quant <- predict(
+  fit_spliced,
+  newdata = x_new,
+  type = "quantile",
+  index = c(0.25, 0.50, 0.75, 0.90, 0.95),
+  interval = "credible",
+  level = 0.95
+)
+
+pred_quant
+```
+
+```{r mean-prediction}
+pred_mean <- predict(
+  fit_spliced,
+  newdata = x_new,
+  type = "mean",
+  interval = "hpd",
+  level = 0.90
+)
+
+pred_mean
+```
+
+```{r rmean-prediction}
+cutoff_val <- as.numeric(quantile(onearm_dat$y, 0.95))
+
+pred_rmean <- predict(
+  fit_spliced,
+  newdata = x_new,
+  type = "rmean",
+  cutoff = cutoff_val,
+  interval = "hpd",
+  level = 0.90
+)
+
+pred_rmean
+```
+
+The restricted mean is often a good complement to upper-tail quantiles. It preserves the original response scale, is always finite for finite cutoffs, and gives a more stable summary when a few extreme draws can dominate the ordinary mean.
+
+# Comparing bulk-only and spliced fits
+
+The package also provides a bulk-only wrapper, `dpmix()`, which removes the GPD tail while leaving the general predictive interface intact. The article presents this as the natural special case obtained when the tail component is switched off fileciteturn1file0L128-L154.
+
+```{r fit-bulk-only}
+fit_bulk <- dpmix(
+  formula = y ~ x1 + x2 + x3,
+  data = onearm_dat,
+  backend = "sb",
+  kernel = "lognormal",
+  components = 5,
+  mcmc = mcmc_vig
+)
+
+fit_bulk
+```
+
+```{r compare-quantiles}
+quant_bulk <- predict(
+  fit_bulk,
+  newdata = x_new,
+  type = "quantile",
+  index = c(0.90, 0.95),
+  interval = "credible",
+  level = 0.95
+)
+
+quant_spliced <- predict(
+  fit_spliced,
+  newdata = x_new,
+  type = "quantile",
+  index = c(0.90, 0.95),
+  interval = "credible",
+  level = 0.95
+)
+
+quant_bulk
+quant_spliced
+```
+
+This comparison is often informative in heavy-tailed settings. The bulk-only model can still fit the center of the distribution quite well, but the spliced model is specifically constructed to behave more sensibly in the upper tail, where extrapolation is difficult and data are sparse.
+
+# A small analysis summary
+
+From an applied perspective, the one-arm workflow proceeds in four stages. First, the user chooses a kernel compatible with the support of the response and decides whether a tail model is needed. Second, the fitted object is checked through `summary()`, `params()`, and diagnostic plots. Third, posterior prediction is used to obtain densities, survival curves, or functionals such as quantiles and restricted means. Finally, the fitted conditional distributions are interpreted as the main inferential object rather than as mere intermediates.
+
+For this bundled simulated dataset, the lognormal DPM captures the main positive-support structure of the response, while the optional GPD tail provides an explicit mechanism for upper-tail inference. The quantile and restricted-mean summaries show how the response distribution shifts across representative covariate profiles, and the comparison between `dpmix()` and `dpmgpd()` illustrates the practical distinction between bulk-only modeling and tail-aware modeling. In applications where extreme upper-tail inference matters, the spliced formulation is usually the more defensible choice.
+
+# Session information
+
+```{r session-info}
+sessionInfo()
+```
