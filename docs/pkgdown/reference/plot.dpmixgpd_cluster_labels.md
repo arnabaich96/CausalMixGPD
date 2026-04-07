@@ -28,7 +28,13 @@ plot(
 
 - type:
 
-  Plot type.
+  Plot type:
+
+  - `"sizes"`: bar chart of representative cluster sizes
+
+  - `"certainty"`: assignment certainty distribution
+
+  - `"summary"`: cluster-specific response boxplots
 
 - top_n:
 
@@ -38,7 +44,11 @@ plot(
 
 - order_by:
 
-  Ordering rule for cluster displays: decreasing cluster size or label.
+  Ordering rule for cluster displays:
+
+  - `"size"`: decreasing cluster size
+
+  - `"label"`: ascending cluster label
 
 - plotly:
 
@@ -55,23 +65,36 @@ plot(
 A `ggplot2` object or a `plotly`/`htmlwidget` object when
 `plotly = TRUE`.
 
+## Details
+
+This method visualizes the representative partition stored in a
+`dpmixgpd_cluster_labels` object. The `sizes` view emphasizes the
+empirical distribution of the selected clusters, the `certainty` view
+summarizes the assignment scores \\\max_k p\_{ik}\\, and the `summary`
+view compares the attached response data across representative clusters.
+
+For new-data prediction, the plots are always interpreted relative to
+the representative training clusters. That is why only clusters observed
+in the predicted sample are shown even though the training partition may
+contain additional occupied groups.
+
 ## See also
 
 [`summary.dpmixgpd_cluster_labels()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.dpmixgpd_cluster_labels.md),
 [`predict.dpmixgpd_cluster_fit()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/predict.dpmixgpd_cluster_fit.md).
 
 Other cluster workflow:
-[`dpmgpd.cluster`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/dpmgpd.cluster.md)`()`,
-[`dpmix.cluster`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/dpmix.cluster.md)`()`,
-[`plot.dpmixgpd_cluster_bundle`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.dpmixgpd_cluster_bundle.md)`()`,
-[`plot.dpmixgpd_cluster_fit`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.dpmixgpd_cluster_fit.md)`()`,
-[`plot.dpmixgpd_cluster_psm`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.dpmixgpd_cluster_psm.md)`()`,
-[`predict.dpmixgpd_cluster_fit`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/predict.dpmixgpd_cluster_fit.md)`()`,
-[`print.dpmixgpd_cluster_bundle`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.dpmixgpd_cluster_bundle.md)`()`,
-[`print.dpmixgpd_cluster_fit`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.dpmixgpd_cluster_fit.md)`()`,
-[`print.dpmixgpd_cluster_labels`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.dpmixgpd_cluster_labels.md)`()`,
-[`print.dpmixgpd_cluster_psm`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.dpmixgpd_cluster_psm.md)`()`,
-[`summary.dpmixgpd_cluster_bundle`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.dpmixgpd_cluster_bundle.md)`()`,
-[`summary.dpmixgpd_cluster_fit`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.dpmixgpd_cluster_fit.md)`()`,
-[`summary.dpmixgpd_cluster_labels`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.dpmixgpd_cluster_labels.md)`()`,
-[`summary.dpmixgpd_cluster_psm`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.dpmixgpd_cluster_psm.md)`()`
+[`dpmgpd.cluster()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/dpmgpd.cluster.md),
+[`dpmix.cluster()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/dpmix.cluster.md),
+[`plot.dpmixgpd_cluster_bundle()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.dpmixgpd_cluster_bundle.md),
+[`plot.dpmixgpd_cluster_fit()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.dpmixgpd_cluster_fit.md),
+[`plot.dpmixgpd_cluster_psm()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.dpmixgpd_cluster_psm.md),
+[`predict.dpmixgpd_cluster_fit()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/predict.dpmixgpd_cluster_fit.md),
+[`print.dpmixgpd_cluster_bundle()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.dpmixgpd_cluster_bundle.md),
+[`print.dpmixgpd_cluster_fit()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.dpmixgpd_cluster_fit.md),
+[`print.dpmixgpd_cluster_labels()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.dpmixgpd_cluster_labels.md),
+[`print.dpmixgpd_cluster_psm()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.dpmixgpd_cluster_psm.md),
+[`summary.dpmixgpd_cluster_bundle()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.dpmixgpd_cluster_bundle.md),
+[`summary.dpmixgpd_cluster_fit()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.dpmixgpd_cluster_fit.md),
+[`summary.dpmixgpd_cluster_labels()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.dpmixgpd_cluster_labels.md),
+[`summary.dpmixgpd_cluster_psm()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.dpmixgpd_cluster_psm.md)

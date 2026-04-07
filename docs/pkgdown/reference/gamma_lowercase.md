@@ -139,6 +139,14 @@ rgammagpd(n, shape, scale, threshold, tail_scale, tail_shape)
 Numeric vector of densities, probabilities, quantiles, or random
 variates.
 
+## Details
+
+These wrappers are vectorized interfaces to the scalar gamma and
+gamma-plus-GPD routines. They preserve the package's shape-scale
+parameterization and the same splice definition used in the fitted-model
+prediction code. Quantile wrappers delegate to the scalar inversion code
+rather than implementing separate approximations.
+
 ## Functions
 
 - `dgammamix()`: Gamma mixture density (vectorized)
@@ -194,7 +202,7 @@ scl <- c(1, 2.5, 5)
 dgammamix(c(1, 2, 3), w = w, shape = shp, scale = scl)
 #> [1] 0.2031918 0.1534717 0.0925686
 rgammamix(5, w = w, shape = shp, scale = scl)
-#> [1]  5.2491201 13.9246626  0.4627266 10.7429873 34.5715566
+#> [1]  2.032069  6.805664 58.093898  7.487449  7.682572
 
 # Gamma mixture + GPD
 dgammamixgpd(c(2, 3, 4), w = w, shape = shp, scale = scl,

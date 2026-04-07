@@ -316,6 +316,22 @@
   invisible(TRUE)
 }
 
+.register_nimble_exports <- function(pkgname = "CausalMixGPD") {
+  ns <- asNamespace(pkgname)
+  exports <- grep("^[dpqr][A-Z]", getNamespaceExports(pkgname), value = TRUE)
+  for (nm in exports) {
+    if (exists(nm, envir = .GlobalEnv, inherits = FALSE)) {
+      next
+    }
+    obj <- get0(nm, envir = ns, mode = "function", inherits = FALSE)
+    if (is.null(obj)) {
+      next
+    }
+    assign(nm, obj, envir = .GlobalEnv)
+  }
+  invisible(exports)
+}
+
 #' Extract indexed parameter blocks from a draws matrix
 #' @keywords internal
 #' @noRd
@@ -1578,7 +1594,7 @@ stick_breaking <- nimble::nimbleFunction(
   q_name <- sub("^d", "q", d_name)
   r_name <- sub("^d", "r", d_name)
   mean_name <- if (!isTRUE(GPD)) dispatch$mean %||% dispatch$mean_base %||% NULL else NULL
-  mean_trunc_name <- if (!isTRUE(GPD)) dispatch$mean_trunc %||% dispatch$mean_trunc_base %||% NULL else NULL
+  mean_trunc_name <- dispatch$mean_trunc %||% dispatch$mean_trunc_base %||% NULL
 
   ns_pkg <- getNamespace("CausalMixGPD")
   ns_stats <- getNamespace("stats")
@@ -2116,6 +2132,26 @@ stick_breaking <- nimble::nimbleFunction(
 
   kdef <- get_kernel_registry()[[kernel]] %||% list()
   bulk_support <- kdef$bulk_support %||% list()
+
+  .resolve_pkg_fun_local <- function(fname) {
+    if (is.null(fname) || !nzchar(fname)) {
+      return(NULL)
+    }
+    ns_pkg <- getNamespace("CausalMixGPD")
+    if (exists(fname, envir = ns_pkg, inherits = FALSE)) {
+      return(get(fname, envir = ns_pkg))
+    }
+    if (exists(fname, envir = .GlobalEnv, inherits = FALSE)) {
+      return(get(fname, envir = .GlobalEnv))
+    }
+    NULL
+  }
+
+  if (GPD && (is.null(bulk_mean_trunc_fun) || !is.function(bulk_mean_trunc_fun))) {
+    bulk_dispatch <- kdef[[pred_backend]] %||% kdef[[backend]] %||% list()
+    bulk_mean_trunc_name <- bulk_dispatch$mean_trunc %||% bulk_dispatch$mean_trunc_base %||% NULL
+    bulk_mean_trunc_fun <- .resolve_pkg_fun_local(bulk_mean_trunc_name)
+  }
 
   # Link helper
   .apply_link <- function(eta, link, link_power = NULL) {
@@ -3326,7 +3362,7 @@ stick_breaking <- nimble::nimbleFunction(
   # mean (posterior mean of predictive distribution)
   # -----------------------------
   if (type == "mean") {
-    if (is.null(bulk_mean_fun) || !is.function(bulk_mean_fun)) {
+    if (!GPD && (is.null(bulk_mean_fun) || !is.function(bulk_mean_fun))) {
       stop(sprintf("Analytical mean is not implemented for kernel '%s'.", kernel), call. = FALSE)
     }
     if (GPD && (is.null(bulk_mean_trunc_fun) || !is.function(bulk_mean_trunc_fun))) {

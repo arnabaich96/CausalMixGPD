@@ -25,7 +25,12 @@ residuals(
 
 - type:
 
-  Residual type: `"raw"` or `"pit"`.
+  Residual type:
+
+  - `"raw"`: observed minus fitted values
+
+  - `"pit"`: probability integral transform residuals (see `pit`
+    argument)
 
 - fitted_type:
 

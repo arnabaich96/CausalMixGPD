@@ -37,6 +37,24 @@ print(x, digits = 3, max_rows = 6, ...)
 
 The object `x`, invisibly.
 
+## Details
+
+These objects store posterior summaries of quantile treatment contrasts.
+In the marginal case, \$\$\Delta(\tau) = Q\_{Y^1}(\tau) -
+Q\_{Y^0}(\tau).\$\$ For
+[`qtt()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qtt.md),
+the same contrast is standardized to the treated covariate distribution,
+and for
+[`cqte()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cqte.md)
+it is evaluated conditionally at the supplied covariate profiles.
+
+The print method is intentionally compact: it reports the prediction
+setup and the resulting effect table, but it does not attempt to
+reproduce all posterior draws. Use
+[`summary()`](https://rdrr.io/r/base/summary.html) or
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) on the same
+object for more structured reporting.
+
 ## See also
 
 [`summary.causalmixgpd_qte`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.causalmixgpd_qte.md),

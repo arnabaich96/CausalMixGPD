@@ -10,7 +10,7 @@ for conditional models.
 # S3 method for class 'mixgpd_fit'
 fitted(
   object,
-  type = c("location", "mean", "median", "quantile"),
+  type = c("mean", "median", "quantile"),
   p = 0.5,
   level = 0.95,
   interval = "credible",
@@ -27,8 +27,13 @@ fitted(
 
 - type:
 
-  Which fitted location to return: mean, median, quantile, or both
-  (`"location"`).
+  Which fitted functional to return:
+
+  - `"mean"`: posterior predictive mean
+
+  - `"median"`: posterior predictive median
+
+  - `"quantile"`: posterior predictive quantile at level `p`
 
 - p:
 
@@ -41,9 +46,13 @@ fitted(
 
 - interval:
 
-  Character or NULL; type of credible interval: `NULL` for no interval,
-  `"credible"` for equal-tailed quantile intervals (default), or `"hpd"`
-  for highest posterior density intervals.
+  Character or NULL; type of credible interval:
+
+  - `NULL`: no interval
+
+  - `"credible"` (default): equal-tailed quantile intervals
+
+  - `"hpd"`: highest posterior density intervals
 
 - seed:
 
@@ -63,11 +72,6 @@ residuals computed on the training sample.
 The method returns posterior predictive fitted values on the observed
 design matrix. It is available only when the fitted model stored
 covariates.
-
-Use `type = "location"` to retrieve both posterior predictive means and
-medians side by side. For unconditional models, use
-[`predict.mixgpd_fit`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/predict.mixgpd_fit.md)
-directly.
 
 ## See also
 

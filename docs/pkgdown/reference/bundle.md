@@ -14,25 +14,21 @@ and
 
 ``` r
 bundle(
-  x = NULL,
-  data = NULL,
+  y = NULL,
   X = NULL,
   treat = NULL,
+  data = NULL,
   formula = NULL,
-  ...,
-  GPD = FALSE
+  GPD = FALSE,
+  ...
 )
 ```
 
 ## Arguments
 
-- x:
+- y:
 
   Either a response vector or an existing bundle.
-
-- data:
-
-  Optional data.frame used with `formula`.
 
 - X:
 
@@ -42,9 +38,17 @@ bundle(
 
   Optional binary treatment indicator.
 
+- data:
+
+  Optional data.frame used with `formula`.
+
 - formula:
 
   Optional formula.
+
+- GPD:
+
+  Logical; include GPD tail in build mode.
 
 - ...:
 
@@ -52,10 +56,6 @@ bundle(
   [`build_nimble_bundle()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/build_nimble_bundle.md)
   or
   [`build_causal_bundle()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/build_causal_bundle.md).
-
-- GPD:
-
-  Logical; include GPD tail in build mode.
 
 ## Value
 

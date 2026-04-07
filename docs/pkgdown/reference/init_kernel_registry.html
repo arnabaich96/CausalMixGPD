@@ -11,7 +11,7 @@ regression/link behavior, and distribution signatures for SB/CRP backends."></he
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,6 +49,20 @@ regression/link behavior, and distribution signatures for SB/CRP backends.</p>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Invisibly returns TRUE.</p>
     </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The kernel registry is the package-level contract that keeps model building,
+prediction, and documentation aligned. Each entry records the natural bulk
+parameters for one kernel, the support constraints they must satisfy, the
+default covariate-link strategy, and the backend-specific distribution names
+used when generating NIMBLE code.</p>
+<p>The companion tail registry records the generalized Pareto tail parameters
+\(u\) (threshold), \(\sigma_u\) (tail scale), and \(\xi_u\) (tail
+shape) together with their support and allowed modeling modes. Calling
+<code>init_kernel_registry()</code> makes those contracts available in the package
+namespace so later builders can validate requests without duplicating lookup
+logic.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
@@ -71,7 +85,7 @@ regression/link behavior, and distribution signatures for SB/CRP backends.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

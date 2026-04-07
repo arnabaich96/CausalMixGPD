@@ -35,9 +35,13 @@ ate_rmean(
 
 - interval:
 
-  Character or NULL; type of credible interval: `NULL` for no interval,
-  `"credible"` for equal-tailed quantile intervals (default), or `"hpd"`
-  for highest posterior density intervals.
+  Character or NULL; type of credible interval:
+
+  - `NULL`: no interval
+
+  - `"credible"` (default): equal-tailed quantile intervals
+
+  - `"hpd"`: highest posterior density intervals
 
 - level:
 
@@ -45,7 +49,8 @@ ate_rmean(
 
 - nsim_mean:
 
-  Number of posterior predictive draws to approximate the mean.
+  Number of posterior predictive draws used by simulation-based mean
+  targets. Ignored for analytical ordinary means.
 
 - show_progress:
 
@@ -58,7 +63,8 @@ A `"causalmixgpd_ate"` object computed via
 [`ate`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/ate.md)
 for unconditional fits or
 [`cate`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cate.md)
-for conditional fits.
+for conditional fits. The returned object includes a top-level `$fit_df`
+data frame for direct extraction.
 
 ## Details
 

@@ -22,3 +22,13 @@ print(x, ...)
 ## Value
 
 Invisibly returns the input object.
+
+## Details
+
+The causal prediction plotting methods can return either a single plot
+or a named list of plots. This print method renders those stored plot
+objects in sequence so both arm-level and contrast-level graphics appear
+in console or notebook workflows without manual extraction.
+
+It is a display helper only and does not modify the underlying
+prediction summaries.

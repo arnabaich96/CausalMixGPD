@@ -97,6 +97,21 @@ The wrappers preserve the same parameterizations as the uppercase scalar
 functions, but accept vector inputs for `x`, `q`, or `p` and allow
 `n > 1` for random generation.
 
+Each lowercase helper is a vectorized R wrapper around the corresponding
+uppercase scalar routine documented in this file. The wrapper keeps the
+same parameterization and simply applies the scalar kernel repeatedly
+over the supplied evaluation points or simulation index. These helpers
+are therefore appropriate for interactive analysis, testing, and
+examples, whereas the uppercase functions are the building blocks used
+inside NIMBLE model code.
+
+The wrappers do not change the underlying theory. For example, `qgpd()`
+still uses the closed-form GPD inverse, `qinvgauss()` still performs
+numerical inversion of the inverse Gaussian CDF, and `qamoroso()` still
+maps a gamma quantile through the Amoroso transformation.
+Random-generation wrappers call the corresponding scalar RNG repeatedly
+when `n > 1`.
+
 ## Functions
 
 - `dgpd()`: GPD density (vectorized)

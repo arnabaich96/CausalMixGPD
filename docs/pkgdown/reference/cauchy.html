@@ -9,7 +9,7 @@ heavy-tailed kernels on the real line and feed directly into the finite Cauchy m
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -103,6 +103,19 @@ $$
 where <code>location = ell</code> and <code>scale = s &gt; 0</code>.</p>
 <p>These uppercase NIMBLE-compatible functions are scalar (<code>x</code>/<code>q</code> and <code>n = 1</code>).
 For vectorized R usage, use <code><a href="base_lowercase.html">base_lowercase()</a></code>.</p>
+<p>The Cauchy law is a stable heavy-tailed distribution with undefined mean and variance. That is
+why the package allows the Cauchy kernel only as a bulk distribution and deliberately does not
+pair it with GPD tails in the kernel registry. For predictive summaries, ordinary means are not
+available under Cauchy kernels; tail-robust summaries such as medians, quantiles, survival
+curves, and restricted means remain well defined.</p>
+<p>The distribution function is
+$$
+F(x) = \frac{1}{2} + \frac{1}{\pi}\arctan\left(\frac{x-\ell}{s}\right),
+$$
+and the quantile is the corresponding inverse
+$$
+Q(p) = \ell + s \tan\{\pi(p-1/2)\}.
+$$</p>
     </div>
     <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>
@@ -148,7 +161,7 @@ For vectorized R usage, use <code><a href="base_lowercase.html">base_lowercase()
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

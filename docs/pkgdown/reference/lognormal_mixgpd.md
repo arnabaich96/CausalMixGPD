@@ -128,6 +128,16 @@ The density, CDF, and RNG are implemented as `nimbleFunction`s. The
 quantile is an R function: it uses numerical inversion in the bulk
 region and the closed-form GPD quantile in the tail.
 
+Let \\F\_{mix}\\ be the lognormal-mixture CDF and let \\u\\ denote the
+threshold. The splice uses the bulk law below \\u\\ and attaches a GPD
+to the residual survival mass above \\u\\. The density therefore becomes
+\$\$ f(x) = \left\\ \begin{array}{ll} f\_{mix}(x), & x \< u, \\
+\\1-F\_{mix}(u)\\ g\_{GPD}(x \mid u,\sigma_u,\xi), & x \ge u.
+\end{array} \right. \$\$ The quantile is computed piecewise: bulk
+quantiles are obtained numerically from the mixture CDF, whereas tail
+quantiles use the closed-form GPD inverse after rescaling the upper-tail
+probability.
+
 ## Functions
 
 - `dLognormalMixGpd()`: Lognormal mixture + GPD tail density
@@ -181,6 +191,6 @@ replicate(10, rLognormalMixGpd(1, w = w, meanlog = meanlog, sdlog = sdlog,
                               threshold = threshold,
                               tail_scale = tail_scale,
                               tail_shape = tail_shape))
-#>  [1] 1.1334015 3.1151530 1.2128602 1.4196270 0.7637399 1.4776769 0.5542335
-#>  [8] 5.9072094 0.6781621 2.6326862
+#>  [1] 2.1535620 1.2525113 1.6843729 1.2128602 1.4196270 0.7637399 1.4776769
+#>  [8] 0.5542335 5.9072094 0.6781621
 ```

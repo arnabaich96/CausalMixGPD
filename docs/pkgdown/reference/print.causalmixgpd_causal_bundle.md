@@ -33,6 +33,20 @@ print(x, code = FALSE, max_code_lines = 200L, ...)
 
 The input object (invisibly).
 
+## Details
+
+A causal bundle collects three pre-MCMC building blocks: the optional
+propensity-score model for \\e(x) = \Pr(A = 1 \mid X = x)\\, the control
+outcome model for \\Y^0\\, and the treated outcome model for \\Y^1\\.
+The printed output aligns those blocks side by side so the user can
+verify that the treated and control outcome specifications are coherent
+before sampling.
+
+No causal estimand is computed at this stage. The bundle only records
+the structural assumptions that will later support estimands such as
+\\E(Y^1 - Y^0 \mid X = x)\\ or \\Q\_{Y^1}(\tau \mid X = x) -
+Q\_{Y^0}(\tau \mid X = x)\\.
+
 ## See also
 
 [`summary.causalmixgpd_causal_bundle`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.causalmixgpd_causal_bundle.md),

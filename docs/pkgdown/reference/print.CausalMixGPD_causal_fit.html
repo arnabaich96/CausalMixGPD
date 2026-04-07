@@ -9,7 +9,7 @@ fitted treated/control outcome blocks and the PS component when present."></head
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,6 +60,18 @@ fitted treated/control outcome blocks and the PS component when present.</p>
     <p>The input object (invisibly).</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>A fitted causal object combines posterior draws for the treated outcome model,
+the control outcome model, and optionally the propensity-score model. Those
+fitted blocks are the ingredients used later to evaluate causal estimands such
+as \(\mu_1(x) - \mu_0(x)\) or
+\(Q_{Y^1}(\tau \mid x) - Q_{Y^0}(\tau \mid x)\).</p>
+<p>The print method is deliberately high level. It identifies which models were
+fitted and whether GPD tails are active, but it does not report posterior
+summaries or treatment-effect estimates. Use <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>, or the
+dedicated causal estimand helpers for inferential output.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="summary.causalmixgpd_causal_fit.html">summary.causalmixgpd_causal_fit</a></code>,
 <code><a href="predict.causalmixgpd_causal_fit.html">predict.causalmixgpd_causal_fit</a></code>, <code><a href="ate.html">ate</a></code>,
@@ -75,7 +87,7 @@ fitted treated/control outcome blocks and the PS component when present.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

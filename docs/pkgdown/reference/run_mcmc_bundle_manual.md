@@ -61,9 +61,8 @@ model metadata, and cached objects used by downstream S3 methods.
 ## Details
 
 The resulting fit supports posterior summaries of the model parameters
-as well as posterior predictive functionals such as \\f(y \mid x,
-\mathcal{D})\\, \\S(y \mid x, \mathcal{D})\\, \\Q(\tau \mid x,
-\mathcal{D})\\, and restricted means.
+as well as posterior predictive functionals such as \\f(y \mid x)\\,
+\\S(y \mid x)\\, \\Q(\tau \mid x)\\, and restricted means.
 
 If `parallel_chains = TRUE`, chains are run concurrently when the stored
 MCMC configuration uses more than one chain. If the bundle was built

@@ -49,7 +49,8 @@ qGammaMixGpd(
 
 - shape, scale:
 
-  Numeric vectors of length \\K\\ giving Gamma shapes and rates.
+  Numeric vectors of length \\K\\ giving Gamma shape and scale
+  parameters.
 
 - threshold:
 
@@ -104,6 +105,17 @@ qGammaMixGpd(
 Spliced density/CDF/RNG functions return numeric scalars.
 `qGammaMixGpd()` returns a numeric vector with the same length as `p`.
 
+## Details
+
+The gamma mixture governs the body of the distribution up to the
+threshold \\u\\. Beyond \\u\\, only the remaining survival mass is
+modeled by the GPD, giving \$\$ f(x) = \left\\ \begin{array}{ll}
+f\_{mix}(x), & x \< u, \\ \\1-F\_{mix}(u)\\ g\_{GPD}(x \mid
+u,\sigma_u,\xi), & x \ge u. \end{array} \right. \$\$ This is the
+positive-support analogue of the normal and lognormal splice families.
+Bulk quantiles are still found by numerical inversion, while tail
+quantiles use the explicit GPD inverse.
+
 ## Functions
 
 - `dGammaMixGpd()`: Gamma mixture + GPD tail density
@@ -156,6 +168,6 @@ replicate(10, rGammaMixGpd(1, w = w, scale = scale, shape = shape,
                           threshold = threshold,
                           tail_scale = tail_scale,
                           tail_shape = tail_shape))
-#>  [1]  4.803602  2.507495  3.210134 17.763791  3.919686  3.033034  2.196457
-#>  [8]  3.964541  3.209980  4.895219
+#>  [1]  3.5450129  3.2101338 17.7637911  3.9196863  3.0330340  2.1964567
+#>  [7]  3.9645414  3.2099800  4.8952188  0.8944191
 ```

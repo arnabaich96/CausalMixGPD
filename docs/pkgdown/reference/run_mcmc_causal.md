@@ -60,10 +60,10 @@ and timing metadata when requested.
 ## Details
 
 The fitted object contains the posterior draws needed to evaluate
-arm-level predictive distributions \\F_1(y \mid x, \mathcal{D})\\ and
-\\F_0(y \mid x, \mathcal{D})\\, followed by marginal or conditional
-causal contrasts. When `PS = FALSE` in the bundle, the PS block is
-skipped and outcome prediction uses only the original covariates.
+arm-level predictive distributions \\F_1(y \mid x)\\ and \\F_0(y \mid
+x)\\, followed by marginal or conditional causal contrasts. When
+`PS = FALSE` in the bundle, the PS block is skipped and outcome
+prediction uses only the original covariates.
 
 ## See also
 

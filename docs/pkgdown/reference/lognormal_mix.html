@@ -9,7 +9,7 @@ in this topic are the NIMBLE-compatible building blocks for the lognormal bulk k
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -119,6 +119,20 @@ f(x) = \sum_{k = 1}^K \tilde{w}_k f_{LN}(x \mid \mu_k, \sigma_k),
 \qquad x &gt; 0,
 $$
 with normalized weights \(\tilde{w}_k\). For vectorized R usage, use <code><a href="lognormal_lowercase.html">lognormal_lowercase()</a></code>.</p>
+<p>Each component satisfies \(\log X_k \sim N(\mu_k,\sigma_k^2)\), so the mixture CDF is
+$$
+F(x) = \sum_{k=1}^K \tilde{w}_k
+\Phi\left(\frac{\log x-\mu_k}{\sigma_k}\right), \qquad x&gt;0.
+$$
+Random generation proceeds by drawing a component index with probability \(\tilde{w}_k\) and
+then sampling from the corresponding lognormal law. Because a finite mixture of lognormals does
+not admit a closed-form inverse CDF, <code>qLognormalMix()</code> computes quantiles by numerical
+inversion.</p>
+<p>The analytical mixture mean is
+$$
+E(X) = \sum_{k=1}^K \tilde{w}_k \exp(\mu_k + \sigma_k^2/2),
+$$
+which is the expression used by the package whenever an ordinary predictive mean exists.</p>
     </div>
     <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>
@@ -153,8 +167,8 @@ with normalized weights \(\tilde{w}_k\). For vectorized R usage, use <code><a hr
 <span class="r-in"><span><span class="fu">qLognormalMix</span><span class="op">(</span><span class="fl">0.95</span>, w <span class="op">=</span> <span class="va">w</span>, meanlog <span class="op">=</span> <span class="va">meanlog</span>, sdlog <span class="op">=</span> <span class="va">sdlog</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.147585</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rLognormalMix</span><span class="op">(</span><span class="fl">1</span>, w <span class="op">=</span> <span class="va">w</span>, meanlog <span class="op">=</span> <span class="va">meanlog</span>, sdlog <span class="op">=</span> <span class="va">sdlog</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 4.1293830 0.6873494 1.3316464 0.6494833 0.9846285 1.6379267 3.3315677</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 0.7021537 2.5439287 2.1535620</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.6011902 0.5184476 4.1293830 0.6873494 1.3316464 0.6494833 0.9846285</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 1.6379267 3.3315677 0.7021537</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -166,7 +180,7 @@ with normalized weights \(\tilde{w}_k\). For vectorized R usage, use <code><a hr
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

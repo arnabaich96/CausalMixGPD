@@ -157,6 +157,14 @@ in NIMBLE models. The quantile function is an R function that uses
 numerical inversion in the bulk region and the closed-form GPD quantile
 in the tail region.
 
+The Amoroso mixture describes the bulk up to the threshold and the
+generalized Pareto describes exceedances above it. If
+\\F\_{mix}(u)=p_u\\, then the splice uses \$\$ f(x) = \left\\
+\begin{array}{ll} f\_{mix}(x), & x \< u, \\ (1-p_u) g\_{GPD}(x \mid
+u,\sigma_u,\xi), & x \ge u. \end{array} \right. \$\$ Bulk quantiles are
+computed numerically from the Amoroso mixture CDF and tail quantiles are
+obtained from the GPD inverse after rescaling the tail probability.
+
 ## Functions
 
 - `dAmorosoMixGpd()`: Density Function of Amoroso Mixture Distribution

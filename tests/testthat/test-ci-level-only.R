@@ -132,7 +132,7 @@ if (!identical(Sys.getenv("DPMIXGPD_CI_COVERAGE_ONLY"), "1")) {
     y <- abs(1 + X[, 1] + 0.4 * X[, 2] + stats::rnorm(n, sd = 0.25)) + 0.2
 
     fit <- dpmgpd(
-      x = y,
+      y = y,
       X = X,
       backend = "crp",
       kernel = "gamma",
@@ -148,7 +148,7 @@ if (!identical(Sys.getenv("DPMIXGPD_CI_COVERAGE_ONLY"), "1")) {
   .coverage_cached("unconditional_fit", {
     y <- sim_bulk_tail(n = 24, seed = 7)
     fit <- dpmix(
-      x = y,
+      y = y,
       backend = "sb",
       kernel = "normal",
       components = 3,
@@ -190,7 +190,7 @@ if (!identical(Sys.getenv("DPMIXGPD_CI_COVERAGE_ONLY"), "1")) {
     sim$y <- abs(sim$y) + 0.2
 
     fit <- dpmix.causal(
-      x = sim$y,
+      y = sim$y,
       X = as.matrix(sim$X),
       treat = sim$t,
       backend = c("sb", "crp"),
@@ -832,7 +832,7 @@ test_that("coverage-only suite exercises causal GPD wrapper path", {
     sim$y <- abs(sim$y) + 0.2
 
     dpmgpd.causal(
-      x = sim$y,
+      y = sim$y,
       X = as.matrix(sim$X[, 1:2, drop = FALSE]),
       treat = sim$t,
       backend = c("sb", "sb"),

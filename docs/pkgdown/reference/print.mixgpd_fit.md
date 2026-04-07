@@ -25,6 +25,22 @@ print(x, ...)
 
 `x` invisibly.
 
+## Details
+
+The fitted object represents posterior draws from a bulk mixture model,
+or from its spliced bulk-tail extension when `GPD = TRUE`. For the bulk
+part, the predictive law has the mixture form \$\$f(y \mid x) =
+\sum\_{k=1}^{K} w_k(x) f_k(y \mid x, \theta_k).\$\$ When a GPD tail is
+active, exceedances above the threshold are instead routed through the
+generalized Pareto tail attached to the same bulk mixture.
+
+The print method reports only the model identity and basic metadata. Use
+[`summary()`](https://rdrr.io/r/base/summary.html) for parameter-level
+posterior summaries, [`predict()`](https://rdrr.io/r/stats/predict.html)
+for predictive functionals, and
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) for chain
+diagnostics.
+
 ## See also
 
 [`summary.mixgpd_fit`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.mixgpd_fit.md),

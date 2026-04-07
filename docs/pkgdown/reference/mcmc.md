@@ -36,9 +36,8 @@ execution.
 
 The returned fit represents posterior draws from the finite SB/CRP
 approximation encoded in the bundle. Downstream summaries therefore
-target posterior predictive quantities such as \\f(y \mid x,
-\mathcal{D})\\, \\F(y \mid x, \mathcal{D})\\, and derived
-treatment-effect functionals.
+target posterior predictive quantities such as \\f(y \mid x)\\, \\F(y
+\mid x)\\, and derived treatment-effect functionals.
 
 ## See also
 

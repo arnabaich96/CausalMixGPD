@@ -42,6 +42,19 @@ plot(x, y = NULL, ...)
 
 Invisibly returns the ggplot object.
 
+## Details
+
+The plotting method is tied to the predictive functional stored in the
+input object. Quantile and mean outputs display posterior point
+summaries and intervals, density and survival outputs show evaluated
+functions on the supplied grid, and posterior samples are visualized as
+empirical predictive draws.
+
+In every case the plot reflects the quantity requested from
+[`predict.mixgpd_fit()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/predict.mixgpd_fit.md)
+after integrating over the retained posterior draws. It is therefore
+distinct from parameter-level summaries and from chain diagnostics.
+
 ## Examples
 
 ``` r

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -116,6 +116,17 @@ f(x) = \sum_{k = 1}^K \tilde{w}_k f_C(x \mid \ell_k, s_k),
 $$
 with normalized weights \(\tilde{w}_k\). These scalar functions are NIMBLE-compatible; for
 vectorized R usage, use <code><a href="cauchy_mix_lowercase.html">cauchy_mix_lowercase()</a></code>.</p>
+<p>The mixture CDF is the weighted average of component CDFs,
+$$
+F(x) = \sum_{k=1}^K \tilde{w}_k
+\left\{\frac{1}{2} + \frac{1}{\pi}\arctan\left(\frac{x-\ell_k}{s_k}\right)\right\}.
+$$
+Random generation first selects a component according to the normalized weights and then draws
+from the chosen Cauchy law by inverse-CDF sampling.</p>
+<p>Because each Cauchy component has undefined mean and variance, the mixture also lacks an
+ordinary mean in general. That is why the package exposes Cauchy kernels for densities, CDFs,
+quantiles, medians, survival functions, and restricted means, but not for ordinary predictive
+means.</p>
     </div>
     <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>
@@ -160,7 +171,7 @@ vectorized R usage, use <code><a href="cauchy_mix_lowercase.html">cauchy_mix_low
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

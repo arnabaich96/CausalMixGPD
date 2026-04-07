@@ -13,7 +13,7 @@ monitor policy, and stored MCMC defaults."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,7 +81,9 @@ augments the design matrix for PS-adjusted outcome modeling.</p></dd>
 
 
 <dt id="arg-backend">backend<a class="anchor" aria-label="anchor" href="#arg-backend"></a></dt>
-<dd><p>Character; <code>"sb"</code> (stick-breaking) or <code>"crp"</code> (Chinese Restaurant Process).</p></dd>
+<dd><p>Character; the Dirichlet process representation:</p><ul><li><p><code>"sb"</code>: stick-breaking truncation</p></li>
+<li><p><code>"crp"</code>: Chinese Restaurant Process</p></li>
+</ul></dd>
 
 
 <dt id="arg-kernel">kernel<a class="anchor" aria-label="anchor" href="#arg-kernel"></a></dt>
@@ -117,7 +119,9 @@ weights &gt;= epsilon, then renormalize.</p></dd>
 
 
 <dt id="arg-monitor">monitor<a class="anchor" aria-label="anchor" href="#arg-monitor"></a></dt>
-<dd><p>Character monitor profile: <code>"core"</code> (default) or <code>"full"</code>.</p></dd>
+<dd><p>Character monitor profile:</p><ul><li><p><code>"core"</code> (default): monitors only the essential model parameters</p></li>
+<li><p><code>"full"</code>: monitors all model nodes</p></li>
+</ul></dd>
 
 
 <dt id="arg-monitor-latent">monitor_latent<a class="anchor" aria-label="anchor" href="#arg-monitor-latent"></a></dt>
@@ -187,7 +191,7 @@ stored model definition.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

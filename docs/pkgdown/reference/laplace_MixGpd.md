@@ -117,6 +117,16 @@ qLaplaceMixGpd(
 Spliced density/CDF/RNG functions return numeric scalars.
 `qLaplaceMixGpd()` returns a numeric vector with the same length as `p`.
 
+## Details
+
+This family keeps the Laplace mixture body below the threshold and
+replaces the upper tail with a generalized Pareto exceedance model
+scaled by the residual survival mass at the threshold. The tail density
+is therefore \$\$ f(x) = \\1-F\_{mix}(u)\\ g\_{GPD}(x \mid
+u,\sigma_u,\xi), \qquad x \ge u. \$\$ Bulk quantiles are found
+numerically from the mixture CDF, and tail quantiles are computed by
+rescaling the upper-tail probability and applying the GPD inverse.
+
 ## Functions
 
 - `dLaplaceMixGpd()`: Laplace mixture + GPD tail density
@@ -169,6 +179,6 @@ replicate(10, rLaplaceMixGpd(1, w = w, location = location, scale = scale,
                             threshold = threshold,
                             tail_scale = tail_scale,
                             tail_shape = tail_shape))
-#>  [1]  0.5347682  2.2306633  1.4405908  2.5020907  6.5262022  6.1675301
-#>  [7] -0.5760894 -0.6940654  0.6934115 -1.1575630
+#>  [1]  0.3285627  0.2468819  3.2012094  1.2789137  1.2695970  5.5401216
+#>  [7] -1.2205992  0.6569159  1.2359579  2.5026978
 ```

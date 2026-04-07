@@ -92,6 +92,21 @@ These uppercase NIMBLE-compatible functions are scalar (`x`/`q` and
 `n = 1`). For vectorized R usage, use
 [`base_lowercase()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/base_lowercase.md).
 
+The inverse Gaussian is the first-passage-time distribution of a
+Brownian motion with positive drift. Under the \\(\mu, \lambda)\\
+parameterization used here, the mean is \\E(X)=\mu\\ and the variance is
+\\\mathrm{Var}(X)=\mu^3/\lambda\\. The implementation follows that
+parameterization throughout the package, so inverse-Gaussian mixture and
+splice families inherit the same interpretation.
+
+The distribution function is evaluated through the standard normal
+representation \$\$ F(x) =
+\Phi\left(\sqrt{\frac{\lambda}{x}}\left(\frac{x}{\mu}-1\right)\right) +
+\exp\left(\frac{2\lambda}{\mu}\right)
+\Phi\left(-\sqrt{\frac{\lambda}{x}}\left(\frac{x}{\mu}+1\right)\right),
+\$\$ and the quantile is obtained numerically because no simple closed
+form is available.
+
 ## Functions
 
 - `dInvGauss()`: Inverse Gaussian density function
@@ -128,6 +143,6 @@ qInvGauss(0.50, mean, shape)
 qInvGauss(0.95, mean, shape)
 #> [1] 4.458125
 replicate(10, rInvGauss(1, mean, shape))
-#>  [1] 2.4309903 3.4258917 1.2209535 1.4736911 2.3957903 0.8260154 3.6687637
-#>  [8] 2.3261192 3.2370549 1.3304050
+#>  [1] 1.3532062 0.9911095 2.6514150 1.4436713 2.3317355 4.3780345 1.7225800
+#>  [8] 1.0503814 4.2435019 2.4257458
 ```

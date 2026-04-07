@@ -44,8 +44,8 @@
 ^\.md$
 ^tools/build_coverage_report.R$
 ^tools/\.codecov_token$
-^vignettes/manuscript/
-^vignettes/manuscript/$
+^manuscript/
+^manuscript/$
 ^vignettes/renv/
 ^vignettes/renv$
 ^website$
@@ -86,6 +86,7 @@
 ^build/
 ^tools/
 ^docs$
+^doc$
 ^site$
 ^site_libs/$
 ^site_libs/
@@ -124,3 +125,7 @@
 ^covr/
 ^quarto_abs_test$
 ^quarto_abs_test/
+# Exclude benchmark and generated test artifacts from source tarball
+^tests/perf$
+^tests/perf/
+^tests/testthat/Rplots\.pdf$

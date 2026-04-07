@@ -6,7 +6,7 @@ Print a MixGPD summary object
 
 ``` r
 # S3 method for class 'mixgpd_summary'
-print(x, digits = 3, max_rows = 60, ...)
+print(x, digits = 3, max_rows = 60, show_ess = FALSE, ...)
 ```
 
 ## Arguments
@@ -23,6 +23,10 @@ print(x, digits = 3, max_rows = 60, ...)
 
   Maximum rows to print.
 
+- show_ess:
+
+  Logical; if `TRUE`, include the `ess` column when present.
+
 - ...:
 
   Unused.
@@ -30,6 +34,19 @@ print(x, digits = 3, max_rows = 60, ...)
 ## Value
 
 `x` invisibly.
+
+## Details
+
+This method formats the output of
+[`summary.mixgpd_fit()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.mixgpd_fit.md).
+It prints the model metadata, any stored WAIC value, the effective
+truncation information induced by `epsilon`, and the parameter-level
+posterior summary table.
+
+The printed rows correspond to monitored posterior parameters. They are
+not predictions of densities, quantiles, or means, which should instead
+be obtained from
+[`predict.mixgpd_fit()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/predict.mixgpd_fit.md).
 
 ## Examples
 

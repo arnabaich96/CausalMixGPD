@@ -6,7 +6,7 @@ nimbleFunctions for codegen; do not wrap.
 ## Usage
 
 ``` r
-.get_dispatch_scalar(spec_or_fit, backend_override = NULL)
+.get_dispatch_scalar(spec_or_fit, backend_override = NULL, gpd_override = NULL)
 ```
 
 ## Arguments
@@ -17,4 +17,12 @@ nimbleFunctions for codegen; do not wrap.
 
 ## Value
 
-List with d/p/q/r functions and bulk_params.
+List with d/p/q/r/mean/mean_trunc functions and bulk_params.
+
+## Details
+
+This helper resolves the density, distribution, quantile,
+random-generation, and mean functions implied by a kernel, backend, and
+GPD setting. The result is intentionally scalar and wrapper-free because
+it is used in code-generation contexts where NIMBLE expects raw function
+objects rather than vectorized R adapters.

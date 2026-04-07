@@ -19,7 +19,7 @@ Stores per-draw results in object$cache$predict (environment) for reuse in treat
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,8 +75,21 @@ Stores per-draw results in object$cache$predict (environment) for reuse in treat
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>This is the main internal workhorse behind <code><a href="predict.mixgpd_fit.html">predict.mixgpd_fit()</a></code> and the
+causal effect helpers. It evaluates the requested predictive functional
+separately for each retained posterior draw, using either explicit SB weights
+or CRP weights reconstructed from latent cluster labels, and only then
+collapses the draw-level results into posterior summaries.</p>
+<p>The helper also manages caching of per-draw predictive quantities because
+treatment-effect functions repeatedly reuse the same arm-specific predictive
+draws. That cache avoids recomputation while keeping the public prediction
+interface simple.</p>
+    </div>
 
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
@@ -84,7 +97,7 @@ Stores per-draw results in object$cache$predict (environment) for reuse in treat
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

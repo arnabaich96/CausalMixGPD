@@ -19,3 +19,11 @@ fitted mixgpd_fit object and returns them as an integer matrix
 ## Value
 
 Integer matrix with rows = posterior draws, cols = observations.
+
+## Details
+
+Cluster samplers store latent labels as separate monitored nodes `z[i]`.
+This helper locates those nodes in every retained chain, orders them by
+observation index, stacks the chains, and returns the result as one
+integer matrix that is ready for PSM and representative-partition
+calculations.

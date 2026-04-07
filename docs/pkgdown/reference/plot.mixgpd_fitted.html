@@ -9,7 +9,7 @@ Produces a 2-panel figure: Q-Q plot and residuals vs fitted."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -17,13 +17,7 @@ Produces a 2-panel figure: Q-Q plot and residuals vs fitted."></head><body>
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/01-introduction.html">Introduction</a></li>
-    <li><a class="dropdown-item" href="../articles/02-one-arm.html">One-Arm</a></li>
-    <li><a class="dropdown-item" href="../articles/03-causal.html">Causal</a></li>
-  </ul></li>
-<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a></li>
       </ul></div>
 
@@ -69,6 +63,16 @@ Produces a 2-panel figure: Q-Q plot and residuals vs fitted.</p>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Invisibly returns a list with the two plots.</p>
     </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>These diagnostics compare the fitted values implied by the posterior summary
+on the training design against the observed responses. The first panel checks
+how closely fitted and observed values align, while the second panel looks for
+residual structure that would indicate lack of fit or remaining mean trends.</p>
+<p>This method is distinct from posterior predictive simulation on new data. It
+is a training-sample diagnostic built from <code><a href="fitted.mixgpd_fit.html">fitted.mixgpd_fit()</a></code> and the
+corresponding residuals.</p>
+    </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
@@ -79,7 +83,7 @@ Produces a 2-panel figure: Q-Q plot and residuals vs fitted.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

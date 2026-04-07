@@ -15,7 +15,7 @@ is the GPD CDF for exceedances above threshold."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -188,6 +188,19 @@ numeric vector with the same length as <code>p</code>.</p>
     <p>The density, CDF, and RNG are implemented as <code>nimbleFunction</code>s for use in NIMBLE models.
 The quantile function is an R function that uses numerical inversion in the bulk region and
 the closed-form GPD quantile in the tail region.</p>
+<p>The Amoroso mixture describes the bulk up to the threshold and the generalized Pareto describes
+exceedances above it. If \(F_{mix}(u)=p_u\), then the splice uses
+$$
+f(x) =
+\left\{
+\begin{array}{ll}
+f_{mix}(x), &amp; x &lt; u, \\
+(1-p_u) g_{GPD}(x \mid u,\sigma_u,\xi), &amp; x \ge u.
+\end{array}
+\right.
+$$
+Bulk quantiles are computed numerically from the Amoroso mixture CDF and tail quantiles are
+obtained from the GPD inverse after rescaling the tail probability.</p>
     </div>
     <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>
@@ -243,7 +256,7 @@ the closed-form GPD quantile in the tail region.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

@@ -22,18 +22,23 @@ params(object, ...)
 ## Value
 
 An object of class `"mixgpd_params"` (a named list). For causal fits,
-`params()` returns a treated/control pair.
+`params()` returns a treated/control pair and includes a `ps` block when
+a propensity-score model was fitted.
 
 ## Details
 
 This extractor is intended for structural inspection of the fitted
 model. Scalar quantities remain scalar, component-specific parameters
 are returned as vectors, and linked regression blocks are returned as
-matrices.
+matrices with covariate names as columns when available. If
+propensity-score adjustment is active for a linked bulk parameter, its
+coefficient is folded into the returned beta matrix as a leading
+`"PropScore"` column.
 
 For a spliced model, the extractor returns posterior means of the bulk
-mixture parameters together with any threshold, tail-scale, and
-tail-shape terms needed to reconstruct the predictive distribution.
+mixture parameters together with component-level threshold, tail-scale,
+and tail-shape terms. When tail terms are link-mode, the corresponding
+component-by-covariate beta blocks are returned.
 
 ## See also
 

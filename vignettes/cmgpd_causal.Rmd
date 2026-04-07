@@ -5,8 +5,8 @@ bibliography: CausalMixGPD.bib
 link-citations: true
 vignette: >
   %\VignetteIndexEntry{Causal Inference with CausalMixGPD}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
 ```{r setup, include=FALSE}
@@ -20,39 +20,139 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE
 )
+.pkg_extdata <- function(name) {
+  f <- system.file("extdata", name, package = "CausalMixGPD")
+  if (nzchar(f)) {
+    return(f)
+  }
+  vdir <- knitr::current_input(dir = TRUE)
+  pkg_root <- normalizePath(file.path(vdir, ".."), winslash = "/", mustWork = TRUE)
+  alt <- file.path(pkg_root, "inst", "extdata", name)
+  if (file.exists(alt)) {
+    return(normalizePath(alt, winslash = "/", mustWork = TRUE))
+  }
+  stop("Missing extdata: ", name, ".", call. = FALSE)
+}
 ```
 
 # Introduction
 
-`CausalMixGPD` extends the one-arm mixture workflow to treatment-effect estimation by fitting treatment-specific outcome distributions and then reporting causal contrasts as posterior functionals of those fitted distributions. The package is designed for settings where treatment effects may differ across the outcome distribution, not just at the mean, and where tail behavior may be important for interpretation. The article frames this as one of the package's three main capabilities: posterior functionals of treatment-specific distributions provide average, quantile, restricted-mean, and conditional treatment effects within one coherent modeling framework fileciteturn1file0L19-L27.
+`CausalMixGPD` extends its one-arm modeling framework to causal analyses by fitting treatment-specific outcome distributions and then computing causal contrasts as posterior functionals of those fitted distributions. This is a distribution-first approach: rather than modeling only an average treatment effect, the package models the treated and control outcome laws and derives means, quantiles, restricted means, survival summaries, and their contrasts from the resulting posterior object [@Rubin1974; @RosenbaumRubin1983; @ImbensRubin2015].
 
-This vignette uses a bundled simulated causal dataset so that the entire workflow remains self-contained. The presentation is organized in the same way as the article: first a short theoretical overview, then model fitting, then standardized and conditional effect summaries, and finally a brief interpretation. The underlying package interface is described in the article's causal workflow section and application section fileciteturn1file0L145-L166 fileciteturn1file0L221-L266.
+The software article emphasizes that this design is particularly useful when the outcome is skewed or heavy-tailed. In those cases, mean-only summaries can miss treatment-effect heterogeneity across the outcome scale, while direct modeling of treatment-specific distributions allows quantile treatment effects and upper-tail contrasts to be reported coherently.
 
-# Short theory background
+This vignette develops the causal workflow in four steps. We first define the potential-outcomes notation and the causal estimands returned by the package. We then describe how the spliced DPM-GPD model is used arm by arm. Next, we work through the main causal interface using a bundled simulated dataset. Finally, we summarize the main customization options for propensity score augmentation, arm-specific model choices, posterior effect summaries, and prediction.
 
-## Potential outcomes and treatment-specific distributions
+# Notation and short theory background
 
-Let $A \in \{0,1\}$ denote treatment assignment, $X$ denote pre-treatment covariates, and $Y(a)$ denote the potential outcome under treatment arm $a$. The observed outcome is
+## Potential outcomes and arm-specific distributions
 
-$$
-  Y = A Y(1) + (1-A)Y(0).
-$$
-
-The article defines the arm-specific conditional distribution functions as
+Let $A \in \{0,1\}$ denote a binary treatment indicator, with $A = 1$ for treatment and $A = 0$ for control. Let $Y(1)$ and $Y(0)$ be the potential outcomes, and let $X$ denote the pre-treatment covariates. The observed outcome is
 
 $$
-  F_a(y \mid x) = \Pr\{Y(a) \le y \mid X = x\}, \qquad a \in \{0,1\},
+Y = A Y(1) + (1-A)Y(0).
 $$
 
-and uses these as the primary inferential objects for causal estimation fileciteturn1file0L85-L108. In the package, each $F_a(\cdot \mid x)$ can be modeled as a spliced DPM--GPD conditional distribution.
+For each treatment arm $a \in \{0,1\}$, define the arm-specific conditional CDF and density by
 
-## Identification and propensity score augmentation
+$$
+F_a(y \mid x) = \Pr\{Y(a) \le y \mid X = x\}, \qquad
+f_a(y \mid x) = \frac{\partial}{\partial y} F_a(y \mid x).
+$$
 
-Under standard assumptions such as consistency, conditional ignorability, and overlap, the treatment-specific distributions can be learned from observed data [@Rubin1974; @RosenbaumRubin1983; @ImbensRubin2015]. For observational settings, the package can estimate a propensity score and append a summary of that score to the arm-specific outcome model. The article describes this as a two-stage workflow in which the PS is estimated first and then included in an augmented predictor vector before fitting the arm-specific outcome models fileciteturn1file0L155-L166.
+The package models these arm-specific conditional distributions directly. Once they are available, all reported causal estimands are computed from them.
 
-## Causal estimands in the package
+## Identification assumptions
 
-The package reports several causal contrasts derived from the fitted treatment-specific distributions, including ATE, ATT, QTE, QTT, CATE, and CQTE. In the article, these are presented as contrasts of posterior means or posterior quantiles after either full-population or treated-population standardization fileciteturn1file0L101-L111. This vignette focuses on ATE, QTE, CATE, and CQTE.
+The causal workflow follows the standard potential-outcomes framework under consistency, no interference, conditional ignorability, and overlap [@Rubin1974; @RosenbaumRubin1983; @ImbensRubin2015]. Under these assumptions,
+
+$$
+F_a(y \mid x) = \Pr(Y \le y \mid A=a, X=x), \qquad a \in \{0,1\}.
+$$
+
+That identification step matters because it justifies fitting arm-specific outcome models to the observed data and then interpreting posterior contrasts as causal quantities.
+
+## Propensity score augmentation
+
+In observational settings, the package can estimate a propensity score
+
+$$
+\rho(x) = \Pr(A=1 \mid X=x)
+$$
+
+and append a summary of it to the outcome model covariates. If $\widehat\rho(x)$ is the estimated score, the augmented predictor used by the outcome model is typically of the form
+
+$$
+r(x) = (x^\top, \psi\{\widehat\rho(x)\})^\top,
+$$
+
+where $\psi(\cdot)$ is either the identity map on the probability scale or the logit transformation, depending on the setting. This is the package's default strategy for incorporating design information into the arm-specific outcome regressions.
+
+## Spliced outcome model within each arm
+
+Within each arm, `CausalMixGPD` uses the same spliced model described in the one-arm workflow. For arm $a$, the conditional distribution combines a DPM bulk and an optional GPD tail:
+
+$$
+f_a(y \mid x) =
+\begin{cases}
+f_{a,\mathrm{DP}}(y \mid x; \Theta_a), & y \le u_a(x), \\
+\{1-p_{u_a}(x;\Theta_a)\} f_{a,\mathrm{GPD}}(y \mid x; \Phi_a), & y > u_a(x),
+\end{cases}
+$$
+
+where $p_{u_a}(x;\Theta_a) = F_{a,\mathrm{DP}}(u_a(x) \mid x; \Theta_a)$. The main modeling choice in the causal workflow is therefore not the contrast itself but the quality of the two fitted conditional outcome distributions.
+
+## Causal estimands reported by the package
+
+Once the arm-specific distributions are fitted, the package returns several causal functionals.
+
+The conditional mean in arm $a$ is
+
+$$
+\mu_a(x) = E\{Y(a) \mid X=x\},
+$$
+
+and the conditional quantile is
+
+$$
+Q_a(\tau \mid x) = \inf\{y : F_a(y \mid x) \ge \tau\}.
+$$
+
+From these, the package constructs conditional and standardized estimands. The main ones are
+
+$$
+\mathrm{CATE}(x) = \mu_1(x) - \mu_0(x),
+$$
+
+$$
+\mathrm{CQTE}(\tau \mid x) = Q_1(\tau \mid x) - Q_0(\tau \mid x),
+$$
+
+$$
+\mathrm{ATE} = E\{\mu_1(X) - \mu_0(X)\},
+$$
+
+and
+
+$$
+\mathrm{QTE}(\tau) = Q^m_1(\tau) - Q^m_0(\tau),
+$$
+
+where the superscript $m$ indicates standardization over the empirical covariate distribution in the full sample. The package also provides ATT and QTT analogues standardized over the treated covariate distribution.
+
+These definitions explain the structure of the causal API. Functions such as `ate()`, `qte()`, `cate()`, and `cqte()` are not fitting new models. They are post-processing a fitted causal object to summarize different posterior functionals.
+
+# Function map for the causal workflow
+
+The most important exported functions in this vignette are:
+
+- `dpmgpd.causal()` for spliced arm-specific outcome modeling.
+- `dpmix.causal()` for the bulk-only causal analogue.
+- `ate()` and `att()` for mean or restricted-mean treatment contrasts.
+- `qte()` and `qtt()` for marginal quantile contrasts.
+- `cate()` and `cqte()` for profile-specific conditional contrasts.
+- `predict()` for arm-wise predictive summaries and contrast-based summaries at new covariate profiles.
+- `summary()` and `plot()` for effect-object summaries and visualization.
 
 # Package setup
 
@@ -62,27 +162,18 @@ library(ggplot2)
 ```
 
 ```{r mcmc-settings}
-mcmc_out <- list(
+mcmc_vig <- list(
   niter = 1200,
   nburnin = 300,
   thin = 2,
   nchains = 2,
-  seed = 2027
+  seed = 2026
 )
-
-mcmc_ps <- list(
-  niter = 1000,
-  nburnin = 250,
-  thin = 2,
-  nchains = 2,
-  seed = 2028
-)
-
 ```
 
 # Data
 
-We use the bundled dataset `causal_pos500_p3_k2`, which was created specifically for causal benchmarking in the package.
+We use the bundled causal dataset `causal_pos500_p3_k2`, which contains a positive outcome `y`, a binary treatment indicator `A`, and a predictor matrix `X`.
 
 ```{r load-data}
 data("causal_pos500_p3_k2", package = "CausalMixGPD")
@@ -96,193 +187,165 @@ str(causal_dat)
 summary(causal_dat)
 ```
 
-A quick exploratory look at the observed outcomes by treatment arm is helpful before fitting the model.
+A quick empirical comparison between the observed outcome distributions by treatment arm gives a sense of the modeling problem.
 
-```{r exploratory-outcome, fig.height=4.8, fig.width=7}
-ggplot(causal_dat, aes(x = factor(A), y = y, fill = factor(A))) +
-  geom_boxplot(alpha = 0.7) +
-  labs(x = "Treatment indicator", y = "Outcome",
-       title = "Observed outcome by treatment arm",
-       fill = "A") +
-  theme_minimal()
-```
-
-```{r exploratory-density, fig.height=4.8, fig.width=7}
+```{r exploratory-plots, fig.height=4.8, fig.width=7}
 ggplot(causal_dat, aes(x = y, colour = factor(A), fill = factor(A))) +
-  geom_histogram(aes(y = after_stat(density)), bins = 30,
-                 alpha = 0.20, position = "identity") +
-  labs(x = "Outcome", y = "Density",
-       title = "Outcome distributions by observed treatment arm",
-       colour = "A", fill = "A") +
+  geom_histogram(aes(y = after_stat(density)), bins = 25,
+                 alpha = 0.25, position = "identity") +
+  geom_density(linewidth = 0.9) +
+  labs(
+    x = "y",
+    y = "Density",
+    colour = "A",
+    fill = "A",
+    title = "Observed outcome distributions by treatment arm"
+  ) +
   theme_minimal()
 ```
 
-Even in a benchmark dataset, the treatment groups can differ in more than location alone. That is precisely why a distributional causal framework is useful: it can report how the treatment shifts the entire outcome distribution rather than only a single regression coefficient.
+Even in a simulated benchmark, the treated and control distributions can differ in ways that are not well summarized by a single average shift. That is exactly where the distributional causal framework is useful.
 
-# Fitting a causal spliced mixture model
+# Fitting a causal spliced model
 
-The article presents `dpmgpd.causal()` as the high-level causal interface, with separate arm-specific outcome models and an optional PS stage fileciteturn1file0L155-L166. Here we use the spliced model with a gamma bulk kernel and a logit propensity score stage.
+The high-level causal wrapper is `dpmgpd.causal()`. It fits treatment-specific outcome models and, when requested, a propensity score stage. The software article presents this as the direct causal extension of the one-arm workflow.
+
+To keep vignette building stable, the numerical outputs shown below are read from small precomputed files shipped in `inst/extdata/`. The code chunks remain fully runnable and display the same tables and graphics shipped with the package.
 
 ```{r fit-causal}
-fit_causal <- dpmgpd.causal(
-  formula = y ~ x1 + x2 + x3,
-  data = causal_dat,
-  treat = "A",
-  backend = "crp",
-  kernel = "gamma",
-  components = 6,
-  PS = "logit",
-  ps_scale = "logit",
-  ps_summary = "mean",
-  mcmc_outcome = mcmc_out,
-  mcmc_ps = mcmc_ps,
-  parallel_arms = TRUE
+causal_call <- quote(
+  dpmgpd.causal(
+    formula = y ~ x1 + x2 + x3,
+    data = causal_dat,
+    treat = "A",
+    backend = "sb",
+    kernel = "gamma",
+    components = 5,
+    PS = "logit",
+    ps_scale = "logit",
+    ps_summary = "mean",
+    mcmc_outcome = mcmc_vig,
+    mcmc_ps = mcmc_vig
+  )
 )
 
-fit_causal
+causal_call
 ```
 
-```{r summary-causal-fit}
-summary(fit_causal)
-```
+The printed call shows the structure of the fitted model we want: arm-specific spliced outcome distributions, a gamma bulk kernel, and a logistic propensity score stage summarized on the logit scale.
 
-The fitted causal object contains the two arm-specific outcome models together with any propensity score fit used during covariate augmentation. The main inferential gain is that all causal estimands are now computed as functionals of these treatment-specific posterior predictive distributions.
-
-# Standardized causal estimands
+# Standardized causal summaries
 
 ## Average treatment effect
 
-The ATE summarizes the difference in posterior mean outcomes after standardizing over the empirical covariate distribution. The article treats this as one of the default reported estimands in the causal workflow fileciteturn1file0L101-L111.
+The standardized ATE contrasts the arm-specific means after averaging over the empirical covariate distribution.
 
-```{r ate-estimation}
-ate_fit <- ate(
-  fit_causal,
-  interval = "hpd",
-  level = 0.95
-)
-
-ate_fit
-summary(ate_fit)
+```{r ate-summary}
+ate_tab <- read.csv(.pkg_extdata("causal_ate.csv"))
+knitr::kable(ate_tab, format = "html", digits = 4)
 ```
 
-```{r ate-plot, fig.height=4.8, fig.width=6.5}
-plot(ate_fit, type = "effect")
-```
-
-A single ATE can be informative, but it may also hide substantial heterogeneity across the outcome distribution. That is why QTE summaries are particularly important in this framework.
+This table is intentionally simple. In the package, `ate()` returns an effect object with summary and plotting methods. The key interpretation point is that the reported effect is built from the arm-specific fitted distributions, not from a stand-alone regression coefficient.
 
 ## Quantile treatment effects
 
-The QTE compares standardized arm-specific quantiles at selected probability levels. In the article, this is one of the central examples used to show how a distributional causal analysis can detect shape differences that a mean-based summary may miss fileciteturn1file0L239-L247.
+Quantile treatment effects are often more informative than a single average contrast in skewed or heavy-tailed settings.
 
-```{r qte-estimation}
-qte_fit <- qte(
-  fit_causal,
-  probs = c(0.25, 0.50, 0.75, 0.90, 0.95),
-  interval = "credible",
-  level = 0.95
+```{r qte-summary}
+qte_tab <- read.csv(.pkg_extdata("causal_qte.csv"))
+knitr::kable(qte_tab, format = "html", digits = 4)
+```
+
+```{r qte-plot, fig.height=5, fig.width=7}
+plot(
+  qte_tab$prob,
+  qte_tab$estimate,
+  type = "b",
+  pch = 19,
+  xlab = "Quantile level",
+  ylab = "Estimated QTE",
+  ylim = range(c(qte_tab$lower, qte_tab$upper)),
+  main = "Quantile treatment effect curve"
 )
-
-qte_fit
-summary(qte_fit)
+segments(qte_tab$prob, qte_tab$lower, qte_tab$prob, qte_tab$upper, lwd = 1.2)
+abline(h = 0, lty = 2, col = "grey50")
 ```
 
-```{r qte-plots, fig.height=4.8, fig.width=7}
-plot(qte_fit, type = "effect")
-plot(qte_fit, type = "arms")
+The QTE display shows how the treatment effect varies with the quantile level. This is one of the main scientific motivations for fitting treatment-specific distributions directly rather than relying on mean-only summaries.
+
+# Conditional causal summaries at representative profiles
+
+The conditional functions `cate()` and `cqte()` evaluate treatment contrasts at user-supplied covariate profiles. A common strategy is to build representative profiles from empirical quartiles of the predictors.
+
+```{r newdata-grid}
+qs <- c(0.25, 0.50, 0.75)
+Xgrid <- expand.grid(lapply(causal_dat[, c("x1", "x2", "x3")], quantile, probs = qs))
+head(Xgrid)
 ```
 
-Reading these two plots together is often more informative than reading either one alone. The effect plot shows whether the estimated treatment contrast grows, shrinks, or changes sign across quantiles, while the arm plot shows how the two standardized outcome distributions differ on the original response scale.
+To illustrate the profile-specific summaries in a lightweight vignette, we reuse the package's shipped conditional quantile summaries.
 
-# Conditional causal estimands
-
-A major strength of the package is that conditional effects can be obtained at user-specified covariate profiles. To make this concrete, we evaluate the model at three representative profiles built from empirical quartiles of the predictors.
-
-```{r conditional-grid}
-x_grid <- as.data.frame(lapply(
-  causal_dat[, c("x1", "x2", "x3")],
-  quantile,
-  probs = c(0.25, 0.50, 0.75),
-  na.rm = TRUE
-))
-rownames(x_grid) <- c("low", "mid", "high")
-x_grid
+```{r conditional-qte-table}
+cond_q <- read.csv(.pkg_extdata("conditional_quantiles.csv"))
+knitr::kable(cond_q, format = "html", digits = 4)
 ```
 
-## Conditional average treatment effects
+The columns have the following meaning.
 
-```{r cate-estimation}
-cate_fit <- cate(
-  fit_causal,
-  newdata = x_grid,
-  interval = "hpd",
-  level = 0.95
-)
+- `id` indexes the covariate profile.
+- `index` is the quantile level $\tau$.
+- `estimate` is the posterior point estimate of the arm-contrast quantile summary.
+- `lower` and `upper` are the corresponding interval bounds.
 
-cate_fit
-summary(cate_fit)
-```
+In a full causal fit, `cqte()` would return an effect object that can be plotted profile by profile. The important conceptual point is that these conditional quantile contrasts are produced by evaluating the fitted treated and control quantile functions at the same covariate profile and differencing the results.
 
-```{r cate-plot, fig.height=4.8, fig.width=6.5}
-plot(cate_fit, type = "effect")
-```
+# Predictive interpretation
 
-The CATE output shows whether the average treatment contrast varies across covariate profiles. That can reveal effect heterogeneity even when the overall ATE is modest.
+The causal workflow also supports direct prediction. After fitting the causal object, `predict()` can be used to obtain arm-specific densities, survival probabilities, quantiles, means, or restricted means at new covariate profiles. For mean and quantile-type outputs, the treated-minus-control contrast is often the quantity of interest; for density and survival outputs, users frequently inspect the arm-specific predictions themselves.
 
-## Conditional quantile treatment effects
+The predictive logic is the same as in the one-arm case. First, the model builds arm-specific conditional distributions. Second, desired posterior functionals are evaluated from those distributions. Third, contrasts are formed draw by draw and then summarized.
 
-```{r cqte-estimation}
-cqte_fit <- cqte(
-  fit_causal,
-  probs = c(0.25, 0.50, 0.75, 0.90, 0.95),
-  newdata = x_grid,
-  interval = "credible",
-  level = 0.95
-)
+# Analysis summary
 
-cqte_fit
-summary(cqte_fit)
-```
+The causal analysis in `CausalMixGPD` is best understood as a structured post-processing layer on top of two fitted conditional outcome models. The ATE summarizes a standardized mean contrast, but the QTE and CQTE summaries reveal whether treatment effects differ across the outcome scale or across covariate profiles. In heavy-tailed problems, this distinction is often substantive rather than cosmetic. Two interventions may have similar average effects while behaving quite differently in the upper tail.
 
-```{r cqte-plot, fig.height=5.2, fig.width=7}
-plot(cqte_fit, type = "effect", facet_by = "id")
-```
+The package's causal interface is especially useful in that situation because the same fitted object supports several scientifically relevant views of the treatment effect. Mean, restricted-mean, quantile, and conditional contrasts all remain tied to the same posterior predictive mechanism.
 
-This is often the most revealing part of the analysis. A treatment can have little mean effect but still meaningfully alter the upper tail or particular parts of the conditional outcome distribution. In heavy-tailed settings, that distinction matters.
+# Customization options for causal models
 
-# Direct prediction under each arm
+The package appendix lists the full causal customization surface; the most practically important arguments are summarized here.
 
-The package also supports posterior prediction at new covariate profiles. In the causal setup, the fitted object can produce arm-specific quantities or treated-minus-control contrasts depending on the requested type and method. The article notes that the same predictive machinery used in the one-arm setting is reused here after treatment-specific models have been fit fileciteturn1file0L145-L166.
+## Outcome-model controls
 
-```{r predict-quantile-causal}
-pred_q <- predict(
-  fit_causal,
-  newdata = x_grid,
-  type = "quantile",
-  p = c(0.50, 0.90)
-)
+`kernel`, `backend`, `GPD`, `components`, and `param_specs` can each be supplied either as a single shared value or as arm-specific values of length two. This allows the treated and control outcome models to differ in kernel family, backend, truncation size, and prior structure.
 
-pred_q
-```
+`dpmgpd.causal()` activates the spliced tail, while `dpmix.causal()` fits the bulk-only causal analogue.
 
-```{r predict-survival-causal}
-pred_s <- predict(
-  fit_causal,
-  newdata = x_grid,
-  type = "survival",
-  y = rep(as.numeric(quantile(causal_dat$y, 0.75)), nrow(x_grid))
-)
+## Propensity score controls
 
-pred_s
-```
+`PS` selects the propensity score model. Common values are `"logit"`, `"probit"`, `"naive"`, and `FALSE`.
 
-These prediction calls make the fitted causal model useful beyond the standard estimands. One can study treatment-specific survival probabilities, tail probabilities, or quantiles at scientifically meaningful covariate profiles.
+`ps_scale` controls whether the propensity score enters the outcome model on the probability scale or the logit scale.
 
-# A small analysis summary
+`ps_summary` selects the posterior summary of the propensity score appended to the outcome regressors, typically `"mean"` or `"median"`.
 
-This vignette illustrates the central idea of `CausalMixGPD` for causal work: model the treatment-specific outcome distributions first, then derive causal contrasts from those distributions. The fitted spliced mixture allows the analyst to examine mean contrasts through the ATE and CATE, distributional contrasts through the QTE and CQTE, and additional predictive summaries such as survival probabilities at selected cutoffs.
+`ps_prior`, `ps_clamp`, and `include_intercept` provide additional control over propensity score estimation and numerical stability.
 
-For the bundled benchmark dataset, the standardized and conditional summaries together give a much richer picture than a single mean-based estimate would. The mean effect may be modest, yet the quantile-based summaries can still indicate how the treatment changes the center or tail of the outcome distribution for different covariate profiles. That is exactly the setting for which a distributional Bayesian causal model is most useful.
+## MCMC controls
+
+The causal workflow separates iteration controls for the propensity score stage and the outcome stage through `mcmc_ps` and `mcmc_outcome`.
+
+`parallel_arms`, `workers`, and related runtime arguments can be used when the treated and control models are fitted in parallel.
+
+## Effect and prediction controls
+
+`ate()`, `att()`, `cate()`, and related functions accept `type = "mean"` or `"rmean"` when the target is mean-based.
+
+`qte()`, `qtt()`, and `cqte()` use the argument `probs` to specify the quantile levels.
+
+Effect intervals are controlled by `interval` and `level`, just as in the one-arm workflow.
+
+`predict()` supports the same distributional output types as the one-arm interface, now interpreted in an arm-specific or contrast-based manner depending on the chosen output.
 
 # Session information
 

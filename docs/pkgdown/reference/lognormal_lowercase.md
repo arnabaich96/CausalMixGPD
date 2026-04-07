@@ -148,6 +148,14 @@ rlognormalgpd(n, meanlog, sdlog, threshold, tail_scale, tail_shape)
 Numeric vector of densities, probabilities, quantiles, or random
 variates.
 
+## Details
+
+These are direct vectorized wrappers around the scalar lognormal
+routines. They keep the same parameterization, support restrictions, and
+bulk-tail splice, while allowing ordinary vector inputs in R. Quantile
+wrappers continue to use the scalar inversion logic, so there is no
+separate approximation layer in the lowercase API.
+
 ## Functions
 
 - `dlognormalmix()`: Lognormal mixture density (vectorized)
@@ -206,7 +214,7 @@ sl <- c(0.4, 0.5, 0.6)
 dlognormalmix(c(1, 2, 3), w = w, meanlog = ml, sdlog = sl)
 #> [1] 0.8386766 0.1873719 0.0425651
 rlognormalmix(5, w = w, meanlog = ml, sdlog = sl)
-#> [1] 0.6360860 0.7556021 1.5831195 1.4558284 0.5728457
+#> [1] 2.1749765 1.9499446 0.6360860 0.7556021 1.5831195
 
 # Lognormal mixture + GPD
 dlognormalmixgpd(c(2, 3, 4), w = w, meanlog = ml, sdlog = sl,

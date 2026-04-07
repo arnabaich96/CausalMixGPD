@@ -71,6 +71,15 @@ rcauchymix(n, w, location, scale)
 Numeric vector of densities, probabilities, quantiles, or random
 variates.
 
+## Details
+
+These are vectorized R wrappers around the scalar Cauchy-mixture
+routines. They retain the same location-scale parameterization and the
+same inverse-CDF logic for simulation and quantiles. The lowercase
+functions do not alter the heavy-tail theory of the underlying Cauchy
+components; they simply make the scalar routines convenient to use on
+vectors in R.
+
 ## Functions
 
 - `dcauchymix()`: Cauchy mixture density (vectorized)

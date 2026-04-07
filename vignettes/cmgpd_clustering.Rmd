@@ -1,12 +1,12 @@
 ---
-title: "Model-Based Clustering with CausalMixGPD"
+title: "Predictor-Dependent Clustering with CausalMixGPD"
 output: rmarkdown::html_vignette
 bibliography: CausalMixGPD.bib
 link-citations: true
 vignette: >
-  %\VignetteIndexEntry{Model-Based Clustering with CausalMixGPD}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Predictor-Dependent Clustering with CausalMixGPD}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
 ```{r setup, include=FALSE}
@@ -20,35 +20,114 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE
 )
+
+.pkg_extdata <- function(name) {
+  f <- system.file("extdata", name, package = "CausalMixGPD")
+  if (nzchar(f)) {
+    return(f)
+  }
+  vdir <- knitr::current_input(dir = TRUE)
+  pkg_root <- normalizePath(file.path(vdir, ".."), winslash = "/", mustWork = TRUE)
+  alt <- file.path(pkg_root, "inst", "extdata", name)
+  if (file.exists(alt)) {
+    return(normalizePath(alt, winslash = "/", mustWork = TRUE))
+  }
+  stop("Missing extdata: ", name, ". Run data-raw/build_vignette_fits.R", call. = FALSE)
+}
 ```
 
 # Introduction
 
-Although `CausalMixGPD` is often introduced through density estimation and causal inference, the same mixture machinery also supports model-based clustering. Because Dirichlet process mixtures induce latent partitions through their allocation variables, clustering comes almost for free once the mixture model is fitted. The package wraps that idea into dedicated clustering interfaces and reports label-invariant summaries such as posterior similarity matrices (PSM) and representative partitions under Dahl's criterion [@Binder1978; @Dahl2006]. The article treats this clustering wing as one of the package's three main capabilities and describes it in both the theory and application sections fileciteturn1file0L19-L27 fileciteturn1file0L78-L84.
+The clustering interface in `CausalMixGPD` uses the same Bayesian nonparametric mixture machinery as the density and causal workflows, but the inferential focus changes. Instead of treating the fitted distribution only as a prediction engine, the clustering workflow treats the latent partition induced by the mixture model as a primary object of interest. The output is therefore organized around label-invariant partition summaries such as the posterior similarity matrix (PSM), representative cluster labels, cluster sizes, and membership scores [@Binder1978; @Dahl2006].
 
-This vignette gives a self-contained clustering workflow using a bundled package dataset instead of an external real dataset. The goal is to show how to fit a clustering model, summarize posterior partition uncertainty, and assign labels to new observations.
+This clustering functionality is important because Dirichlet process mixtures do more than estimate smooth densities. Their latent allocation variables induce random partitions, so they can be used for subgroup discovery while still allowing flexible within-cluster outcome models. The software article presents clustering as one of the three main capabilities of the package, alongside one-arm modeling and causal inference.
 
-# Short theory background
+This vignette gives a complete introduction to the clustering workflow. We first define the latent-partition notation and the three forms of predictor dependence supported by the package. We then fit a clustering model to a bundled dataset, extract label-invariant summaries, and predict cluster labels for new observations. We close with a reference section describing the main clustering-specific customization options.
 
-## Latent partitions from mixture models
+# Notation and short theory background
 
-Under a Bayesian mixture model, each observation is associated with a latent component label. Those labels induce a random partition of the sample. In the article, the predictor-dependent clustering model is written in the generic form
+## Mixture models and latent cluster labels
 
-$$
-  f(y \mid x) = \sum_{j=1}^{\infty} w_j(x) k(y \mid x, \theta_j),
-$$
-
-with predictor dependence entering through the weights, the component parameters, or both fileciteturn1file0L78-L84. Different dependence modes yield different interpretations: predictors may change how prevalent clusters are, how cluster-specific response patterns behave, or both.
-
-## Posterior similarity matrix and representative partition
-
-Since component labels can switch across MCMC draws, the package emphasizes label-invariant summaries rather than raw sampled labels. The posterior similarity matrix has entries
+Let $Y$ denote the response and let $X$ denote the predictor vector. In a mixture model, the conditional density can be written abstractly as
 
 $$
-  S_{i\ell} = \Pr(z_i = z_\ell \mid \text{data}),
+f(y \mid x) = \sum_{j=1}^{\infty} w_j(x) k(y \mid x, \theta_j),
 $$
 
-and summarizes how often two observations cluster together across posterior draws [@Binder1978; @Dahl2006]. A representative partition is then chosen by selecting the sampled partition whose adjacency matrix is closest to the PSM. The article presents these as the primary clustering summaries returned by the package fileciteturn1file0L78-L84 fileciteturn1file0L134-L145.
+where the weights may or may not depend on predictors and the component-specific parameters may or may not depend on predictors. Introduce a latent allocation variable $z_i$ for observation $i$, with $z_i = j$ meaning that observation $i$ is assigned to component $j$. Then the conditional response model can be written as
+
+$$
+y_i \mid z_i, x_i, \{\theta_j\} \sim k(\cdot \mid x_i, \theta_{z_i}).
+$$
+
+The collection $\Pi = \{z_1, \ldots, z_n\}$ determines a random partition of the observations. In Bayesian nonparametric clustering, the posterior distribution of this partition is the central inferential object.
+
+## Why labels are not directly interpretable
+
+Mixture component labels are not identifiable across MCMC draws. One posterior draw may label a cluster as component 1 while another labels the same substantive group as component 4. Because of this label-switching phenomenon, cluster summaries should not be based on raw component labels alone.
+
+Instead, the package reports label-invariant summaries. The most important one is the posterior similarity matrix, whose $(i,\ell)$ entry is
+
+$$
+S_{i\ell} = \Pr(z_i = z_\ell \mid \text{data}).
+$$
+
+This is estimated by averaging co-clustering indicators over retained posterior draws. A representative hard partition is then obtained using Dahl's least-squares criterion [@Dahl2006].
+
+## Predictor dependence in clustering
+
+The package supports three distinct clustering modes, each corresponding to a different way in which predictors can affect the mixture model.
+
+### Weight dependence
+
+In the weight-dependent mode,
+
+$$
+f(y \mid x) = \sum_{j=1}^{\infty} w_j(x) k(y \mid \theta_j).
+$$
+
+Here the cluster-specific kernel parameters are shared, but the prevalence of the clusters changes with predictors. This is useful when the goal is to let covariates modify which latent groups are more likely without changing the within-group model form.
+
+### Parameter dependence
+
+In the parameter-dependent mode,
+
+$$
+f(y \mid x) = \sum_{j=1}^{\infty} w_j k(y \mid x, \theta_j).
+$$
+
+The weights are global, but each cluster has its own predictor-response relationship. This is useful when clusters represent different regression regimes.
+
+### Weight and parameter dependence
+
+In the most flexible mode,
+
+$$
+f(y \mid x) = \sum_{j=1}^{\infty} w_j(x) k(y \mid x, \theta_j).
+$$
+
+Here both cluster prevalence and within-cluster behavior can vary with predictors.
+
+## Main clustering summaries returned by the package
+
+The clustering wrappers produce fitted objects whose predictions are cluster-focused rather than density-focused.
+
+- `predict(type = "psm")` returns the posterior similarity matrix.
+- `predict(type = "label")` returns representative labels and, when available, cluster membership scores.
+- `summary()` reports cluster sizes and profile summaries.
+- `plot()` can display the PSM, cluster sizes, cluster certainty, and representative-cluster summaries.
+
+These summaries allow the user to distinguish between strong clustering structure and uncertain partitions. In many applications, the PSM is more informative than a single hard partition because it shows which observations cluster together consistently and which do not.
+
+# Function map for the clustering workflow
+
+The main exported functions used in this vignette are:
+
+- `dpmix.cluster()` for bulk-only clustering.
+- `dpmgpd.cluster()` for clustering with an active GPD tail.
+- `predict()` with `type = "psm"` or `type = "label"`.
+- `summary()` for cluster sizes and profiles.
+- `plot()` for PSM heatmaps and cluster-summary graphics.
 
 # Package setup
 
@@ -58,181 +137,152 @@ library(ggplot2)
 ```
 
 ```{r mcmc-settings}
-mcmc_clust <- list(
+mcmc_vig <- list(
   niter = 1200,
   nburnin = 300,
   thin = 2,
   nchains = 2,
-  seed = 2029
+  seed = 2026
 )
 ```
 
 # Data
 
-We use the bundled dataset `nc_realX100_p3_k2`, which contains a real-line response and three predictors. This is a convenient benchmark for predictor-dependent clustering.
+We use the bundled dataset `nc_realX100_p3_k2`, which contains a real-valued response and three predictors.
 
 ```{r load-data}
 data("nc_realX100_p3_k2", package = "CausalMixGPD")
-clust_dat <- data.frame(
+dat_cl <- data.frame(
   y = nc_realX100_p3_k2$y,
   nc_realX100_p3_k2$X
 )
 
-str(clust_dat)
-summary(clust_dat)
+str(dat_cl)
+summary(dat_cl)
 ```
 
-To mimic an actual clustering task, we split the data into a training set used for estimating the clustering structure and a small holdout set used for out-of-sample label assignment.
+For illustration, we form a simple train/test split so that we can show both training-cluster summaries and out-of-sample label prediction.
 
-```{r train-test-split}
-set.seed(123)
-idx_train <- sample(seq_len(nrow(clust_dat)), size = 80)
-train_dat <- clust_dat[idx_train, ]
-test_dat  <- clust_dat[-idx_train, ]
+```{r split-data}
+clust_out <- readRDS(.pkg_extdata("clustering_outputs.rds"))
+train_dat <- clust_out$train_dat
+test_dat <- clust_out$test_dat
 
-dim(train_dat)
-dim(test_dat)
+nrow(train_dat)
+nrow(test_dat)
 ```
 
-A simple exploratory visualization is often helpful before fitting the model.
+A quick visualization of the response helps motivate the use of a flexible mixture model.
 
-```{r exploratory-scatter, fig.height=4.8, fig.width=7}
-ggplot(train_dat, aes(x = x1, y = y)) +
-  geom_point(alpha = 0.75) +
-  labs(title = "Training sample: response against x1",
-       x = "x1", y = "y") +
+```{r exploratory-plots, fig.height=4.8, fig.width=7}
+ggplot(train_dat, aes(x = y)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 25,
+                 fill = "grey85", colour = "grey35") +
+  geom_density(linewidth = 0.9) +
+  labs(x = "y", y = "Density", title = "Training-sample response distribution") +
   theme_minimal()
 ```
 
 # Fitting a clustering model
 
-The article describes two clustering wrappers, `dpmix.cluster()` for bulk-only clustering and `dpmgpd.cluster()` for the spliced version, with predictor dependence controlled by `type = "weights"`, `"param"`, or `"both"` fileciteturn1file0L134-L145. Here we use the bulk-only clustering wrapper and let the predictors influence both the gating structure and the component-specific behavior.
+The bulk-only clustering wrapper is `dpmix.cluster()`. It uses the same general mixture machinery as the one-arm interface, but returns a clustering-oriented fitted object.
 
-```{r fit-clustering}
-fit_cluster <- dpmix.cluster(
-  formula = y ~ x1 + x2 + x3,
-  data = train_dat,
-  kernel = "laplace",
-  type = "both",
-  components = 8,
-  mcmc = mcmc_clust
-)
-
-fit_cluster
+```{r fit-cluster}
+fit_cluster <- clust_out$fit_cluster
 ```
 
-```{r summary-clustering-fit}
-summary(fit_cluster)
-```
-
-This object represents a posterior distribution over partitions, not just a point clustering. The summaries below extract the package's main label-invariant outputs.
+The choice `type = "both"` requests dependence in both the mixing weights and the component-specific parameters. In practice, this is the most flexible clustering specification because it allows both cluster prevalence and cluster-specific regression behavior to vary with covariates.
 
 # Posterior similarity matrix
 
-The PSM is the first object to examine because it displays clustering uncertainty directly.
+The first label-invariant summary is the PSM.
 
 ```{r psm-prediction}
-psm_obj <- predict(fit_cluster, type = "psm")
-psm_obj
+z_train_psm <- clust_out$psm_obj
+z_train_psm
 ```
 
-```{r psm-plot, fig.height=5.2, fig.width=6.5}
-plot(psm_obj, type = "summary")
+```{r psm-plot, fig.height=5.2, fig.width=7}
+plot(z_train_psm, type = "summary")
 ```
 
-A clean block structure in the PSM suggests well-separated groups, whereas diffuse shading indicates substantial posterior ambiguity. In mixture clustering, that ambiguity is not a flaw; it is a faithful reflection of uncertainty in the partition itself.
+The block structure in the PSM is the main diagnostic for cluster separation. Darker within-block regions indicate pairs of observations that co-cluster consistently across posterior draws, while diffuse or weak block boundaries indicate uncertainty about the partition.
 
-# Representative partition for the training data
+# Representative training partition
 
-The package also returns representative training labels under the Dahl criterion.
+The next step is to extract representative cluster labels for the training sample.
 
 ```{r label-prediction-train}
-train_lab <- predict(
-  fit_cluster,
-  type = "label",
-  return_scores = TRUE
-)
-
-train_lab
-summary(train_lab)
+z_train_lab <- clust_out$train_lab
+z_train_lab
 ```
 
-```{r label-plot-train, fig.height=5.2, fig.width=6.8}
-plot(train_lab, type = "summary")
+```{r label-plot-train, fig.height=5, fig.width=7}
+plot(z_train_lab, type = "summary")
 ```
 
-The summary method typically reports cluster sizes and profile summaries, while the plot method helps connect the representative labels back to the observed response scale. This is often more interpretable than reading the PSM alone.
+The representative partition provides a single interpretable clustering summary on the response scale. It is convenient for reporting, but it should be read together with the PSM because the latter conveys the posterior uncertainty in the clustering structure.
 
-If the score matrix is returned, one can inspect classification certainty directly.
+# Predicting labels for new observations
 
-```{r certainty-train}
-train_certainty <- apply(train_lab$scores, 1, max)
-summary(train_certainty)
-```
-
-High certainty values indicate observations that consistently belong to the same representative cluster across posterior draws, while lower values flag observations that lie near boundaries between clusters.
-
-# Predicting cluster labels for new observations
-
-One of the practical benefits of the package's clustering interface is that it supports out-of-sample label assignment. The article describes this as mapping posterior predictive component scores into the representative training partition fileciteturn1file0L134-L145.
+A distinctive feature of the package is that it also supports cluster prediction for new observations.
 
 ```{r label-prediction-test}
-test_lab <- predict(
-  fit_cluster,
-  newdata = test_dat,
-  type = "label",
-  return_scores = TRUE
-)
-
-test_lab
-summary(test_lab)
+z_test <- clust_out$test_lab
+z_test
 ```
 
-```{r sizes-plot-test, fig.height=4.8, fig.width=6.5}
-plot(test_lab, type = "sizes")
+```{r test-cluster-profiles}
+clust_out$cluster_profiles
 ```
 
-```{r certainty-test}
-test_certainty <- apply(test_lab$scores, 1, max)
-summary(test_certainty)
+```{r sizes-plot-test, fig.height=4.8, fig.width=7}
+plot(z_test, type = "sizes")
 ```
 
-Out-of-sample clustering is especially useful when the fitted partition is meant to serve as an interpretable segmentation of future observations rather than just a retrospective summary of the training sample.
+This prediction step maps new observations into the space of the representative training clusters. That is useful in applications where the discovered subgroup structure needs to be carried forward to new units without refitting the entire model.
 
-# Cluster profile summaries
+# Analysis summary
 
-Representative clusters are easiest to interpret when tied back to the original response and predictors. The package summary method returns cluster-specific profile summaries that can be examined directly.
+The clustering workflow in `CausalMixGPD` is most informative when the user interprets it as a posterior partition analysis rather than as a hard unsupervised classification algorithm. The PSM shows which observations reliably belong together, the representative labels provide a convenient summary partition, and the test-set predictions extend that partition to new observations.
 
-```{r cluster-profiles}
-summary(test_lab)$cluster_profiles
-```
+The three predictor-dependence modes are scientifically meaningful rather than cosmetic. Weight dependence is useful when covariates mainly affect subgroup prevalence. Parameter dependence is useful when clusters correspond to different regression surfaces. The combined mode is appropriate when both mechanisms are plausible. In all three cases, the package reports label-invariant summaries so that posterior uncertainty about the partition is not hidden behind arbitrary component labels.
 
-Those summaries help distinguish whether clusters differ primarily by response level, by covariate pattern, or by both. In many applications, that profile table becomes the main substantive output of the clustering analysis.
+# Customization options for clustering models
 
-# Optional spliced clustering
+The software appendix gives a compact map of the clustering-specific controls; the most important ones are summarized here.
 
-If tail behavior is part of the clustering problem, the spliced clustering wrapper can be used instead. The article explicitly notes that both bulk-only and spliced clustering interfaces are available within the package workflow fileciteturn1file0L134-L145. The code below is included to show the analogous call.
+## Clustering mode
 
-```{r fit-spliced-clustering}
-fit_cluster_spliced <- dpmgpd.cluster(
-  formula = y ~ x1 + x2 + x3,
-  data = train_dat,
-  kernel = "normal",
-  type = "both",
-  components = 8,
-  mcmc = mcmc_clust
-)
+`type = "weights"` places predictor dependence in the mixing weights.
 
-fit_cluster_spliced
-```
+`type = "param"` places predictor dependence in the component-specific kernel parameters.
 
-In applications where extreme observations may create cluster-like tail structure, the spliced version can be preferable because it separates bulk clustering from explicit upper-tail modeling.
+`type = "both"` allows both forms of dependence simultaneously.
 
-# A small analysis summary
+## Wrapper choice
 
-This vignette shows the basic logic of model-based clustering in `CausalMixGPD`. A mixture model is first fitted with predictor dependence in the weights, the component parameters, or both. Clustering uncertainty is then summarized through the posterior similarity matrix, and a representative partition is extracted for interpretation and out-of-sample prediction.
+`dpmix.cluster()` fits the bulk-only clustering model.
 
-For the bundled benchmark dataset used here, the PSM and representative label summaries provide complementary information. The PSM quantifies how stable the posterior partition is, while the representative labels and cluster profiles translate that uncertainty into a usable segmentation of the data. When future observations must also be assigned to clusters, the predictive label interface extends the training partition naturally. That combination makes the clustering workflow useful not only for exploratory analysis but also for downstream classification and subgroup interpretation.
+`dpmgpd.cluster()` adds an active GPD tail and should be considered when tail behavior is part of the clustering problem.
+
+## Kernel, backend, and truncation
+
+`kernel` selects the bulk family, subject to the support of the response.
+
+`components` controls the truncation size. In clustering problems, under-truncation can hide meaningful subgroup structure, so this argument deserves explicit attention.
+
+The package handles some backend details internally based on the clustering mode, but users still choose the scientific dependence structure through `type`.
+
+## Monitoring and output controls
+
+`monitor`, `monitor_latent`, and `monitor_v` control how much posterior state is retained.
+
+`predict(type = "psm")` and `predict(type = "label")` determine whether the user wants a matrix-valued co-clustering summary or representative labels.
+
+`return_scores = TRUE` can be used when membership scores or certainty summaries are needed.
+
+`summary()` reports cluster sizes and within-cluster profiles, while `plot()` supports PSM heatmaps and label-summary graphics such as cluster sizes and certainty.
 
 # Session information
 

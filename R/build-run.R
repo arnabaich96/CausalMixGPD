@@ -2605,6 +2605,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = FALSE,
     t0_build <- tic()
     # Generated models are validated upstream; NIMBLE's full check path can be
     # disproportionately expensive for manuscript-scale fits.
+    .register_nimble_exports()
     Rmodel <- tryCatch(
       .cmgpd_capture_nimble(
         nimble::nimbleModel(

@@ -132,6 +132,18 @@ rnormgpd(n, mean, sd, threshold, tail_scale, tail_shape)
 Numeric vector of densities, probabilities, quantiles, or random
 variates.
 
+## Details
+
+These wrappers vectorize the scalar normal-kernel routines for ordinary
+R use. They preserve the same formulas, parameter meanings, and tail
+construction as the uppercase functions; the only change is that `x`,
+`q`, `p`, and `n` may now be length greater than one.
+
+For the mixture quantile and splice quantile functions, the numerical
+and piecewise logic is delegated directly to the corresponding scalar
+routine. As a result, the lowercase helpers are faithful front ends
+rather than separate implementations.
+
 ## Functions
 
 - `dnormmix()`: Normal mixture density (vectorized)
@@ -187,7 +199,7 @@ sig <- c(1, 0.7, 1.3)
 dnormmix(c(0, 1, 2), w = w, mean = mu, sd = sig)
 #> [1] 0.26967693 0.17703568 0.06303415
 rnormmix(5, w = w, mean = mu, sd = sig)
-#> [1]  3.9212585 -1.3780286  1.5338650 -0.1731000  0.2224225
+#> [1]  0.2224225 -2.1848187  1.5025599 -1.6137368 -3.8100318
 
 # Normal mixture + GPD
 dnormmixgpd(c(1, 2, 3), w = w, mean = mu, sd = sig,

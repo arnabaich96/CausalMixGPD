@@ -35,9 +35,13 @@ cqte(
 
 - interval:
 
-  Character or NULL; type of credible interval: `NULL` for no interval,
-  `"credible"` for equal-tailed quantile intervals (default), or `"hpd"`
-  for highest posterior density intervals.
+  Character or NULL; type of credible interval:
+
+  - `NULL`: no interval
+
+  - `"credible"` (default): equal-tailed quantile intervals
+
+  - `"hpd"`: highest posterior density intervals
 
 - level:
 
@@ -52,13 +56,13 @@ cqte(
 
 An object of class `"causalmixgpd_qte"` containing the CQTE summary, the
 probability grid, and the treated/control prediction objects used to
-construct the effect.
+construct the effect. The returned object includes a top-level `$fit_df`
+data frame for direct extraction.
 
 ## Details
 
 For each prediction row \\x\\, the conditional quantile treatment effect
-is \$\$\mathrm{CQTE}(\tau, x) = Q_1(\tau \mid x, \mathcal{D}) - Q_0(\tau
-\mid x, \mathcal{D}).\$\$
+is \$\$\mathrm{CQTE}(\tau, x) = Q_1(\tau \mid x) - Q_0(\tau \mid x).\$\$
 
 This estimand is available only for conditional causal models with
 covariates. For marginal quantile contrasts over the empirical covariate

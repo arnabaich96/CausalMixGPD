@@ -37,8 +37,11 @@ ate(
 
 - type:
 
-  Character; `"mean"` (default) for ordinary mean ATE or `"rmean"` for
-  restricted-mean ATE.
+  Character; type of mean treatment effect:
+
+  - `"mean"` (default): ordinary mean ATE
+
+  - `"rmean"`: restricted-mean ATE (requires `cutoff`)
 
 - cutoff:
 
@@ -47,9 +50,13 @@ ate(
 
 - interval:
 
-  Character or NULL; type of credible interval: `NULL` for no interval,
-  `"credible"` for equal-tailed quantile intervals (default), or `"hpd"`
-  for highest posterior density intervals.
+  Character or NULL; type of credible interval:
+
+  - `NULL`: no interval
+
+  - `"credible"` (default): equal-tailed quantile intervals
+
+  - `"hpd"`: highest posterior density intervals
 
 - level:
 
@@ -57,7 +64,8 @@ ate(
 
 - nsim_mean:
 
-  Number of posterior predictive draws to approximate the mean.
+  Number of posterior predictive draws used by simulation-based mean
+  targets. Ignored for analytical ordinary means.
 
 - show_progress:
 
@@ -68,7 +76,8 @@ ate(
 
 An object of class `"causalmixgpd_ate"` containing the marginal ATE
 summary, optional intervals, and the arm-specific predictive objects
-used in the aggregation.
+used in the aggregation. The returned object includes a top-level
+`$fit_df` data frame for direct extraction.
 
 ## Details
 
@@ -77,7 +86,9 @@ E\\Y(0)\\,\$\$ where the expectation is taken with respect to the
 empirical training covariate distribution for conditional models.
 
 When `type = "rmean"`, the function instead computes a restricted-mean
-ATE using \\E\\\min(Y(a), c)\\\\ for each arm.
+ATE using \\E\\\min(Y(a), c)\\\\ for each arm. For outcome kernels with
+a finite analytical mean, the ordinary mean path is analytical within
+each posterior draw; `rmean` remains simulation-based.
 
 For unconditional causal models (`X = NULL`), the computation reduces to
 a direct contrast of the unconditional treated and control predictive

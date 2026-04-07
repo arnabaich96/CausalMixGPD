@@ -24,6 +24,21 @@ print(x, ...)
 
 The input object (invisibly).
 
+## Details
+
+A fitted causal object combines posterior draws for the treated outcome
+model, the control outcome model, and optionally the propensity-score
+model. Those fitted blocks are the ingredients used later to evaluate
+causal estimands such as \\\mu_1(x) - \mu_0(x)\\ or \\Q\_{Y^1}(\tau \mid
+x) - Q\_{Y^0}(\tau \mid x)\\.
+
+The print method is deliberately high level. It identifies which models
+were fitted and whether GPD tails are active, but it does not report
+posterior summaries or treatment-effect estimates. Use
+[`summary()`](https://rdrr.io/r/base/summary.html),
+[`predict()`](https://rdrr.io/r/stats/predict.html), or the dedicated
+causal estimand helpers for inferential output.
+
 ## See also
 
 [`summary.causalmixgpd_causal_fit`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.causalmixgpd_causal_fit.md),

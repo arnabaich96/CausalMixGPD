@@ -11,7 +11,7 @@ bulk-tail families elsewhere in the package."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -111,8 +111,17 @@ where <code>threshold = u</code>, <code>scale = sigma_u &gt; 0</code>, and <code
 the distribution reduces to the exponential tail limit.</p>
 <p>These uppercase NIMBLE-compatible functions are scalar (<code>x</code>/<code>q</code> and <code>n = 1</code>).
 For vectorized R usage, use <code><a href="base_lowercase.html">base_lowercase()</a></code>.</p>
-<p>If a bulk distribution has CDF \(F_{bulk}\), the package's spliced families typically use the
-tail construction
+<p>The associated density is
+$$
+g(x) = \frac{1}{\sigma_u}
+\left(1 + \xi \frac{x - u}{\sigma_u}\right)^{-1/\xi - 1},
+$$
+on the support where \(1 + \xi (x-u)/\sigma_u &gt; 0\). When \(\xi = 0\), this reduces to the
+exponential density with mean excess \(\sigma_u\). The GPD has finite mean only when
+\(\xi &lt; 1\), and finite variance only when \(\xi &lt; 1/2\). Those existence conditions matter
+for downstream predictive means in the package: spliced models with \(\xi \ge 1\) require
+restricted means rather than ordinary means.</p>
+<p>If a bulk distribution has CDF \(F_{bulk}\), the package's spliced families use the tail construction
 $$
 F(x) =
 \left\{
@@ -152,8 +161,8 @@ $$</p>
 <span class="r-in"><span><span class="fu">qGpd</span><span class="op">(</span><span class="fl">0.95</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.282257</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rGpd</span><span class="op">(</span><span class="fl">1</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 2.282323 2.156120 1.623547 5.354201 1.374512 1.152272 2.430307 1.025209</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] 2.462315 1.148486</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.152272 2.430307 1.025209 2.462315 1.148486 1.023374 2.444493 2.670291</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] 4.831502 1.399380</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -165,7 +174,7 @@ $$</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

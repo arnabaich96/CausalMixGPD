@@ -3,7 +3,9 @@
 S3 method for visualizing causal predictions from
 [`predict.causalmixgpd_causal_fit()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/predict.causalmixgpd_causal_fit.md).
 For mean/quantile, plots treated/control and treatment effect versus PS
-(or index). For density/prob, plots treated/control values versus y.
+(or index). For `type = "sample"`, plots arm-level posterior predictive
+samples alongside treatment-effect samples. For density/prob, plots
+treated/control values versus y.
 
 ## Usage
 
@@ -29,3 +31,18 @@ plot(x, y = NULL, ...)
 ## Value
 
 A ggplot object or a list of ggplot objects.
+
+## Details
+
+The causal prediction object carries arm-specific predictions together
+with the implied contrast. For mean predictions, the contrast is
+\\m_1(x) - m_0(x)\\. For quantile predictions, the contrast is
+\\Q\_{Y^1}(\tau \mid x) - Q\_{Y^0}(\tau \mid x)\\. The plotting method
+keeps those arm and contrast views synchronized.
+
+Unlike
+[`plot.causalmixgpd_causal_fit()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.causalmixgpd_causal_fit.md),
+which diagnoses MCMC behavior inside the outcome models, this method
+visualizes predictive quantities after posterior integration. It is
+therefore the natural plotting method once the user has already accepted
+the fitted-model diagnostics.

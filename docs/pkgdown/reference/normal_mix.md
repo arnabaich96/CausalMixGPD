@@ -93,6 +93,19 @@ w_k / \sum_j w_j\\. These uppercase functions are scalar
 NIMBLE-compatible building blocks. For vectorized R usage, use
 [`normal_lowercase()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/normal_lowercase.md).
 
+If \\F_k\\ denotes the \\k\\-th component CDF, then the mixture
+distribution function is \$\$ F(x) = \sum\_{k=1}^K \tilde{w}\_k F_k(x) =
+\sum\_{k=1}^K \tilde{w}\_k \Phi\left(\frac{x-\mu_k}{\sigma_k}\right).
+\$\$ Random generation first draws a component index with probability
+\\\tilde{w}\_k\\ and then generates from the corresponding normal law.
+The quantile function has no closed form for a general finite mixture,
+so `qNormMix()` solves \\F(x)=p\\ numerically by bracketing the root and
+applying [`stats::uniroot()`](https://rdrr.io/r/stats/uniroot.html).
+
+The mixture mean is \$\$ E(X) = \sum\_{k=1}^K \tilde{w}\_k \mu_k, \$\$
+which is the analytical mean used by the package when a normal-mixture
+draw contributes to a posterior predictive mean calculation.
+
 ## Functions
 
 - `dNormMix()`: Normal mixture density
@@ -132,6 +145,6 @@ qNormMix(0.50, w = w, mean = mean, sd = sd)
 qNormMix(0.95, w = w, mean = mean, sd = sd)
 #> [1] 2.571684
 replicate(10, rNormMix(1, w = w, mean = mean, sd = sd))
-#>  [1] -0.3697656  1.6883524 -2.6346383 -1.6941589 -1.6695334  0.4361516
-#>  [7] -0.3634372  0.8686264 -0.1064025  0.1765331
+#>  [1] -1.6695334  0.4361516 -0.3634372  0.8686264 -0.1064025  0.1765331
+#>  [7]  1.7688322  0.7074084 -3.9389776  1.0754396
 ```

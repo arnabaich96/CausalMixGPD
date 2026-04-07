@@ -11,7 +11,7 @@ cluster assignments as consecutive integers 1, 2, ..., K."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,13 +19,7 @@ cluster assignments as consecutive integers 1, 2, ..., K."></head><body>
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/01-introduction.html">Introduction</a></li>
-    <li><a class="dropdown-item" href="../articles/02-one-arm.html">One-Arm</a></li>
-    <li><a class="dropdown-item" href="../articles/03-causal.html">Causal</a></li>
-  </ul></li>
-<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a></li>
       </ul></div>
 
@@ -69,6 +63,13 @@ cluster assignments as consecutive integers 1, 2, ..., K.</p>
 K (number of clusters).</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>For each posterior draw, the helper forms its adjacency matrix and computes
+the squared Frobenius distance to the PSM. The selected representative draw is
+the one that minimizes that loss, which is Dahl's least-squares rule for
+choosing one clustering from the posterior sample.</p>
+    </div>
+    <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Dahl, D. B. (2006). Model-based clustering for expression data
 via a Dirichlet process mixture model. In M. Vannucci, et al. (Eds.),
@@ -85,7 +86,7 @@ Cambridge University Press.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

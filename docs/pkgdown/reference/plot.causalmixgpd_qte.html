@@ -31,7 +31,7 @@ control quantile curves) and treatment_effect (QTE curve) plots
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -93,12 +93,20 @@ control quantile curves) and <code>treatment_effect</code> (QTE curve) plots</p>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
-<dd><p>Character; plot type: <code>"both"</code> (default), <code>"effect"</code>, or <code>"arms"</code>.</p></dd>
+<dd><p>Character; plot type:</p><ul><li><p><code>"both"</code> (default): returns a list with both
+arm curves and treatment-effect plots</p></li>
+<li><p><code>"effect"</code>: QTE curve with pointwise CI
+error bars</p></li>
+<li><p><code>"arms"</code>: treated and control quantile curves
+with pointwise CI error bars</p></li>
+</ul></dd>
 
 
 <dt id="arg-facet-by">facet_by<a class="anchor" aria-label="anchor" href="#arg-facet-by"></a></dt>
-<dd><p>Character; faceting strategy when multiple prediction points exist.
-<code>"tau"</code> (default) facets by quantile level, <code>"id"</code> facets by prediction point.</p></dd>
+<dd><p>Character; faceting strategy when multiple
+prediction points exist:</p><ul><li><p><code>"tau"</code> (default): facets by quantile level</p></li>
+<li><p><code>"id"</code>: facets by prediction point</p></li>
+</ul></dd>
 
 
 <dt id="arg-plotly">plotly<a class="anchor" aria-label="anchor" href="#arg-plotly"></a></dt>
@@ -116,6 +124,17 @@ to <code>getOption("CausalMixGPD.plotly", FALSE)</code>.</p></dd>
     <p>A list of ggplot objects with elements <code>trt_control</code> and <code>treatment_effect</code>
 (if <code>type="both"</code>), or a single ggplot object (if <code>type</code> is <code>"effect"</code> or
 <code>"arms"</code>).</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The effect view emphasizes the quantile contrast
+\(\tau \mapsto Q_{Y^1}(\tau) - Q_{Y^0}(\tau)\), while the arms view shows the
+treated and control quantile functions that generate that contrast. For
+conditional CQTE objects, faceting can separate covariate profiles so the
+same quantile contrast is compared across prediction settings.</p>
+<p>These graphics visualize posterior summaries of the effect object itself. They
+are therefore downstream of model fitting and downstream of the causal
+prediction step.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -142,7 +161,7 @@ to <code>getOption("CausalMixGPD.plotly", FALSE)</code>.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

@@ -91,6 +91,19 @@ f\_{LN}(x \mid \mu_k, \sigma_k), \qquad x \> 0, \$\$ with normalized
 weights \\\tilde{w}\_k\\. For vectorized R usage, use
 [`lognormal_lowercase()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/lognormal_lowercase.md).
 
+Each component satisfies \\\log X_k \sim N(\mu_k,\sigma_k^2)\\, so the
+mixture CDF is \$\$ F(x) = \sum\_{k=1}^K \tilde{w}\_k
+\Phi\left(\frac{\log x-\mu_k}{\sigma_k}\right), \qquad x\>0. \$\$ Random
+generation proceeds by drawing a component index with probability
+\\\tilde{w}\_k\\ and then sampling from the corresponding lognormal law.
+Because a finite mixture of lognormals does not admit a closed-form
+inverse CDF, `qLognormalMix()` computes quantiles by numerical
+inversion.
+
+The analytical mixture mean is \$\$ E(X) = \sum\_{k=1}^K \tilde{w}\_k
+\exp(\mu_k + \sigma_k^2/2), \$\$ which is the expression used by the
+package whenever an ordinary predictive mean exists.
+
 ## Functions
 
 - `dLognormalMix()`: Lognormal mixture density
@@ -130,6 +143,6 @@ qLognormalMix(0.50, w = w, meanlog = meanlog, sdlog = sdlog)
 qLognormalMix(0.95, w = w, meanlog = meanlog, sdlog = sdlog)
 #> [1] 4.147585
 replicate(10, rLognormalMix(1, w = w, meanlog = meanlog, sdlog = sdlog))
-#>  [1] 4.1293830 0.6873494 1.3316464 0.6494833 0.9846285 1.6379267 3.3315677
-#>  [8] 0.7021537 2.5439287 2.1535620
+#>  [1] 0.6011902 0.5184476 4.1293830 0.6873494 1.3316464 0.6494833 0.9846285
+#>  [8] 1.6379267 3.3315677 0.7021537
 ```

@@ -11,25 +11,21 @@ for one-arm data.
 
 ``` r
 dpmix(
-  x = NULL,
-  data = NULL,
+  y = NULL,
   X = NULL,
   treat = NULL,
+  data = NULL,
+  mcmc = list(),
   formula = NULL,
-  ...,
-  mcmc = list()
+  ...
 )
 ```
 
 ## Arguments
 
-- x:
+- y:
 
   Either a response vector or a bundle object.
-
-- data:
-
-  Optional data.frame used with `formula`.
 
 - X:
 
@@ -42,20 +38,25 @@ dpmix(
   [`dpmix.causal()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/dpmix.causal.md)
   for causal models.
 
-- formula:
+- data:
 
-  Optional formula.
-
-- ...:
-
-  Additional build arguments in build mode.
+  Optional data.frame used with `formula`.
 
 - mcmc:
 
   Named list of run arguments passed to
   [`mcmc()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/mcmc.md)
   (including optional performance controls such as `parallel_chains`,
-  `parallel_arms`, `workers`, `timing`, and `z_update_every`).
+  `workers`, `timing`, and `z_update_every`).
+
+- formula:
+
+  Optional formula.
+
+- ...:
+
+  Additional build arguments passed to
+  [`build_nimble_bundle`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/build_nimble_bundle.md).
 
 ## Value
 
@@ -64,8 +65,8 @@ A fitted object of class `"mixgpd_fit"`.
 ## Details
 
 The fitted model targets the posterior predictive bulk distribution
-\$\$f(y \mid x, \mathcal{D}) = \int f(y \mid x, \theta)\\d\Pi(\theta
-\mid \mathcal{D}),\$\$ without the spliced tail augmentation used by
+\$\$f(y \mid x) = \int f(y \mid x, \theta)\\d\Pi(\theta),\$\$ without
+the spliced tail augmentation used by
 [`dpmgpd`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/dpmgpd.md).
 
 Use this wrapper when the outcome support is adequately modeled by the
@@ -76,6 +77,7 @@ instead.
 
 ## See also
 
+[`build_nimble_bundle`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/build_nimble_bundle.md),
 [`bundle`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/bundle.md),
 [`dpmgpd`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/dpmgpd.md),
 [`predict.mixgpd_fit`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/predict.mixgpd_fit.md),

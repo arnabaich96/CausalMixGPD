@@ -9,7 +9,7 @@ is parameterized by mean[j] and shape[j]."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -116,6 +116,20 @@ vector with the same length as <code>p</code>.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The scalar functions in this topic are the compiled building blocks for inverse-Gaussian bulk
 kernels. For vectorized R usage, use <code><a href="invgauss_lowercase.html">invgauss_lowercase()</a></code>.</p>
+<p>The mixture distribution is
+$$
+F(x) = \sum_{k=1}^K \tilde{w}_k F_{IG}(x \mid \mu_k,\lambda_k),
+$$
+where each inverse Gaussian component has mean \(\mu_k\) and variance \(\mu_k^3/\lambda_k\).
+Random generation selects a component using the normalized weights and then generates from the
+corresponding inverse Gaussian law. Quantiles are computed numerically because the finite-mixture
+inverse CDF is not available in closed form.</p>
+<p>The analytical mixture mean is
+$$
+E(X) = \sum_{k=1}^K \tilde{w}_k \mu_k.
+$$
+That expression is used by the package whenever inverse-Gaussian mixtures contribute to
+posterior predictive means.</p>
     </div>
     <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>
@@ -150,8 +164,8 @@ kernels. For vectorized R usage, use <code><a href="invgauss_lowercase.html">inv
 <span class="r-in"><span><span class="fu">qInvGaussMix</span><span class="op">(</span><span class="fl">0.95</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, shape <span class="op">=</span> <span class="va">shape</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 6.489781</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rInvGaussMix</span><span class="op">(</span><span class="fl">1</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, shape <span class="op">=</span> <span class="va">shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.9962017 1.5444369 0.9499274 0.3434187 1.5752745 4.7585974 1.5624384</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 0.4135278 0.7628506 4.1941022</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 2.0679382 0.5774593 3.2675875 1.4805399 7.4575032 1.9138819 1.0288358</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 5.4002522 1.9116509 0.6089238</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -163,7 +177,7 @@ kernels. For vectorized R usage, use <code><a href="invgauss_lowercase.html">inv
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

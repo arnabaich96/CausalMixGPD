@@ -107,6 +107,20 @@ normalized weights \\\tilde{w}\_k\\. These scalar functions are
 NIMBLE-compatible; for vectorized R usage, use
 [`amoroso_lowercase()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/amoroso_lowercase.md).
 
+The Amoroso family is especially useful for positive-support data
+because it can reproduce a wide range of skewed and heavy-right-tail
+shapes while remaining analytically tractable through its gamma
+transformation. The mixture CDF is \$\$ F(x) = \sum\_{k=1}^K
+\tilde{w}\_k F\_{Amoroso}(x \mid a_k,\theta_k,\alpha_k,\beta_k), \$\$
+and random generation proceeds by selecting a component and sampling
+from that component.
+
+Closed-form mixture quantiles are not available, so `qAmorosoMix()`
+inverts the mixture CDF numerically. The analytical mixture mean is the
+weighted average of the component means, \\a_k + \theta_k
+\Gamma(\alpha_k + 1/\beta_k) / \Gamma(\alpha_k)\\, whenever those
+component moments exist.
+
 ## Functions
 
 - `dAmorosoMix()`: Density Function of Amoroso Mixture Distribution

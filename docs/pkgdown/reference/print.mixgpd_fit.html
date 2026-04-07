@@ -9,7 +9,7 @@ It is meant as a quick identity check rather than a full posterior summary."></h
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,6 +60,18 @@ It is meant as a quick identity check rather than a full posterior summary.</p>
     <p><code>x</code> invisibly.</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The fitted object represents posterior draws from a bulk mixture model, or
+from its spliced bulk-tail extension when <code>GPD = TRUE</code>. For the bulk part, the
+predictive law has the mixture form
+$$f(y \mid x) = \sum_{k=1}^{K} w_k(x) f_k(y \mid x, \theta_k).$$
+When a GPD tail is active, exceedances above the threshold are instead routed
+through the generalized Pareto tail attached to the same bulk mixture.</p>
+<p>The print method reports only the model identity and basic metadata. Use
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> for parameter-level posterior summaries, <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> for
+predictive functionals, and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> for chain diagnostics.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="summary.mixgpd_fit.html">summary.mixgpd_fit</a></code>, <code><a href="params.html">params</a></code>,
 <code><a href="predict.mixgpd_fit.html">predict.mixgpd_fit</a></code>.</p></div>
@@ -86,7 +98,7 @@ It is meant as a quick identity check rather than a full posterior summary.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

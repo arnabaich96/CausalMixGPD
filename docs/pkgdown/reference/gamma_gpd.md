@@ -102,6 +102,19 @@ qGammaGpd(
 Spliced density/CDF/RNG functions return numeric scalars. `qGammaGpd()`
 returns a numeric vector with the same length as `p`.
 
+## Details
+
+This topic combines a single gamma bulk with a generalized Pareto
+exceedance model. If \\F\_\Gamma(u)\\ is the bulk probability below the
+threshold, then the splice replaces the upper tail by
+\\\\1-F\_\Gamma(u)\\g\_{GPD}(x)\\ while leaving the lower region
+unchanged. The resulting distribution is continuous at the threshold and
+preserves the gamma body exactly below \\u\\.
+
+The ordinary mean is finite only when the GPD shape satisfies \\\xi \<
+1\\. For heavier tails, predictive mean summaries should be replaced by
+restricted means or quantile summaries.
+
 ## Functions
 
 - `dGammaGpd()`: Gamma + GPD tail density
@@ -152,6 +165,6 @@ replicate(10, rGammaGpd(1, scale = scale, shape = shape,
                        threshold = threshold,
                        tail_scale = tail_scale,
                        tail_shape = tail_shape))
-#>  [1]  5.468747  3.096501  4.552074 20.631500  6.607379  3.029453  5.115621
-#>  [8]  3.217602  6.531285  4.597788
+#>  [1] 6.607379 3.029453 5.115621 3.217602 6.531285 4.597788 5.324637 8.729386
+#>  [9] 4.482273 4.500628
 ```

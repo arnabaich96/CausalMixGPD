@@ -26,3 +26,14 @@ Truncate and reorder mixture components by cumulative weight mass
 ## Value
 
 A list with reordered+truncated weights/params and bookkeeping.
+
+## Details
+
+This helper operates on one posterior draw at a time. It first orders
+mixture components by decreasing weight, then keeps the smallest
+effective subset of components implied by the package truncation rule,
+and finally renormalizes the retained weights so they sum to one.
+
+The same permutation is applied to every component-specific parameter
+vector in `params`, which keeps the retained parameter blocks aligned
+with the retained weights.

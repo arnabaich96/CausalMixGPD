@@ -9,7 +9,7 @@ this topic are the compiled building blocks behind the gamma bulk kernel family.
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,7 +71,7 @@ internally when needed.</p></dd>
 
 
 <dt id="arg-shape-scale">shape, scale<a class="anchor" aria-label="anchor" href="#arg-shape-scale"></a></dt>
-<dd><p>Numeric vectors of length \(K\) giving Gamma shapes and rates.</p></dd>
+<dd><p>Numeric vectors of length \(K\) giving Gamma shape and scale parameters.</p></dd>
 
 
 <dt id="arg-log">log<a class="anchor" aria-label="anchor" href="#arg-log"></a></dt>
@@ -119,6 +119,20 @@ f(x) = \sum_{k = 1}^K \tilde{w}_k f_{\Gamma}(x \mid \alpha_k, \theta_k),
 \qquad x &gt; 0,
 $$
 with normalized weights \(\tilde{w}_k\). For vectorized R usage, use <code><a href="gamma_lowercase.html">gamma_lowercase()</a></code>.</p>
+<p>Under the package parameterization, each component has density
+\(f_\Gamma(x \mid \alpha,\theta) = x^{\alpha-1}\exp(-x/\theta) /
+\{\Gamma(\alpha)\theta^\alpha\}\) on \(x&gt;0\). The mixture CDF is therefore
+$$
+F(x) = \sum_{k=1}^K \tilde{w}_k F_\Gamma(x \mid \alpha_k,\theta_k).
+$$
+Random generation first selects a component according to the normalized mixture weights and then
+draws from the corresponding gamma distribution. Since finite gamma mixtures do not have closed
+form quantiles, <code>qGammaMix()</code> obtains them numerically by inverting the mixture CDF.</p>
+<p>The analytical mean is
+$$
+E(X) = \sum_{k=1}^K \tilde{w}_k \alpha_k \theta_k.
+$$
+This expression is reused in posterior predictive mean calculations for gamma-based fits.</p>
     </div>
     <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>
@@ -152,8 +166,8 @@ with normalized weights \(\tilde{w}_k\). For vectorized R usage, use <code><a hr
 <span class="r-in"><span><span class="fu">qGammaMix</span><span class="op">(</span><span class="fl">0.95</span>, w <span class="op">=</span> <span class="va">w</span>, scale <span class="op">=</span> <span class="va">scale</span>, shape <span class="op">=</span> <span class="va">shape</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 33.81667</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rGammaMix</span><span class="op">(</span><span class="fl">1</span>, w <span class="op">=</span> <span class="va">w</span>, scale <span class="op">=</span> <span class="va">scale</span>, shape <span class="op">=</span> <span class="va">shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  7.4874491  7.6825718 58.5380719  0.7576791 10.4751979 21.6543832</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.4246413  9.1363824  1.1727450 17.8997664</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  7.2810617 12.2948276  1.5274296 10.4751979 21.6543832  0.4246413</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  9.1363824  1.1727450 17.8997664 24.2387414</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -165,7 +179,7 @@ with normalized weights \(\tilde{w}_k\). For vectorized R usage, use <code><a hr
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

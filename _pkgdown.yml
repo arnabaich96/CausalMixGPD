@@ -12,6 +12,10 @@ template:
   params:
     ganalytics: null
 
+home:
+  sidebar:
+    structure: [license, citation, authors, dev]
+
 navbar:
   structure:
     left: [home, reference]

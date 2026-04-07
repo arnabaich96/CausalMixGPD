@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,24 +57,36 @@
     <p><code>x</code>, invisibly.</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>A fitted cluster object contains posterior draws for the latent labels and
+associated component parameters. The printed header identifies the model
+family that generated those draws, including whether the fit used a bulk-only
+kernel or a spliced bulk-tail specification.</p>
+<p>The printed <code>components</code> value is the truncation size used by the sampler. It
+is not the same thing as the number of occupied clusters in the Dahl
+representative partition, which is computed later by
+<code><a href="predict.dpmixgpd_cluster_fit.html">predict.dpmixgpd_cluster_fit()</a></code> and summarized by
+<code><a href="summary.dpmixgpd_cluster_fit.html">summary.dpmixgpd_cluster_fit()</a></code>.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="summary.dpmixgpd_cluster_fit.html">summary.dpmixgpd_cluster_fit()</a></code>, <code><a href="predict.dpmixgpd_cluster_fit.html">predict.dpmixgpd_cluster_fit()</a></code>,
 <code><a href="plot.dpmixgpd_cluster_fit.html">plot.dpmixgpd_cluster_fit()</a></code>.</p>
 <p>Other cluster workflow:
-<code><a href="dpmgpd.cluster.html">dpmgpd.cluster</a>()</code>,
-<code><a href="dpmix.cluster.html">dpmix.cluster</a>()</code>,
-<code><a href="plot.dpmixgpd_cluster_bundle.html">plot.dpmixgpd_cluster_bundle</a>()</code>,
-<code><a href="plot.dpmixgpd_cluster_fit.html">plot.dpmixgpd_cluster_fit</a>()</code>,
-<code><a href="plot.dpmixgpd_cluster_labels.html">plot.dpmixgpd_cluster_labels</a>()</code>,
-<code><a href="plot.dpmixgpd_cluster_psm.html">plot.dpmixgpd_cluster_psm</a>()</code>,
-<code><a href="predict.dpmixgpd_cluster_fit.html">predict.dpmixgpd_cluster_fit</a>()</code>,
-<code><a href="print.dpmixgpd_cluster_bundle.html">print.dpmixgpd_cluster_bundle</a>()</code>,
-<code><a href="print.dpmixgpd_cluster_labels.html">print.dpmixgpd_cluster_labels</a>()</code>,
-<code><a href="print.dpmixgpd_cluster_psm.html">print.dpmixgpd_cluster_psm</a>()</code>,
-<code><a href="summary.dpmixgpd_cluster_bundle.html">summary.dpmixgpd_cluster_bundle</a>()</code>,
-<code><a href="summary.dpmixgpd_cluster_fit.html">summary.dpmixgpd_cluster_fit</a>()</code>,
-<code><a href="summary.dpmixgpd_cluster_labels.html">summary.dpmixgpd_cluster_labels</a>()</code>,
-<code><a href="summary.dpmixgpd_cluster_psm.html">summary.dpmixgpd_cluster_psm</a>()</code></p></div>
+<code><a href="dpmgpd.cluster.html">dpmgpd.cluster()</a></code>,
+<code><a href="dpmix.cluster.html">dpmix.cluster()</a></code>,
+<code><a href="plot.dpmixgpd_cluster_bundle.html">plot.dpmixgpd_cluster_bundle()</a></code>,
+<code><a href="plot.dpmixgpd_cluster_fit.html">plot.dpmixgpd_cluster_fit()</a></code>,
+<code><a href="plot.dpmixgpd_cluster_labels.html">plot.dpmixgpd_cluster_labels()</a></code>,
+<code><a href="plot.dpmixgpd_cluster_psm.html">plot.dpmixgpd_cluster_psm()</a></code>,
+<code><a href="predict.dpmixgpd_cluster_fit.html">predict.dpmixgpd_cluster_fit()</a></code>,
+<code><a href="print.dpmixgpd_cluster_bundle.html">print.dpmixgpd_cluster_bundle()</a></code>,
+<code><a href="print.dpmixgpd_cluster_labels.html">print.dpmixgpd_cluster_labels()</a></code>,
+<code><a href="print.dpmixgpd_cluster_psm.html">print.dpmixgpd_cluster_psm()</a></code>,
+<code><a href="summary.dpmixgpd_cluster_bundle.html">summary.dpmixgpd_cluster_bundle()</a></code>,
+<code><a href="summary.dpmixgpd_cluster_fit.html">summary.dpmixgpd_cluster_fit()</a></code>,
+<code><a href="summary.dpmixgpd_cluster_labels.html">summary.dpmixgpd_cluster_labels()</a></code>,
+<code><a href="summary.dpmixgpd_cluster_psm.html">summary.dpmixgpd_cluster_psm()</a></code></p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -86,7 +98,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

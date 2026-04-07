@@ -22,3 +22,12 @@ print(x, ...)
 ## Value
 
 Invisibly returns the input object.
+
+## Details
+
+Prediction plotting methods may return a single plot or a richer plot
+object with an additional wrapper class. This print method temporarily
+drops that wrapper class so the underlying graphics object uses its
+native print method.
+
+The stored predictive summaries are not changed.

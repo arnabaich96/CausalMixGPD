@@ -102,6 +102,19 @@ qInvGaussGpd(
 Spliced density/CDF/RNG functions return numeric scalars.
 `qInvGaussGpd()` returns a numeric vector with the same length as `p`.
 
+## Details
+
+This is the one-component version of
+[`InvGauss_mixgpd()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/InvGauss_mixgpd.md).
+The inverse Gaussian governs the bulk region and the generalized Pareto
+governs exceedances over the threshold. The splice is continuous at
+\\u\\ because the GPD is scaled by the inverse-Gaussian survival
+probability at the threshold.
+
+The ordinary mean of the spliced law exists only when the GPD tail has
+\\\xi \< 1\\. When that condition fails, the package uses restricted
+means or quantile-based summaries instead of an ordinary mean.
+
 ## Functions
 
 - `dInvGaussGpd()`: Inverse Gaussian + GPD tail density
@@ -152,6 +165,6 @@ replicate(10, rInvGaussGpd(1, mean = mean, shape = shape,
                           threshold = threshold,
                           tail_scale = tail_scale,
                           tail_shape = tail_shape))
-#>  [1]  0.9172514  2.6620439  4.6838503  1.1727598  1.9694292  3.7568397
-#>  [7]  3.7019852  5.1352274 19.0076253  1.1878068
+#>  [1] 1.2118394 0.9678417 8.0586675 2.7613902 4.8990879 1.2286165 1.4783701
+#>  [8] 7.1150727 2.7240247 5.2946966
 ```

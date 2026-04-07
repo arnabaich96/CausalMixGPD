@@ -29,6 +29,8 @@ vignettes/**/*.rdb
 vignettes/**/*.Rdb
 vignettes/**/*.RDB
 vignettes/**/*.png
+!vignettes/assets/
+!vignettes/assets/*.png
 # Vignette cache artifacts (deeply nested cache dirs)
 vignettes/**/cache/
 vignettes/**/cache/**
@@ -94,16 +96,16 @@ inst/extdata/legacy-precomputed/
 /figure/
 
 # Manuscript cache artifacts (keep source + outputs)
-vignettes/manuscript/CausalMixGPD_*
-!vignettes/manuscript/CausalMixGPD_*.Rmd
-!vignettes/manuscript/CausalMixGPD_*.Rnw
-!vignettes/manuscript/CausalMixGPD_*.tex
-!vignettes/manuscript/CausalMixGPD_*.pdf
-!vignettes/manuscript/CausalMixGPD_*.bib
-vignettes/manuscript/*_build.*
-vignettes/manuscript/*-concordance.tex
-vignettes/manuscript/*.log
-vignettes/manuscript/knit_update.log
+manuscript/CausalMixGPD_*
+!manuscript/CausalMixGPD_*.Rmd
+!manuscript/CausalMixGPD_*.Rnw
+!manuscript/CausalMixGPD_*.tex
+!manuscript/CausalMixGPD_*.pdf
+!manuscript/CausalMixGPD_*.bib
+manuscript/*_build.*
+manuscript/*-concordance.tex
+manuscript/*.log
+manuscript/knit_update.log
 
 
 # Exclude cache files larger than 10MB (prevent GitHub large file errors)

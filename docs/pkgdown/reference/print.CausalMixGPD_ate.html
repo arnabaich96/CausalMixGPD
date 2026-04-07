@@ -11,7 +11,7 @@ ate_rmean."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,6 +71,19 @@ produced by <code><a href="ate.html">ate</a></code>, <code><a href="att.html">at
     <p>The object <code>x</code>, invisibly.</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>These objects summarize posterior treatment contrasts on the mean scale. For
+the marginal average treatment effect,
+$$\Delta = E(Y^1) - E(Y^0).$$
+<code><a href="att.html">att()</a></code> changes the standardization target to the treated population,
+<code><a href="cate.html">cate()</a></code> conditions on supplied covariate profiles, and <code><a href="ate_rmean.html">ate_rmean()</a></code> replaces
+the ordinary mean by a restricted mean
+\(\int_0^c S_a(t)\,dt\) up to the chosen truncation point.</p>
+<p>The print method shows the main effect table and setup metadata, but it is not
+a full diagnostic report. Use <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> for tabular summaries and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>
+for graphical inspection of the same treatment-effect object.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="summary.causalmixgpd_ate.html">summary.causalmixgpd_ate</a></code>,
 <code><a href="plot.causalmixgpd_ate.html">plot.causalmixgpd_ate</a></code>, <code><a href="ate.html">ate</a></code>,
@@ -96,7 +109,7 @@ produced by <code><a href="ate.html">ate</a></code>, <code><a href="att.html">at
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

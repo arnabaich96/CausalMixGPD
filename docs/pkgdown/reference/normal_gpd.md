@@ -92,6 +92,23 @@ qNormGpd(
 Spliced density/CDF/RNG functions return numeric scalars. `qNormGpd()`
 returns a numeric vector with the same length as `p`.
 
+## Details
+
+This is the single-component version of
+[`normal_mixgpd()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/normal_mixgpd.md).
+If \\\Phi_u = \Phi((u-\mu)/\sigma)\\ denotes the normal bulk probability
+below the threshold, then the density is \$\$ f(x) = \left\\
+\begin{array}{ll} \phi(x \mid \mu, \sigma^2), & x \< u, \\ (1-\Phi_u)
+g\_{GPD}(x \mid u,\sigma_u,\xi), & x \ge u. \end{array} \right. \$\$ The
+distribution is continuous at \\u\\ by construction, although the
+derivative generally changes there because the tail is modeled by a
+different family.
+
+The ordinary mean exists only when the GPD tail satisfies \\\xi \< 1\\.
+When that condition fails, downstream mean prediction is intentionally
+blocked and the package directs the user to restricted means or
+quantile-based summaries instead.
+
 ## Functions
 
 - `dNormGpd()`: Normal + GPD tail density
@@ -132,6 +149,6 @@ qNormGpd(0.50, mean, sd, threshold, tail_scale, tail_shape)
 qNormGpd(0.95, mean, sd, threshold, tail_scale, tail_shape)
 #> [1] 2.29835
 replicate(10, rNormGpd(1, mean, sd, threshold, tail_scale, tail_shape))
-#>  [1]  0.81316615  0.53476606 -0.51398676  0.50758678 -0.06515087  0.83740151
-#>  [7]  0.82488512  2.34031674  0.85547666  2.53418989
+#>  [1] -0.06515087  0.83740151  0.82488512  2.34031674  0.85547666  2.53418989
+#>  [7]  0.83329166  0.29679104 -0.17847631 -0.34524782
 ```

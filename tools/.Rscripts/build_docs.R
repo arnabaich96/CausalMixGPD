@@ -73,7 +73,11 @@ build_docs <- function(
 
   clean_forbidden_website_outputs <- function(project_dir) {
     is_tracked_path <- function(path) {
-      rel <- gsub("\\\\", "/", sub(paste0("^", normalizePath(root, winslash = "/", mustWork = TRUE), "/?"), "", normalizePath(path, winslash = "/", mustWork = TRUE)))
+      path_norm <- normalizePath(path, winslash = "/", mustWork = FALSE)
+      if (!nzchar(path_norm) || !file.exists(path_norm)) {
+        return(FALSE)
+      }
+      rel <- gsub("\\\\", "/", sub(paste0("^", normalizePath(root, winslash = "/", mustWork = TRUE), "/?"), "", path_norm))
       status <- suppressWarnings(
         tryCatch(
           system2("git", c("-C", root, "ls-files", "--error-unmatch", "--", rel),
@@ -305,7 +309,6 @@ build_docs <- function(
   quarto_args <- c(
     "render",
     quarto_project,
-    "--no-clean",
     "--metadata", paste0("version:", pkg_version),
     "--metadata", paste0("updated:", build_date)
   )
@@ -366,6 +369,18 @@ build_docs <- function(
     })
 
     # Build to pkgdown/ in root - this preserves cache for lazy builds
+    old_timeout <- getOption("timeout")
+    old_repos <- getOption("repos")
+    old_cran_web <- Sys.getenv("R_CRAN_WEB", unset = NA_character_)
+    on.exit({
+      options(timeout = old_timeout)
+      options(repos = old_repos)
+      if (is.na(old_cran_web)) Sys.unsetenv("R_CRAN_WEB") else Sys.setenv(R_CRAN_WEB = old_cran_web)
+    }, add = TRUE)
+    options(timeout = max(300, as.integer(old_timeout)))
+    options(repos = c(CRAN = "https://cran.rstudio.com"))
+    Sys.setenv(R_CRAN_WEB = "https://cran.rstudio.com")
+
     pkgdown::build_site(
       pkg = root,
       override = list(destination = pkgdown_abs),

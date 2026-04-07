@@ -1,7 +1,7 @@
 %\VignetteEncoding{UTF-8}
 %\SweaveOpts{concordance=TRUE}
 \makeatletter
-\def\input@path{{./}{assets/}{vignettes/manuscript/}{vignettes/manuscript/assets/}}
+\def\input@path{{./}{assets/}{manuscript/}{manuscript/assets/}}
 \makeatother
 \documentclass[article]{jss}
 
@@ -24,7 +24,7 @@
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
 \makeatother
-\graphicspath{{./}{vignettes/manuscript/}{assets/}{figure/}}
+\graphicspath{{./}{manuscript/}{assets/}{figure/}}
 \DeclareRobustCommand{\pkg}[1]{\textsf{#1}}
 \DeclareRobustCommand{\code}[1]{\nolinkurl{#1}}
 \setlength{\emergencystretch}{4em}
@@ -82,6 +82,7 @@ manuscript_dir <- local({
   )
   candidates <- unique(c(
     if (nzchar(input_dir)) input_dir,
+    "manuscript",
     file.path("vignettes", "manuscript"),
     "."
   ))
@@ -97,7 +98,24 @@ manuscript_dir <- local({
   stop("Could not locate the manuscript directory from the current working directory.", call. = FALSE)
 })
 
-pkg_root <- normalizePath(file.path(manuscript_dir, "..", ".."), winslash = "/", mustWork = TRUE)
+pkg_root <- local({
+  current <- manuscript_dir
+  repeat {
+    desc <- file.path(current, "DESCRIPTION")
+    if (file.exists(desc)) {
+      first_line <- tryCatch(readLines(desc, n = 1L, warn = FALSE), error = function(e) "")
+      if (length(first_line) && grepl("^Package", first_line[[1]])) {
+        return(normalizePath(current, winslash = "/", mustWork = TRUE))
+      }
+    }
+    parent <- dirname(current)
+    if (identical(parent, current)) {
+      break
+    }
+    current <- parent
+  }
+  stop("Could not locate the package root containing DESCRIPTION.", call. = FALSE)
+})
 
 if (requireNamespace("pkgload", quietly = TRUE)) {
   pkgload::load_all(pkg_root, quiet = TRUE, export_all = FALSE)
@@ -115,6 +133,13 @@ knitr::opts_knit$set(
 )
 cmgpd_fig_width <- 7
 cmgpd_fig_height <- 4
+cmgpd_cache_path <- paste0(
+  normalizePath(file.path(manuscript_dir, "knitr-cache"), winslash = "/", mustWork = FALSE),
+  "/"
+)
+if (!dir.exists(cmgpd_cache_path)) {
+  dir.create(cmgpd_cache_path, recursive = TRUE, showWarnings = FALSE)
+}
 knitr::opts_chunk$set(
   fig.width = cmgpd_fig_width,
   fig.height = cmgpd_fig_height,
@@ -131,7 +156,8 @@ knitr::opts_chunk$set(
   tidy.opts = list(width.cutoff = 60),
   autodep = TRUE,
   comment = NA,
-  cache = TRUE
+  cache = TRUE,
+  cache.path = cmgpd_cache_path
 )
 knitr::opts_hooks$set(
   fig.width = function(options) {

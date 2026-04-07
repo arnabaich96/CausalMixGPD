@@ -9,7 +9,7 @@ mixture bulk."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -137,6 +137,15 @@ the RNG implementation supports <code>n = 1</code>.</p></dd>
 <code>qInvGaussMixGpd()</code> returns a numeric vector with the same length as <code>p</code>.</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>This family keeps the inverse-Gaussian mixture body below the threshold \(u\) and attaches a
+generalized Pareto exceedance law to the residual survival probability above \(u\). If
+\(F_{mix}(u)=p_u\), then the tail density is \((1-p_u)g_{GPD}(x \mid u,\sigma_u,\xi)\).</p>
+<p>Quantile evaluation is piecewise. For probabilities at or below \(p_u\), the function solves
+the mixture inverse numerically; above \(p_u\), it rescales the upper-tail probability and
+applies the GPD inverse directly.</p>
+    </div>
+    <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>
 
 <ul><li><p><code>dInvGaussMixGpd()</code>: Inverse Gaussian mixture + GPD tail density</p></li>
@@ -181,8 +190,8 @@ the RNG implementation supports <code>n = 1</code>.</p></dd>
 <span class="r-in"><span>                             threshold <span class="op">=</span> <span class="va">threshold</span>,</span></span>
 <span class="r-in"><span>                             tail_scale <span class="op">=</span> <span class="va">tail_scale</span>,</span></span>
 <span class="r-in"><span>                             tail_shape <span class="op">=</span> <span class="va">tail_shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.3554396 0.6082587 2.3634573 0.7692852 5.0918843 1.8738874 1.0267480</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 0.8791639 0.4361379 0.5604970</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.6082587 2.3634573 0.7692852 5.0918843 1.8738874 1.0267480 0.8791639</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 0.4361379 0.5604970 3.1126706</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -194,7 +203,7 @@ the RNG implementation supports <code>n = 1</code>.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

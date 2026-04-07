@@ -27,3 +27,11 @@ posterior similarity matrix.
 ## Value
 
 N x K matrix of cluster membership probabilities.
+
+## Details
+
+The representative labels define a reference partition with clusters
+\\C_1, \dots, C_K\\. For each observation \\i\\, this helper averages
+the posterior similarity scores \\\mathrm{PSM}\_{ij}\\ over members \\j
+\in C_k\\ to obtain a cluster-membership score for cluster \\k\\, and
+then normalizes those scores to sum to one across clusters.

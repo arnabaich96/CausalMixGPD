@@ -9,7 +9,7 @@ checkpoint for the causal workflow."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,6 +68,18 @@ checkpoint for the causal workflow.</p>
     <p>The input object (invisibly).</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>This summary is meant to be read before posterior sampling. It reports the
+stored propensity-score specification, the treated and control outcome model
+definitions, and the sample split across treatment arms. In other words, it
+verifies the model ingredients for the causal decomposition
+\((e(x), f_0(y \mid x), f_1(y \mid x))\).</p>
+<p>Since no MCMC has been run yet, the summary contains only structural
+information. Posterior treatment-effect summaries become available after
+<code><a href="run_mcmc_causal.html">run_mcmc_causal</a></code> through functions such as <code><a href="ate.html">ate</a></code> and
+<code><a href="qte.html">qte</a></code>.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="print.causalmixgpd_causal_bundle.html">print.causalmixgpd_causal_bundle</a></code>,
 <code><a href="run_mcmc_causal.html">run_mcmc_causal</a></code>.</p></div>
@@ -90,7 +102,7 @@ checkpoint for the causal workflow.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

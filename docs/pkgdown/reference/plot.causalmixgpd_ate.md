@@ -42,7 +42,14 @@ plot(
 
 - type:
 
-  Character; plot type: `"both"` (default), `"effect"`, or `"arms"`.
+  Character; plot type:
+
+  - `"both"` (default): returns a list with both arm means and
+    treatment-effect plots
+
+  - `"effect"`: ATE curve/points with pointwise CI error bars
+
+  - `"arms"`: treated vs control mean with pointwise CI error bars
 
 - plotly:
 
@@ -59,6 +66,21 @@ plot(
 A list of ggplot objects with elements `trt_control` and
 `treatment_effect` (if `type="both"`), or a single ggplot object (if
 `type` is `"effect"` or `"arms"`).
+
+## Details
+
+The effect panel visualizes the posterior summary of the treatment
+contrast on the mean scale, namely \\E(Y^1) - E(Y^0)\\ or its
+conditional or treated-standardized analogue. The arms panel instead
+shows the treated and control mean predictions whose difference defines
+that contrast.
+
+For
+[`cate()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cate.md)
+objects, the x-axis follows the prediction profiles; otherwise it uses
+the estimated propensity score when available or a simple index order.
+This keeps the comparison aligned with how the effect object was
+standardized.
 
 ## See also
 

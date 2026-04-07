@@ -38,7 +38,8 @@ qGammaMix(
 
 - shape, scale:
 
-  Numeric vectors of length \\K\\ giving Gamma shapes and rates.
+  Numeric vectors of length \\K\\ giving Gamma shape and scale
+  parameters.
 
 - log:
 
@@ -88,6 +89,20 @@ f\_{\Gamma}(x \mid \alpha_k, \theta_k), \qquad x \> 0, \$\$ with
 normalized weights \\\tilde{w}\_k\\. For vectorized R usage, use
 [`gamma_lowercase()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/gamma_lowercase.md).
 
+Under the package parameterization, each component has density
+\\f\_\Gamma(x \mid \alpha,\theta) = x^{\alpha-1}\exp(-x/\theta) /
+\\\Gamma(\alpha)\theta^\alpha\\\\ on \\x\>0\\. The mixture CDF is
+therefore \$\$ F(x) = \sum\_{k=1}^K \tilde{w}\_k F\_\Gamma(x \mid
+\alpha_k,\theta_k). \$\$ Random generation first selects a component
+according to the normalized mixture weights and then draws from the
+corresponding gamma distribution. Since finite gamma mixtures do not
+have closed form quantiles, `qGammaMix()` obtains them numerically by
+inverting the mixture CDF.
+
+The analytical mean is \$\$ E(X) = \sum\_{k=1}^K \tilde{w}\_k \alpha_k
+\theta_k. \$\$ This expression is reused in posterior predictive mean
+calculations for gamma-based fits.
+
 ## Functions
 
 - `dGammaMix()`: Gamma mixture density
@@ -126,6 +141,6 @@ qGammaMix(0.50, w = w, scale = scale, shape = shape)
 qGammaMix(0.95, w = w, scale = scale, shape = shape)
 #> [1] 33.81667
 replicate(10, rGammaMix(1, w = w, scale = scale, shape = shape))
-#>  [1]  7.4874491  7.6825718 58.5380719  0.7576791 10.4751979 21.6543832
-#>  [7]  0.4246413  9.1363824  1.1727450 17.8997664
+#>  [1]  7.2810617 12.2948276  1.5274296 10.4751979 21.6543832  0.4246413
+#>  [7]  9.1363824  1.1727450 17.8997664 24.2387414
 ```

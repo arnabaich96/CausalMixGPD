@@ -29,9 +29,28 @@ plot(x, arm = "both", ...)
 
 The result of the underlying plot call (invisibly).
 
+## Details
+
+Each arm-specific outcome model is itself a `mixgpd_fit`, so this method
+delegates to
+[`plot.mixgpd_fit()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.mixgpd_fit.md)
+for the selected arm. With `arm = "both"`, it returns a named list of
+treated and control diagnostics so the two fitted outcome models can be
+assessed side by side.
+
+These are MCMC diagnostics for the nuisance outcome models, not plots of
+causal estimands. Use
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) on objects from
+[`predict.causalmixgpd_causal_fit()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/predict.causalmixgpd_causal_fit.md),
+[`qte()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qte.md),
+or
+[`ate()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/ate.md)
+when the goal is to visualize treatment effects rather than chain
+behavior.
+
 ## See also
 
+[`plot.mixgpd_fit`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.mixgpd_fit.md),
 [`predict.causalmixgpd_causal_fit`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/predict.causalmixgpd_causal_fit.md),
 [`ate`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/ate.md),
-[`qte`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qte.md),
-[`plot.mixgpd_fit`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.mixgpd_fit.md).
+[`qte`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qte.md).

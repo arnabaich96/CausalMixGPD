@@ -32,8 +32,11 @@ cate(
 
 - type:
 
-  Character; `"mean"` (default) for ordinary mean CATE or `"rmean"` for
-  restricted-mean CATE.
+  Character; type of mean treatment effect:
+
+  - `"mean"` (default): ordinary mean CATE
+
+  - `"rmean"`: restricted-mean CATE (requires `cutoff`)
 
 - cutoff:
 
@@ -42,9 +45,13 @@ cate(
 
 - interval:
 
-  Character or NULL; type of credible interval: `NULL` for no interval,
-  `"credible"` for equal-tailed quantile intervals (default), or `"hpd"`
-  for highest posterior density intervals.
+  Character or NULL; type of credible interval:
+
+  - `NULL`: no interval
+
+  - `"credible"` (default): equal-tailed quantile intervals
+
+  - `"hpd"`: highest posterior density intervals
 
 - level:
 
@@ -52,7 +59,8 @@ cate(
 
 - nsim_mean:
 
-  Number of posterior predictive draws to approximate the mean.
+  Number of posterior predictive draws used by simulation-based mean
+  targets. Ignored for analytical ordinary means.
 
 - show_progress:
 
@@ -63,18 +71,20 @@ cate(
 
 An object of class `"causalmixgpd_ate"` containing the CATE summary,
 optional intervals, and the treated/control prediction objects used to
-construct the effect.
+construct the effect. The returned object includes a top-level `$fit_df`
+data frame for direct extraction.
 
 ## Details
 
 For each prediction row \\x\\, the conditional average treatment effect
-is \$\$\mathrm{CATE}(x) = E\\Y(1) \mid x, \mathcal{D}\\ - E\\Y(0) \mid
-x, \mathcal{D}\\.\$\$
+is \$\$\mathrm{CATE}(x) = E\\Y(1) \mid x\\ - E\\Y(0) \mid x\\.\$\$
 
 With `type = "rmean"`, the estimand becomes the conditional restricted
-mean contrast \$\$E\\\min(Y(1), c) \mid x, \mathcal{D}\\ - E\\\min(Y(0),
-c) \mid x, \mathcal{D}\\,\$\$ which remains finite even when the
-ordinary mean is unstable under a heavy GPD tail.
+mean contrast \$\$E\\\min(Y(1), c) \mid x\\ - E\\\min(Y(0), c) \mid
+x\\,\$\$ which remains finite even when the ordinary mean is unstable
+under a heavy GPD tail. For outcome kernels with a finite analytical
+mean, the ordinary mean path is analytical within each posterior draw;
+`rmean` remains a separate simulation-based estimand.
 
 This estimand is available only for conditional causal models with
 covariates. For marginal mean contrasts, use

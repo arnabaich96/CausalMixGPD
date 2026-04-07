@@ -108,6 +108,18 @@ Spliced density/CDF/RNG functions return numeric scalars.
 `qInvGaussMixGpd()` returns a numeric vector with the same length as
 `p`.
 
+## Details
+
+This family keeps the inverse-Gaussian mixture body below the threshold
+\\u\\ and attaches a generalized Pareto exceedance law to the residual
+survival probability above \\u\\. If \\F\_{mix}(u)=p_u\\, then the tail
+density is \\(1-p_u)g\_{GPD}(x \mid u,\sigma_u,\xi)\\.
+
+Quantile evaluation is piecewise. For probabilities at or below \\p_u\\,
+the function solves the mixture inverse numerically; above \\p_u\\, it
+rescales the upper-tail probability and applies the GPD inverse
+directly.
+
 ## Functions
 
 - `dInvGaussMixGpd()`: Inverse Gaussian mixture + GPD tail density
@@ -163,6 +175,6 @@ replicate(10, rInvGaussMixGpd(1, w = w, mean = mean, shape = shape,
                              threshold = threshold,
                              tail_scale = tail_scale,
                              tail_shape = tail_shape))
-#>  [1] 0.3554396 0.6082587 2.3634573 0.7692852 5.0918843 1.8738874 1.0267480
-#>  [8] 0.8791639 0.4361379 0.5604970
+#>  [1] 0.6082587 2.3634573 0.7692852 5.0918843 1.8738874 1.0267480 0.8791639
+#>  [8] 0.4361379 0.5604970 3.1126706
 ```

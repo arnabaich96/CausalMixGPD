@@ -87,6 +87,18 @@ The mixture density is \$\$ f(x) = \sum\_{k = 1}^K \tilde{w}\_k f_C(x
 scalar functions are NIMBLE-compatible; for vectorized R usage, use
 [`cauchy_mix_lowercase()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cauchy_mix_lowercase.md).
 
+The mixture CDF is the weighted average of component CDFs, \$\$ F(x) =
+\sum\_{k=1}^K \tilde{w}\_k \left\\\frac{1}{2} +
+\frac{1}{\pi}\arctan\left(\frac{x-\ell_k}{s_k}\right)\right\\. \$\$
+Random generation first selects a component according to the normalized
+weights and then draws from the chosen Cauchy law by inverse-CDF
+sampling.
+
+Because each Cauchy component has undefined mean and variance, the
+mixture also lacks an ordinary mean in general. That is why the package
+exposes Cauchy kernels for densities, CDFs, quantiles, medians, survival
+functions, and restricted means, but not for ordinary predictive means.
+
 ## Functions
 
 - `dCauchyMix()`: Cauchy mixture density

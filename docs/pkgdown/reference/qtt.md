@@ -40,9 +40,13 @@ qtt(
 
 - interval:
 
-  Character or NULL; type of credible interval: `NULL` for no interval,
-  `"credible"` for equal-tailed quantile intervals (default), or `"hpd"`
-  for highest posterior density intervals.
+  Character or NULL; type of credible interval:
+
+  - `NULL`: no interval
+
+  - `"credible"` (default): equal-tailed quantile intervals
+
+  - `"hpd"`: highest posterior density intervals
 
 - level:
 
@@ -57,7 +61,8 @@ qtt(
 
 An object of class `"causalmixgpd_qte"` containing the QTT summary, the
 probability grid, and the arm-specific predictive objects used in the
-aggregation.
+aggregation. The returned object includes a top-level `$fit_df` data
+frame for direct extraction.
 
 ## Details
 

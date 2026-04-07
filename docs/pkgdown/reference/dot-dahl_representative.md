@@ -25,6 +25,14 @@ cluster assignments as consecutive integers 1, 2, ..., K.
 List with components: draw_index (integer), labels (integer vector), K
 (number of clusters).
 
+## Details
+
+For each posterior draw, the helper forms its adjacency matrix and
+computes the squared Frobenius distance to the PSM. The selected
+representative draw is the one that minimizes that loss, which is Dahl's
+least-squares rule for choosing one clustering from the posterior
+sample.
+
 ## References
 
 Dahl, D. B. (2006). Model-based clustering for expression data via a

@@ -11,7 +11,7 @@ blocks for inverse-Gaussian mixtures and spliced inverse-Gaussian-plus-GPD famil
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -122,6 +122,19 @@ f(x) = \left(\frac{\lambda}{2 \pi x^3}\right)^{1/2}
 $$</p>
 <p>These uppercase NIMBLE-compatible functions are scalar (<code>x</code>/<code>q</code> and <code>n = 1</code>).
 For vectorized R usage, use <code><a href="base_lowercase.html">base_lowercase()</a></code>.</p>
+<p>The inverse Gaussian is the first-passage-time distribution of a Brownian motion with positive
+drift. Under the \((\mu, \lambda)\) parameterization used here, the mean is \(E(X)=\mu\) and
+the variance is \(\mathrm{Var}(X)=\mu^3/\lambda\). The implementation follows that
+parameterization throughout the package, so inverse-Gaussian mixture and splice families inherit
+the same interpretation.</p>
+<p>The distribution function is evaluated through the standard normal representation
+$$
+F(x) =
+\Phi\left(\sqrt{\frac{\lambda}{x}}\left(\frac{x}{\mu}-1\right)\right) +
+\exp\left(\frac{2\lambda}{\mu}\right)
+\Phi\left(-\sqrt{\frac{\lambda}{x}}\left(\frac{x}{\mu}+1\right)\right),
+$$
+and the quantile is obtained numerically because no simple closed form is available.</p>
     </div>
     <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>
@@ -153,8 +166,8 @@ For vectorized R usage, use <code><a href="base_lowercase.html">base_lowercase()
 <span class="r-in"><span><span class="fu">qInvGauss</span><span class="op">(</span><span class="fl">0.95</span>, <span class="va">mean</span>, <span class="va">shape</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.458125</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rInvGauss</span><span class="op">(</span><span class="fl">1</span>, <span class="va">mean</span>, <span class="va">shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 2.4309903 3.4258917 1.2209535 1.4736911 2.3957903 0.8260154 3.6687637</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 2.3261192 3.2370549 1.3304050</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.3532062 0.9911095 2.6514150 1.4436713 2.3317355 4.3780345 1.7225800</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 1.0503814 4.2435019 2.4257458</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -167,7 +180,7 @@ For vectorized R usage, use <code><a href="base_lowercase.html">base_lowercase()
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

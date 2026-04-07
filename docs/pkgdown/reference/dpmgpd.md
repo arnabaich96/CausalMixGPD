@@ -11,25 +11,21 @@ for one-arm data.
 
 ``` r
 dpmgpd(
-  x = NULL,
-  data = NULL,
+  y = NULL,
   X = NULL,
   treat = NULL,
+  data = NULL,
+  mcmc = list(),
   formula = NULL,
-  ...,
-  mcmc = list()
+  ...
 )
 ```
 
 ## Arguments
 
-- x:
+- y:
 
   Either a response vector or a bundle object.
-
-- data:
-
-  Optional data.frame used with `formula`.
 
 - X:
 
@@ -42,20 +38,25 @@ dpmgpd(
   [`dpmgpd.causal()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/dpmgpd.causal.md)
   for causal models.
 
-- formula:
+- data:
 
-  Optional formula.
-
-- ...:
-
-  Additional build arguments in build mode.
+  Optional data.frame used with `formula`.
 
 - mcmc:
 
   Named list of run arguments passed to
   [`mcmc()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/mcmc.md)
   (including optional performance controls such as `parallel_chains`,
-  `parallel_arms`, `workers`, `timing`, and `z_update_every`).
+  `workers`, `timing`, and `z_update_every`).
+
+- formula:
+
+  Optional formula.
+
+- ...:
+
+  Additional build arguments passed to
+  [`build_nimble_bundle`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/build_nimble_bundle.md).
 
 ## Value
 
@@ -76,6 +77,7 @@ probabilities.
 
 ## See also
 
+[`build_nimble_bundle`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/build_nimble_bundle.md),
 [`bundle`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/bundle.md),
 [`dpmix`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/dpmix.md),
 [`predict.mixgpd_fit`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/predict.mixgpd_fit.md),

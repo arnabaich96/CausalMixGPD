@@ -1,59 +1,9 @@
 %\VignetteEncoding{UTF-8}
 %\SweaveOpts{concordance=TRUE}
 \makeatletter
-\def\input@path{{./}{assets/}{vignettes/manuscript/}{vignettes/manuscript/assets/}}
+\def\input@path{{./}{assets/}{manuscript/}{manuscript/assets/}}
 \makeatother
-\documentclass[article]{jss}\usepackage[]{graphicx}\usepackage[]{xcolor}
-% maxwidth is the original width if it is less than linewidth
-% otherwise use linewidth (to make sure the graphics do not exceed the margin)
-\makeatletter
-\def\maxwidth{ %
-  \ifdim\Gin@nat@width>\linewidth
-    \linewidth
-  \else
-    \Gin@nat@width
-  \fi
-}
-\makeatother
-
-\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
-\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
-\newcommand{\hlsng}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
-\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
-\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
-\newcommand{\hldef}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
-\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
-\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
-\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
-\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
-\let\hlipl\hlkwb
-
-\usepackage{framed}
-\makeatletter
-\newenvironment{kframe}{%
- \def\at@end@of@kframe{}%
- \ifinner\ifhmode%
-  \def\at@end@of@kframe{\end{minipage}}%
-  \begin{minipage}{\columnwidth}%
- \fi\fi%
- \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
- \colorbox{shadecolor}{##1}\hskip-\fboxsep
-     % There is no \\@totalrightmargin, so:
-     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
- \MakeFramed {\advance\hsize-\width
-   \@totalleftmargin\z@ \linewidth\hsize
-   \@setminipage}}%
- {\par\unskip\endMakeFramed%
- \at@end@of@kframe}
-\makeatother
-
-\definecolor{shadecolor}{rgb}{.97, .97, .97}
-\definecolor{messagecolor}{rgb}{0, 0, 0}
-\definecolor{warningcolor}{rgb}{1, 0, 1}
-\definecolor{errorcolor}{rgb}{1, 0, 0}
-\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
-
-\usepackage{alltt}
+\documentclass[article]{jss}
 
 %% ---- Packages ----
 \usepackage[utf8]{inputenc}
@@ -74,7 +24,7 @@
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
 \makeatother
-\graphicspath{{./}{vignettes/manuscript/}{assets/}{figure/}}
+\graphicspath{{./}{manuscript/}{assets/}{figure/}}
 \DeclareRobustCommand{\pkg}[1]{\textsf{#1}}
 \DeclareRobustCommand{\code}[1]{\nolinkurl{#1}}
 \setlength{\emergencystretch}{4em}
@@ -118,7 +68,6 @@ model-based clustering, and distributional causal reporting.
 \Plainkeywords{Bayesian nonparametrics, Dirichlet Process Mixture, Generalized Pareto Distribution, Extreme Value Theory, MCMC, Clustering, Quantile Regression, Causal Inference, Treatment Effect, R, nimble}
 
 %% ---- Begin document ----
-\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 \maketitle
 \sloppy
@@ -727,7 +676,7 @@ treated-population standardization, respectively.
 \begin{table}[H]
 \centering
 \small
-\caption[Causal estimands reported by the package]{Causal estimands reported by \pkg{CausalMixGPD}. Columns list the estimand name, its defining contrast as a functional of the treatment-specific outcome distributions, and the target population. Superscripts $\mathrm{m}$ and $\mathrm{t}$ denote full-population and treated-population standardization, respectively.}
+\caption[Causal estimands reported by the package]{Causal estimands reported by \pkg{CausalMixGPD}. Columns list the estimand name, its defining contrast as a functional of the treatment-specific outcome distributions, and the target population.}
 \label{tab:causal-estimands-main}
 {
 \renewcommand{\arraystretch}{1.15}
@@ -761,16 +710,14 @@ predictive output.
 This section describes the workflow for fitting conditional models and
 obtaining predictions with \pkg{CausalMixGPD}.  The presentation
 begins with the one-arm setup, in which the spliced DPM--GPD model is
-fitted to an outcome conditional on covariates with a generalized
-Pareto distribution governing the upper tail above a
-covariate-dependent threshold.  The causal extension augments this
-workflow with arm-specific outcome models and an optional propensity
-score component, reusing the same estimation and prediction machinery.
+fitted to an outcome conditional on covariates. The causal extension augments this
+framework with arm-specific outcome models and an optional propensity
+score augmentation for observational studies.
 Simulated data sets bundled with the package are used throughout to
 demonstrate the principal components; these are accessible via
 \code{data()}.
 
-\subsection{Spliced DPM--GPD model, Likelihood, and Covariate Dependence}
+\subsection{Spliced Regression model, Likelihood, and Covariate Dependence}
 \label{subsec:overview-model}
 
 The observed data consist of $n$ outcome--covariate pairs
@@ -819,7 +766,7 @@ longer sampling and multiple chains are encouraged in applied settings.
 \end{alltt}
 \begin{verbatim}
   niter nburnin thin nchains seed
-1  2500     500    1       3 2026
+1  2000     500    1       1 2026
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1137,7 +1084,7 @@ Appendix~\ref{subsec:app-workflows}.
 \section{Data Analysis~I: Clustering}
 \label{sec:app-clustering}
 
-In this section, the procedure is explained for conducting clustering in the context of a conditional mixture model for the case of a bulk-only setting. The goal is to discover clusters amongst the observational units through the use of the fitted mixture model, while simultaneously accounting for uncertainty in the structure of such clusters in a label invariant way. While previously we focused on illustrating how prediction can be conducted through predictive densities in these models, here our interest lies in partition summaries and predicting cluster memberships in out-of-sample data. Important results include the posterior similarity matrix (PSM), a summary of partitions, and cluster memberships of out-of-sample data.
+In this section, the procedure is explained for conducting clustering in the context of a conditional mixture model for a bulk-only setting. The goal is to discover clusters amongst the observational units through the use of the fitted mixture model, while simultaneously accounting for uncertainty in the structure of such clusters in a label invariant way. While previously we focused on illustrating how prediction can be conducted through predictive densities in these models, here our interest lies in partition summaries and predicting cluster memberships in out-of-sample data. Important results include the posterior similarity matrix (PSM), a summary of partitions, and cluster memberships of out-of-sample data.
 
 \subsection{Data and preprocessing}
 
@@ -1274,448 +1221,33 @@ prediction interface. The output is a label in the space of the
 representative training clusters, obtained by aggregating posterior
 predictive co-clustering evidence at the cluster level.
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{z_test} \hlkwb{<-} \hlkwd{predict}\hldef{( fit_clust,} \hlkwc{newdata} \hldef{= test_dat,} \hlkwc{type}    \hldef{=} \hlsng{"label"}\hldef{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
-Figure~\ref{fig:app_cluster_test_sizes} displays the distribution of
-predicted cluster assignments across the test sample, produced by the
-package \code{plot()} method applied to the test labels object.
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlkwd{summary}\hldef{(z_test)}\hlopt{$}\hldef{cluster_profiles}
-\end{alltt}
-\begin{verbatim}
-  cluster  n medv_mean  medv_sd lstat_mean lstat_sd
-1      C4 53  21.57736 6.867192  13.415660 5.602698
-2      C2 24  18.69583 5.343951  14.474583 7.229240
-3      C5 18  35.15556 9.010988   5.679444 1.503887
-4      C1  7  11.72857 2.293261  24.204286 6.162083
-   rm_mean     rm_sd  nox_mean     nox_sd
-1 6.225340 0.6417186 0.5775660 0.11813723
-2 5.976583 0.4887950 0.5618333 0.12035912
-3 7.260167 0.6143898 0.4957222 0.09672649
-4 5.763571 0.5772723 0.6538571 0.09705227
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlkwd{plot}\hldef{(z_test,} \hlkwc{type} \hldef{=} \hlsng{"sizes"}\hldef{)}
-\end{alltt}
-\end{kframe}\begin{figure}[H]
-
-{\centering \includegraphics[width=0.8\linewidth]{figure/app_cluster_test_sizes-1} 
-
-}
-
-\caption{Bar plot of predicted cluster assignments for the held-out Boston test sample (the $20\%$ of \code{medv} observations excluded from training), returned by \code{plot(predict(fit_clust, newdata = test_dat, type = "label"), type = "sizes")}. Each bar corresponds to one representative training cluster from Figure~\ref{fig:app_cluster_overlay}; bar heights give the number of test tracts assigned to that cluster.}\label{fig:app_cluster_test_sizes}
-\end{figure}
-
-\end{knitrout}
-
-The expected characteristics of the clusters' profiles are consistent with the interpretation of the representative partition. Cluster C5 contains the wealthiest tracts defined by a high mean house value, low average \code{lstat}, large mean number of rooms, and relatively low pollution. Cluster C1 represents the poorest neighborhoods with a low average house value, significant disadvantages in terms of neighborhood quality, low mean number of rooms, and a high level of pollution. Clusters C2 and C4 represent intermediate cases which show that multiple clusters were detected within the housing market rather than a bimodal distribution with poor and wealthy neighborhoods at its ends.
-
-Predictably, the vast majority of held-out tracts are classified into middle-value clusters (C4 and C2) and there is no tendency for some tract assignments to the cluster representing the low end. This makes sense for the Boston data and confirms that the predictions are not overly affected by the presence of the outliers in the dataset. More significantly, tract assignments in the test set validate the sensible interpretation of the training set partition: tracts that belong to more expensive clusters are characterized by less neighborhood disadvantage, larger homes, and a cleaner environment; while tracts associated with poorer clusters possess the opposite characteristics.
-
-This case study provides a perfect illustration of our workflow where the inference was provided in terms of a representative partition and cluster descriptions while the predictive method assigned new observations into those clusters using the probabilistic criteria for membership into the same latent class in the posterior predictive distribution. Representative clusters become even more helpful in this setting because they provide information about the link between clustering uncertainty and the distribution of the response and covariates. In this example, the latent clusters are consistent with the social and environmental gradient quite well which means that the nonparametric mixture model can capture stable patterns despite the heterogeneity of the response distribution. We are moving on to causal comparisons (Section \ref{sec:app-causal}) at this point.
-
-
-\section{Data Analysis~II: Causal Inference}
-\label{sec:app-causal}
-
-In this case study, the estimands corresponding to the two-arm spliced distributional regression are described. In contrast to the partition estimation considered in Section \ref{sec:app-clustering}, here, interest lies in mean and quantile differences in terms of both unconditional and conditional causal estimands.
-
-Data and estimands
-
-In order to demonstrate the estimation of unconditional and conditional causal estimands using the proposed approach, the \code{lalonde} dataset from the \pkg{MatchIt} \textsf{R} package is used for benchmarking purposes. Here, the outcome is the 1978 annual income level measured by \code{re78} (\$), and the treatment indicator equals to the indicator for program participation (variable \code{treat}). The set of covariates includes age, years of schooling, race, marriage status, college degree status, together with previous earning variables: \code{re74} and \code{re75}. It should be emphasized that earnings typically possess considerable skewness, cluster around zero values and have a strong upper tail, which gives motivation for the consideration of distributional summaries instead of mean only.
-
-Estimation of the four causal estimands described in Table \ref{tab:causal-estimands-main} is performed based on Section \ref{subsec:causal}. Standardized versions of causal estimands (ATE, QTE) are averaged across the empirical distribution of \(\{\boldsymbol{x}_i\}_{i=1}^n\), while conditional versions (CATE, CQTE) are estimated for certain individuals.
-
-At first, the required data are loaded, and the design matrix is built for further estimation of causal estimands.
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlkwd{data}\hldef{(}\hlsng{"lalonde"}\hldef{,} \hlkwc{package} \hldef{=} \hlsng{"MatchIt"}\hldef{)}
-\hldef{app_lalonde_covars} \hlkwb{<-} \hlkwd{within}\hldef{(lalonde, \{}
-  \hldef{race} \hlkwb{<-} \hlkwd{factor}\hldef{(race,} \hlkwc{levels} \hldef{=} \hlkwd{c}\hldef{(}\hlsng{"white"}\hldef{,} \hlsng{"black"}\hldef{,} \hlsng{"hispan"}\hldef{))}
-  \hldef{married} \hlkwb{<-} \hlkwd{factor}\hldef{(married,} \hlkwc{levels} \hldef{=} \hlkwd{c}\hldef{(}\hlnum{0}\hldef{,} \hlnum{1}\hldef{),} \hlkwc{labels} \hldef{=} \hlkwd{c}\hldef{(}\hlsng{"no"}\hldef{,} \hlsng{"yes"}\hldef{))}
-  \hldef{nodegree} \hlkwb{<-} \hlkwd{factor}\hldef{(nodegree,} \hlkwc{levels} \hldef{=} \hlkwd{c}\hldef{(}\hlnum{0}\hldef{,} \hlnum{1}\hldef{),} \hlkwc{labels} \hldef{=} \hlkwd{c}\hldef{(}\hlsng{"no"}\hldef{,} \hlsng{"yes"}\hldef{))}
-\hldef{\})}
-\hldef{app_lalonde_scale_vars} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlsng{"age"}\hldef{,} \hlsng{"educ"}\hldef{,} \hlsng{"re74"}\hldef{,} \hlsng{"re75"}\hldef{)}
-\hldef{app_lalonde_scale_center} \hlkwb{<-} \hlkwd{vapply}\hldef{(}
-  \hldef{app_lalonde_scale_vars,}
-  \hlkwa{function}\hldef{(}\hlkwc{v}\hldef{)} \hlkwd{mean}\hldef{(app_lalonde_covars[[v]],} \hlkwc{na.rm} \hldef{=} \hlnum{TRUE}\hldef{),}
-  \hlkwd{numeric}\hldef{(}\hlnum{1}\hldef{)}
-\hldef{)}
-\hldef{app_lalonde_scale_scale} \hlkwb{<-} \hlkwd{vapply}\hldef{(}
-  \hldef{app_lalonde_scale_vars,}
-  \hlkwa{function}\hldef{(}\hlkwc{v}\hldef{) stats}\hlopt{::}\hlkwd{sd}\hldef{(app_lalonde_covars[[v]],} \hlkwc{na.rm} \hldef{=} \hlnum{TRUE}\hldef{),}
-  \hlkwd{numeric}\hldef{(}\hlnum{1}\hldef{)}
-\hldef{)}
-\hlkwa{for} \hldef{(v} \hlkwa{in} \hldef{app_lalonde_scale_vars) \{}
-  \hldef{app_lalonde_covars[[}\hlkwd{paste0}\hldef{(v,} \hlsng{"_z"}\hldef{)]]} \hlkwb{<-}
-    \hldef{(app_lalonde_covars[[v]]} \hlopt{-} \hldef{app_lalonde_scale_center[[v]])} \hlopt{/}
-    \hldef{app_lalonde_scale_scale[[v]]}
-\hldef{\}}
-\hldef{app_lalonde_x_formula} \hlkwb{<-} \hlopt{~} \hldef{age_z} \hlopt{+} \hldef{educ_z} \hlopt{+} \hldef{race} \hlopt{+} \hldef{married} \hlopt{+} \hldef{nodegree} \hlopt{+} \hldef{re74_z} \hlopt{+} \hldef{re75_z}
-\hldef{app_lalonde_y} \hlkwb{<-} \hldef{(app_lalonde_covars}\hlopt{$}\hldef{re78} \hlopt{+} \hlnum{0.5}\hldef{)} \hlopt{/} \hlnum{1000}
-\hldef{app_lalonde_A} \hlkwb{<-} \hlkwd{as.integer}\hldef{(app_lalonde_covars}\hlopt{$}\hldef{treat)}
-\hldef{app_lalonde_taus} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlnum{0.25}\hldef{,} \hlnum{0.50}\hldef{,} \hlnum{0.75}\hldef{,} \hlnum{0.90}\hldef{,} \hlnum{0.95}\hldef{)}
-\hldef{app_lalonde_X} \hlkwb{<-} \hldef{stats}\hlopt{::}\hlkwd{model.matrix}\hldef{(app_lalonde_x_formula,} \hlkwc{data} \hldef{= app_lalonde_covars}
-                                                  \hldef{)[,} \hlopt{-}\hlnum{1}\hldef{,} \hlkwc{drop} \hldef{=} \hlnum{FALSE}\hldef{]}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
-Figure~\ref{fig:app_lalonde_response_panels} provides full-sample
-descriptive views of observed 1978 earnings (\code{re78}) by treatment
-assignment. Both groups exhibit substantial mass near zero together
-with pronounced right-skewness, and the arm-specific distributions
-differ in ways that are not well summarized by a simple location shift.
-These features motivate modeling the full treatment-specific outcome
-distributions directly rather than relying solely on average effects.
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-
-{\centering \includegraphics[width=0.95\linewidth]{figure/app_lalonde_response_panels-1} 
-
-}
-
-\caption{Full-sample distribution of 1978 annual earnings (\code{re78}, in US dollars) from the \code{MatchIt::lalonde} data set, stratified by treatment arm. Left panel: arm-specific boxplots with upper outliers highlighted. Right panel: overlaid density-scaled histograms for the control and treated arms.}\label{fig:app_lalonde_response_panels}
-\end{figure}
-
-\end{knitrout}
-
-\subsection{Model and fit}
-
-Arm-specific conditional outcome distributions
-$F_a(\cdot\mid \boldsymbol{x})$ are modeled via the spliced bulk--tail
-construction described in Section~\ref{subsec:splice}:
-\begin{equation*}
-f_a(y\mid \boldsymbol{x})
-=
-\sum_j w_{aj}(\boldsymbol{x})\, k(y\mid \Theta_{aj})\,\mathbf{1}(y\le u)
-+
-\{1-F_a(u\mid \boldsymbol{x})\}\, g(y\mid u,\sigma_a,\xi_a)\,\mathbf{1}(y>u).
-\end{equation*}
-The bulk kernel $k(\cdot)$ represents a Dirichlet process mixture
-regression with a Chinese restaurant process backbone, while the tail
-density $g(\cdot)$ follows the GPD distribution with positive scale
-$\sigma_a>0$ and tail index $\xi_a$. In our model, the GPD tail index
-$\xi_a$ regulates extremal weight (e.g., if $\xi_a>0$, it indicates a
-heavier tail). Our model mitigates estimation instabilities for extreme
-quantiles through nonparametric bulk and EVT-consistent tail modeling.
-
-Here, a two-sample mixture is fitted with the gamma bulk kernel and the
-same MCMC configuration across the analysis. The aim of this analysis is
-not to make any final conclusions but to highlight how the package
-provides standardized and conditional Lalonde earnings contrasts under
-the spliced DPM-GPD framework.
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{fit} \hlkwb{<-} \hlkwd{dpmgpd.causal}\hldef{(}\hlkwc{y} \hldef{= app_lalonde_y,} \hlkwc{X} \hldef{= app_lalonde_X,} \hlkwc{treat} \hldef{= app_lalonde_A,}
-                      \hlkwc{backend} \hldef{=} \hlsng{"crp"}\hldef{,} \hlkwc{kernel} \hldef{=} \hlsng{"gamma"}\hldef{,} \hlkwc{components} \hldef{=} \hlnum{10}\hldef{,} \hlkwc{mcmc} \hldef{= mcmc_fixed)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
-
-
-\subsection{Posterior summaries}
-
-Before reporting treatment contrasts, it is useful to view the fitted
-causal object as defining two arm-specific outcome distributions from
-which all reported summaries are derived. The value of the framework is
-therefore not limited to a single regression coefficient or scalar
-contrast; instead, mean, quantile, and tail-sensitive causal estimands
-are all obtained as coherent functionals of the same fitted posterior
-distribution.
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-  total    ps   con   trt parallel_arms
-1 356.3 36.71 211.3 108.2         FALSE
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
-
-\subsection{Standardized estimands: ATE and QTE}
-
-The overall treatment effect is summarized with ATE and QTE.
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{ate_fit} \hlkwb{<-} \hlkwd{ate}\hldef{(fit,} \hlkwc{interval} \hldef{=} \hlsng{"hpd"}\hldef{,} \hlkwc{level} \hldef{=} \hlnum{0.95}\hldef{)}
-\hlkwd{summary}\hldef{(ate_fit)}
-\end{alltt}
-\begin{verbatim}
-ATE Summary
-================================================== 
-Prediction points: 1
-Conditional: NO | PS used: YES
-Interval: hpd
-
-Model specification:
-  Backend (trt/con): crp / crp
-  Kernel (trt/con): gamma / gamma
-  GPD tail (trt/con): YES / YES
-
-ATE estimates:
- estimate  lower upper
-   -0.766 -2.992 1.358
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
-
-The posterior ATE estimate is negative on the scaled earnings scale,
-but the corresponding interval includes zero. Thus, after averaging
-over the empirical covariate distribution, the analysis does not
-provide strong evidence of a uniform overall mean effect of the
-training program. This is important because it shows that mean-based
-summaries alone do not yield a decisive conclusion in this application.
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{qte_fit} \hlkwb{<-} \hlkwd{qte}\hldef{(fit,} \hlkwc{probs} \hldef{=} \hlkwd{c}\hldef{(}\hlnum{0.25}\hldef{,} \hlnum{0.50}\hldef{,} \hlnum{0.75}\hldef{),} \hlkwc{interval} \hldef{=} \hlsng{"credible"}\hldef{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
-Figure~\ref{fig:qte_plot} displays two standardized QTE views side by
-side from the spliced causal model: the effect curve and the
-treated-versus-control quantile curves with uncertainty intervals.
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{qte_effect_plot} \hlkwb{<-} \hlkwd{plot}\hldef{(qte_fit,} \hlkwc{type} \hldef{=} \hlsng{"effect"}\hldef{)}
-\hldef{qte_arms_plot} \hlkwb{<-} \hlkwd{plot}\hldef{(qte_fit,} \hlkwc{type} \hldef{=} \hlsng{"arms"}\hldef{)}
-\hldef{qte_effect_plot} \hlopt{+} \hldef{qte_arms_plot} \hlopt{+} \hlkwd{plot_layout}\hldef{(}\hlkwc{ncol} \hldef{=} \hlnum{2}\hldef{)}
-\end{alltt}
-\end{kframe}\begin{figure}[H]
-
-{\centering \includegraphics[width=0.95\linewidth]{figure/qte_plot-1} 
-
-}
-
-\caption{Standardized quantile treatment effect (QTE) summaries for Lalonde 1978 earnings, returned by \code{qte(fit, probs = c(0.25, 0.50, 0.75), interval = "credible")}. Left panel: effect curve $Q_1^{\mathrm{m}}(\tau)-Q_0^{\mathrm{m}}(\tau)$ versus $\tau$ with pointwise $95\%$ credible band. Right panel: standardized treated and control quantile curves $Q_1^{\mathrm{m}}(\tau)$ and $Q_0^{\mathrm{m}}(\tau)$ on the original earnings scale, with pointwise credible bands.}\label{fig:qte_plot}
-\end{figure}
-
-\end{knitrout}
-
-Nevertheless, when considering the comparison between the quantiles for the two distributions, it can be noted that the QTEs at the specified quantiles are still negative, which implies that the treatment distribution stands below the control one along the considered parts of the marginal distribution. At the same time, the consideration of the quantile curves of both distributions shows that their deviations cannot be explained just by an average shift but also reflect the heterogeneity of their distribution.
-
-\subsection{Conditional estimands for representative profiles}
-
-In order to show the heterogeneity of the treatment effect, the conditional estimand is calculated for four covariate profiles representing the whole set of the values of the covariates. The covariate values in the profiles are presented on the actual data scale thanks to the use of sample quantiles for continuous variables and the values observed for categorical covariates. The initial values of the profiles are centered and scaled according to the values of the training set.
-
-
-
-\begin{table}[H]
-\centering
-\caption{\label{tab:xnew-results}Representative Lalonde participant profiles used as new-data inputs for the conditional causal contrasts in Figure~\ref{fig:cate_plot}. Columns (Profile~1--Profile~4) give the covariate values for one synthetic individual on the original data scale: \code{age} (years), \code{educ} (years of schooling), \code{race}, \code{married}, \code{nodegree}, and prior annual earnings \code{re74} and \code{re75} (US dollars).}
-\centering
-\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
-\fontsize{8}{10}\selectfont
-\begin{tabular}[t]{lllll}
-\toprule
-  & Profile 1 & Profile 2 & Profile 3 & Profile 4\\
-\midrule
-age & 20.0000 & 25.0000 & 32.0000 & 43.0000\\
-educ & 9.0000 & 11.0000 & 12.0000 & 13.0000\\
-race & black & hispan & white & black\\
-married & no & no & yes & yes\\
-nodegree & yes & no & no & yes\\
-\addlinespace
-re74 & 0.0000 & 47.4143 & 2705.7476 & 9383.2356\\
-re75 & 0.0000 & 16.4710 & 1389.6486 & 4201.8870\\
-\bottomrule
-\end{tabular}}
-\end{table}
-
-
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{cate_fit} \hlkwb{<-} \hlkwd{cate}\hldef{(fit,} \hlkwc{newdata} \hldef{= xnew,} \hlkwc{interval} \hldef{=} \hlsng{"hpd"}\hldef{,} \hlkwc{show_progress} \hldef{=} \hlnum{FALSE}\hldef{)}
-\hlkwd{summary}\hldef{(cate_fit)}
-\hlcom{# plot(cate_fit, type = "effect") # Displays mean-based CATE plot by profile}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
-The mean-based conditional average treatment effects are generally
-modest and uncertain. Although some profiles show positive point
-estimates, the corresponding intervals are broad and typically overlap
-zero. Thus, at the level of conditional means, the program does not
-appear to induce a strong and uniform shift in earnings across all
-participant types.
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{cqte_fit} \hlkwb{<-} \hlkwd{cqte}\hldef{(fit,} \hlkwc{probs} \hldef{=} \hlkwd{c}\hldef{(}\hlnum{0.25}\hldef{,} \hlnum{0.50}\hldef{,} \hlnum{0.75}\hldef{,} \hlnum{0.90}\hldef{,} \hlnum{0.95}\hldef{),}
-                 \hlkwc{newdata} \hldef{= xnew,} \hlkwc{interval} \hldef{=} \hlsng{"credible"}\hldef{)}
-\hlcom{# cqte_fit$fit_df # Displays the full CQTE posterior summary data frame}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
-
-Figure~\ref{fig:cate_plot} places the mean-based CATE plot beside a
-compact CQTE table so the profile-specific mean and quantile contrasts
-can be read together. The table entries report posterior estimates with
-95\% credible intervals in brackets.
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-
-{\centering \includegraphics[width=\linewidth]{figure/cate_plot-1} 
-
-}
-
-\caption{Conditional treatment-effect summaries for Lalonde 1978 earnings at the four representative covariate profiles (Profile~1--Profile~4) of Table~\ref{tab:xnew-results}. Left panel: profile-specific conditional average treatment effects $\mathrm{CATE}(x)=\mu_1(x)-\mu_0(x)$ with $95\%$ HPD intervals, returned by \code{cate(fit, newdata = xnew, interval = "hpd")}. Right panel: profile-specific conditional quantile treatment effects $\mathrm{CQTE}(\tau\mid x)=Q_1(\tau\mid x)-Q_0(\tau\mid x)$ at $\tau\in\{0.25,0.50,0.75,0.90,0.95\}$, returned by \code{cqte()}; each cell reports the posterior estimate with the $95\%$ credible interval in brackets.}\label{fig:cate_plot}
-\end{figure}
-
-\end{knitrout}
-
-CQTE analysis implies heterogeneity of treatment effects by both profiles and quantile level. On several occasions, the effect of the program for low- and median-quantile contrasts appears to be close to zero or even negative. At the same time, uncertainty about treatment effects is high at the upper quantiles, which is not surprising since upper-quantile contrasts include very few observations and thus are more sensitive to the spliced tail. Overall, the analysis reveals no evidence of any positive effects of the program but only suggests that, if any positive effects occur, they can be profile-specific.
-
-\subsection{Results and interpretation}
-
-Two main questions that have to be answered in the interpretation of the results concern the general effects of the program (the question of interest here) on the earnings distribution, as well as the differences between effects for different profiles of participants. In this regard, the answer to the first question does not provide anything significant. The average treatment effect is close to zero, and the estimated QTE are negative at lower and mid-quantiles. On the other hand, the second question is answered in somewhat mixed manner – treatment effects are profile-specific, and some CQTE at upper quantiles show a positive effect which seems to be true only for some particular subpopulations.
-
-In general, this analysis emphasizes the importance of using distributional analysis in contexts of heavy-tailed data. A simple analysis that concerns only the mean will provide little evidence of a program effect. Meanwhile, QTE summary allows us to observe the heterogeneity of treatment effects.
-
-\section{Discussion}
-\label{sec:discussion}
-
-\pkg{CausalMixGPD} integrates flexible bulk density estimation,
-optional EVT-based tail extrapolation, predictor-dependent clustering,
-and distributional causal inference within a single coherent workflow.
-The same fitted model supports posterior summaries for densities,
-survival curves, analytical means (when they exist), restricted means,
-quantiles, and treatment contrasts, thereby obviating the fragmented
-analysis pipelines often required when heavy tails and distributional
-effects are both of concern.
-
-The package is considerably broader than the spliced examples
-emphasized in this article.  Users may work with bulk-only or spliced
-models, multiple kernel families on the real line or on positive
-support, stick-breaking or CRP backends, and clustering or causal
-wrappers built upon the same predictive machinery.  This shared
-infrastructure facilitates transitions from exploratory subgroup
-analysis to tail-focused prediction and causal reporting without
-altering the underlying modeling language.
-
-Several practical limitations warrant acknowledgment.  First,
-computation can be demanding.  Mixture models with covariate
-dependence, optional tail components, and arm-specific causal fits are
-inherently MCMC-intensive, and costs escalate further with sensitivity
-analyses, longer chains, or richer predictor sets.
-
-Second, model tuning requires attention.  A spliced analysis inherits
-specification choices from both the DPM and peaks-over-threshold
-components, including kernel family, truncation level, threshold
-specification, and the number of exceedances available for tail
-learning.  When overlap is weak or exceedances are sparse, posterior
-uncertainty can be substantial; for clustering, the posterior
-similarity matrix is often more informative than any single partition
-summary.
-
-Third, the current scope is circumscribed.  The causal implementation
-is restricted to binary treatments and continuous outcomes under
-standard consistency, ignorability, and overlap assumptions.
-Propensity-score augmentation can improve covariate adjustment in
-observational studies, but it is not a substitute for careful study
-design, overlap diagnostics, or sensitivity analysis for unmeasured
-confounding.
-
-
-
-
-\bibliography{CausalMixGPD_JSS_refs}
-
-
-\clearpage
-\appendix
-\section{Customization of Package and Additional Features}
-\label{sec:appendix-features}
-
-This appendix details the customizable features of the package which provides additional flexiblity to the analysis framework. The objective is to provide a concise guide on customizing the package in terms of model fitting process, manipulating posterior results, customization in specific application case, and other useful functions of \pkg{CausalMixGPD}.
-
-\subsection{Model fitting options and prior specifications}
-\label{subsec:app-modeling}
-
-Besides the customizable features illustrated in Sections \ref{subsec:gpd}, \ref{subsec:dpm}, \ref{subsec:causal}, and \ref{subsec:overview-model}, this section lists arguments that allow kernel choice, latent structure, and prior customization alternative to default choices.
-
-\begin{itemize}
-\item \textbf{Kernel families and support} (\label{subsec:app-kernels}): the argument \code{kernel} allows to choose among seven different kernel families, defined either with positive support or on the real line. The kernels with positive support are \code{"gamma"}, \code{"lognormal"}, and \code{"invgauss"}; the kernels with real support are \code{"normal"}, \code{"laplace"}, \code{"cauchy"}, and \code{"amoroso"}. The function \code{kernel_support_table()} reports the support, whether the kernel is compatible with GPD, and the supports of the covariates and backend. The function \code{get_kernel_registry()} returns the kernel registry with detailed information such as the parameter names, the default prior mode, and the density/CDF/quantile functions. For causal models, \code{kernel} can be either a single string or a length-two vector specifying different DPM kernels for the two arms. The kernel choice determines the support of the outcome variable and should be made based on the characteristics of the data.
-
-\item \textbf{Backend type and truncation rule} (\label{subsec:app-backends}): the argument \code{backend} determines the structure of the mixing coefficients. The value \code{sb} stands for the stick-breaking scheme while \code{crp} denotes the Chinese Restaurant Process latent allocation scheme. For causal models, \code{backend} can be either a single string or a length-two vector specifying different latent allocation schemes for the two arms. The argument \code{components} sets the maximum number of mixture components (defaulting to the sample size). The argument \code{epsilon} specifies a truncation threshold below which components are dropped and the smallest weight is readjusted. Both arguments can be customized separately for each causal arm.
-
-\item \textbf{Parameter specification and prior setting} (\label{subsec:app-priors}): the argument \code{param_specs} is a named list giving the parameters of the kernel or tail distribution. Each kernel/tail parameter supports three modes: \code{"fixed"}, \code{"dist"}, and \code{"link"}. With \code{"dist"}, the prior can be chosen as any distribution compatible with the parameter and supported by \pkg{nimble}, with hyperparameters specified in the default registry. With \code{"link"}, the kernel/tail parameter is related to the covariates through a linear regression using one of five link functions (\code{"identity"}, \code{"exp"}, \code{"log"}, \code{"softplus"}, or \code{"power"}); the link power is adjusted via \code{link_power} when the last option is selected. With \code{"fixed"}, the parameter is fixed to the constant value specified in \code{param_specs}. For causal models, \code{param_specs} can be either a single named list or a length-two list specifying different parameter specifications for the two arms.
-\end{itemize}
-
-\subsection{Fitting, prediction, and posterior output}
-\label{subsec:app-fitting}
-
-This section gathers the arguments used after a model class has been chosen: sampler configuration, monitoring, prediction targets, interval summaries, and extraction utilities.
-
-\begin{itemize}
-\item \textbf{MCMC configuration} (\label{subsec:app-mcmc}): \code{mcmc} controls \code{niter}, \code{nburnin}, \code{thin}, \code{nchains}, and \code{seed}; causal models split this into \code{mcmc\_outcome} and \code{mcmc\_ps}. Runtime controls include \code{show\_progress}, \code{quiet}, \code{parallel\_chains} with \code{workers}, \code{parallel\_arms} for arm-wise causal fitting, and \code{timing}. CRP-based backends additionally use \code{z\_update\_every} to tune the frequency of global label updates.
-\item \textbf{Monitoring and fitting interfaces} (\label{subsec:app-monitors}): \code{monitor = "core"} retains the main structural parameters, whereas \code{"full"} retains all nodes. \code{monitor\_latent = TRUE} stores allocation labels $z_1,\ldots,z_n$, and \code{monitor\_v = TRUE} stores stick-breaking fractions for SB models. Models can be supplied through a formula interface (\code{formula}, \code{data}) or directly through \code{y} and \code{X}; causal fits additionally use \code{treat}. The \code{bundle()} plus \code{mcmc()} workflow separates model construction from sampling when the generated \pkg{nimble} object needs to be inspected or modified first.
-
-\item \textbf{Prediction types and intervals} (\label{subsec:app-predict}): \code{predict()} supports \code{type = "density"}, \code{"survival"}, \code{"quantile"}, \code{"mean"}, \code{"rmean"}, \code{"median"}, \code{"sample"}, and \code{"fit"}. These return posterior summaries of $f(y \mid x)$, $S(y \mid x)$, $Q(\tau \mid x)$, $\mathrm{E}(Y \mid x)$, the restricted mean $\mathrm{E}[\min(Y, c) \mid x]$ via \code{cutoff} and \code{nsim\_mean}, the median (as a special case of the quantile method), posterior predictive draws via \code{nsim}, or retained draw-level fitted values for custom checks. Interval summaries are controlled by \code{interval = "credible"}, \code{"hpd"}, or \code{NULL}, together with \code{level}.
-
-\item \textbf{Summary and extraction methods} (\label{subsec:app-intervals}): \code{summary()} reports posterior means, standard deviations, quantiles, and Effective Sample Size(ESS). \code{params()} reshapes posterior means into component- and coefficient-level layouts; \code{fitted()} and \code{residuals()} provide observation-level predictive summaries.
-\item \textbf{Visualization and extraction} (\label{subsec:app-plots}\label{subsec:app-summaries}): \code{plot()} for one-arm fits covers standard MCMC diagnostics, including \code{"traceplot"}, \code{"density"}, \code{"histogram"}, \code{"running"}, \code{"autocorrelation"}, \code{"crosscorrelation"}, \code{"Rhat"}/\code{"grb"}, \code{"effective"}, \code{"geweke"}, \code{"caterpillar"}, \code{"pairs"}, and \code{family = "auto"}. Companion extraction tools include \code{summary()}, \code{params()}, \code{fitted()}, \code{residuals()}, and \code{ess\_summary()}.
-
-\end{itemize}
-
-\subsection{Workflow-specific extensions}
-\label{subsec:app-workflows}
-
-This section records controls specific to the clustering and causal workflows in Sections~\ref{subsec:cluster_extension}, \ref{subsec:overview-causal}, \ref{sec:app-clustering}, and \ref{sec:app-causal}. Representative outputs appear in Figures~\ref{fig:app_cluster_overlay}, \ref{fig:app_cluster_test_sizes}, \ref{fig:qte_plot}, and \ref{fig:cate_plot}, with the latter combining the CATE plot and CQTE table.
-
-\begin{itemize}
-\item \textbf{Causal estimands} (\label{subsec:app-causal-estimands}): beyond \code{ate()}, \code{qte()}, \code{cate()}, and \code{cqte()}, the package provides \code{att()} for effects averaged over the treated covariate distribution, \code{qtt()} for quantile effects on the treated, and \code{ate\_rmean()} for restricted-mean contrasts. The \code{ate()} and \code{cate()} families also accept \code{type = "mean"} or \code{"rmean"} with a corresponding \code{cutoff}. All effect objects support \code{summary()}, \code{print()}, and \code{plot()} S3 functions. Causal plots route by arm and offer \code{type = "effect"}, \code{"arms"}, or \code{"both"}; QTE plots additionally use \code{facet\_by}; cluster plots provide PSM heatmaps plus label summaries via \code{type = "sizes"}, \code{"certainty"}, and \code{"summary"}. All plots return \pkg{ggplot2} objects and can be converted to \pkg{plotly}.
-
-
-\item \textbf{Propensity score customization} (\label{subsec:app-ps}): observational causal fits can estimate propensity scores with \code{PS = "logit"}, \code{"probit"}, \code{"naive"}, or \code{FALSE}. The estimated score is appended to the outcome model on either the logit scale (\code{ps\_scale = "logit"}) or probability scale (\code{"prob"}); posterior summaries use \code{ps\_summary = "mean"} or \code{"median"}. Numerical stability is controlled through \code{ps\_clamp}, coefficient shrinkage through \code{ps\_prior}, and the two-stage fitting scheme through separate \code{mcmc\_ps} and \code{mcmc\_outcome} lists.
-\item \textbf{Clustering workflow and prediction types} (\label{subsec:app-clustering-details}): \code{dpmix.cluster()} and \code{dpmgpd.cluster()} accept \code{type = "weights"}, \code{"param"}, or \code{"both"} to place predictor dependence in the mixture weights, kernel parameters, or both. Their \code{predict()} methods return either a posterior similarity matrix (\code{type = "psm"}) or representative labels under the Dahl criterion (\code{type = "label"}), including assignments for \code{newdata}. The associated \code{summary()} method reports cluster sizes and within-cluster covariate/response profiles.
-
-\end{itemize}
-
-\subsection{Utilities and Computing Support}
-\label{subsec:app-utilities}
-
-The last appendix section includes a selection of helper functions and
-resources that accompany the main modeling process.
-
-\begin{itemize}
-\item \textbf{Distributional utilities} (\label{subsec:app-distutils}): the package providess the complete \textsf{R}-style \code{d}/\code{p}/\code{q}/\code{r} functions for GPD, Inverse Gaussian, Amoroso Distribution with  every supported kernel mixture, and every spliced kernel mixture and GPD distribution. A typical examples include \code{dgpd()}, \code{dgammamix()}, and \code{dgammamixgpd} which are density functions of
-the GPD, gamma mixture, and spliced gamma mixture with GPD tail, respectively that can be used directly in modeling and posterior manipulation in \pkg{Nimble}. They are particularly useful for prior checking, generating simulations, benchmarking, and other purposes requiring distributional manipulations.
-
-\item \textbf{Simulators and bundled datasets} (\label{subsec:app-simulation}): functions \code{sim\_bulk\_tail()}, \code{sim\_causal\_qte()}, and \code{sim\_survival\_tail()} provide data generation for reproducible benchmarks for bulk and tail and causal analyses; random number generation seeds are supplied by the \code{seed} argument. The package comes bundled with twelve datasets with unconditional/conditional/causal, positive/real-line, and tail/no-tail designs, each featuring outcomes, covariates, treatment indicators where relevant, metadata, and the true values of interest.
-\item \textbf{Computational considerations} (\label{subsec:app-computation}): large-scale analyses allow the use of \code{parallel\_chains} with \code{workers}, \code{parallel\_arms} for causal fits, \code{chunk\_size} for predicting in parallel chunks, and \code{ndraws\_pred} for sampling from the posterior predictive distribution of parameters. The \code{show\_progress} and \code{quiet} arguments can be used to control progress reporting and compiler verbosity, respectively, while \code{timing = TRUE} saves time spent on each fit for benchmarking purposes.
-\end{itemize}
-
-\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

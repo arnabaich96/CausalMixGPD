@@ -184,8 +184,7 @@
   [`qInvGaussMixGpd()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/InvGauss_mixgpd.md)
   : Inverse Gaussian mixture with a GPD tail
 - [`kernel_support_table()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/kernel_support_table.md)
-  : Kernel support matrix Returns a data frame summarizing each kernel's
-  supported features.
+  : Kernel support matrix
 - [`dLaplaceGpd()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/laplace_gpd.md)
   [`pLaplaceGpd()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/laplace_gpd.md)
   [`rLaplaceGpd()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/laplace_gpd.md)
@@ -326,6 +325,8 @@
   : Print a causal workflow bundle
 - [`print(`*`<causalmixgpd_causal_fit>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.causalmixgpd_causal_fit.md)
   : Print a fitted causal model
+- [`print(`*`<causalmixgpd_causal_fit_plots>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.causalmixgpd_causal_fit_plots.md)
+  : Print method for paired causal-fit diagnostic plots
 - [`print(`*`<causalmixgpd_causal_predict_plots>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.causalmixgpd_causal_predict_plots.md)
   : Print method for causal prediction plots
 - [`print(`*`<causalmixgpd_ps_bundle>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.causalmixgpd_ps_bundle.md)
@@ -354,6 +355,10 @@
   : Print a MixGPD summary object
 - [`print(`*`<summary.causalmixgpd_ate>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.summary.causalmixgpd_ate.md)
   : Print an ATE summary
+- [`print(`*`<summary.causalmixgpd_causal_fit>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.summary.causalmixgpd_causal_fit.md)
+  : Print a causal-model summary object
+- [`print(`*`<summary.causalmixgpd_ps_fit>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.summary.causalmixgpd_ps_fit.md)
+  : Print a propensity-score summary object
 - [`print(`*`<summary.causalmixgpd_qte>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.summary.causalmixgpd_qte.md)
   : Print a QTE summary
 - [`qte()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qte.md)
@@ -381,6 +386,8 @@
   : Summarize a causal workflow bundle
 - [`summary(`*`<causalmixgpd_causal_fit>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.causalmixgpd_causal_fit.md)
   : Summarize a fitted causal model
+- [`summary(`*`<causalmixgpd_ps_fit>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.causalmixgpd_ps_fit.md)
+  : Summarize a propensity score fit
 - [`summary(`*`<causalmixgpd_qte>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.causalmixgpd_qte.md)
   : Summarize a QTE-style effect object
 - [`summary(`*`<dpmixgpd_cluster_bundle>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.dpmixgpd_cluster_bundle.md)

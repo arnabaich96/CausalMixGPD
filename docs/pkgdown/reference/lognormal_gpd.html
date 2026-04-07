@@ -9,7 +9,7 @@ lognormal bulk."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -124,6 +124,22 @@ lognormal bulk.</p>
 numeric vector with the same length as <code>p</code>.</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>This is the single-lognormal counterpart of <code><a href="lognormal_mixgpd.html">lognormal_mixgpd()</a></code>. If \(F_{LN}(u)\) denotes the
+bulk probability below the threshold, then the spliced density is
+$$
+f(x) =
+\left\{
+\begin{array}{ll}
+f_{LN}(x \mid \mu,\sigma), &amp; x &lt; u, \\
+\{1-F_{LN}(u)\} g_{GPD}(x \mid u,\sigma_u,\xi), &amp; x \ge u.
+\end{array}
+\right.
+$$
+The ordinary mean is finite only when the GPD tail has \(\xi &lt; 1\); otherwise the package
+requires restricted means or quantiles for tail-robust inference.</p>
+    </div>
+    <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>
 
 <ul><li><p><code>dLognormalGpd()</code>: Lognormal + GPD tail density</p></li>
@@ -157,8 +173,8 @@ numeric vector with the same length as <code>p</code>.</p>
 <span class="r-in"><span><span class="fu">qLognormalGpd</span><span class="op">(</span><span class="fl">0.95</span>, <span class="va">meanlog</span>, <span class="va">sdlog</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.65302</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rLognormalGpd</span><span class="op">(</span><span class="fl">1</span>, <span class="va">meanlog</span>, <span class="va">sdlog</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.682650 1.709019 3.140103 1.949344 2.430002 1.112910 2.155999 1.991381</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] 1.406004 1.409673</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.429049 1.873272 1.016680 1.529910 3.105128 1.949344 2.430002 1.112910</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] 2.155999 1.991381</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -170,7 +186,7 @@ numeric vector with the same length as <code>p</code>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

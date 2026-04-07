@@ -35,6 +35,22 @@ Project rules:
   ndraws_pred = NULL,
   chunk_size = NULL,
   show_progress = TRUE,
-  ncores = 1L
+  ncores = 1L,
+  sample_draw_idx = NULL
 )
 ```
+
+## Details
+
+This is the main internal workhorse behind
+[`predict.mixgpd_fit()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/predict.mixgpd_fit.md)
+and the causal effect helpers. It evaluates the requested predictive
+functional separately for each retained posterior draw, using either
+explicit SB weights or CRP weights reconstructed from latent cluster
+labels, and only then collapses the draw-level results into posterior
+summaries.
+
+The helper also manages caching of per-draw predictive quantities
+because treatment-effect functions repeatedly reuse the same
+arm-specific predictive draws. That cache avoids recomputation while
+keeping the public prediction interface simple.

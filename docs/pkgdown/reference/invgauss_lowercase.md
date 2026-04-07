@@ -142,6 +142,14 @@ rinvgaussgpd(n, mean, shape, threshold, tail_scale, tail_shape)
 Numeric vector of densities, probabilities, quantiles, or random
 variates.
 
+## Details
+
+These functions are vectorized R front ends to the scalar
+inverse-Gaussian and splice routines. They retain the \\(\mu,\lambda)\\
+parameterization used everywhere else in the package and simply apply
+the scalar evaluator repeatedly over the supplied input vector or draw
+index.
+
 ## Functions
 
 - `dinvgaussmix()`: Inverse Gaussian mixture density (vectorized)
@@ -206,5 +214,5 @@ lam <- c(2, 3, 4)
 dinvgaussmix(c(1, 2, 3), w = w, mean = mu, shape = lam)
 #> [1] 0.56238059 0.16823110 0.05436761
 rinvgaussmix(5, w = w, mean = mu, shape = lam)
-#> [1] 0.9804490 0.7447751 0.6244059 0.8138030 1.2787016
+#> [1] 0.9762471 0.5928380 0.8251864 0.9547537 0.6414225
 ```

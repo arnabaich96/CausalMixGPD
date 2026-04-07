@@ -56,5 +56,5 @@ fitted object.
 [`dpmgpd()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/dpmgpd.md).
 
 Other simulation helpers:
-[`sim_causal_qte`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/sim_causal_qte.md)`()`,
-[`sim_survival_tail`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/sim_survival_tail.md)`()`
+[`sim_causal_qte()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/sim_causal_qte.md),
+[`sim_survival_tail()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/sim_survival_tail.md)

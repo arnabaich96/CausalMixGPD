@@ -11,7 +11,7 @@ to represent a broad range of skewed bulk shapes."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -111,6 +111,22 @@ scalar or vector matching the length of <code>p</code>.</p>
 quantity \(((X - a) / \theta)^\beta\) follows a gamma law with shape \(\alpha\).</p>
 <p>These uppercase NIMBLE-compatible functions are scalar (<code>x</code>/<code>q</code> and <code>n = 1</code>).
 For vectorized R usage, use <code><a href="base_lowercase.html">base_lowercase()</a></code>.</p>
+<p>The Amoroso family used in the package is defined by the density
+$$
+f(x) =
+\left|\frac{\beta}{\theta}\right|
+\frac{z^{\alpha \beta - 1}\exp(-z^\beta)}{\Gamma(\alpha)},
+\qquad
+z = \frac{x-a}{\theta},
+$$
+on the side of the location parameter determined by the sign of \(\theta\). Equivalently,
+\(Z = ((X-a)/\theta)^\beta\) follows a Gamma distribution with shape \(\alpha\) and unit
+scale. That representation explains why the quantile function is computed from a gamma quantile
+and then mapped back through the inverse transformation.</p>
+<p>The mean exists whenever \(\alpha + 1/\beta\) lies in the domain of the gamma function used by
+the moment formula. In the package this family serves as a flexible positive-support bulk kernel
+capable of reproducing gamma-like, Weibull-like, and other skewed shapes with a single
+parameterization.</p>
     </div>
     <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>
@@ -157,7 +173,7 @@ For vectorized R usage, use <code><a href="base_lowercase.html">base_lowercase()
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

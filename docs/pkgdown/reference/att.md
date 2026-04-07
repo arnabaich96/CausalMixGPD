@@ -37,8 +37,11 @@ att(
 
 - type:
 
-  Character; `"mean"` (default) for ordinary mean ATE or `"rmean"` for
-  restricted-mean ATE.
+  Character; type of mean treatment effect:
+
+  - `"mean"` (default): ordinary mean ATE
+
+  - `"rmean"`: restricted-mean ATE (requires `cutoff`)
 
 - cutoff:
 
@@ -47,9 +50,13 @@ att(
 
 - interval:
 
-  Character or NULL; type of credible interval: `NULL` for no interval,
-  `"credible"` for equal-tailed quantile intervals (default), or `"hpd"`
-  for highest posterior density intervals.
+  Character or NULL; type of credible interval:
+
+  - `NULL`: no interval
+
+  - `"credible"` (default): equal-tailed quantile intervals
+
+  - `"hpd"`: highest posterior density intervals
 
 - level:
 
@@ -57,7 +64,8 @@ att(
 
 - nsim_mean:
 
-  Number of posterior predictive draws to approximate the mean.
+  Number of posterior predictive draws used by simulation-based mean
+  targets. Ignored for analytical ordinary means.
 
 - show_progress:
 
@@ -68,7 +76,8 @@ att(
 
 An object of class `"causalmixgpd_ate"` containing the ATT summary,
 optional intervals, and the arm-specific predictive objects used in the
-aggregation.
+aggregation. The returned object includes a top-level `$fit_df` data
+frame for direct extraction.
 
 ## Details
 

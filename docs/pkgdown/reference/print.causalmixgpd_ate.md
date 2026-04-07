@@ -38,6 +38,25 @@ print(x, digits = 3, max_rows = 6, ...)
 
 The object `x`, invisibly.
 
+## Details
+
+These objects summarize posterior treatment contrasts on the mean scale.
+For the marginal average treatment effect, \$\$\Delta = E(Y^1) -
+E(Y^0).\$\$
+[`att()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/att.md)
+changes the standardization target to the treated population,
+[`cate()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cate.md)
+conditions on supplied covariate profiles, and
+[`ate_rmean()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/ate_rmean.md)
+replaces the ordinary mean by a restricted mean \\\int_0^c S_a(t)\\dt\\
+up to the chosen truncation point.
+
+The print method shows the main effect table and setup metadata, but it
+is not a full diagnostic report. Use
+[`summary()`](https://rdrr.io/r/base/summary.html) for tabular summaries
+and [`plot()`](https://rdrr.io/r/graphics/plot.default.html) for
+graphical inspection of the same treatment-effect object.
+
 ## See also
 
 [`summary.causalmixgpd_ate`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.causalmixgpd_ate.md),

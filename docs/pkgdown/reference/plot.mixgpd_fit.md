@@ -20,15 +20,44 @@ plot(x, family = "auto", params = NULL, nLags = 50, ...)
 
   Character vector of plot names (ggmcmc plot types) or a single one.
   Use `"auto"` (or `"all"`) to include all plots supported for the
-  available number of chains/parameters. Supported:
-  `histogram, density, traceplot, running, compare_partial, autocorrelation, crosscorrelation, Rhat, grb, effective, geweke, caterpillar, pairs`.
+  available number of chains/parameters. Supported types:
+
+  - `"histogram"`: posterior histograms
+
+  - `"density"`: posterior density curves
+
+  - `"traceplot"`: MCMC trace plots
+
+  - `"running"`: running mean plots
+
+  - `"compare_partial"`: partial chain comparisons
+
+  - `"autocorrelation"`: autocorrelation plots
+
+  - `"crosscorrelation"`: cross-correlation matrix
+
+  - `"Rhat"`: Gelman–Rubin R-hat (2+ chains)
+
+  - `"grb"`: Gelman–Rubin–Brooks (2+ chains)
+
+  - `"effective"`: effective sample size
+
+  - `"geweke"`: Geweke diagnostic
+
+  - `"caterpillar"`: caterpillar/forest plots
+
+  - `"pairs"`: pairwise scatter plots (2+ params)
 
 - params:
 
-  Optional parameter selector. Either: (i) character vector of parameter
-  patterns (exact names or partial matches), or (ii) a single regex
-  string (e.g. `"alpha|threshold|tail_"`). If `NULL`, plots all
-  parameters in the samples.
+  Optional parameter selector:
+
+  - character vector of parameter patterns (exact names or partial
+    matches)
+
+  - a single regex string (e.g. `"alpha|threshold|tail_"`)
+
+  - `NULL` (default): plots all monitored parameters
 
 - nLags:
 
@@ -42,6 +71,19 @@ plot(x, family = "auto", params = NULL, nLags = 50, ...)
 ## Value
 
 Invisibly returns a named list of ggplot objects.
+
+## Details
+
+The supported plots diagnose posterior simulation quality rather than
+data fit. Depending on the selected `family`, they show chain traces,
+marginal posterior densities, autocorrelation, cross-correlation,
+running means, or Gelman-style convergence summaries for the monitored
+parameters.
+
+These graphics should be read before interpreting posterior summaries or
+treatment-effect results. Poor mixing or strong autocorrelation in the
+MCMC output can invalidate downstream summaries even when the fitted
+model itself is correctly specified.
 
 ## Examples
 

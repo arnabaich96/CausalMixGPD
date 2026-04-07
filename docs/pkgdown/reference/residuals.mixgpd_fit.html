@@ -9,7 +9,7 @@ fits on the original training data."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,7 +59,10 @@ fits on the original training data.</p>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
-<dd><p>Residual type: <code>"raw"</code> or <code>"pit"</code>.</p></dd>
+<dd><p>Residual type:</p><ul><li><p><code>"raw"</code>: observed minus fitted values</p></li>
+<li><p><code>"pit"</code>: probability integral transform
+residuals (see <code>pit</code> argument)</p></li>
+</ul></dd>
 
 
 <dt id="arg-fitted-type">fitted_type<a class="anchor" aria-label="anchor" href="#arg-fitted-type"></a></dt>
@@ -127,7 +130,7 @@ design matrix is stored for observation-specific fitted values.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

@@ -11,8 +11,8 @@
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Dirichlet Process Mixtures with Generalized Pareto Tail">
-<meta name="description" content="Experimental framework for Dirichlet process mixture regression and unconditional models with flexible kernels (gamma, lognormal, normal, Laplace, inverse Gaussian, Amoroso) and optional generalized Pareto (GPD) tail extension. Implements Dirichlet process mixture models with optional GPD tail splicing for unconditional, conditional, and causal analyses. Inference uses stick-breaking/CRP representations and NIMBLE-backed MCMC. Methodological foundations include Ferguson (1973) , Ishwaran and James (2001), and peaks-over-threshold tail theory from Balkema and de Haan (1974) and Pickands (1975).">
-<meta property="og:description" content="Experimental framework for Dirichlet process mixture regression and unconditional models with flexible kernels (gamma, lognormal, normal, Laplace, inverse Gaussian, Amoroso) and optional generalized Pareto (GPD) tail extension. Implements Dirichlet process mixture models with optional GPD tail splicing for unconditional, conditional, and causal analyses. Inference uses stick-breaking/CRP representations and NIMBLE-backed MCMC. Methodological foundations include Ferguson (1973) , Ishwaran and James (2001), and peaks-over-threshold tail theory from Balkema and de Haan (1974) and Pickands (1975).">
+<meta name="description" content="The presence of a heavy tail is a feature of many scenarios when risk management involves extremely rare events. While parametric distributions may give adequate representation of the mode of data, they are likely to misrepresent heavy tails, and completely nonparametric approaches lack a rigorous mechanism for tail extrapolation. This article introduces the R package CausalMixGPD, which implements a novel approach to Bayesian analysis of heavy-tailed outcomes combining Dirichlet process mixture models for the body of the distribution with optional generalized Pareto tails. The method allows for unconditional and covariate-modulated mixtures, implements MCMC estimation using nimble, and extends to mixtures of different arms’ outcomes with application to causal inference. Summaries of posterior predictions include density functions, quantiles, expected values, survival functions, and causal effects, with an emphasis on extreme quantiles and functional measures sensitive to the tail.">
+<meta property="og:description" content="The presence of a heavy tail is a feature of many scenarios when risk management involves extremely rare events. While parametric distributions may give adequate representation of the mode of data, they are likely to misrepresent heavy tails, and completely nonparametric approaches lack a rigorous mechanism for tail extrapolation. This article introduces the R package CausalMixGPD, which implements a novel approach to Bayesian analysis of heavy-tailed outcomes combining Dirichlet process mixture models for the body of the distribution with optional generalized Pareto tails. The method allows for unconditional and covariate-modulated mixtures, implements MCMC estimation using nimble, and extends to mixtures of different arms’ outcomes with application to causal inference. Summaries of posterior predictions include density functions, quantiles, expected values, survival functions, and causal effects, with an emphasis on extreme quantiles and functional measures sensitive to the tail.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,16 +45,29 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="causalmixgpd">CausalMixGPD<a class="anchor" aria-label="anchor" href="#causalmixgpd"></a>
 </h1></div>
-<p><strong>CausalMixGPD</strong> implements Dirichlet process mixture models (CRP or stick-breaking) with an optional generalized Pareto tail and a consistent prediction API.</p>
+<p><code>CausalMixGPD</code> provides Bayesian Dirichlet process mixture modeling for heavy-tailed outcomes, with optional generalized Pareto tails and extensions for causal inference and predictor-dependent clustering.</p>
+<div class="section level2">
+<h2 id="start-here">Start Here<a class="anchor" aria-label="anchor" href="#start-here"></a>
+</h2>
+<p>The package documentation is organized around three main workflows:</p>
+<ul>
+<li><a href="articles/cmgpd_one_arm.html">One-arm modeling</a></li>
+<li><a href="articles/cmgpd_causal.html">Causal inference</a></li>
+<li><a href="articles/cmgpd_clustering.html">Predictor-dependent clustering</a></li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="reference">Reference<a class="anchor" aria-label="anchor" href="#reference"></a>
+</h2>
+<ul>
+<li><a href="reference/index.html">Function reference</a></li>
+</ul>
+</div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span></span>
-<span></span>
-<span></span>
-<span><span class="co"># install.packages("remotes")</span></span>
+<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span></span>
 <span>  <span class="st">"arnabaich96/CausalMixGPD"</span>,</span>
 <span>  build_vignettes <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -62,53 +75,20 @@
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="reference">Reference<a class="anchor" aria-label="anchor" href="#reference"></a>
+<h2 id="notes">Notes<a class="anchor" aria-label="anchor" href="#notes"></a>
 </h2>
 <ul>
-<li><a href="https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/index.html"><strong>Function reference</strong></a></li>
+<li>The article pages above are the best entry points for model setup, interpretation, and worked examples.</li>
+<li>The reference section is useful once you know which workflow and function family you need.</li>
 </ul>
 </div>
-<div class="section level2">
-<h2 id="additional-docs">Additional docs<a class="anchor" aria-label="anchor" href="#additional-docs"></a>
-</h2>
-<ul>
-<li><a href="https://arnabaich96.github.io/CausalMixGPD/start/roadmap.html" class="external-link"><strong>Package roadmap</strong></a></li>
-</ul>
 </div>
-<div class="section level2">
-<h2 id="performance-acceptance-workflow">Performance Acceptance Workflow<a class="anchor" aria-label="anchor" href="#performance-acceptance-workflow"></a>
-</h2>
-<ul>
-<li>Acceptance gate tests: <code>tests/testthat/test-performance-acceptance.R</code>
-</li>
-<li>Checklist-to-test mapping: <code>tests/perf/acceptance_checklist_map.md</code>
-</li>
-<li>Benchmark script: <code>tests/perf/benchmark_acceptance.R</code>
-</li>
-<li>Required benchmark artifact: <code>tests/perf/benchmark_acceptance_report.md</code>
-</li>
-<li>Phase 2 benchmark script: <code>tests/perf/benchmark_phase2.R</code>
-</li>
-<li>Phase 2 benchmark artifact: <code>tests/perf/benchmark_phase2_report.md</code>
-</li>
-</ul>
-<p>Use <code>DPMIXGPD_TEST_LEVEL=ci</code> for CI-level acceptance checks and <code>DPMIXGPD_TEST_LEVEL=full</code> for full seeded-equivalence runs.</p>
-</div>
-</div>
-  </main><aside class="col-md-3"><div class="links">
-<h2 data-toc-skip>Links</h2>
-<ul class="list-unstyled">
-<li><a href="https://arnabaich96.github.io/CausalMixGPD/" class="external-link">Report a bug</a></li>
-</ul>
-</div>
-
-<div class="license">
+  </main><aside class="col-md-3"><div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="https://www.r-project.org/Licenses/GPL-3" class="external-link">GPL-3</a></li>
 </ul>
 </div>
-
 
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>
@@ -135,7 +115,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

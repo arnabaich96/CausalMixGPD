@@ -92,6 +92,17 @@ qLognormalGpd(
 Spliced density/CDF/RNG functions return numeric scalars.
 `qLognormalGpd()` returns a numeric vector with the same length as `p`.
 
+## Details
+
+This is the single-lognormal counterpart of
+[`lognormal_mixgpd()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/lognormal_mixgpd.md).
+If \\F\_{LN}(u)\\ denotes the bulk probability below the threshold, then
+the spliced density is \$\$ f(x) = \left\\ \begin{array}{ll} f\_{LN}(x
+\mid \mu,\sigma), & x \< u, \\ \\1-F\_{LN}(u)\\ g\_{GPD}(x \mid
+u,\sigma_u,\xi), & x \ge u. \end{array} \right. \$\$ The ordinary mean
+is finite only when the GPD tail has \\\xi \< 1\\; otherwise the package
+requires restricted means or quantiles for tail-robust inference.
+
 ## Functions
 
 - `dLognormalGpd()`: Lognormal + GPD tail density
@@ -132,6 +143,6 @@ qLognormalGpd(0.50, meanlog, sdlog, threshold, tail_scale, tail_shape)
 qLognormalGpd(0.95, meanlog, sdlog, threshold, tail_scale, tail_shape)
 #> [1] 2.65302
 replicate(10, rLognormalGpd(1, meanlog, sdlog, threshold, tail_scale, tail_shape))
-#>  [1] 1.682650 1.709019 3.140103 1.949344 2.430002 1.112910 2.155999 1.991381
-#>  [9] 1.406004 1.409673
+#>  [1] 1.429049 1.873272 1.016680 1.529910 3.105128 1.949344 2.430002 1.112910
+#>  [9] 2.155999 1.991381
 ```

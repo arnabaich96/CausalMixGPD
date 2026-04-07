@@ -173,6 +173,15 @@ ramorosogpd(n, loc, scale, shape1, shape2, threshold, tail_scale, tail_shape)
 Numeric vector of densities, probabilities, quantiles, or random
 variates.
 
+## Details
+
+These are vectorized wrappers around the scalar Amoroso routines used
+internally by the package. They preserve the same location-scale-shape
+parameterization and the same piecewise splice logic for GPD tails.
+Quantile wrappers therefore continue to rely on the scalar numerical
+inversion or scalar GPD inverse exactly as documented for the uppercase
+functions.
+
 ## Functions
 
 - `damorosomix()`: Amoroso mixture density (vectorized)

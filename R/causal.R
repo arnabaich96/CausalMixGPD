@@ -401,6 +401,7 @@ build_causal_bundle <- function(
 
   .cmgpd_progress_step(progress_ctx, "Building PS NIMBLE model")
   t0_build <- tic()
+  .register_nimble_exports()
   Rmodel <- tryCatch(
     {
       # Generated PS models are validated before this stage; disabling NIMBLE's

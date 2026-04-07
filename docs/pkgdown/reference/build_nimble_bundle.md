@@ -44,8 +44,11 @@ build_nimble_bundle(
 
 - backend:
 
-  Character; `"sb"` (stick-breaking) or `"crp"` (Chinese Restaurant
-  Process).
+  Character; the Dirichlet process representation:
+
+  - `"sb"`: stick-breaking truncation
+
+  - `"crp"`: Chinese Restaurant Process
 
 - kernel:
 
@@ -87,7 +90,11 @@ build_nimble_bundle(
 
 - monitor:
 
-  Character monitor profile: `"core"` (default) or `"full"`.
+  Character monitor profile:
+
+  - `"core"` (default): monitors only the essential model parameters
+
+  - `"full"`: monitors all model nodes
 
 - monitor_latent:
 

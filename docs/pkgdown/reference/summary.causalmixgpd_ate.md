@@ -23,8 +23,20 @@ summary(object, ...)
 
 ## Value
 
-An object of class `"summary.causalmixgpd_ate"` containing summary
-statistics.
+An object of class `"summary.causalmixgpd_ate"` with `overall`,
+`ate_stats`, `effect_table`, `ci_summary`, `meta`, and the original
+`object`.
+
+## Details
+
+The summary reorganizes posterior treatment-effect output on the mean
+scale. Depending on the source object, the target estimand is a marginal
+ATE, treated-standardized ATT, conditional ATE, or a restricted-mean
+contrast based on \$\$\int_0^c \\S_1(t) - S_0(t)\\\\dt.\$\$
+
+The returned object stores overall metadata, effect tables, and interval
+summaries in a reporting-friendly format. It does not refit the model or
+recompute arm-specific predictions.
 
 ## See also
 

@@ -54,32 +54,51 @@ build_causal_bundle(
 
 - backend:
 
-  Character; `"sb"`, `"crp"`, or `"spliced"` for outcome models. If
-  length 2, the first entry is used for treated (`A=1`) and the second
-  for control (`A=0`).
+  Character; the Dirichlet process representation for outcome models:
+
+  - `"sb"`: stick-breaking truncation
+
+  - `"crp"`: Chinese Restaurant Process
+
+  - `"spliced"`: CRP with GPD tail splicing
+
+  If length 2, the first entry is used for treated (`A=1`) and the
+  second for control (`A=0`).
 
 - kernel:
 
-  Character kernel name for outcome models. If length 2, the first entry
-  is used for treated (`A=1`) and the second for control (`A=0`).
+  Character kernel name for outcome models (must exist in
+  [`get_kernel_registry()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/get_kernel_registry.md)).
+  If length 2:
+
+  - first entry: used for treated (`A=1`)
+
+  - second entry: used for control (`A=0`)
 
 - GPD:
 
-  Logical; include GPD tail for outcomes if TRUE. If length 2, the first
-  entry is used for treated (`A=1`) and the second for control (`A=0`).
+  Logical; include GPD tail for outcomes if TRUE. If length 2:
+
+  - first entry: used for treated (`A=1`)
+
+  - second entry: used for control (`A=0`)
 
 - components:
 
-  Integer \>= 2; truncation parameter for outcome mixtures. If length 2,
-  the first entry is used for treated (`A=1`) and the second for control
-  (`A=0`).
+  Integer \>= 2; truncation parameter for outcome mixtures. If length 2:
+
+  - first entry: used for treated (`A=1`)
+
+  - second entry: used for control (`A=0`)
 
 - param_specs:
 
   Outcome parameter overrides (same structure as
-  [`build_nimble_bundle()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/build_nimble_bundle.md)).
-  You can pass a single list used for both arms or a list with `con` and
-  `trt` entries.
+  [`build_nimble_bundle()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/build_nimble_bundle.md)):
+
+  - a single list: used for both arms
+
+  - a list with `con` and `trt` entries: arm-specific overrides
 
 - mcmc_outcome:
 
@@ -92,8 +111,11 @@ build_causal_bundle(
 - epsilon:
 
   Numeric in \[0,1) used by outcome bundles for posterior truncation
-  summaries. If length 2, the first entry is used for treated (`A=1`)
-  and the second for control (`A=0`).
+  summaries. If length 2:
+
+  - first entry: used for treated (`A=1`)
+
+  - second entry: used for control (`A=0`)
 
 - alpha_random:
 
@@ -127,11 +149,19 @@ build_causal_bundle(
 
 - ps_scale:
 
-  Scale used when augmenting outcomes with PS: `"logit"` or `"prob"`.
+  Scale used when augmenting outcomes with PS:
+
+  - `"logit"`: augment on the logit (log-odds) scale
+
+  - `"prob"`: augment on the probability scale
 
 - ps_summary:
 
-  Posterior summary for PS: `"mean"` or `"median"`.
+  Posterior summary for PS:
+
+  - `"mean"`: posterior mean of propensity scores
+
+  - `"median"`: posterior median of propensity scores
 
 - ps_clamp:
 
@@ -139,7 +169,11 @@ build_causal_bundle(
 
 - monitor:
 
-  Character monitor profile: `"core"` (default) or `"full"`.
+  Character monitor profile:
+
+  - `"core"` (default): monitors only the essential model parameters
+
+  - `"full"`: monitors all model nodes
 
 - monitor_latent:
 

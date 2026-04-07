@@ -9,7 +9,7 @@ of the pre-run causal bundle created by build_causal_bundle."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,6 +68,18 @@ of the pre-run causal bundle created by <code><a href="build_causal_bundle.html"
     <p>The input object (invisibly).</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>A causal bundle collects three pre-MCMC building blocks: the optional
+propensity-score model for \(e(x) = \Pr(A = 1 \mid X = x)\), the control
+outcome model for \(Y^0\), and the treated outcome model for \(Y^1\). The
+printed output aligns those blocks side by side so the user can verify that
+the treated and control outcome specifications are coherent before sampling.</p>
+<p>No causal estimand is computed at this stage. The bundle only records the
+structural assumptions that will later support estimands such as
+\(E(Y^1 - Y^0 \mid X = x)\) or
+\(Q_{Y^1}(\tau \mid X = x) - Q_{Y^0}(\tau \mid X = x)\).</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="summary.causalmixgpd_causal_bundle.html">summary.causalmixgpd_causal_bundle</a></code>,
 <code><a href="run_mcmc_causal.html">run_mcmc_causal</a></code>, <code><a href="ate.html">ate</a></code>, <code><a href="qte.html">qte</a></code>.</p></div>
@@ -90,7 +102,7 @@ of the pre-run causal bundle created by <code><a href="build_causal_bundle.html"
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

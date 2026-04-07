@@ -9,7 +9,7 @@ means, at user-supplied covariate rows."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,8 +65,9 @@ If <code>NULL</code>, uses the training covariates stored in <code>fit</code>.</
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
-<dd><p>Character; <code>"mean"</code> (default) for ordinary mean CATE or
-<code>"rmean"</code> for restricted-mean CATE.</p></dd>
+<dd><p>Character; type of mean treatment effect:</p><ul><li><p><code>"mean"</code> (default): ordinary mean CATE</p></li>
+<li><p><code>"rmean"</code>: restricted-mean CATE (requires <code>cutoff</code>)</p></li>
+</ul></dd>
 
 
 <dt id="arg-cutoff">cutoff<a class="anchor" aria-label="anchor" href="#arg-cutoff"></a></dt>
@@ -75,9 +76,10 @@ If <code>NULL</code>, uses the training covariates stored in <code>fit</code>.</
 
 
 <dt id="arg-interval">interval<a class="anchor" aria-label="anchor" href="#arg-interval"></a></dt>
-<dd><p>Character or NULL; type of credible interval: <code>NULL</code> for no interval,
-<code>"credible"</code> for equal-tailed quantile intervals (default), or <code>"hpd"</code> for
-highest posterior density intervals.</p></dd>
+<dd><p>Character or NULL; type of credible interval:</p><ul><li><p><code>NULL</code>: no interval</p></li>
+<li><p><code>"credible"</code> (default): equal-tailed quantile intervals</p></li>
+<li><p><code>"hpd"</code>: highest posterior density intervals</p></li>
+</ul></dd>
 
 
 <dt id="arg-level">level<a class="anchor" aria-label="anchor" href="#arg-level"></a></dt>
@@ -85,7 +87,8 @@ highest posterior density intervals.</p></dd>
 
 
 <dt id="arg-nsim-mean">nsim_mean<a class="anchor" aria-label="anchor" href="#arg-nsim-mean"></a></dt>
-<dd><p>Number of posterior predictive draws to approximate the mean.</p></dd>
+<dd><p>Number of posterior predictive draws used by simulation-based
+mean targets. Ignored for analytical ordinary means.</p></dd>
 
 
 <dt id="arg-show-progress">show_progress<a class="anchor" aria-label="anchor" href="#arg-show-progress"></a></dt>
@@ -96,19 +99,23 @@ highest posterior density intervals.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An object of class <code>"causalmixgpd_ate"</code> containing the CATE
 summary, optional intervals, and the treated/control prediction objects used
-to construct the effect.</p>
+to construct the effect. The returned object includes a top-level
+<code>$fit_df</code> data frame for direct extraction.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>For each prediction row \(x\), the conditional average treatment effect is
-$$\mathrm{CATE}(x) = E\{Y(1) \mid x, \mathcal{D}\} -
-E\{Y(0) \mid x, \mathcal{D}\}.$$</p>
+$$\mathrm{CATE}(x) = E\{Y(1) \mid x\} -
+E\{Y(0) \mid x\}.$$</p>
 <p>With <code>type = "rmean"</code>, the estimand becomes the conditional restricted
 mean contrast
-$$E\{\min(Y(1), c) \mid x, \mathcal{D}\} -
-E\{\min(Y(0), c) \mid x, \mathcal{D}\},$$
+$$E\{\min(Y(1), c) \mid x\} -
+E\{\min(Y(0), c) \mid x\},$$
 which remains finite even when the ordinary mean is unstable under a heavy
-GPD tail.</p>
+GPD tail.
+For outcome kernels with a finite analytical mean, the ordinary mean path is
+analytical within each posterior draw; <code>rmean</code> remains a separate
+simulation-based estimand.</p>
 <p>This estimand is available only for conditional causal models with
 covariates. For marginal mean contrasts, use <code><a href="ate.html">ate</a></code> or
 <code><a href="att.html">att</a></code>.</p>
@@ -140,7 +147,7 @@ covariates. For marginal mean contrasts, use <code><a href="ate.html">ate</a></c
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

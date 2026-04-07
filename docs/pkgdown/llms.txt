@@ -1,15 +1,28 @@
 # CausalMixGPD
 
-**CausalMixGPD** implements Dirichlet process mixture models (CRP or
-stick-breaking) with an optional generalized Pareto tail and a
-consistent prediction API.
+`CausalMixGPD` provides Bayesian Dirichlet process mixture modeling for
+heavy-tailed outcomes, with optional generalized Pareto tails and
+extensions for causal inference and predictor-dependent clustering.
+
+## Start Here
+
+The package documentation is organized around three main workflows:
+
+- [One-arm
+  modeling](https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/cmgpd_one_arm.md)
+- [Causal
+  inference](https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/cmgpd_causal.md)
+- [Predictor-dependent
+  clustering](https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/cmgpd_clustering.md)
+
+## Reference
+
+- [Function
+  reference](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/index.md)
 
 ## Installation
 
 ``` r
-
-
-
 
 # install.packages("remotes")
 remotes::install_github(
@@ -19,28 +32,12 @@ remotes::install_github(
 )
 ```
 
-## Reference
+## Notes
 
-- [**Function
-  reference**](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/index.html)
-
-## Additional docs
-
-- [**Package
-  roadmap**](https://arnabaich96.github.io/CausalMixGPD/start/roadmap.html)
-
-## Performance Acceptance Workflow
-
-- Acceptance gate tests: `tests/testthat/test-performance-acceptance.R`
-- Checklist-to-test mapping: `tests/perf/acceptance_checklist_map.md`
-- Benchmark script: `tests/perf/benchmark_acceptance.R`
-- Required benchmark artifact:
-  `tests/perf/benchmark_acceptance_report.md`
-- Phase 2 benchmark script: `tests/perf/benchmark_phase2.R`
-- Phase 2 benchmark artifact: `tests/perf/benchmark_phase2_report.md`
-
-Use `DPMIXGPD_TEST_LEVEL=ci` for CI-level acceptance checks and
-`DPMIXGPD_TEST_LEVEL=full` for full seeded-equivalence runs.
+- The article pages above are the best entry points for model setup,
+  interpretation, and worked examples.
+- The reference section is useful once you know which workflow and
+  function family you need.
 
 # Package index
 
@@ -228,8 +225,7 @@ Use `DPMIXGPD_TEST_LEVEL=ci` for CI-level acceptance checks and
   [`qInvGaussMixGpd()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/InvGauss_mixgpd.md)
   : Inverse Gaussian mixture with a GPD tail
 - [`kernel_support_table()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/kernel_support_table.md)
-  : Kernel support matrix Returns a data frame summarizing each kernel's
-  supported features.
+  : Kernel support matrix
 - [`dLaplaceGpd()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/laplace_gpd.md)
   [`pLaplaceGpd()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/laplace_gpd.md)
   [`rLaplaceGpd()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/laplace_gpd.md)
@@ -370,6 +366,8 @@ Use `DPMIXGPD_TEST_LEVEL=ci` for CI-level acceptance checks and
   : Print a causal workflow bundle
 - [`print(`*`<causalmixgpd_causal_fit>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.causalmixgpd_causal_fit.md)
   : Print a fitted causal model
+- [`print(`*`<causalmixgpd_causal_fit_plots>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.causalmixgpd_causal_fit_plots.md)
+  : Print method for paired causal-fit diagnostic plots
 - [`print(`*`<causalmixgpd_causal_predict_plots>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.causalmixgpd_causal_predict_plots.md)
   : Print method for causal prediction plots
 - [`print(`*`<causalmixgpd_ps_bundle>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.causalmixgpd_ps_bundle.md)
@@ -398,6 +396,10 @@ Use `DPMIXGPD_TEST_LEVEL=ci` for CI-level acceptance checks and
   : Print a MixGPD summary object
 - [`print(`*`<summary.causalmixgpd_ate>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.summary.causalmixgpd_ate.md)
   : Print an ATE summary
+- [`print(`*`<summary.causalmixgpd_causal_fit>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.summary.causalmixgpd_causal_fit.md)
+  : Print a causal-model summary object
+- [`print(`*`<summary.causalmixgpd_ps_fit>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.summary.causalmixgpd_ps_fit.md)
+  : Print a propensity-score summary object
 - [`print(`*`<summary.causalmixgpd_qte>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.summary.causalmixgpd_qte.md)
   : Print a QTE summary
 - [`qte()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qte.md)
@@ -425,6 +427,8 @@ Use `DPMIXGPD_TEST_LEVEL=ci` for CI-level acceptance checks and
   : Summarize a causal workflow bundle
 - [`summary(`*`<causalmixgpd_causal_fit>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.causalmixgpd_causal_fit.md)
   : Summarize a fitted causal model
+- [`summary(`*`<causalmixgpd_ps_fit>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.causalmixgpd_ps_fit.md)
+  : Summarize a propensity score fit
 - [`summary(`*`<causalmixgpd_qte>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.causalmixgpd_qte.md)
   : Summarize a QTE-style effect object
 - [`summary(`*`<dpmixgpd_cluster_bundle>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.dpmixgpd_cluster_bundle.md)
@@ -442,6 +446,9 @@ Use `DPMIXGPD_TEST_LEVEL=ci` for CI-level acceptance checks and
 
 ### All vignettes
 
-- [CausalMixGPD: Bayesian Nonparametric Models with Optional Heavy-Tail
-  Augmentation and Causal
-  Extensions](https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/CausalMixGPD_JSS_article.md):
+- [Causal Inference with
+  CausalMixGPD](https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/cmgpd_causal.md):
+- [Predictor-Dependent Clustering with
+  CausalMixGPD](https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/cmgpd_clustering.md):
+- [One-Arm Modeling with
+  CausalMixGPD](https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/cmgpd_one_arm.md):

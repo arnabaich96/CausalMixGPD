@@ -9,7 +9,7 @@ pre-run bundle created by build_nimble_bundle."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,6 +68,18 @@ pre-run bundle created by <code><a href="build_nimble_bundle.html">build_nimble_
     <p>The object <code>x</code>, invisibly.</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The bundle is the compiled representation of the predictive model before
+MCMC. For a bulk-only fit, the underlying target law is
+$$f(y \mid x) = \sum_{k=1}^{K} w_k(x) f_k(y \mid x, \theta_k).$$
+When a GPD tail is enabled, the same bulk mixture is spliced to a generalized
+Pareto tail above the threshold recorded in the bundle specification.</p>
+<p><code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> is intentionally brief. It is meant to confirm that the stored
+backend, kernel, truncation size, covariate structure, and code-generation
+artifacts match the intended model before you compile and sample with
+<code><a href="run_mcmc_bundle_manual.html">run_mcmc_bundle_manual</a></code>.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="summary.causalmixgpd_bundle.html">summary.causalmixgpd_bundle</a></code>, <code><a href="mcmc.html">mcmc</a></code>,
 <code><a href="run_mcmc_bundle_manual.html">run_mcmc_bundle_manual</a></code>.</p></div>
@@ -93,7 +105,7 @@ pre-run bundle created by <code><a href="build_nimble_bundle.html">build_nimble_
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

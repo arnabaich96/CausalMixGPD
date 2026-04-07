@@ -79,10 +79,19 @@ These uppercase NIMBLE-compatible functions are scalar (`x`/`q` and
 `n = 1`). For vectorized R usage, use
 [`base_lowercase()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/base_lowercase.md).
 
+The associated density is \$\$ g(x) = \frac{1}{\sigma_u} \left(1 + \xi
+\frac{x - u}{\sigma_u}\right)^{-1/\xi - 1}, \$\$ on the support where
+\\1 + \xi (x-u)/\sigma_u \> 0\\. When \\\xi = 0\\, this reduces to the
+exponential density with mean excess \\\sigma_u\\. The GPD has finite
+mean only when \\\xi \< 1\\, and finite variance only when \\\xi \<
+1/2\\. Those existence conditions matter for downstream predictive means
+in the package: spliced models with \\\xi \ge 1\\ require restricted
+means rather than ordinary means.
+
 If a bulk distribution has CDF \\F\_{bulk}\\, the package's spliced
-families typically use the tail construction \$\$ F(x) = \left\\
-\begin{array}{ll} F\_{bulk}(x), & x \< u, \\ F\_{bulk}(u) + \\1 -
-F\_{bulk}(u)\\ G(x), & x \ge u. \end{array} \right. \$\$
+families use the tail construction \$\$ F(x) = \left\\ \begin{array}{ll}
+F\_{bulk}(x), & x \< u, \\ F\_{bulk}(u) + \\1 - F\_{bulk}(u)\\ G(x), & x
+\ge u. \end{array} \right. \$\$
 
 ## Functions
 
@@ -120,6 +129,6 @@ qGpd(0.50, threshold, tail_scale, tail_shape)
 qGpd(0.95, threshold, tail_scale, tail_shape)
 #> [1] 4.282257
 replicate(10, rGpd(1, threshold, tail_scale, tail_shape))
-#>  [1] 2.282323 2.156120 1.623547 5.354201 1.374512 1.152272 2.430307 1.025209
-#>  [9] 2.462315 1.148486
+#>  [1] 1.152272 2.430307 1.025209 2.462315 1.148486 1.023374 2.444493 2.670291
+#>  [9] 4.831502 1.399380
 ```

@@ -24,10 +24,22 @@ Summarize posterior draws (mean + quantiles)
 
 - interval:
 
-  Character or NULL; `NULL` for no interval, `"credible"` for
-  equal-tailed quantile intervals (default), `"hpd"` for highest
-  posterior density intervals.
+  Character or NULL; interval type:
+
+  - `NULL`: no interval
+
+  - `"credible"` (default): equal-tailed quantile intervals
+
+  - `"hpd"`: highest posterior density intervals
 
 ## Value
 
 List with estimate, lower, upper, and q.
+
+## Details
+
+The last dimension of `draws` is interpreted as the posterior-draw
+dimension. This helper collapses that dimension to posterior means and
+interval summaries, while preserving the leading dimensions of the input
+object. It is used throughout prediction and treatment-effect code to
+turn per-draw evaluations into reported posterior summaries.

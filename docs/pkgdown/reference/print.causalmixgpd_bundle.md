@@ -33,6 +33,20 @@ print(x, code = FALSE, max_code_lines = 200L, ...)
 
 The object `x`, invisibly.
 
+## Details
+
+The bundle is the compiled representation of the predictive model before
+MCMC. For a bulk-only fit, the underlying target law is \$\$f(y \mid x)
+= \sum\_{k=1}^{K} w_k(x) f_k(y \mid x, \theta_k).\$\$ When a GPD tail is
+enabled, the same bulk mixture is spliced to a generalized Pareto tail
+above the threshold recorded in the bundle specification.
+
+[`print()`](https://rdrr.io/r/base/print.html) is intentionally brief.
+It is meant to confirm that the stored backend, kernel, truncation size,
+covariate structure, and code-generation artifacts match the intended
+model before you compile and sample with
+[`run_mcmc_bundle_manual`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/run_mcmc_bundle_manual.md).
+
 ## See also
 
 [`summary.causalmixgpd_bundle`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.causalmixgpd_bundle.md),

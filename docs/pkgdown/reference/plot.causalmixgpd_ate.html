@@ -27,7 +27,7 @@ control means) and treatment_effect (ATE curve) plots
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,7 +86,13 @@ control means) and <code>treatment_effect</code> (ATE curve) plots</p></li>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
-<dd><p>Character; plot type: <code>"both"</code> (default), <code>"effect"</code>, or <code>"arms"</code>.</p></dd>
+<dd><p>Character; plot type:</p><ul><li><p><code>"both"</code> (default): returns a list with both
+arm means and treatment-effect plots</p></li>
+<li><p><code>"effect"</code>: ATE curve/points with pointwise CI
+error bars</p></li>
+<li><p><code>"arms"</code>: treated vs control mean with
+pointwise CI error bars</p></li>
+</ul></dd>
 
 
 <dt id="arg-plotly">plotly<a class="anchor" aria-label="anchor" href="#arg-plotly"></a></dt>
@@ -104,6 +110,16 @@ to <code>getOption("CausalMixGPD.plotly", FALSE)</code>.</p></dd>
     <p>A list of ggplot objects with elements <code>trt_control</code> and <code>treatment_effect</code>
 (if <code>type="both"</code>), or a single ggplot object (if <code>type</code> is <code>"effect"</code> or
 <code>"arms"</code>).</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The effect panel visualizes the posterior summary of the treatment contrast on
+the mean scale, namely \(E(Y^1) - E(Y^0)\) or its conditional or
+treated-standardized analogue. The arms panel instead shows the treated and
+control mean predictions whose difference defines that contrast.</p>
+<p>For <code><a href="cate.html">cate()</a></code> objects, the x-axis follows the prediction profiles; otherwise it
+uses the estimated propensity score when available or a simple index order.
+This keeps the comparison aligned with how the effect object was standardized.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -130,7 +146,7 @@ to <code>getOption("CausalMixGPD.plotly", FALSE)</code>.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

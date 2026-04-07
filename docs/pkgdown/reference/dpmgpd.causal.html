@@ -13,7 +13,7 @@ estimation."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,13 +46,13 @@ estimation.</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">dpmgpd.causal</span><span class="op">(</span></span>
-<span>  x <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  y <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  X <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  treat <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  formula <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  <span class="va">...</span>,</span>
-<span>  mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -60,12 +60,8 @@ estimation.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
+<dl><dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
 <dd><p>Either a response vector or a causal bundle object.</p></dd>
-
-
-<dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>Optional data.frame used with <code>formula</code>.</p></dd>
 
 
 <dt id="arg-x">X<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
@@ -76,18 +72,22 @@ estimation.</p>
 <dd><p>Binary treatment indicator.</p></dd>
 
 
-<dt id="arg-formula">formula<a class="anchor" aria-label="anchor" href="#arg-formula"></a></dt>
-<dd><p>Optional formula.</p></dd>
-
-
-<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional build arguments in build mode.</p></dd>
+<dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
+<dd><p>Optional data.frame used with <code>formula</code>.</p></dd>
 
 
 <dt id="arg-mcmc">mcmc<a class="anchor" aria-label="anchor" href="#arg-mcmc"></a></dt>
 <dd><p>Named list of run arguments passed to <code><a href="mcmc.html">mcmc()</a></code> (including
 optional performance controls such as <code>parallel_arms</code>,
 <code>workers</code>, <code>timing</code>, and <code>z_update_every</code>).</p></dd>
+
+
+<dt id="arg-formula">formula<a class="anchor" aria-label="anchor" href="#arg-formula"></a></dt>
+<dd><p>Optional formula.</p></dd>
+
+
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
+<dd><p>Additional build arguments passed to <code><a href="build_causal_bundle.html">build_causal_bundle</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -97,7 +97,7 @@ optional performance controls such as <code>parallel_arms</code>,
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The arm-specific predictive distributions
-\(F_1(y \mid x, \mathcal{D})\) and \(F_0(y \mid x, \mathcal{D})\) inherit
+\(F_1(y \mid x)\) and \(F_0(y \mid x)\) inherit
 the spliced bulk-tail structure. Downstream causal estimands are computed as
 functionals of these two predictive laws, for example
 $$\mathrm{QTE}(\tau) = Q_1(\tau) - Q_0(\tau), \qquad
@@ -105,7 +105,8 @@ $$\mathrm{QTE}(\tau) = Q_1(\tau) - Q_0(\tau), \qquad
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="bundle.html">bundle</a></code>, <code><a href="dpmix.causal.html">dpmix.causal</a></code>,
+    <div class="dont-index"><p><code><a href="build_causal_bundle.html">build_causal_bundle</a></code>,
+<code><a href="bundle.html">bundle</a></code>, <code><a href="dpmix.causal.html">dpmix.causal</a></code>,
 <code><a href="predict.causalmixgpd_causal_fit.html">predict.causalmixgpd_causal_fit</a></code>, <code><a href="ate.html">ate</a></code>,
 <code><a href="qte.html">qte</a></code>, <code><a href="cate.html">cate</a></code>, <code><a href="cqte.html">cqte</a></code>.</p></div>
     </div>
@@ -119,7 +120,7 @@ $$\mathrm{QTE}(\tau) = Q_1(\tau) - Q_0(\tau), \qquad
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

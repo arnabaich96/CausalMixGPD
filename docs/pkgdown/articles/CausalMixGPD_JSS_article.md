@@ -12,97 +12,29 @@ distribution-based causal questions makes causal analysis tightly linked
 to how well we can estimate (and predict) outcome distributions under
 competing treatment assignments.
 
-A growing R ecosystem supports Bayesian causal inference through
-flexible outcome modeling and posterior uncertainty quantification. For
-example, [bcf](https://cran.r-project.org/package=bcf) implements
-Bayesian Causal Forests for binary treatments and continuous outcomes,
-providing posterior inference for both average and heterogeneous
-treatment effects ([*bcf* 2024](#ref-bcf_pkg)). The package
-[bartCause](https://cran.r-project.org/package=bartCause) builds causal
-estimators around Bayesian additive regression trees, using BART as a
-regression engine for treatment-response modeling and causal effect
-estimation ([*bartCause* 2025](#ref-bartCause_pkg); [Hill
-2011](#ref-hill2011bart)). Complementing tree-based approaches,
-[BCEE](https://cran.r-project.org/package=BCEE) implements a Bayesian
-model-averaging strategy for causal effect estimation with support for
-binary or continuous exposures and outcomes ([*BCEE*
-2023](#ref-BCEE_pkg); [Talbot et al. 2015](#ref-talbot2015bcee)). A
-recurring practical difficulty in quantile-based causal reporting is the
-quantile crossing issue, where quantile curves at different probability
-levels can cross when they are estimated separately. To avoid this,
-`CausalMixGPD` directly models outcome densities and derives quantiles
-and other functionals from the posterior predictive distributions.
-
-In the context of density estimation and conditional density estimation,
-Dirichlet Process Mixtures (DPM) provide a versatile nonparametric
-solution because they can capture multimodality and latent heterogeneity
-without fixing the number of mixing components in advance. In the
-experimental R ecosystem, Bayesian nonparametric mixture modeling is
-well supported by software based on Dirichlet process (DP) ideas. For
-example,
-[dirichletprocess](https://cran.r-project.org/package=dirichletprocess)
-provides a flexible interface for specifying DPMs and fitting them by
-posterior simulation, yielding posterior inference for mixture weights,
-component labels, and predictive densities under user-chosen kernels
-([*dirichletprocess* 2023](#ref-dirichletprocess_pkg)). The package
-[DPpackage](https://cran.r-project.org/package=DPpackage) offers a broad
-suite of Bayesian semi- and nonparametric models in R, including
-DP-based formulations for marginal and conditional densities, regression
-functions, and model-based predictive distributions ([Jara et al.
-2011](#ref-jara2011DPpackage)). More recently,
-[BNPmix](https://cran.r-project.org/package=BNPmix) emphasizes practical
-Bayesian nonparametric mixture approaches, providing posterior inference
-for clustering structure and density/regression estimation under DP and
-Pitman–Yor-type mixture specifications ([Corradin et al.
-2021](#ref-canale2021BNPmix)).
-
-That clustering perspective is also important for the present package.
-Because DP mixtures induce random partitions through latent allocation
-variables, they naturally support model-based subgroup discovery in
-addition to density estimation. Bayesian cluster analysis is typically
-reported through label-invariant summaries such as pairwise
-co-clustering probabilities ([Binder 1978](#ref-Binder1978)) and
-representative partitions selected by Dahl’s least-squares criterion
-([Dahl 2006](#ref-Dahl2006)). In regression settings, clustering itself
-can depend on predictors: dependent Dirichlet process constructions
-allow covariates to affect mixture weights, component-specific
-parameters, or both ([MacEachern 1999,
+Dirichlet Process Mixtures (DPMs) provide a flexible way to model those
+outcome distributions because they accommodate multimodality and latent
+heterogeneity without fixing the number of mixture components in
+advance. They also induce random partitions through latent allocation
+variables, so density estimation and clustering are naturally linked.
+Bayesian cluster analysis is therefore typically summarized through
+label-invariant quantities such as pairwise co-clustering probabilities
+and representative partitions ([Binder 1978](#ref-Binder1978); [Dahl
+2006](#ref-Dahl2006)). In regression settings, dependent Dirichlet
+process constructions allow mixture weights, component-specific
+parameters, or both to vary with predictors ([MacEachern 1999,
 MacEachern2000](#ref-MacEachern1999); [De Iorio et al.
 2004](#ref-DeIorio2004); [Quintana et al. 2022](#ref-Quintana2022)), and
-predictor-dependent stick-breaking schemes provide a practical route for
+predictor-dependent stick-breaking schemes provide a practical route to
 covariate-modulated cluster prevalence ([Ren et al.
-2011](#ref-Ren2011)). Existing software supports parts of this workflow,
-but it typically focuses on bulk density estimation and clustering under
-a single kernel family without an explicit adjustment for heavy tailed
-data. As a result, applications that require both latent subgroup
-discovery and tail extrapolation still need additional modeling outside
-the standard Bayesian nonparametric mixture workflow.
+2011](#ref-Ren2011)).
 
-However, it is important to note that estimating values far in the tail
-requires special care when data becomes scarce. Additionally, using a
-single model in the presence of heavy tail data can distort the fit in
-the central region. In such cases extreme value theory (EVT) provides a
-principled framework for modeling and extrapolation of tail
-behavior~([Haan and Ferreira 2007](#ref-de2007extreme)). EVT
-characterizes the asymptotic distribution of threshold exceedances,
-which can be used to estimate tail probabilities and quantiles beyond
-the range of observed data~([Balkema and Haan
-1974](#ref-balkema1974residual)). Bayesian implementations of EVT are
-available in R when posterior uncertainty quantification for tail
-quantities are required. For example,
-[evdbayes](https://cran.r-project.org/package=evdbayes) provides
-Bayesian inference for standard extreme-value models via posterior
-simulation, enabling posterior and posterior-predictive summaries for
-extreme-event quantities ([*evdbayes* 2025](#ref-evdbayes_pkg)). For
-peaks-over-threshold (POT) approaches, the package
-[POT](https://cran.r-project.org/package=POT) implements a focused
-collection of tools for GPD modeling and threshold-based tail analysis
-([*POT* 2024](#ref-POT_pkg)). Finally, for extreme quantile estimation
-and rare-event tail summaries,
-[extremefit](https://cran.r-project.org/package=extremefit) provides a
-published software implementation targeted specifically at
-extreme-quantile estimation ([Durrieu et al.
-2018](#ref-durrieu2018extremefit)).
+Heavy-tailed outcomes add a second challenge. The model must fit the
+center of the distribution well while still supporting principled upper
+tail extrapolation when data become sparse. `CausalMixGPD` addresses
+that combination by joining Bayesian nonparametric mixtures, optional
+generalized Pareto tails, clustering, and causal contrasts in a single
+workflow.
 
 This article introduces an R package (`CausalMixGPD`) that connects
 Bayesian nonparametric modeling with EVT, clustering, and robust causal
@@ -161,7 +93,7 @@ Let the observed data be
 ``` r
 
 data("nc_posX100_p3_k2", package = "CausalMixGPD")
-dat <- data.frame(y = nc_posX100_p3_k2$y, nc_posX100_p3_k2$X)
+overview_dat <- data.frame(y = nc_posX100_p3_k2$y, nc_posX100_p3_k2$X)
 ```
 
 with $`x_i\in\mathbb{R}^p`$ denoting the covariate vector (including an
@@ -193,9 +125,9 @@ mcmc_fixed
 
 ``` r
 
-fit <- dpmgpd(
+overview_fit <- dpmgpd(
   formula = y ~ x1 + x2 + x3,
-  data = dat,
+  data = overview_dat,
   backend = "sb",
   kernel = "lognormal",
   components = 5,
@@ -268,9 +200,10 @@ Diagnostic plotting relies on established MCMC diagnostic tooling
 
 ``` r
 
-print(fit)
-p_hat <- params(fit)
-p_hat
+summary(overview_fit)
+overview_param_hat <- params(overview_fit)
+plot(overview_fit, family = c("traceplot", "density"), params = "alpha")
+overview_param_hat
 ```
 
 #### Bulk-only special case (no GPD tail)
@@ -334,19 +267,25 @@ $`\xi\ge 1`$; accordingly, `CausalMixGPD` flags `type = "mean"` as
 infinite when there is posterior mass with $`\xi\ge 1`$, while
 `type = "rmean"` remains finite by construction.
 
-Using the same fitted model `fit` from the Augmented DPM–GPD model
-subsection, we now compute posterior summaries on the original training
-covariates (default behavior of
+Using the same fitted model `overview_fit` from the Augmented DPM–GPD
+model subsection, we now compute posterior summaries on the original
+training covariates (default behavior of
 [`predict()`](https://rdrr.io/r/stats/predict.html) when `newdata` is
 not supplied).
 
 ``` r
 
-q_grid <- c(0.50, 0.90, 0.95, 0.99)
-x_eval <- dat[1:20, c("x1", "x2", "x3")]
+overview_q_grid <- c(0.50, 0.90, 0.95, 0.99)
+overview_x_eval <- overview_dat[1:20, c("x1", "x2", "x3")]
 
-est_quant <- predict(fit, newdata = x_eval, type = "quantile", index = q_grid,
-                     interval = "hpd", level = 0.95)
+overview_est_quant <- predict(
+  overview_fit,
+  newdata = overview_x_eval,
+  type = "quantile",
+  index = overview_q_grid,
+  interval = "hpd",
+  level = 0.95
+)
 ```
 
 For a new covariate value $`x^\star`$, prediction is based on the
@@ -370,34 +309,52 @@ replaced by $`x^\star`$ and with user-controlled $`M`$ through
 
 ``` r
 
-q_levels <- c(0.25, 0.50, 0.75)
-x_new <- as.data.frame(lapply(
-  dat[, c("x1", "x2", "x3")],
+overview_q_levels <- c(0.25, 0.50, 0.75)
+overview_x_new <- as.data.frame(lapply(
+  overview_dat[, c("x1", "x2", "x3")],
   quantile,
-  probs = q_levels,
+  probs = overview_q_levels,
   na.rm = TRUE
 ))
-rownames(x_new) <- c("q25", "q50", "q75")
-y_grid <- seq(0, 10, length.out = 200)
-p_grid <- c(0.50, 0.90, 0.95, 0.99)
+rownames(overview_x_new) <- c("q25", "q50", "q75")
+overview_y_grid <- seq(0, 10, length.out = 200)
+overview_p_grid <- c(0.50, 0.90, 0.95, 0.99)
 ```
 
 ``` r
 
-pdens <- predict(fit, newdata = x_new, y = y_grid, type = "density",
-                 interval = "credible", level = 0.95)
+overview_pdens <- predict(
+  overview_fit,
+  newdata = overview_x_new,
+  y = overview_y_grid,
+  type = "density",
+  interval = "credible",
+  level = 0.95
+)
 ```
 
 ``` r
 
-psurv <- predict(fit, newdata = x_new, y = y_grid, type = "survival",
-                 interval = "credible", level = 0.95)
+overview_psurv <- predict(
+  overview_fit,
+  newdata = overview_x_new,
+  y = overview_y_grid,
+  type = "survival",
+  interval = "credible",
+  level = 0.95
+)
 ```
 
 ``` r
 
-pquant <- predict(fit, newdata = x_new, type = "quantile", index = p_grid,
-                  interval = "hpd", level = 0.95)
+overview_pquant <- predict(
+  overview_fit,
+  newdata = overview_x_new,
+  type = "quantile",
+  index = overview_p_grid,
+  interval = "hpd",
+  level = 0.95
+)
 ```
 
 ### Clustering extension
@@ -773,7 +730,12 @@ The main causal estimators provided by the package are:
     and
     [`qtt()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qtt.md)
     compute draw-wise arm-specific marginal quantiles and then contrast
-    them.
+    them. Because these summaries are standardized over covariate
+    profiles, their printed tables do not carry an `id` column; `id` is
+    reserved for conditional outputs such as
+    [`cate()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cate.md)
+    and
+    [`cqte()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cqte.md).
 
 #### Posterior prediction at new covariate profiles
 
@@ -808,15 +770,19 @@ wrapper, fitting the augmented spliced model by default.
 ``` r
 
 data("causal_pos500_p3_k2", package = "CausalMixGPD")
-dat <- causal_pos500_p3_k2
-df  <- data.frame(y = dat$y, A = dat$A, dat$X)
+overview_causal_dat <- causal_pos500_p3_k2
+overview_causal_df  <- data.frame(
+  y = overview_causal_dat$y,
+  A = overview_causal_dat$A,
+  overview_causal_dat$X
+)
 ```
 
 ``` r
 
-cfit <- dpmgpd.causal(
+overview_causal_fit <- dpmgpd.causal(
   formula = y ~ x1 + x2 + x3,
-  data = df,
+  data = overview_causal_df,
   treat = "A",
   backend = "sb",
   kernel = "lognormal",
@@ -829,21 +795,31 @@ cfit <- dpmgpd.causal(
 )
 ```
 
-The fitted model object `cfit` contains the MCMC samples for both the PS
-and the arm-specific outcome models, and can be used to compute causal
-estimands and predictive summaries.
+The fitted model object `overview_causal_fit` contains the MCMC samples
+for both the PS and the arm-specific outcome models, and can be used to
+compute causal estimands and predictive summaries.
 
-To estimate the ATE and QTE at the empirical covariate distribution, use
-the
-[`ate()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/ate.md)
+To estimate treated-standardized mean and quantile contrasts, use the
+[`att()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/att.md)
 and
-[`qte()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qte.md)
-functions, which compute the standardized mean and quantile contrasts.
+[`qtt()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qtt.md)
+functions together with
+[`summary()`](https://rdrr.io/r/base/summary.html) and
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html).
 
 ``` r
 
-ate_hat <- ate(cfit, level = 0.90, interval = "credible")
-qte_hat <- qte(cfit, probs = c(0.50, 0.90, 0.95), level = 0.90, interval = "hpd")
+overview_att <- att(overview_causal_fit, level = 0.90, interval = "credible")
+overview_qtt <- qtt(
+  overview_causal_fit,
+  probs = c(0.50, 0.90, 0.95),
+  level = 0.90,
+  interval = "hpd"
+)
+summary(overview_att)
+summary(overview_qtt)
+plot(overview_att, type = "effect")
+plot(overview_qtt, type = "effect")
 ```
 
 For subpopulation effects, the
@@ -856,7 +832,11 @@ rows.
 ``` r
 
 qs    <- c(0.25, 0.50, 0.75)
-Xgrid <- expand.grid(lapply(df[c("x1","x2","x3")], quantile, probs = qs))
+overview_causal_xgrid <- expand.grid(lapply(
+  overview_causal_df[c("x1", "x2", "x3")],
+  quantile,
+  probs = qs
+))
 ```
 
 The following code then produces conditional quantile and survival
@@ -865,8 +845,18 @@ contrasts for quantiles and arm-specific summaries for survival.
 
 ``` r
 
-pred_q <- predict(cfit, newdata = Xgrid, type = "quantile", p = c(0.50, 0.90))
-pred_s <- predict(cfit, newdata = Xgrid, type = "survival", y = rep(4, nrow(Xgrid)))
+overview_pred_q <- predict(
+  overview_causal_fit,
+  newdata = overview_causal_xgrid,
+  type = "quantile",
+  p = c(0.50, 0.90)
+)
+overview_pred_s <- predict(
+  overview_causal_fit,
+  newdata = overview_causal_xgrid,
+  type = "survival",
+  y = rep(4, nrow(overview_causal_xgrid))
+)
 ```
 
 #### Bulk-only causal mixtures (no GPD tail)
@@ -939,26 +929,8 @@ multivariate outcomes, longitudinal treatments, or interference.
 
 ## References
 
-Balkema, A. A., and Laurens de Haan. 1974. “Residual Life Time at Great
-Age.” *Annals of Probability* 2 (5): 792–804.
-<https://doi.org/10.1214/aop/1176996548>.
-
-*bartCause: Causal Inference Using Bayesian Additive Regression Trees*.
-2025. <https://doi.org/10.32614/CRAN.package.bartCause>.
-
-*BCEE: The Bayesian Causal Effect Estimation Algorithm*. 2023.
-<https://doi.org/10.32614/CRAN.package.BCEE>.
-
-*bcf: Causal Inference Using Bayesian Causal Forests*. 2024.
-<https://doi.org/10.32614/CRAN.package.bcf>.
-
 Binder, David A. 1978. “Bayesian Cluster Analysis.” *Biometrika* 65 (1):
 31–38. <https://doi.org/10.1093/biomet/65.1.31>.
-
-Corradin, Riccardo, Antonio Canale, and Bernardo Nipoti. 2021. “BNPmix:
-An R Package for Bayesian Nonparametric Modeling via Pitman–Yor
-Mixtures.” *Journal of Statistical Software* 100 (15): 1–47.
-<https://doi.org/10.18637/jss.v100.i15>.
 
 Dahl, David B. 2006. *Model-Based Clustering for Expression Data via a
 Dirichlet Process Mixture Model*. Cambridge University Press.
@@ -968,36 +940,12 @@ De Iorio, Maria, Peter Müller, Gary L. Rosner, and Steven N. MacEachern.
 American Statistical Association* 99 (465): 205–15.
 <https://doi.org/10.1198/016214504000000205>.
 
-*dirichletprocess: Build Dirichlet Process Objects for Bayesian
-Modelling*. 2023.
-<https://doi.org/10.32614/CRAN.package.dirichletprocess>.
-
-Durrieu, Gilles, Ion Grama, Kevin Jaunatre, Quang-Khoai Pham, and
-Jean-Marie Tricot. 2018. “Extremefit: A Package for Extreme Quantiles.”
-*Journal of Statistical Software* 87 (12): 1–20.
-<https://doi.org/10.18637/jss.v087.i12>.
-
-*evdbayes: Bayesian Analysis in Extreme Value Theory*. 2025.
-<https://doi.org/10.32614/CRAN.package.evdbayes>.
-
 Gelman, Andrew, John B. Carlin, Hal S. Stern, David B. Dunson, Aki
 Vehtari, and Donald B. Rubin. 2013. *Bayesian Data Analysis*. 3rd ed.
 Chapman; Hall/CRC. <https://doi.org/10.1201/b16018>.
 
 *ggmcmc: Analysis of MCMC Samples and Bayesian Inference*. 2025.
 <https://doi.org/10.32614/CRAN.package.ggmcmc>.
-
-Haan, Laurens de, and Ana Ferreira. 2007. *Extreme Value Theory: An
-Introduction*. Springer Science & Business Media.
-
-Hill, Jennifer L. 2011. “Bayesian Nonparametric Modeling for Causal
-Inference.” *Journal of Computational and Graphical Statistics* 20 (1):
-217–40. <https://doi.org/10.1198/jcgs.2010.08162>.
-
-Jara, Alejandro, Timothy Hanson, Fernando Quintana, Peter Müller, and
-Gary Rosner. 2011. “DPpackage: Bayesian Semi- and Nonparametric Modeling
-in R.” *Journal of Statistical Software* 40 (5): 1–30.
-<https://doi.org/10.18637/jss.v040.i05>.
 
 MacEachern, Steven N. 1999. *Dependent Nonparametric Processes*.
 <https://u.osu.edu/maceachern.1/files/2025/05/1999-MacEachern-JSM-Proceedings.pdf>.
@@ -1009,9 +957,6 @@ Plummer, Martyn, Nicky Best, Kate Cowles, and Karen Vines. 2024. *coda:
 Output Analysis and Diagnostics for MCMC*.
 <https://cran.r-project.org/package=coda>.
 
-*POT: Generalized Pareto Distribution and Peaks over Threshold*. 2024.
-<https://doi.org/10.32614/CRAN.package.POT>.
-
 Quintana, Fernando A., Peter Müller, Alejandro Jara, and Steven N.
 MacEachern. 2022. “The Dependent Dirichlet Process and Related Models.”
 *Statistical Science* 37 (1): 24–49.
@@ -1020,10 +965,6 @@ MacEachern. 2022. “The Dependent Dirichlet Process and Related Models.”
 Ren, Lu, Lan Du, Lawrence Carin, and David B. Dunson. 2011. “The
 Logistic Stick-Breaking Process.” *Journal of Machine Learning Research*
 12 (7): 203–39. <https://www.jmlr.org/papers/v12/ren11a.html>.
-
-Talbot, Denis, Geneviève Lefebvre, Juli Atherton, and Yohann Chiu. 2015.
-“The Bayesian Causal Effect Estimation Algorithm.” *Journal of Causal
-Inference* 3 (2): 207–36. <https://doi.org/10.1515/jci-2014-0035>.
 
 Valpine, Perry de, Daniel Turek, Christopher J. Paciorek, Carsten
 Anderson-Bergman, Duncan Temple Lang, and Rastislav Bodik. 2017.

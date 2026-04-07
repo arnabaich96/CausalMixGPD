@@ -32,6 +32,22 @@ summary(object, code = FALSE, max_code_lines = 200L, ...)
 
 The input object (invisibly).
 
+## Details
+
+This summary is meant to be read before posterior sampling. It reports
+the stored propensity-score specification, the treated and control
+outcome model definitions, and the sample split across treatment arms.
+In other words, it verifies the model ingredients for the causal
+decomposition \\(e(x), f_0(y \mid x), f_1(y \mid x))\\.
+
+Since no MCMC has been run yet, the summary contains only structural
+information. Posterior treatment-effect summaries become available after
+[`run_mcmc_causal`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/run_mcmc_causal.md)
+through functions such as
+[`ate`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/ate.md)
+and
+[`qte`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qte.md).
+
 ## See also
 
 [`print.causalmixgpd_causal_bundle`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.causalmixgpd_causal_bundle.md),

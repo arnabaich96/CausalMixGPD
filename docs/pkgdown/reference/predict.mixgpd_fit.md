@@ -9,13 +9,11 @@ for fitted one-arm models.
 # S3 method for class 'mixgpd_fit'
 predict(
   object,
-  x = NULL,
+  newdata = NULL,
   y = NULL,
   ps = NULL,
   id = NULL,
-  newdata = NULL,
-  type = c("density", "survival", "quantile", "sample", "mean", "rmean", "median",
-    "location", "fit"),
+  type = c("density", "survival", "quantile", "sample", "mean", "rmean", "median", "fit"),
   p = NULL,
   index = NULL,
   nsim = NULL,
@@ -41,9 +39,9 @@ predict(
 
   A fitted object of class `"mixgpd_fit"`.
 
-- x:
+- newdata:
 
-  Optional new data. Alias for `newdata`.
+  Optional new data. If `NULL`, uses training design (if stored).
 
 - y:
 
@@ -59,12 +57,8 @@ predict(
 - id:
 
   Optional identifier for prediction rows. Provide either a column name
-  in `x`/`newdata` or a vector of length `nrow(x)`. The id column is
+  in `newdata` or a vector of length `nrow(newdata)`. The id column is
   excluded from analysis.
-
-- newdata:
-
-  Optional new data. If `NULL`, uses training design (if stored).
 
 - type:
 
@@ -86,8 +80,6 @@ predict(
     \mid x, data\]\\
 
   - `"median"`: Posterior predictive median (quantile at p=0.5)
-
-  - `"location"`: Alias for "mean"
 
   - `"fit"`: Per-observation posterior predictive draws
 
@@ -115,9 +107,13 @@ predict(
 
 - interval:
 
-  Character or NULL; type of credible interval: `NULL` for no interval,
-  `"credible"` for equal-tailed quantile intervals (default), or `"hpd"`
-  for highest posterior density intervals.
+  Character or NULL; type of credible interval:
+
+  - `NULL`: no interval
+
+  - `"credible"` (default): equal-tailed quantile intervals
+
+  - `"hpd"`: highest posterior density intervals
 
 - probs:
 
@@ -129,8 +125,9 @@ predict(
 
 - nsim_mean:
 
-  Number of posterior predictive samples to use for posterior mean
-  estimation (for `type="mean"`).
+  Number of posterior predictive samples used by simulation-based mean
+  targets. Ignored for analytical `type = "mean"`; still used for
+  `type = "rmean"`.
 
 - cutoff:
 
@@ -172,8 +169,13 @@ predict(
 
 A list with elements:
 
-- `fit`: data frame with `estimate`/`lower`/`upper` columns (posterior
-  means over draws) plus any index columns (e.g. `id`, `y`, `index`).
+- `fit`: numeric vector/matrix for `type = "sample"`, otherwise a data
+  frame with `estimate`/`lower`/`upper` columns (posterior means over
+  draws) plus any index columns (e.g. `id`, `y`, `index`).
+
+- `fit_df`: a machine-readable data frame view of the prediction output.
+  For non-sample types this aliases `fit`; for `type = "sample"` it is a
+  long-form data frame with draw indices and sampled values.
 
 - `lower`, `upper`: reserved for backward compatibility (typically
   `NULL`).
@@ -185,36 +187,34 @@ A list with elements:
 The method works with posterior predictive functionals rather than raw
 model parameters. Supported output types include:
 
-- `"density"` for \\f(y \mid x, \mathcal{D})\\,
+- `"density"` for \\f(y \mid x)\\,
 
-- `"survival"` for \\S(y \mid x, \mathcal{D}) = 1 - F(y \mid x,
-  \mathcal{D})\\,
+- `"survival"` for \\S(y \mid x) = 1 - F(y \mid x)\\,
 
-- `"quantile"` for \\Q(\tau \mid x, \mathcal{D})\\,
+- `"quantile"` for \\Q(\tau \mid x)\\,
 
-- `"mean"` for \\E(Y \mid x, \mathcal{D})\\,
+- `"mean"` for \\E(Y \mid x)\\,
 
-- `"rmean"` for \\E\\\min(Y, c) \mid x, \mathcal{D}\\\\,
+- `"rmean"` for \\E\\\min(Y, c) \mid x\\\\,
 
 - `"sample"` and `"fit"` for draw-level predictive output.
 
 For spliced models these predictions integrate over both the DPM bulk
-and the GPD tail. When `type = "mean"`, the function averages
-conditional means over posterior draws, so the result is a Bayesian
-predictive mean.
+and the GPD tail using component-specific tail parameters, including
+link-mode tail coefficients when present. For kernels with a finite
+analytical mean, `type = "mean"` computes the posterior-draw mean
+analytically and then summarizes those draw-level means across the
+posterior. The `type = "rmean"` path remains a separate posterior
+predictive simulation pipeline.
 
-The `type="mean"` option computes the posterior predictive mean by:
-
-1.  For each posterior draw s, computing E(Y \| x, theta_s) via Monte
-    Carlo simulation
-
-2.  Averaging these conditional means over the posterior: E(Y \| x,
-    data) = mean_s(E(Y \| x, theta_s))
-
-This accounts for parameter uncertainty and is the Bayesian predictive
-mean. When the tail shape parameter xi \>= 1 (heavy tail), the mean is
-undefined and the function returns Inf with a warning suggesting
-alternatives like median or restricted mean.
+For kernels with an analytical mean, `type = "mean"` is computed
+analytically within each posterior draw and then summarized over draws.
+For GPD-tail fits this analytical path is used when the tail shape
+parameter satisfies \\\xi \< 1\\. If the mean does not exist
+analytically for the chosen kernel or if any required GPD tail has \\\xi
+\ge 1\\, the ordinary mean is undefined and the function errors with a
+message directing you to `type = "rmean"` or other tail-robust
+summaries.
 
 ## See also
 

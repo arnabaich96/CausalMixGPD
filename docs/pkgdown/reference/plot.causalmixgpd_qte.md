@@ -47,13 +47,23 @@ plot(
 
 - type:
 
-  Character; plot type: `"both"` (default), `"effect"`, or `"arms"`.
+  Character; plot type:
+
+  - `"both"` (default): returns a list with both arm curves and
+    treatment-effect plots
+
+  - `"effect"`: QTE curve with pointwise CI error bars
+
+  - `"arms"`: treated and control quantile curves with pointwise CI
+    error bars
 
 - facet_by:
 
-  Character; faceting strategy when multiple prediction points exist.
-  `"tau"` (default) facets by quantile level, `"id"` facets by
-  prediction point.
+  Character; faceting strategy when multiple prediction points exist:
+
+  - `"tau"` (default): facets by quantile level
+
+  - `"id"`: facets by prediction point
 
 - plotly:
 
@@ -70,6 +80,18 @@ plot(
 A list of ggplot objects with elements `trt_control` and
 `treatment_effect` (if `type="both"`), or a single ggplot object (if
 `type` is `"effect"` or `"arms"`).
+
+## Details
+
+The effect view emphasizes the quantile contrast \\\tau \mapsto
+Q\_{Y^1}(\tau) - Q\_{Y^0}(\tau)\\, while the arms view shows the treated
+and control quantile functions that generate that contrast. For
+conditional CQTE objects, faceting can separate covariate profiles so
+the same quantile contrast is compared across prediction settings.
+
+These graphics visualize posterior summaries of the effect object
+itself. They are therefore downstream of model fitting and downstream of
+the causal prediction step.
 
 ## See also
 

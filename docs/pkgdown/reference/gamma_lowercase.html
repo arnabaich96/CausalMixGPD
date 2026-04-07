@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -172,6 +172,13 @@
     <p>Numeric vector of densities, probabilities, quantiles, or random variates.</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>These wrappers are vectorized interfaces to the scalar gamma and gamma-plus-GPD routines. They
+preserve the package's shape-scale parameterization and the same splice definition used in the
+fitted-model prediction code. Quantile wrappers delegate to the scalar inversion code rather than
+implementing separate approximations.</p>
+    </div>
+    <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>
 
 <ul><li><p><code>dgammamix()</code>: Gamma mixture density (vectorized)</p></li>
@@ -210,7 +217,7 @@
 <span class="r-in"><span><span class="fu">dgammamix</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, w <span class="op">=</span> <span class="va">w</span>, shape <span class="op">=</span> <span class="va">shp</span>, scale <span class="op">=</span> <span class="va">scl</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2031918 0.1534717 0.0925686</span>
 <span class="r-in"><span><span class="fu">rgammamix</span><span class="op">(</span><span class="fl">5</span>, w <span class="op">=</span> <span class="va">w</span>, shape <span class="op">=</span> <span class="va">shp</span>, scale <span class="op">=</span> <span class="va">scl</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  5.2491201 13.9246626  0.4627266 10.7429873 34.5715566</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  2.032069  6.805664 58.093898  7.487449  7.682572</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Gamma mixture + GPD</span></span></span>
 <span class="r-in"><span><span class="fu">dgammamixgpd</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span><span class="op">)</span>, w <span class="op">=</span> <span class="va">w</span>, shape <span class="op">=</span> <span class="va">shp</span>, scale <span class="op">=</span> <span class="va">scl</span>,</span></span>
@@ -233,7 +240,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

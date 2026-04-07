@@ -88,6 +88,18 @@ The scalar functions in this topic are the compiled building blocks for
 inverse-Gaussian bulk kernels. For vectorized R usage, use
 [`invgauss_lowercase()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/invgauss_lowercase.md).
 
+The mixture distribution is \$\$ F(x) = \sum\_{k=1}^K \tilde{w}\_k
+F\_{IG}(x \mid \mu_k,\lambda_k), \$\$ where each inverse Gaussian
+component has mean \\\mu_k\\ and variance \\\mu_k^3/\lambda_k\\. Random
+generation selects a component using the normalized weights and then
+generates from the corresponding inverse Gaussian law. Quantiles are
+computed numerically because the finite-mixture inverse CDF is not
+available in closed form.
+
+The analytical mixture mean is \$\$ E(X) = \sum\_{k=1}^K \tilde{w}\_k
+\mu_k. \$\$ That expression is used by the package whenever
+inverse-Gaussian mixtures contribute to posterior predictive means.
+
 ## Functions
 
 - `dInvGaussMix()`: Inverse Gaussian mixture density
@@ -127,6 +139,6 @@ qInvGaussMix(0.50, w = w, mean = mean, shape = shape)
 qInvGaussMix(0.95, w = w, mean = mean, shape = shape)
 #> [1] 6.489781
 replicate(10, rInvGaussMix(1, w = w, mean = mean, shape = shape))
-#>  [1] 0.9962017 1.5444369 0.9499274 0.3434187 1.5752745 4.7585974 1.5624384
-#>  [8] 0.4135278 0.7628506 4.1941022
+#>  [1] 2.0679382 0.5774593 3.2675875 1.4805399 7.4575032 1.9138819 1.0288358
+#>  [8] 5.4002522 1.9116509 0.6089238
 ```
