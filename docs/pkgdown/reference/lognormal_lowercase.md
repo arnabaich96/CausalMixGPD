@@ -214,7 +214,7 @@ sl <- c(0.4, 0.5, 0.6)
 dlognormalmix(c(1, 2, 3), w = w, meanlog = ml, sdlog = sl)
 #> [1] 0.8386766 0.1873719 0.0425651
 rlognormalmix(5, w = w, meanlog = ml, sdlog = sl)
-#> [1] 2.1749765 1.9499446 0.6360860 0.7556021 1.5831195
+#> [1] 0.6360860 0.7556021 1.5831195 1.4558284 0.5728457
 
 # Lognormal mixture + GPD
 dlognormalmixgpd(c(2, 3, 4), w = w, meanlog = ml, sdlog = sl,

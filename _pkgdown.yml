@@ -2,6 +2,9 @@ url: https://arnabaich96.github.io/CausalMixGPD/pkgdown
 
 destination: docs/pkgdown
 
+development:
+  mode: unreleased
+
 build:
   lazy: false
 

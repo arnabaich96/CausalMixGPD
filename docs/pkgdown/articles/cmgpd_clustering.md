@@ -412,7 +412,7 @@ heatmaps and label-summary graphics such as cluster sizes and certainty.
 ``` r
 
 sessionInfo()
-#> R version 4.5.3 (2026-03-11 ucrt)
+#> R version 4.5.2 (2025-10-31 ucrt)
 #> Platform: x86_64-w64-mingw32/x64
 #> Running under: Windows 11 x64 (build 26200)
 #> 
@@ -433,27 +433,27 @@ sessionInfo()
 #> [1] stats     graphics  grDevices datasets  utils     methods   base     
 #> 
 #> other attached packages:
-#> [1] ggplot2_4.0.2      CausalMixGPD_0.4.0 nimble_1.4.1      
+#> [1] ggplot2_4.0.2      CausalMixGPD_0.5.0 nimble_1.4.1      
 #> 
 #> loaded via a namespace (and not attached):
 #>  [1] gtable_0.3.6        jsonlite_2.0.0      dplyr_1.2.0        
-#>  [4] compiler_4.5.3      renv_1.1.7          tidyselect_1.2.1   
-#>  [7] parallel_4.5.3      jquerylib_0.1.4     systemfonts_1.3.2  
+#>  [4] compiler_4.5.2      renv_1.1.7          tidyselect_1.2.1   
+#>  [7] parallel_4.5.2      jquerylib_0.1.4     systemfonts_1.3.2  
 #> [10] scales_1.4.0        textshaping_1.0.5   yaml_2.3.12        
 #> [13] fastmap_1.2.0       lattice_0.22-9      coda_0.19-4.1      
 #> [16] R6_2.6.1            labeling_0.4.3      generics_0.1.4     
 #> [19] igraph_2.2.2        knitr_1.51          htmlwidgets_1.6.4  
 #> [22] tibble_3.3.1        desc_1.4.3          pillar_1.11.1      
-#> [25] RColorBrewer_1.1-3  bslib_0.10.0        rlang_1.1.7        
+#> [25] bslib_0.10.0        RColorBrewer_1.1-3  rlang_1.1.7        
 #> [28] cachem_1.1.0        xfun_0.57           S7_0.2.1           
 #> [31] fs_2.0.1            sass_0.4.10         otel_0.2.0         
 #> [34] viridisLite_0.4.3   cli_3.6.5           withr_3.0.2        
 #> [37] pkgdown_2.2.0       magrittr_2.0.4      digest_0.6.39      
-#> [40] grid_4.5.3          rstudioapi_0.18.0   lifecycle_1.0.5    
-#> [43] vctrs_0.7.2         evaluate_1.0.5      pracma_2.4.6       
-#> [46] glue_1.8.0          farver_2.1.2        numDeriv_2016.8-1.1
-#> [49] ragg_1.5.0          rmarkdown_2.31      tools_4.5.3        
-#> [52] pkgconfig_2.0.3     htmltools_0.5.9
+#> [40] grid_4.5.2          lifecycle_1.0.5     vctrs_0.7.2        
+#> [43] evaluate_1.0.5      pracma_2.4.6        glue_1.8.0         
+#> [46] farver_2.1.2        numDeriv_2016.8-1.1 ragg_1.5.0         
+#> [49] rmarkdown_2.31      tools_4.5.2         pkgconfig_2.0.3    
+#> [52] htmltools_0.5.9
 ```
 
 Binder, David A. 1978. “Bayesian Cluster Analysis.” *Biometrika* 65 (1):

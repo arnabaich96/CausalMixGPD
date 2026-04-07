@@ -3362,11 +3362,19 @@ stick_breaking <- nimble::nimbleFunction(
   # mean (posterior mean of predictive distribution)
   # -----------------------------
   if (type == "mean") {
-    if (!GPD && (is.null(bulk_mean_fun) || !is.function(bulk_mean_fun))) {
-      stop(sprintf("Analytical mean is not implemented for kernel '%s'.", kernel), call. = FALSE)
-    }
-    if (GPD && (is.null(bulk_mean_trunc_fun) || !is.function(bulk_mean_trunc_fun))) {
-      stop(sprintf("Analytical GPD mean is not implemented for kernel '%s'.", kernel), call. = FALSE)
+    has_analytic_mean <- if (!GPD) (!is.null(bulk_mean_fun) && is.function(bulk_mean_fun)) else
+      (!is.null(bulk_mean_trunc_fun) && is.function(bulk_mean_trunc_fun))
+
+    nsim_inner_mean <- as.integer(nsim_mean)
+    if (is.na(nsim_inner_mean) || nsim_inner_mean < 10L) nsim_inner_mean <- NA_integer_
+    use_sim_mean <- !has_analytic_mean && !is.na(nsim_inner_mean)
+
+    if (!has_analytic_mean && !use_sim_mean) {
+      if (!GPD) {
+        stop(sprintf("Analytical mean is not implemented for kernel '%s'. Supply nsim_mean >= 10 for simulation-based mean.", kernel), call. = FALSE)
+      } else {
+        stop(sprintf("Analytical GPD mean is not implemented for kernel '%s'. Supply nsim_mean >= 10 for simulation-based mean.", kernel), call. = FALSE)
+      }
     }
 
     if (!has_X) {
@@ -3375,6 +3383,23 @@ stick_breaking <- nimble::nimbleFunction(
         if (!.draw_valid[s]) next
         args0 <- .build_args0_or_null(s)
         if (is.null(args0)) next
+
+        if (use_sim_mean) {
+          if (is_spliced && GPD) {
+            yy <- .spliced_sample_values(s, 1L, n = nsim_inner_mean, link_eta = list(), gpd_eta = list())
+            draw_means[s] <- mean(yy, na.rm = TRUE)
+            next
+          }
+          if (GPD) {
+            args0$threshold <- .threshold_at(s, 1L)
+            args0$tail_scale <- .tail_scale_at(s, 1L)
+            args0$tail_shape <- .tail_shape_at(s, 1L)
+            if (!is.finite(args0$threshold) || !is.finite(args0$tail_scale) || args0$tail_scale <= 0 || !is.finite(args0$tail_shape)) next
+          }
+          yy <- as.numeric(do.call(r_fun, c(list(n = nsim_inner_mean), args0)))
+          draw_means[s] <- mean(yy, na.rm = TRUE)
+          next
+        }
 
         if (!GPD) {
           draw_means[s] <- as.numeric(do.call(bulk_mean_fun, args0))[1]
@@ -3418,7 +3443,8 @@ stick_breaking <- nimble::nimbleFunction(
           n_draws_total = S,
           n_draws_valid = sum(.draw_valid),
           n_draws_dropped = S - sum(.draw_valid),
-          mean_method = "analytic"
+          mean_method = if (use_sim_mean) "simulation" else "analytic",
+          nsim_mean = if (use_sim_mean) nsim_inner_mean else NULL
         )
       )
       class(out) <- "mixgpd_predict"
@@ -3435,6 +3461,36 @@ stick_breaking <- nimble::nimbleFunction(
       gpd_eta <- if (is_spliced && GPD) .compute_spliced_gpd_eta(s) else list()
 
       for (i in seq_len(n_pred)) {
+        if (use_sim_mean) {
+          if (is_spliced && GPD) {
+            yy <- .spliced_sample_values(s, i, n = nsim_inner_mean, link_eta = link_eta, gpd_eta = gpd_eta)
+            draw_means_mat[s, i] <- mean(yy, na.rm = TRUE)
+            next
+          }
+          args_sim <- args0
+          if (GPD) {
+            args_sim$threshold <- .threshold_at(s, i)
+            args_sim$tail_scale <- .tail_scale_at(s, i)
+            args_sim$tail_shape <- .tail_shape_at(s, i)
+            if (!is.finite(args_sim$threshold) || !is.finite(args_sim$tail_scale) || args_sim$tail_scale <= 0 || !is.finite(args_sim$tail_shape)) {
+              draw_means_mat[s, i] <- NA_real_
+              next
+            }
+          }
+          if (length(link_params)) {
+            bad <- FALSE
+            for (nm in link_params) {
+              vv <- as.numeric(link_eta[[nm]][i, ])
+              if (!all(is.finite(vv))) { bad <- TRUE; break }
+              args_sim[[nm]] <- vv
+            }
+            if (bad) { draw_means_mat[s, i] <- NA_real_; next }
+          }
+          yy <- as.numeric(do.call(r_fun, c(list(n = nsim_inner_mean), args_sim)))
+          draw_means_mat[s, i] <- mean(yy, na.rm = TRUE)
+          next
+        }
+
         if (is_spliced && GPD) {
           draw_means_mat[s, i] <- .analytic_spliced_mean_row(s, i, link_eta = link_eta, gpd_eta = gpd_eta)
           next
@@ -3497,7 +3553,8 @@ stick_breaking <- nimble::nimbleFunction(
         n_draws_total = S,
         n_draws_valid = sum(.draw_valid),
         n_draws_dropped = S - sum(.draw_valid),
-        mean_method = "analytic"
+        mean_method = if (use_sim_mean) "simulation" else "analytic",
+        nsim_mean = if (use_sim_mean) nsim_inner_mean else NULL
       )
     )
     class(out) <- "mixgpd_predict"

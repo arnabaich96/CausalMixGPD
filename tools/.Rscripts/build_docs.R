@@ -368,25 +368,36 @@ build_docs <- function(
       msg("Note: init_site returned: ", conditionMessage(e))
     })
 
-    # Build to pkgdown/ in root - this preserves cache for lazy builds
-    old_timeout <- getOption("timeout")
-    old_repos <- getOption("repos")
-    old_cran_web <- Sys.getenv("R_CRAN_WEB", unset = NA_character_)
-    on.exit({
-      options(timeout = old_timeout)
-      options(repos = old_repos)
-      if (is.na(old_cran_web)) Sys.unsetenv("R_CRAN_WEB") else Sys.setenv(R_CRAN_WEB = old_cran_web)
-    }, add = TRUE)
-    options(timeout = max(300, as.integer(old_timeout)))
-    options(repos = c(CRAN = "https://cran.rstudio.com"))
-    Sys.setenv(R_CRAN_WEB = "https://cran.rstudio.com")
+    # Offline guard: stub any pkgdown internal that performs HTTP so the
+    # build never touches the network. build_site() must run in-process
+    # (new_process = FALSE) for these overrides to take effect.
+    stub_pkgdown_network <- function() {
+      ns <- asNamespace("pkgdown")
+      null_stub <- function(...) NULL
+      targets <- c(
+        "cran_link",           # CRAN lookup for sidebar
+        "has_internet",        # force offline code paths
+        "devtools_loaded"      # harmless, but network-adjacent
+      )
+      for (nm in targets) {
+        if (exists(nm, envir = ns, inherits = FALSE)) {
+          fn <- if (nm == "has_internet") function(...) FALSE else null_stub
+          try(utils::assignInNamespace(nm, fn, ns = "pkgdown"), silent = TRUE)
+        }
+      }
+    }
+    stub_pkgdown_network()
 
+    # Build to pkgdown/ in root - this preserves cache for lazy builds
+    # new_process = FALSE keeps build_site in this R session so the
+    # offline stubs above remain in effect.
     pkgdown::build_site(
       pkg = root,
       override = list(destination = pkgdown_abs),
       lazy = isTRUE(pkgdown_lazy),
       devel = FALSE,
-      preview = FALSE
+      preview = FALSE,
+      new_process = FALSE
     )
 
     # Copy pkgdown/ to docs/pkgdown/ (overwrite)

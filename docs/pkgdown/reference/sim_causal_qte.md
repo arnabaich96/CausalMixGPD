@@ -50,5 +50,5 @@ by the causal fitting wrappers after minor formatting.
 [`cqte()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cqte.md).
 
 Other simulation helpers:
-[`sim_bulk_tail()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/sim_bulk_tail.md),
-[`sim_survival_tail()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/sim_survival_tail.md)
+[`sim_bulk_tail`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/sim_bulk_tail.md)`()`,
+[`sim_survival_tail`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/sim_survival_tail.md)`()`
