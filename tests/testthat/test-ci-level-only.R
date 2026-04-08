@@ -786,7 +786,7 @@ test_that("coverage-only suite exercises causal workflows and treatment-effect m
   X <- as.matrix(obj$sim$X)
 
   expect_output(print(fit))
-  expect_output(summary(fit), "Outcome fits")
+  expect_output(print(summary(fit)), "Outcome fits")
   expect_s3_class(params(fit), "mixgpd_params_pair")
 
   pred_mean <- predict(fit, newdata =X[1:3, , drop = FALSE], type = "mean", nsim_mean = 20L)

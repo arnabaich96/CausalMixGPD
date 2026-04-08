@@ -2,68 +2,6 @@
 
 skip_if_not_test_level("ci")
 
-fmt3 <- get("fmt3", mode = "function")
-fmt3_sci <- get("fmt3_sci", mode = "function")
-fmt3_vec <- get("fmt3_vec", mode = "function")
-format_df3 <- get("format_df3", mode = "function")
-format_df3_sci <- get("format_df3_sci", mode = "function")
-format_mat3 <- get("format_mat3", mode = "function")
-format_mat3_sci <- get("format_mat3_sci", mode = "function")
-.knitr_asis <- get(".knitr_asis", mode = "function")
-.kable_table <- get(".kable_table", mode = "function")
-.dt_view_table <- get(".dt_view_table", mode = "function")
-print_fmt3 <- get("print_fmt3", mode = "function")
-print_fmt3_sci <- get("print_fmt3_sci", mode = "function")
-.bundle_has_any_gpd <- get(".bundle_has_any_gpd", mode = "function")
-.bundle_all_gpd <- get(".bundle_all_gpd", mode = "function")
-.strip_gpd_single_bundle <- get(".strip_gpd_single_bundle", mode = "function")
-.bundle_strip_gpd <- get(".bundle_strip_gpd", mode = "function")
-.codegen_prior_call <- get(".codegen_prior_call", mode = "function")
-.codegen_link_expr <- get(".codegen_link_expr", mode = "function")
-build_data_from_inputs <- get("build_data_from_inputs", mode = "function")
-build_constants_from_spec <- get("build_constants_from_spec", mode = "function")
-build_inits_from_spec <- get("build_inits_from_spec", mode = "function")
-build_prior_table_from_spec <- get("build_prior_table_from_spec", mode = "function")
-.mcmc_cache_key <- get(".mcmc_cache_key", mode = "function")
-.mcmc_cache_get <- get(".mcmc_cache_get", mode = "function")
-.mcmc_cache_set <- get(".mcmc_cache_set", mode = "function")
-.configure_samplers <- get(".configure_samplers", mode = "function")
-.coerce_treat <- get(".coerce_treat", mode = "function")
-.parse_formula_yX <- get(".parse_formula_yX", mode = "function")
-.extract_treat_from_data <- get(".extract_treat_from_data", mode = "function")
-.normalize_mcmc_inputs <- get(".normalize_mcmc_inputs", mode = "function")
-.apply_mcmc_overrides <- get(".apply_mcmc_overrides", mode = "function")
-.silent_wrapper <- get(".silent_wrapper", mode = "function")
-.cmgpd_capture_nimble <- get(".cmgpd_capture_nimble", mode = "function")
-.validate_nimble_reserved_names <- get(".validate_nimble_reserved_names", mode = "function")
-.extract_nimble_code <- get(".extract_nimble_code", mode = "function")
-.wrap_nimble_code <- get(".wrap_nimble_code", mode = "function")
-.plot_palette <- get(".plot_palette", mode = "function")
-.strip_fill_scales <- get(".strip_fill_scales", mode = "function")
-.wrap_plotly <- get(".wrap_plotly", mode = "function")
-.resolve_predict_id <- get(".resolve_predict_id", mode = "function")
-.reorder_predict_cols <- get(".reorder_predict_cols", mode = "function")
-.coerce_fit_df <- get(".coerce_fit_df", mode = "function")
-.extract_weights <- get(".extract_weights", mode = "function")
-.extract_bulk_params <- get(".extract_bulk_params", mode = "function")
-.get_epsilon <- get(".get_epsilon", mode = "function")
-.validate_fit <- get(".validate_fit", mode = "function")
-.get_samples_mcmclist <- get(".get_samples_mcmclist", mode = "function")
-.get_nobs <- get(".get_nobs", mode = "function")
-.posterior_summarize <- get(".posterior_summarize", mode = "function")
-.extract_draws <- get(".extract_draws", mode = "function")
-.truncation_info <- get(".truncation_info", mode = "function")
-.format_fit_header <- get(".format_fit_header", mode = "function")
-.summarize_posterior <- get(".summarize_posterior", mode = "function")
-.get_dispatch_scalar <- get(".get_dispatch_scalar", mode = "function")
-.get_dispatch <- get(".get_dispatch", mode = "function")
-.compute_interval <- get(".compute_interval", mode = "function")
-.detect_first_present <- get(".detect_first_present", mode = "function")
-.wrap_scalar_first_arg <- get(".wrap_scalar_first_arg", mode = "function")
-.wrap_scalar_p <- get(".wrap_scalar_p", mode = "function")
-.wrap_scalar_r <- get(".wrap_scalar_r", mode = "function")
-.truncate_components_one_draw <- get(".truncate_components_one_draw", mode = "function")
-
 .coverage_heavy_cached <- function(key, expr) {
   hit <- .cache_get(key)
   if (!is.null(hit)) return(hit)
@@ -489,7 +427,7 @@ test_that("coverage-heavy causal methods and summaries cover methods branches", 
   yp <- fit$bundle$data$y[1:2]
 
   expect_output(print(fit), "CausalMixGPD causal fit")
-  expect_output(summary(fit), "Outcome fits")
+  expect_output(print(summary(fit)), "Outcome fits")
 
   pars <- params(fit)
   expect_s3_class(pars, "mixgpd_params_pair")
@@ -1052,7 +990,7 @@ test_that("coverage-heavy methods cover plotting families causal prediction and 
 })
 
 test_that("coverage-heavy glue diagnostics cover link-mode, unconditional, and validation branches", {
-  check_glue_validity <- get("check_glue_validity", mode = "function")
+  check_glue_validity <- getFromNamespace("check_glue_validity", "CausalMixGPD")
 
   dispatch_stub <- list(
     bulk_params = c("mean", "sd"),
@@ -1239,7 +1177,7 @@ test_that("coverage-heavy runner mocks cover cache, compile fallback, and valida
 })
 
 test_that("coverage-heavy prediction internals cover chunking unconditional summaries and gpd guards", {
-  predict_impl <- get(".predict_mixgpd", mode = "function")
+  predict_impl <- getFromNamespace(".predict_mixgpd", "CausalMixGPD")
 
   posterior_summary_mock <- function(x, probs = c(0.025, 0.5, 0.975), interval = "credible") {
     dims <- dim(x)
@@ -1443,8 +1381,8 @@ test_that("coverage-heavy prediction internals cover chunking unconditional summ
 })
 
 test_that("coverage-heavy predict and residual methods cover wrapper branches with mocked internals", {
-  predict_method <- get("predict.mixgpd_fit", mode = "function")
-  residuals_method <- get("residuals.mixgpd_fit", mode = "function")
+  predict_method <- getFromNamespace("predict.mixgpd_fit", "CausalMixGPD")
+  residuals_method <- getFromNamespace("residuals.mixgpd_fit", "CausalMixGPD")
   fake_fit <- structure(
     list(
       spec = list(meta = list(backend = "sb", kernel = "normal", GPD = FALSE)),
@@ -2089,7 +2027,7 @@ test_that("coverage-heavy cluster helper internals cover density scoring and des
 })
 
 test_that("coverage-heavy glue diagnostics cover missing-data and gpd failure branches", {
-  check_glue_validity <- get("check_glue_validity", mode = "function")
+  check_glue_validity <- getFromNamespace("check_glue_validity", "CausalMixGPD")
 
   bad_fit <- structure(
     list(
@@ -2152,11 +2090,11 @@ test_that("coverage-heavy glue diagnostics cover missing-data and gpd failure br
 })
 
 test_that("coverage-heavy internal progress helpers cover inline step and done branches", {
-  progress_colorize <- get(".cmgpd_progress_colorize", mode = "function")
-  progress_format <- get(".cmgpd_progress_format", mode = "function")
-  progress_start <- get(".cmgpd_progress_start", mode = "function")
-  progress_step <- get(".cmgpd_progress_step", mode = "function")
-  progress_done <- get(".cmgpd_progress_done", mode = "function")
+  progress_colorize <- getFromNamespace(".cmgpd_progress_colorize", "CausalMixGPD")
+  progress_format <- getFromNamespace(".cmgpd_progress_format", "CausalMixGPD")
+  progress_start <- getFromNamespace(".cmgpd_progress_start", "CausalMixGPD")
+  progress_step <- getFromNamespace(".cmgpd_progress_step", "CausalMixGPD")
+  progress_done <- getFromNamespace(".cmgpd_progress_done", "CausalMixGPD")
 
   progress_updates <- character(0)
   progress_messages <- character(0)
@@ -2414,7 +2352,7 @@ test_that("coverage-heavy causal summary printers cover knitr fallback and raw s
 })
 
 test_that("coverage-heavy glue diagnostics cover grid defaults violation summaries and malformed draws", {
-  check_glue_validity <- get("check_glue_validity", mode = "function")
+  check_glue_validity <- getFromNamespace("check_glue_validity", "CausalMixGPD")
 
   crp_fit <- structure(
     list(
@@ -2492,8 +2430,8 @@ test_that("coverage-heavy glue diagnostics cover grid defaults violation summari
 })
 
 test_that("coverage-heavy build-run helper edge modes cover spliced scalar and standard branches", {
-  build_dimensions_from_spec <- get("build_dimensions_from_spec", mode = "function")
-  build_monitors_from_spec <- get("build_monitors_from_spec", mode = "function")
+  build_dimensions_from_spec <- getFromNamespace("build_dimensions_from_spec", "CausalMixGPD")
+  build_monitors_from_spec <- getFromNamespace("build_monitors_from_spec", "CausalMixGPD")
 
   kernel_info <- list(
     param_types = list(mean = "location", scale = "scale", shape = "shape", sd = "sd", rate = "scale"),
@@ -2699,8 +2637,8 @@ test_that("coverage-heavy build-run helper edge modes cover spliced scalar and s
 })
 
 test_that("coverage-heavy build-run helper guard rails cover remaining mode errors and sampler fallbacks", {
-  build_dimensions_from_spec <- get("build_dimensions_from_spec", mode = "function")
-  build_monitors_from_spec <- get("build_monitors_from_spec", mode = "function")
+  build_dimensions_from_spec <- getFromNamespace("build_dimensions_from_spec", "CausalMixGPD")
+  build_monitors_from_spec <- getFromNamespace("build_monitors_from_spec", "CausalMixGPD")
 
   kernel_info <- list(
     param_types = list(mean = "location", scale = "scale", weird = "other"),

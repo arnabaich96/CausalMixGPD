@@ -308,6 +308,10 @@
   ns <- asNamespace(pkgname)
   exports <- getNamespaceExports(pkgname)
   for (nm in exports) {
+    # NIMBLE must see the original exported generator objects for custom
+    # distributions and helpers; wrapping them in plain closures breaks type
+    # discovery during model build/compile.
+    if (grepl("^[dpqr][A-Z]", nm)) next
     obj <- get(nm, envir = ns, inherits = FALSE)
     if (!is.function(obj)) next
     if (isTRUE(attr(obj, "CausalMixGPD.silent_wrapper"))) next
@@ -316,18 +320,12 @@
   invisible(TRUE)
 }
 
-.register_nimble_exports <- function(pkgname = "CausalMixGPD") {
+.register_nimble_exports <- function(pkgname = "CausalMixGPD", envir = parent.frame()) {
   ns <- asNamespace(pkgname)
   exports <- grep("^[dpqr][A-Z]", getNamespaceExports(pkgname), value = TRUE)
   for (nm in exports) {
-    if (exists(nm, envir = .GlobalEnv, inherits = FALSE)) {
-      next
-    }
-    obj <- get0(nm, envir = ns, mode = "function", inherits = FALSE)
-    if (is.null(obj)) {
-      next
-    }
-    assign(nm, obj, envir = .GlobalEnv)
+    if (!exists(nm, envir = ns, inherits = FALSE)) next
+    assign(nm, get(nm, envir = ns, inherits = FALSE), envir = envir)
   }
   invisible(exports)
 }

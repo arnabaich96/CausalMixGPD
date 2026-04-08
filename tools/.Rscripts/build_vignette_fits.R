@@ -257,6 +257,7 @@ local({
   clustering_outputs <- list(
     train_dat = train_dat,
     test_dat = test_dat,
+    fit_cluster = fit_cluster,
     psm_obj = psm_obj,
     train_lab = train_lab,
     test_lab = test_lab,

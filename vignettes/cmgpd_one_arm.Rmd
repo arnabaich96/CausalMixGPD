@@ -1,10 +1,10 @@
 ---
-title: "One-Arm Modeling with CausalMixGPD"
+title: "One-Arm Regression Modeling with CausalMixGPD"
 output: rmarkdown::html_vignette
 bibliography: CausalMixGPD.bib
 link-citations: true
 vignette: >
-  %\VignetteIndexEntry{One-Arm Modeling with CausalMixGPD}
+  %\VignetteIndexEntry{One-Arm Regression Modeling with CausalMixGPD}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 ---
@@ -37,11 +37,11 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-`CausalMixGPD` is built for settings in which the response distribution cannot be summarized adequately by a single parametric family. In many applications the central part of the distribution is heterogeneous, skewed, or multimodal, while the upper tail is sparse and may require principled extrapolation. The package addresses this by combining a Dirichlet process mixture (DPM) model for the bulk with an optional generalized Pareto distribution (GPD) tail in a single Bayesian workflow [@EscobarWest1995; @BalkemaDeHaan1974; @Pickands1975; @Coles2001].
+`CausalMixGPD` is designed to handle contexts where the underlying distribution of the response variable does not admit a parametric representation that captures its complexity. Many problems have heteroskedastic, skewed, or multimodal distributions that need to be modeled with non-parametric mixtures of some form, coupled with tails that are light and may require some extrapolation. The `CausalMixGPD` package provides a solution by employing a spliced distribution, where a Dirichlet process mixture (DPM) model for the core is augmented with a possible generalized Pareto distribution (GPD) tail [@EscobarWest1995; @BalkemaDeHaan1974; @Pickands1975; @Coles2001].
 
-The one-arm workflow is the basic building block of the package. A conditional outcome distribution is fitted first, and posterior summaries such as densities, survival functions, quantiles, means, and restricted means are then obtained from that fitted distribution through common extractor and prediction methods. The software paper presents this as the core modeling pipeline on which the causal and clustering extensions are built.
+The one-arm workflow is a fundamental component of the package. A conditional outcome distribution is fitted first, and densities, survival functions, quantiles, means, and restricted means are extracted from the fitted distribution. The software paper provides a detailed description of the one-arm workflow that the causal and clustering extensions are based on.
 
-This vignette gives a complete introduction to that workflow using a bundled simulated dataset. The emphasis is on four tasks. First, we set up the notation and the spliced model carefully. Second, we explain how the main one-arm functions are related to the statistical objects they return. Third, we work through the package interface with runnable code. Fourth, we summarize the main customization options that control kernels, backends, priors, monitoring, and prediction output.
+This vignette provides a comprehensive guide to the workflow using a built-in simulation study data set. There are four objectives to be achieved here. Firstly, notation and the model setup will be described. Secondly, we will provide descriptions of the one-arm workflow functions and their statistical objects. Thirdly, the interface of the package will be presented using executable code. Finally, the main customization options available in the package will be discussed.
 
 # Notation and statistical background
 
@@ -71,9 +71,9 @@ f_{\mathrm{DP}}(y \mid x) = \int k(y \mid x; \theta) \, dH(\theta)
 = \sum_{j=1}^{\infty} w_j k(y \mid x; \theta_j),
 $$
 
-where $H$ is a random mixing distribution with a Dirichlet process prior, the weights satisfy $w_j \ge 0$ and $\sum_j w_j = 1$, and the kernel parameters may be constant or covariate-dependent [@Ferguson1973; @Sethuraman1994; @Neal2000]. This mixture representation is useful because it can adapt to multimodality, asymmetry, varying local spread, and latent subgroup structure without requiring the user to pre-specify a small number of components.
+where $H$ denotes a random mixing distribution having a Dirichlet process prior such that the mixing proportions obey $w_j \ge 0$ and $\sum_{j} w_j = 1$, and the kernel parameters can be either fixed or covariate-dependent [@Ferguson1973; @Sethuraman1994; @Neal2000]. The mixture formulation provides much flexibility in dealing with multimodality, skewness, nonuniform local dispersion, and potential latent grouping without requiring any prespecification of the number of mixture components.
 
-From the software perspective, the bulk model is controlled mainly through the arguments `kernel`, `backend`, `components`, and `param_specs`. The `kernel` argument selects the family $k(\cdot)$, the `backend` argument chooses the latent DPM representation, `components` controls the truncation size used internally, and `param_specs` determines which parameters are fixed, prior-driven, or regressed on predictors.
+From an implementation standpoint, the bulk model specification is largely driven by four main inputs: `kernel`, `backend`, `components`, and `param_specs`. The first two control the kernel function $k(\cdot)$ and the underlying representation, respectively, the third is the internal truncation level, and the fourth decides whether the kernel parameters are fixed, drawn from priors, or regressed.
 
 ## Tail model: generalized Pareto exceedances
 
@@ -187,8 +187,6 @@ onearm_dat <- data.frame(
   nc_posX100_p3_k2$X
 )
 
-str(onearm_dat)
-summary(onearm_dat)
 ```
 
 A quick visual check helps motivate flexible modeling.
@@ -218,20 +216,57 @@ The response is positive and the empirical distribution is skewed. That makes th
 
 We begin with `dpmgpd()`, which fits the bulk mixture together with an active GPD tail. The article presents this as the main one-arm interface for the spliced workflow, with the formula describing the conditional outcome model and the backend selecting the latent DPM representation.
 
-To keep vignette build time predictable, outputs from this vignette are **loaded from** `inst/extdata/one_arm_outputs.rds` (created by `data-raw/build_vignette_fits.R`). This contains only the prediction/summary objects needed to render the figures and tables, rather than the full fitted MCMC objects.
+To keep vignette build time predictable, outputs from this vignette are **loaded from** `inst/extdata/one_arm_outputs.rds` (created by `tools/.Rscripts/build_vignette_fits.R`). This contains only the prediction/summary objects needed to render the figures and tables, rather than the full fitted MCMC objects. The code chunks below show the package calls you would run in a full analysis; the rendered tables and figures are produced from the shipped artifacts in companion chunks with hidden source.
 
-```{r fit-spliced}
+```{r fit-spliced-display, eval=FALSE}
+fit_spliced <- dpmgpd(
+  formula = y ~ x1 + x2 + x3,
+  data = onearm_dat,
+  backend = "sb",
+  kernel = "lognormal",
+  components = 5,
+  mcmc = mcmc_vig
+)
+```
+
+```{r fit-spliced, echo=FALSE}
 one_arm_out <- readRDS(.pkg_extdata("one_arm_outputs.rds"))
 ```
 
 A fitted one-arm object supports posterior summaries and diagnostic plots. To avoid storing the full fit, we include static diagnostics generated offline.
 
-```{r summary-spliced}
-cat(paste(readLines(.pkg_extdata("one_arm_fit_summary.txt")), collapse = "\n"))
+```{r summary-spliced-display, eval=FALSE}
+summary(fit_spliced)
+```
+
+```{r summary-spliced, echo=FALSE}
+fsum <- system.file("extdata", "one_arm_fit_summary.txt", package = "CausalMixGPD")
+if (!nzchar(fsum)) {
+  alt <- normalizePath(
+    file.path(knitr::current_input(dir = TRUE), "..", "inst", "extdata", "one_arm_fit_summary.txt"),
+    winslash = "/",
+    mustWork = FALSE
+  )
+  if (file.exists(alt)) fsum <- alt
+}
+if (nzchar(fsum) && file.exists(fsum)) {
+  cat(paste(readLines(fsum, warn = FALSE, encoding = "UTF-8"), collapse = "\n"))
+} else {
+  cat("Precomputed fit summary not found; run tools/.Rscripts/build_vignette_fits.R.\n")
+}
+```
+
+```{r plot-spliced-trace-display, eval=FALSE}
+plot(fit_spliced, family = c("traceplot", "density"), params = "alpha")
 ```
 
 ```{r plot-spliced-trace, echo=FALSE, fig.height=5.2, fig.width=7}
 knitr::include_graphics("assets/one_arm_alpha_trace.png")
+```
+
+```{r plot-spliced-density-display, eval=FALSE}
+# Posterior density for monitored parameters (e.g. alpha); see plot.mixgpd_fit().
+plot(fit_spliced, family = "density", params = "alpha")
 ```
 
 ```{r plot-spliced-density, echo=FALSE, fig.height=5, fig.width=7}
@@ -246,17 +281,56 @@ The exact parameter names stored by the object depend on the chosen kernel and b
 
 The package article notes that density and survival summaries are returned by evaluating the corresponding functional draw by draw and then summarizing over retained MCMC draws. We illustrate that at three representative predictor profiles formed from empirical quartiles.
 
-```{r newdata-grid}
+```{r newdata-grid-display, eval=FALSE}
+x_new <- as.data.frame(lapply(
+  onearm_dat[, c("x1", "x2", "x3")],
+  stats::quantile,
+  probs = c(0.25, 0.50, 0.75),
+  na.rm = TRUE
+))
+rownames(x_new) <- c("q25", "q50", "q75")
+x_new
+```
+
+```{r newdata-grid, echo=FALSE}
 x_new <- one_arm_out$x_new
 x_new
 ```
 
-```{r density-prediction}
+```{r density-prediction-display, eval=FALSE}
+y_grid <- seq(min(onearm_dat$y), quantile(onearm_dat$y, 0.99), length.out = 120)
+pred_dens <- predict(
+  fit_spliced,
+  newdata = x_new,
+  y = y_grid,
+  type = "density",
+  interval = "credible",
+  level = 0.95,
+  store_draws = FALSE
+)
+plot(pred_dens, type = "density", facet = "covariate")
+```
+
+```{r density-prediction, echo=FALSE}
 pred_dens <- one_arm_out$pred_dens
 plot(pred_dens, type = "density", facet = "covariate")
 ```
 
-```{r survival-prediction}
+```{r survival-prediction-display, eval=FALSE}
+y_grid <- seq(min(onearm_dat$y), quantile(onearm_dat$y, 0.99), length.out = 120)
+pred_surv <- predict(
+  fit_spliced,
+  newdata = x_new,
+  y = y_grid,
+  type = "survival",
+  interval = "credible",
+  level = 0.95,
+  store_draws = FALSE
+)
+plot(pred_surv)
+```
+
+```{r survival-prediction, echo=FALSE}
 pred_surv <- one_arm_out$pred_surv
 plot(pred_surv)
 ```
@@ -267,27 +341,75 @@ These summaries show how the fitted conditional distribution changes across cova
 
 The one-arm workflow is especially useful when the scientific target is not just the density itself but one or more functionals of the conditional distribution. The article highlights quantiles and mean-type summaries as central examples, with restricted means remaining available even when the ordinary mean is unstable or undefined under a heavy tail.
 
-```{r quantile-prediction}
+```{r quantile-prediction-display, eval=FALSE}
+pred_quant <- predict(
+  fit_spliced,
+  newdata = x_new,
+  type = "quantile",
+  index = c(0.25, 0.50, 0.75, 0.90, 0.95),
+  interval = "credible",
+  level = 0.95,
+  store_draws = FALSE
+)
+```
+
+```{r quantile-prediction, echo=FALSE}
 pred_quant <- one_arm_out$pred_quant
 ```
 
-```{r quantile-prediction-plot, fig.height=5.5, fig.width=7}
+```{r quantile-prediction-plot-display, eval=FALSE}
 plot(pred_quant)
 ```
 
-```{r mean-prediction}
+```{r quantile-prediction-plot, echo=FALSE, fig.height=5.5, fig.width=7}
+plot(pred_quant)
+```
+
+```{r mean-prediction-display, eval=FALSE}
+pred_mean <- predict(
+  fit_spliced,
+  newdata = x_new,
+  type = "mean",
+  interval = "hpd",
+  level = 0.90,
+  store_draws = FALSE
+)
+```
+
+```{r mean-prediction, echo=FALSE}
 pred_mean <- one_arm_out$pred_mean
 ```
 
-```{r mean-prediction-plot, fig.height=5.2, fig.width=7}
+```{r mean-prediction-plot-display, eval=FALSE}
 plot(pred_mean)
 ```
 
-```{r rmean-prediction}
+```{r mean-prediction-plot, echo=FALSE, fig.height=5.2, fig.width=7}
+plot(pred_mean)
+```
+
+```{r rmean-prediction-display, eval=FALSE}
+cutoff_val <- as.numeric(stats::quantile(onearm_dat$y, 0.95))
+pred_rmean <- predict(
+  fit_spliced,
+  newdata = x_new,
+  type = "rmean",
+  cutoff = cutoff_val,
+  interval = "hpd",
+  level = 0.90,
+  store_draws = FALSE
+)
+```
+
+```{r rmean-prediction, echo=FALSE}
 cutoff_val <- one_arm_out$cutoff_val
 ```
 
-```{r rmean-table}
+```{r rmean-table-display, eval=FALSE}
+knitr::kable(pred_rmean$fit_df, format = "html", row.names = FALSE, digits = 4)
+```
+
+```{r rmean-table, echo=FALSE}
 knitr::kable(
   one_arm_out$pred_rmean_fit_df,
   format = "html",
@@ -302,16 +424,68 @@ The restricted mean is often a good complement to upper-tail quantiles. It prese
 
 The package also provides a bulk-only wrapper, `dpmix()`, which removes the GPD tail while leaving the general predictive interface intact. The article presents this as the natural special case obtained when the tail component is switched off.
 
-```{r fit-bulk-only}
+```{r fit-bulk-only-display, eval=FALSE}
+fit_bulk <- dpmix(
+  formula = y ~ x1 + x2 + x3,
+  data = onearm_dat,
+  backend = "sb",
+  kernel = "lognormal",
+  components = 5,
+  mcmc = mcmc_vig
+)
+```
+
+```{r fit-bulk-only, echo=FALSE}
 cat("Bulk-only fit computed offline; see quantile comparison below.\n")
 ```
 
-```{r compare-quantiles}
+```{r compare-quantiles-display, eval=FALSE}
+quant_bulk_fit_df <- predict(
+  fit_bulk,
+  newdata = x_new,
+  type = "quantile",
+  index = c(0.90, 0.95),
+  interval = "credible",
+  level = 0.95,
+  store_draws = FALSE
+)$fit_df
+quant_spliced_fit_df <- predict(
+  fit_spliced,
+  newdata = x_new,
+  type = "quantile",
+  index = c(0.90, 0.95),
+  interval = "credible",
+  level = 0.95,
+  store_draws = FALSE
+)$fit_df
+```
+
+```{r compare-quantiles, echo=FALSE}
 quant_bulk_fit_df <- one_arm_out$quant_bulk_fit_df
 quant_spliced_fit_df <- one_arm_out$quant_spliced_fit_df
 ```
 
-```{r compare-quantiles-plot, fig.height=5, fig.width=7}
+```{r compare-quantiles-plot-display, eval=FALSE}
+qb <- quant_bulk_fit_df
+qb$model <- "dpmix (bulk only)"
+qs <- quant_spliced_fit_df
+qs$model <- "dpmgpd (spliced)"
+qc <- rbind(qb, qs)
+qc$profile <- rownames(x_new)[as.integer(qc$id)]
+ggplot(qc, aes(x = profile, y = estimate, colour = model, group = model)) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 2) +
+  facet_wrap(~index, scales = "free_y", ncol = 2) +
+  labs(
+    x = "Covariate profile",
+    y = "Posterior mean quantile",
+    title = "Upper quantiles: bulk-only vs spliced tail"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 20, hjust = 1))
+```
+
+```{r compare-quantiles-plot, echo=FALSE, fig.height=5, fig.width=7}
 qb <- quant_bulk_fit_df
 qb$model <- "dpmix (bulk only)"
 qs <- quant_spliced_fit_df

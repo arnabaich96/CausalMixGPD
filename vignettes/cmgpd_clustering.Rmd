@@ -32,17 +32,17 @@ knitr::opts_chunk$set(
   if (file.exists(alt)) {
     return(normalizePath(alt, winslash = "/", mustWork = TRUE))
   }
-  stop("Missing extdata: ", name, ". Run data-raw/build_vignette_fits.R", call. = FALSE)
+  stop("Missing extdata: ", name, ". Run tools/.Rscripts/build_vignette_fits.R", call. = FALSE)
 }
 ```
 
 # Introduction
 
-The clustering interface in `CausalMixGPD` uses the same Bayesian nonparametric mixture machinery as the density and causal workflows, but the inferential focus changes. Instead of treating the fitted distribution only as a prediction engine, the clustering workflow treats the latent partition induced by the mixture model as a primary object of interest. The output is therefore organized around label-invariant partition summaries such as the posterior similarity matrix (PSM), representative cluster labels, cluster sizes, and membership scores [@Binder1978; @Dahl2006].
+The clustering workflow within `CausalMixGPD` relies on Bayesian nonparametric mixture modeling similarly to the density estimation and causal workflows. However, the goal of inference shifts from predicting future responses based on the fitted model to inferring the underlying latent partition created by the mixing process. Thus, the outputs include the posterior similarity matrix (PSM), the cluster labels for some representative observations, cluster sizes, and cluster memberships scores [@Binder1978; @Dahl2006].
 
-This clustering functionality is important because Dirichlet process mixtures do more than estimate smooth densities. Their latent allocation variables induce random partitions, so they can be used for subgroup discovery while still allowing flexible within-cluster outcome models. The software article presents clustering as one of the three main capabilities of the package, alongside one-arm modeling and causal inference.
+This aspect of `CausalMixGPD`'s functionality becomes crucial due to its capacity to discover subgroups using the latent random partition introduced by the Dirichlet process mixture and build flexible outcome models in each found cluster. Clustering is mentioned as one of the three core features of the package along with one-arm modeling and causal inference in the software article.
 
-This vignette gives a complete introduction to the clustering workflow. We first define the latent-partition notation and the three forms of predictor dependence supported by the package. We then fit a clustering model to a bundled dataset, extract label-invariant summaries, and predict cluster labels for new observations. We close with a reference section describing the main clustering-specific customization options.
+This vignette provides an overview of the clustering workflow of the package. First, we introduce the latent-partition notation and the types of predictor dependency that the package allows. Next, we run a clustering procedure on a built-in dataset, summarize the resulting random partition in terms of label-invariant objects, and predict cluster labels for some new observations. Finally, we provide a list of customizable elements specific to clustering.
 
 # Notation and short theory background
 
@@ -144,6 +144,14 @@ mcmc_vig <- list(
   nchains = 2,
   seed = 2026
 )
+# Used when regenerating clustering vignette artifacts (tools/.Rscripts/build_vignette_fits.R).
+mcmc_clust <- list(
+  niter = 1200,
+  nburnin = 300,
+  thin = 2,
+  nchains = 2,
+  seed = 2029
+)
 ```
 
 # Data
@@ -156,14 +164,20 @@ dat_cl <- data.frame(
   y = nc_realX100_p3_k2$y,
   nc_realX100_p3_k2$X
 )
-
-str(dat_cl)
-summary(dat_cl)
 ```
 
-For illustration, we form a simple train/test split so that we can show both training-cluster summaries and out-of-sample label prediction.
+For illustration, we form a simple train/test split so that we can show both training-cluster summaries and out-of-sample label prediction. The chunk below shows the sampling code used for the shipped artifacts; the rendered row counts come from `inst/extdata/clustering_outputs.rds` in a hidden chunk.
 
-```{r split-data}
+```{r split-data-display, eval=FALSE}
+set.seed(123)
+idx_train <- sample(seq_len(nrow(dat_cl)), size = 80)
+train_dat <- dat_cl[idx_train, ]
+test_dat <- dat_cl[-idx_train, ]
+nrow(train_dat)
+nrow(test_dat)
+```
+
+```{r split-data, echo=FALSE}
 clust_out <- readRDS(.pkg_extdata("clustering_outputs.rds"))
 train_dat <- clust_out$train_dat
 test_dat <- clust_out$test_dat
@@ -187,7 +201,18 @@ ggplot(train_dat, aes(x = y)) +
 
 The bulk-only clustering wrapper is `dpmix.cluster()`. It uses the same general mixture machinery as the one-arm interface, but returns a clustering-oriented fitted object.
 
-```{r fit-cluster}
+```{r fit-cluster-display, eval=FALSE}
+fit_cluster <- dpmix.cluster(
+  formula = y ~ x1 + x2 + x3,
+  data = train_dat,
+  kernel = "laplace",
+  type = "both",
+  components = 8,
+  mcmc = mcmc_clust
+)
+```
+
+```{r fit-cluster, echo=FALSE}
 fit_cluster <- clust_out$fit_cluster
 ```
 
@@ -197,12 +222,21 @@ The choice `type = "both"` requests dependence in both the mixing weights and th
 
 The first label-invariant summary is the PSM.
 
-```{r psm-prediction}
+```{r psm-prediction-display, eval=FALSE}
+z_train_psm <- predict(fit_cluster, type = "psm")
+z_train_psm
+```
+
+```{r psm-prediction, echo=FALSE}
 z_train_psm <- clust_out$psm_obj
 z_train_psm
 ```
 
-```{r psm-plot, fig.height=5.2, fig.width=7}
+```{r psm-plot-display, eval=FALSE}
+plot(z_train_psm, type = "summary")
+```
+
+```{r psm-plot, echo=FALSE, fig.height=5.2, fig.width=7}
 plot(z_train_psm, type = "summary")
 ```
 
@@ -212,12 +246,21 @@ The block structure in the PSM is the main diagnostic for cluster separation. Da
 
 The next step is to extract representative cluster labels for the training sample.
 
-```{r label-prediction-train}
+```{r label-prediction-train-display, eval=FALSE}
+z_train_lab <- predict(fit_cluster, type = "label", return_scores = TRUE)
+z_train_lab
+```
+
+```{r label-prediction-train, echo=FALSE}
 z_train_lab <- clust_out$train_lab
 z_train_lab
 ```
 
-```{r label-plot-train, fig.height=5, fig.width=7}
+```{r label-plot-train-display, eval=FALSE}
+plot(z_train_lab, type = "summary")
+```
+
+```{r label-plot-train, echo=FALSE, fig.height=5, fig.width=7}
 plot(z_train_lab, type = "summary")
 ```
 
@@ -227,16 +270,31 @@ The representative partition provides a single interpretable clustering summary 
 
 A distinctive feature of the package is that it also supports cluster prediction for new observations.
 
-```{r label-prediction-test}
+```{r label-prediction-test-display, eval=FALSE}
+z_test <- predict(fit_cluster, newdata = test_dat, type = "label", return_scores = TRUE)
+z_test
+```
+
+```{r label-prediction-test, echo=FALSE}
 z_test <- clust_out$test_lab
 z_test
 ```
 
-```{r test-cluster-profiles}
+```{r test-cluster-profiles-display, eval=FALSE}
+summary(
+  predict(fit_cluster, newdata = test_dat, type = "label", return_scores = TRUE)
+)$cluster_profiles
+```
+
+```{r test-cluster-profiles, echo=FALSE}
 clust_out$cluster_profiles
 ```
 
-```{r sizes-plot-test, fig.height=4.8, fig.width=7}
+```{r sizes-plot-test-display, eval=FALSE}
+plot(z_test, type = "sizes")
+```
+
+```{r sizes-plot-test, echo=FALSE, fig.height=4.8, fig.width=7}
 plot(z_test, type = "sizes")
 ```
 

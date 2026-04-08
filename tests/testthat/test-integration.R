@@ -101,9 +101,6 @@ test_that("Bundle generation: custom mcmc args", {
 # Input validation tests for build_nimble_bundle
 # ======================================================================
 
-# Access build_nimble_bundle
-build_nimble_bundle <- get("build_nimble_bundle", mode = "function")
-
 test_that("build_nimble_bundle errors on empty y", {
   expect_error(
     build_nimble_bundle(
@@ -1089,7 +1086,7 @@ test_that("causal bundle and fit workflows cover PS and arm-specific branches", 
   )
   expect_s3_class(fit, "causalmixgpd_causal_fit")
   expect_output(print(fit), "CausalMixGPD causal fit")
-  expect_output(summary(fit), "Outcome fits")
+  expect_output(print(summary(fit)), "Outcome fits")
   expect_s3_class(params(fit), "mixgpd_params_pair")
 
   Xnew <- as.matrix(sim$X[1:4, , drop = FALSE])

@@ -160,3 +160,4 @@ vignettes/.Rprofile
 vignettes/.gitignore
 
 
+coverage_run.log

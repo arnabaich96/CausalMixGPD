@@ -403,7 +403,7 @@ test_that("CRP normal: GPD, with X", {
 # ============================================================================
 
 test_that("is_allowed_kernel() returns TRUE for valid kernels", {
-  is_allowed_kernel <- get("is_allowed_kernel", mode = "function")
+  is_allowed_kernel <- getFromNamespace("is_allowed_kernel", "CausalMixGPD")
 
   expect_true(is_allowed_kernel("normal"))
   expect_true(is_allowed_kernel("gamma"))
@@ -415,7 +415,7 @@ test_that("is_allowed_kernel() returns TRUE for valid kernels", {
 })
 
 test_that("is_allowed_kernel() returns FALSE for invalid kernels", {
-  is_allowed_kernel <- get("is_allowed_kernel", mode = "function")
+  is_allowed_kernel <- getFromNamespace("is_allowed_kernel", "CausalMixGPD")
 
   expect_false(is_allowed_kernel("invalid"))
   expect_false(is_allowed_kernel("weibull"))
@@ -429,7 +429,7 @@ test_that("is_allowed_kernel() returns FALSE for invalid kernels", {
 # ============================================================================
 
 test_that("check_gpd_contract() errors when GPD=TRUE with cauchy kernel", {
-  check_gpd_contract <- get("check_gpd_contract", mode = "function")
+  check_gpd_contract <- getFromNamespace("check_gpd_contract", "CausalMixGPD")
 
   expect_error(
     check_gpd_contract(GPD = TRUE, kernel = "cauchy"),
@@ -438,7 +438,7 @@ test_that("check_gpd_contract() errors when GPD=TRUE with cauchy kernel", {
 })
 
 test_that("check_gpd_contract() returns invisibly for valid combinations", {
-  check_gpd_contract <- get("check_gpd_contract", mode = "function")
+  check_gpd_contract <- getFromNamespace("check_gpd_contract", "CausalMixGPD")
 
   # GPD = TRUE with non-cauchy kernels should work
   expect_invisible(check_gpd_contract(GPD = TRUE, kernel = "normal"))
@@ -454,7 +454,7 @@ test_that("check_gpd_contract() returns invisibly for valid combinations", {
 })
 
 test_that("check_gpd_contract() returns NULL invisibly", {
-  check_gpd_contract <- get("check_gpd_contract", mode = "function")
+  check_gpd_contract <- getFromNamespace("check_gpd_contract", "CausalMixGPD")
 
   result <- check_gpd_contract(GPD = TRUE, kernel = "normal")
   expect_null(result)
@@ -465,20 +465,20 @@ test_that("check_gpd_contract() returns NULL invisibly", {
 # ============================================================================
 
 test_that("allowed_backends constant is correct", {
-  allowed_backends <- get("allowed_backends", inherits = TRUE)
+  allowed_backends <- getFromNamespace("allowed_backends", "CausalMixGPD")
 
   expect_equal(allowed_backends, c("crp", "sb", "spliced"))
 })
 
 test_that("allowed_kernels constant contains all 7 kernels", {
-  allowed_kernels <- get("allowed_kernels", inherits = TRUE)
+  allowed_kernels <- getFromNamespace("allowed_kernels", "CausalMixGPD")
 
   expected <- c("gamma", "lognormal", "invgauss", "normal", "laplace", "cauchy", "amoroso")
   expect_equal(sort(allowed_kernels), sort(expected))
 })
 
 test_that("positive_support_kernels constant is correct", {
-  positive_support_kernels <- get("positive_support_kernels", inherits = TRUE)
+  positive_support_kernels <- getFromNamespace("positive_support_kernels", "CausalMixGPD")
 
   expect_true("gamma" %in% positive_support_kernels)
   expect_true("lognormal" %in% positive_support_kernels)
@@ -490,7 +490,7 @@ test_that("positive_support_kernels constant is correct", {
 })
 
 test_that("real_support_kernels constant is correct", {
-  real_support_kernels <- get("real_support_kernels", inherits = TRUE)
+  real_support_kernels <- getFromNamespace("real_support_kernels", "CausalMixGPD")
 
   expect_true("normal" %in% real_support_kernels)
   expect_true("laplace" %in% real_support_kernels)
@@ -1177,17 +1177,6 @@ test_that(".posterior_summarize uses interval correctly", {
 # tests/testthat/test-internal-utils.R
 # Unit tests for internal utility helpers (02-utilities-internal.R)
 
-# Access internal helpers using :::
-.validate_nimble_reserved_names <- get(".validate_nimble_reserved_names", mode = "function")
-.coerce_fit_df <- get(".coerce_fit_df", mode = "function")
-.compute_interval <- get(".compute_interval", mode = "function")
-.posterior_summarize <- get(".posterior_summarize", mode = "function")
-.truncate_components_one_draw <- get(".truncate_components_one_draw", mode = "function")
-.wrap_plotly <- get(".wrap_plotly", mode = "function")
-.plot_palette <- get(".plot_palette", mode = "function")
-.extract_nimble_code <- get(".extract_nimble_code", mode = "function")
-.wrap_nimble_code <- get(".wrap_nimble_code", mode = "function")
-
 # ======================================================================
 # .validate_nimble_reserved_names
 # ======================================================================
@@ -1466,15 +1455,6 @@ test_that(".truncate_components_one_draw adjusts weights to sum to 1", {
 # ======================================================================
 # Additional internal utility helpers
 # ======================================================================
-
-# Access more internal helpers
-.extract_nimble_code <- get(".extract_nimble_code", mode = "function")
-.wrap_nimble_code <- get(".wrap_nimble_code", mode = "function")
-.plot_palette <- get(".plot_palette", mode = "function")
-.backend_label <- get(".backend_label", mode = "function")
-.kernel_label <- get(".kernel_label", mode = "function")
-.get_epsilon <- get(".get_epsilon", mode = "function")
-.get_nobs <- get(".get_nobs", mode = "function")
 
 # ======================================================================
 # .extract_nimble_code tests
@@ -2214,26 +2194,26 @@ test_that("All nimble::nimbleFunction-defined objects in R/ compile", {
 # Unit tests for S3 print/summary/plot methods (04-S3-Methods.R)
 # Uses minimal mock objects to avoid heavy MCMC runs
 
-# Access S3 methods directly using ::: (needed since class dispatch may fail outside pkg)
-print_mixgpd_params <- get("print.mixgpd_params", mode = "function")
-print_mixgpd_params_pair <- get("print.mixgpd_params_pair", mode = "function")
-print_causalmixgpd_qte <- get("print.causalmixgpd_qte", mode = "function")
-print_causalmixgpd_ate <- get("print.causalmixgpd_ate", mode = "function")
-summary_causalmixgpd_qte <- get("summary.causalmixgpd_qte", mode = "function")
-summary_causalmixgpd_ate <- get("summary.causalmixgpd_ate", mode = "function")
-print_summary_causalmixgpd_qte <- get("print.summary.causalmixgpd_qte", mode = "function")
-print_summary_causalmixgpd_ate <- get("print.summary.causalmixgpd_ate", mode = "function")
-print_summary_causalmixgpd_ps_fit <- get("print.summary.causalmixgpd_ps_fit", mode = "function")
-print_summary_causalmixgpd_causal_fit <- get("print.summary.causalmixgpd_causal_fit", mode = "function")
-plot_mixgpd_predict <- get("plot.mixgpd_predict", mode = "function")
-print_causalmixgpd_causal_predict_plots <- get("print.causalmixgpd_causal_predict_plots", mode = "function")
-print_mixgpd_predict_plots <- get("print.mixgpd_predict_plots", mode = "function")
-print_mixgpd_fit_plots <- get("print.mixgpd_fit_plots", mode = "function")
-print_causalmixgpd_causal_fit_plots <- get("print.causalmixgpd_causal_fit_plots", mode = "function")
-plot_mixgpd_fitted <- get("plot.mixgpd_fitted", mode = "function")
-print_mixgpd_fitted_plots <- get("print.mixgpd_fitted_plots", mode = "function")
-plot_causalmixgpd_qte <- get("plot.causalmixgpd_qte", mode = "function")
-plot_causalmixgpd_ate <- get("plot.causalmixgpd_ate", mode = "function")
+pkg <- "CausalMixGPD"
+print_mixgpd_params <- getFromNamespace("print.mixgpd_params", pkg)
+print_mixgpd_params_pair <- getFromNamespace("print.mixgpd_params_pair", pkg)
+print_causalmixgpd_qte <- getFromNamespace("print.causalmixgpd_qte", pkg)
+print_causalmixgpd_ate <- getFromNamespace("print.causalmixgpd_ate", pkg)
+summary_causalmixgpd_qte <- getFromNamespace("summary.causalmixgpd_qte", pkg)
+summary_causalmixgpd_ate <- getFromNamespace("summary.causalmixgpd_ate", pkg)
+print_summary_causalmixgpd_qte <- getFromNamespace("print.summary.causalmixgpd_qte", pkg)
+print_summary_causalmixgpd_ate <- getFromNamespace("print.summary.causalmixgpd_ate", pkg)
+print_summary_causalmixgpd_ps_fit <- getFromNamespace("print.summary.causalmixgpd_ps_fit", pkg)
+print_summary_causalmixgpd_causal_fit <- getFromNamespace("print.summary.causalmixgpd_causal_fit", pkg)
+plot_mixgpd_predict <- getFromNamespace("plot.mixgpd_predict", pkg)
+print_causalmixgpd_causal_predict_plots <- getFromNamespace("print.causalmixgpd_causal_predict_plots", pkg)
+print_mixgpd_predict_plots <- getFromNamespace("print.mixgpd_predict_plots", pkg)
+print_mixgpd_fit_plots <- getFromNamespace("print.mixgpd_fit_plots", pkg)
+print_causalmixgpd_causal_fit_plots <- getFromNamespace("print.causalmixgpd_causal_fit_plots", pkg)
+plot_mixgpd_fitted <- getFromNamespace("plot.mixgpd_fitted", pkg)
+print_mixgpd_fitted_plots <- getFromNamespace("print.mixgpd_fitted_plots", pkg)
+plot_causalmixgpd_qte <- getFromNamespace("plot.causalmixgpd_qte", pkg)
+plot_causalmixgpd_ate <- getFromNamespace("plot.causalmixgpd_ate", pkg)
 
 # ======================================================================
 # Mock object constructors
@@ -3256,24 +3236,20 @@ test_that("plot.causalmixgpd_ate errors on invalid object", {
 # Additional S3 method tests for bundles and fits
 # ======================================================================
 
-# Access more S3 methods
-print_causalmixgpd_bundle <- get("print.causalmixgpd_bundle", mode = "function")
-print_causalmixgpd_causal_bundle <- get("print.causalmixgpd_causal_bundle", mode = "function")
-summary_causalmixgpd_bundle <- get("summary.causalmixgpd_bundle", mode = "function")
-summary_causalmixgpd_causal_bundle <- get("summary.causalmixgpd_causal_bundle", mode = "function")
-print_causalmixgpd_ps_bundle <- get("print.causalmixgpd_ps_bundle", mode = "function")
-summary_causalmixgpd_ps_bundle <- get("summary.causalmixgpd_ps_bundle", mode = "function")
-print_causalmixgpd_causal_fit <- get("print.causalmixgpd_causal_fit", mode = "function")
-summary_causalmixgpd_causal_fit <- get("summary.causalmixgpd_causal_fit", mode = "function")
-print_causalmixgpd_ps_fit <- get("print.causalmixgpd_ps_fit", mode = "function")
-summary_causalmixgpd_ps_fit <- get("summary.causalmixgpd_ps_fit", mode = "function")
-print_mixgpd_fit <- get("print.mixgpd_fit", mode = "function")
-summary_mixgpd_fit <- get("summary.mixgpd_fit", mode = "function")
-print_mixgpd_summary <- get("print.mixgpd_summary", mode = "function")
-
-# Access exported functions
-build_nimble_bundle <- get("build_nimble_bundle", mode = "function")
-build_causal_bundle <- get("build_causal_bundle", mode = "function")
+pkg <- "CausalMixGPD"
+print_causalmixgpd_bundle <- getFromNamespace("print.causalmixgpd_bundle", pkg)
+print_causalmixgpd_causal_bundle <- getFromNamespace("print.causalmixgpd_causal_bundle", pkg)
+summary_causalmixgpd_bundle <- getFromNamespace("summary.causalmixgpd_bundle", pkg)
+summary_causalmixgpd_causal_bundle <- getFromNamespace("summary.causalmixgpd_causal_bundle", pkg)
+print_causalmixgpd_ps_bundle <- getFromNamespace("print.causalmixgpd_ps_bundle", pkg)
+summary_causalmixgpd_ps_bundle <- getFromNamespace("summary.causalmixgpd_ps_bundle", pkg)
+print_causalmixgpd_causal_fit <- getFromNamespace("print.causalmixgpd_causal_fit", pkg)
+summary_causalmixgpd_causal_fit <- getFromNamespace("summary.causalmixgpd_causal_fit", pkg)
+print_causalmixgpd_ps_fit <- getFromNamespace("print.causalmixgpd_ps_fit", pkg)
+summary_causalmixgpd_ps_fit <- getFromNamespace("summary.causalmixgpd_ps_fit", pkg)
+print_mixgpd_fit <- getFromNamespace("print.mixgpd_fit", pkg)
+summary_mixgpd_fit <- getFromNamespace("summary.mixgpd_fit", pkg)
+print_mixgpd_summary <- getFromNamespace("print.mixgpd_summary", pkg)
 
 # ======================================================================
 # print/summary.causalmixgpd_bundle tests
@@ -4737,16 +4713,6 @@ test_that("lowercase r* supports n = 0", {
 # tests/testthat/test-visualization-helpers.R
 # Unit tests for internal visualization helper functions (06-visualization-helpers.R)
 
-# Access internal helpers using :::
-.plot_quantile_pred <- get(".plot_quantile_pred", mode = "function")
-.plot_sample_pred <- get(".plot_sample_pred", mode = "function")
-.plot_mean_pred <- get(".plot_mean_pred", mode = "function")
-.plot_density_pred <- get(".plot_density_pred", mode = "function")
-.plot_survival_pred <- get(".plot_survival_pred", mode = "function")
-.plot_location_pred <- get(".plot_location_pred", mode = "function")
-.plot_palette <- get(".plot_palette", mode = "function")
-.plot_theme <- get(".plot_theme", mode = "function")
-
 # ======================================================================
 # .plot_palette tests
 # ======================================================================
@@ -5020,23 +4986,6 @@ test_that(".plot_location_pred errors on non-data.frame fit", {
 # ===== END unit/test-visualization-helpers.R =====
 
 # ===== BEGIN unit/test-formatting-and-wrapper-coverage.R =====
-fmt3 <- get("fmt3", mode = "function")
-fmt3_sci <- get("fmt3_sci", mode = "function")
-fmt3_vec <- get("fmt3_vec", mode = "function")
-format_df3 <- get("format_df3", mode = "function")
-format_df3_sci <- get("format_df3_sci", mode = "function")
-format_mat3 <- get("format_mat3", mode = "function")
-format_mat3_sci <- get("format_mat3_sci", mode = "function")
-.is_knitr_output <- get(".is_knitr_output", mode = "function")
-.kable_fmt <- get(".kable_fmt", mode = "function")
-.coerce_treat <- get(".coerce_treat", mode = "function")
-.parse_formula_yX <- get(".parse_formula_yX", mode = "function")
-.extract_treat_from_data <- get(".extract_treat_from_data", mode = "function")
-.normalize_mcmc_inputs <- get(".normalize_mcmc_inputs", mode = "function")
-.apply_mcmc_overrides <- get(".apply_mcmc_overrides", mode = "function")
-build_data_from_inputs <- get("build_data_from_inputs", mode = "function")
-build_monitors_from_spec <- get("build_monitors_from_spec", mode = "function")
-build_dimensions_from_spec <- get("build_dimensions_from_spec", mode = "function")
 
 test_that("formatting helpers handle numeric, matrix, and data.frame inputs", {
   expect_equal(fmt3(c(1, 1.2345)), c("1", "1.234"))
@@ -5342,37 +5291,6 @@ test_that("check_glue_validity covers validation and continuity branches", {
 # ===== END unit/test-formatting-and-wrapper-coverage.R =====
 
 # ===== BEGIN unit/test-causal-and-cluster-helper-coverage.R =====
-.cluster_parse_formula <- get(".cluster_parse_formula", mode = "function")
-.cluster_validate_type <- get(".cluster_validate_type", mode = "function")
-.cluster_validate_type_requirements <- get(".cluster_validate_type_requirements", mode = "function")
-.cluster_split_overrides <- get(".cluster_split_overrides", mode = "function")
-.cluster_normalize_link_entry <- get(".cluster_normalize_link_entry", mode = "function")
-.cluster_apply_link_overrides <- get(".cluster_apply_link_overrides", mode = "function")
-.cluster_normalize_prior_entry <- get(".cluster_normalize_prior_entry", mode = "function")
-.cluster_apply_prior_overrides <- get(".cluster_apply_prior_overrides", mode = "function")
-.cluster_draw_indices <- get(".cluster_draw_indices", mode = "function")
-.cluster_samples_to_matrix <- get(".cluster_samples_to_matrix", mode = "function")
-.cluster_extract_z_from_matrix <- get(".cluster_extract_z_from_matrix", mode = "function")
-.cluster_link_apply <- get(".cluster_link_apply", mode = "function")
-.cluster_softmax <- get(".cluster_softmax", mode = "function")
-.cluster_extract_gating_draw <- get(".cluster_extract_gating_draw", mode = "function")
-.cluster_gating_weights <- get(".cluster_gating_weights", mode = "function")
-.cluster_resolve_density_fun <- get(".cluster_resolve_density_fun", mode = "function")
-.cluster_component_density <- get(".cluster_component_density", mode = "function")
-.causal_ate_draws_matrix <- get(".causal_ate_draws_matrix", mode = "function")
-.causal_effect_subset_index <- get(".causal_effect_subset_index", mode = "function")
-.causal_summarize_draw_cols <- get(".causal_summarize_draw_cols", mode = "function")
-.causal_aggregate_qte <- get(".causal_aggregate_qte", mode = "function")
-.causal_aggregate_ate <- get(".causal_aggregate_ate", mode = "function")
-.causal_is_conditional_model <- get(".causal_is_conditional_model", mode = "function")
-.causal_require_conditional <- get(".causal_require_conditional", mode = "function")
-.causal_validate_interval <- get(".causal_validate_interval", mode = "function")
-.causal_warn_ignored_marginal_inputs <- get(".causal_warn_ignored_marginal_inputs", mode = "function")
-.causal_resolve_conditional_x <- get(".causal_resolve_conditional_x", mode = "function")
-.build_ps_bundle <- get(".build_ps_bundle", mode = "function")
-.ps_design_matrix <- get(".ps_design_matrix", mode = "function")
-.apply_ps_scale <- get(".apply_ps_scale", mode = "function")
-.compute_ps_from_fit <- get(".compute_ps_from_fit", mode = "function")
 
 predict.fake_mixfit <- function(object,
                                 newdata = NULL,

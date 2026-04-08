@@ -37,11 +37,11 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-`CausalMixGPD` extends its one-arm modeling framework to causal analyses by fitting treatment-specific outcome distributions and then computing causal contrasts as posterior functionals of those fitted distributions. This is a distribution-first approach: rather than modeling only an average treatment effect, the package models the treated and control outcome laws and derives means, quantiles, restricted means, survival summaries, and their contrasts from the resulting posterior object [@Rubin1974; @RosenbaumRubin1983; @ImbensRubin2015].
+In contrast to `CausalMix`, which was limited to modeling the average treatment effect, `CausalMixGPD` expands on the framework of causal inference by fitting treatment-specific outcome distributions and obtaining the contrasts by evaluating posterior functional of the fitted distribution [@Rubin1974; @RosenbaumRubin1983; @ImbensRubin2015]. Thus, it is a distribution-based approach where one obtains means, quantiles, restricted means, survival summaries, and their contrasts based on posterior objects obtained from the modeled outcome distributions.
 
-The software article emphasizes that this design is particularly useful when the outcome is skewed or heavy-tailed. In those cases, mean-only summaries can miss treatment-effect heterogeneity across the outcome scale, while direct modeling of treatment-specific distributions allows quantile treatment effects and upper-tail contrasts to be reported coherently.
+The key point made in the software article is that the proposed approach becomes especially relevant when the outcome is skewed or heavy-tailed. In such settings, treatment heterogeneity might not manifest itself via contrasts of means but rather in terms of other summaries of interest such as quantiles, and hence the modeling of treatment-specific distributions becomes critical for obtaining a coherent picture of the heterogeneous treatment effect.
 
-This vignette develops the causal workflow in four steps. We first define the potential-outcomes notation and the causal estimands returned by the package. We then describe how the spliced DPM-GPD model is used arm by arm. Next, we work through the main causal interface using a bundled simulated dataset. Finally, we summarize the main customization options for propensity score augmentation, arm-specific model choices, posterior effect summaries, and prediction.
+In this vignette, we describe the process of performing causal analysis with `CausalMixGPD` in four parts. First, we introduce potential outcomes framework and discuss the causal estimands computed by the package. Next, we explain what happens under the hood when the spliced DPM-GPD model is fit to each of the arms. After that, we demonstrate the usage of the key functions of the package using the example of the provided simulated data set.
 
 # Notation and short theory background
 
@@ -169,6 +169,21 @@ mcmc_vig <- list(
   nchains = 2,
   seed = 2026
 )
+# Settings used when regenerating `inst/extdata/causal_*.csv` (see tools/.Rscripts/build_vignette_fits.R).
+mcmc_out <- list(
+  niter = 1200,
+  nburnin = 300,
+  thin = 2,
+  nchains = 2,
+  seed = 2027
+)
+mcmc_ps <- list(
+  niter = 1000,
+  nburnin = 250,
+  thin = 2,
+  nchains = 2,
+  seed = 2028
+)
 ```
 
 # Data
@@ -182,9 +197,6 @@ causal_dat <- data.frame(
   A = causal_pos500_p3_k2$A,
   causal_pos500_p3_k2$X
 )
-
-str(causal_dat)
-summary(causal_dat)
 ```
 
 A quick empirical comparison between the observed outcome distributions by treatment arm gives a sense of the modeling problem.
@@ -193,7 +205,6 @@ A quick empirical comparison between the observed outcome distributions by treat
 ggplot(causal_dat, aes(x = y, colour = factor(A), fill = factor(A))) +
   geom_histogram(aes(y = after_stat(density)), bins = 25,
                  alpha = 0.25, position = "identity") +
-  geom_density(linewidth = 0.9) +
   labs(
     x = "y",
     y = "Density",
@@ -210,29 +221,26 @@ Even in a simulated benchmark, the treated and control distributions can differ 
 
 The high-level causal wrapper is `dpmgpd.causal()`. It fits treatment-specific outcome models and, when requested, a propensity score stage. The software article presents this as the direct causal extension of the one-arm workflow.
 
-To keep vignette building stable, the numerical outputs shown below are read from small precomputed files shipped in `inst/extdata/`. The code chunks remain fully runnable and display the same tables and graphics shipped with the package.
+To keep vignette building stable, the numerical outputs shown below are read from small precomputed files shipped in `inst/extdata/`. The following chunk shows the package call you would use for a full fit; the tables and figures in this section are rendered from those shipped artifacts in hidden companion chunks.
 
-```{r fit-causal}
-causal_call <- quote(
-  dpmgpd.causal(
-    formula = y ~ x1 + x2 + x3,
-    data = causal_dat,
-    treat = "A",
-    backend = "sb",
-    kernel = "gamma",
-    components = 5,
-    PS = "logit",
-    ps_scale = "logit",
-    ps_summary = "mean",
-    mcmc_outcome = mcmc_vig,
-    mcmc_ps = mcmc_vig
-  )
+```{r fit-causal-display, eval=FALSE}
+fit_causal <- dpmgpd.causal(
+  formula = y ~ x1 + x2 + x3,
+  data = causal_dat,
+  treat = "A",
+  backend = "crp",
+  kernel = "gamma",
+  components = 6,
+  PS = "logit",
+  ps_scale = "logit",
+  ps_summary = "mean",
+  mcmc_outcome = mcmc_out,
+  mcmc_ps = mcmc_ps,
+  parallel_arms = FALSE
 )
-
-causal_call
 ```
 
-The printed call shows the structure of the fitted model we want: arm-specific spliced outcome distributions, a gamma bulk kernel, and a logistic propensity score stage summarized on the logit scale.
+The call matches the structure used to build the shipped causal summaries: arm-specific spliced outcome distributions, a gamma bulk kernel, a CRP backend for the mixture, and a logistic propensity score stage summarized on the logit scale.
 
 # Standardized causal summaries
 
@@ -240,7 +248,12 @@ The printed call shows the structure of the fitted model we want: arm-specific s
 
 The standardized ATE contrasts the arm-specific means after averaging over the empirical covariate distribution.
 
-```{r ate-summary}
+```{r ate-summary-display, eval=FALSE}
+ate_fit <- ate(fit_causal, interval = "hpd", level = 0.95, show_progress = FALSE)
+knitr::kable(summary(ate_fit)$effect_table, format = "html", digits = 4)
+```
+
+```{r ate-summary, echo=FALSE}
 ate_tab <- read.csv(.pkg_extdata("causal_ate.csv"))
 knitr::kable(ate_tab, format = "html", digits = 4)
 ```
@@ -251,12 +264,34 @@ This table is intentionally simple. In the package, `ate()` returns an effect ob
 
 Quantile treatment effects are often more informative than a single average contrast in skewed or heavy-tailed settings.
 
-```{r qte-summary}
+```{r qte-summary-display, eval=FALSE}
+qte_fit <- qte(
+  fit_causal,
+  probs = c(0.25, 0.50, 0.75, 0.90, 0.95),
+  interval = "credible",
+  level = 0.95,
+  show_progress = FALSE
+)
+knitr::kable(summary(qte_fit)$effect_table, format = "html", digits = 4)
+```
+
+```{r qte-summary, echo=FALSE}
 qte_tab <- read.csv(.pkg_extdata("causal_qte.csv"))
 knitr::kable(qte_tab, format = "html", digits = 4)
 ```
 
-```{r qte-plot, fig.height=5, fig.width=7}
+```{r qte-plot-display, eval=FALSE}
+qte_fit <- qte(
+  fit_causal,
+  probs = c(0.25, 0.50, 0.75, 0.90, 0.95),
+  interval = "credible",
+  level = 0.95,
+  show_progress = FALSE
+)
+plot(qte_fit, type = "effect")
+```
+
+```{r qte-plot, echo=FALSE, fig.height=5, fig.width=7}
 plot(
   qte_tab$prob,
   qte_tab$estimate,
@@ -285,7 +320,26 @@ head(Xgrid)
 
 To illustrate the profile-specific summaries in a lightweight vignette, we reuse the package's shipped conditional quantile summaries.
 
-```{r conditional-qte-table}
+```{r conditional-qte-table-display, eval=FALSE}
+Xgrid <- as.data.frame(lapply(
+  causal_dat[, c("x1", "x2", "x3")],
+  stats::quantile,
+  probs = c(0.25, 0.50, 0.75),
+  na.rm = TRUE
+))
+rownames(Xgrid) <- c("low", "mid", "high")
+cqte_fit <- cqte(
+  fit_causal,
+  newdata = Xgrid,
+  probs = c(0.25, 0.50, 0.75, 0.90, 0.95),
+  interval = "credible",
+  level = 0.95,
+  show_progress = FALSE
+)
+knitr::kable(summary(cqte_fit)$effect_table, format = "html", digits = 4)
+```
+
+```{r conditional-qte-table, echo=FALSE}
 cond_q <- read.csv(.pkg_extdata("conditional_quantiles.csv"))
 knitr::kable(cond_q, format = "html", digits = 4)
 ```

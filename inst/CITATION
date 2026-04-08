@@ -5,6 +5,6 @@ bibentry(
   title   = "CausalMixGPD: Dirichlet Process Mixtures with Generalized Pareto Tail",
   author  = person("Arnab", "Aich"),
   year    = "2026",
-  note    = "R package version 0.2.0",
+  note    = "R package version 0.5.0",
   url     = "https://arnabaich96.github.io/CausalMixGPD/"
 )

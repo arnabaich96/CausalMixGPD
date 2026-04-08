@@ -5,7 +5,16 @@
 
 .cache_dir <- function() {
   d <- Sys.getenv("DPMIXGPD_CACHE_DIR", "")
-  if (!nzchar(d)) d <- file.path("tests", "testthat", "_cache")
+  if (!nzchar(d)) {
+    is_check <- nzchar(Sys.getenv("_R_CHECK_PACKAGE_NAME_")) ||
+      nzchar(Sys.getenv("RCMDCHECK")) ||
+      identical(tolower(Sys.getenv("NOT_CRAN", "")), "false")
+    d <- if (is_check) {
+      file.path(tempdir(), "CausalMixGPD_test_cache")
+    } else {
+      file.path("tests", "testthat", "_cache")
+    }
+  }
   dir.create(d, recursive = TRUE, showWarnings = FALSE)
   d
 }

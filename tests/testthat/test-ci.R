@@ -487,8 +487,8 @@ test_that("causal with GPD tails works (v17 coverage)", {
   fit <- quiet_run(run_mcmc_causal(bundle, show_progress = FALSE))
   expect_s3_class(fit, "causalmixgpd_causal_fit")
 
-  # Test predict with location type
-  pred_loc <- predict(fit, type = "location")
+  # Test predict with mean type (uses simulation fallback for gamma+GPD)
+  pred_loc <- predict(fit, type = "mean", nsim_mean = 20L)
   expect_s3_class(pred_loc, "causalmixgpd_causal_predict")
 })
 

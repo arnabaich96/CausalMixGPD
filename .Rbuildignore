@@ -109,6 +109,7 @@
 ^\.\.?Rcheck/
 ^CausalMixGPD_.*\.tar\.gz$
 ^covr_run.*\.log$
+^coverage_run\.log$
 ^devtools_check\.log$
 ^aer_install\.log$
 ^matchit_install\.log$
@@ -125,7 +126,6 @@
 ^covr/
 ^quarto_abs_test$
 ^quarto_abs_test/
-# Exclude benchmark and generated test artifacts from source tarball
 ^tests/perf$
 ^tests/perf/
 ^tests/testthat/Rplots\.pdf$
