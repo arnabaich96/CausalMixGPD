@@ -366,20 +366,20 @@ concludes with a discussion of limitations and future directions.
 \label{sec:prelim}
 
 Let the observation-covariate vector be denoted by
-\begin{equation}
+\begin{equation*}
 (Y,X) \in \mathbb{R}\times \mathbb{R}^p.
-\end{equation}
+\end{equation*}
 Then the conditional cumulative distribution function (CDF) and probability density function (PDF), for some covariate $x$, are defined as:
-\begin{equation}
+\begin{equation*}
 F(y\mid x)=\Pr\;(Y\le y\mid X=x),
 \qquad
 f(y\mid x)=\frac{\partial}{\partial y}F(y\mid x),
-\end{equation}
+\end{equation*}
 and the conditional quantile function is given by
-\begin{equation}
+\begin{equation*}
 Q(\tau\mid x)=\inf\Bigl\{y\in\mathbb{R}:\,F(y\mid x)\ge \tau\Bigr\},
 \qquad 0<\tau<1.
-\end{equation}
+\end{equation*}
 In \pkg{CausalMixGPD}, $f(\cdot|x)$ is regarded as the inferential target.
 The central part of the distribution is assumed to be nonparametric, while
 the upper tail may be parametrized using a generalized Pareto model, when
@@ -393,51 +393,47 @@ The tail region is defined by values exceeding a high threshold.
 Extreme value theory provides a standard approximation for such
 exceedances.  Let $u(x)$ denote a high threshold, potentially
 depending on $x$, and let the exceedance be given by
-\begin{equation}
+\begin{equation*}
 Z = Y - u(x),
-\end{equation}
+\end{equation*}
 considered conditionally on $Y > u(x)$.  The conditional excess
 distribution is given by
-\begin{equation}
+\begin{equation*}
 F_u(z\mid x) = \Pr\!\bigl(Y-u(x) \le z \mid Y>u(x), X=x\bigr),
 \qquad z \ge 0.
-\label{eq:cedf}
-\end{equation}
+\end{equation*}
 Under broad regularity conditions, $F_u(\cdot\mid x)$ is
 well-approximated by a generalized Pareto distribution (GPD) when
 $u(x)$ is sufficiently large
 \citep{BalkemaDeHaan1974,Pickands1975,Coles2001}.
 
 For $y>u(x)$, the corresponding GPD cumulative distribution function is given by
-\begin{equation}
+\begin{equation*}
 F_{\mathrm{GPD}}\bigl(y\mid u(x),\sigma(x),\xi\bigr)=
 \begin{cases}
 1-\left(1+\xi\dfrac{y-u(x)}{\sigma(x)}\right)^{-1/\xi}, & \xi\neq 0,\\[8pt]
 1-\exp\!\left(-\dfrac{y-u(x)}{\sigma(x)}\right), & \xi=0,
 \end{cases}
-\label{eq:gpd_cdf}
-\end{equation}
+\end{equation*}
 with support $y\ge u(x)$ when $\xi\ge 0$, and $u(x)\le y\le
 u(x)-\sigma(x)/\xi$ when $\xi<0$.  The corresponding density function
 is given by
-\begin{equation}
+\begin{equation*}
 f_{\mathrm{GPD}}(y\mid u(x),\sigma(x),\xi)=
 \begin{cases}
 \dfrac{1}{\sigma(x)}\left(1+\xi\dfrac{y-u(x)}{\sigma(x)}\right)^{-1/\xi-1}, & \xi\neq 0,\\[10pt]
 \dfrac{1}{\sigma(x)}\exp\!\left(-\dfrac{y-u(x)}{\sigma(x)}\right), & \xi=0.
 \end{cases}
-\label{eq:gpd_pdf}
-\end{equation}
+\end{equation*}
 The associated GPD quantile function takes the form
-\begin{equation}
+\begin{equation*}
 Q_{\mathrm{GPD}}(\tau\mid u(x),\sigma(x),\xi)=
 \begin{cases}
 u(x)-\sigma(x)\log(1-\tau), & \xi=0,\\[6pt]
 u(x)+\dfrac{\sigma(x)}{\xi}\Bigl((1-\tau)^{-\xi}-1\Bigr), & \xi\neq 0,
 \end{cases}
 \qquad 0<\tau<1.
-\label{eq:gpd_quantile}
-\end{equation}
+\end{equation*}
 
 <<gpdDensityFigure-build, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, include=FALSE>>=
 
@@ -516,20 +512,19 @@ Below the threshold $u(x)$, the conditional density of $Y$ given $X$
 is modeled using a DPM regression model.  Let
 $k(\cdot\mid x;\theta)$ denote a user-chosen kernel family indexed by
 parameter~$\theta$.  The hierarchical specification is given by
-\begin{equation}
+\begin{equation*}
 Y \mid X=x,\theta \sim k(\cdot\mid x;\theta),
 \qquad
 \theta \mid H \sim H,
 \qquad
 H \mid \kappa,H_0 \sim \mathrm{DP}(\kappa,H_0),
-\label{eq:dpm_hier}
-\end{equation}
+\end{equation*}
 where $H$ is an unknown mixing distribution on the kernel-parameter
 space, $H_0$ is a base measure, and $\kappa>0$ is a concentration
 parameter \citep{Ferguson1973}.  Marginalizing over $H$ yields an
 (almost surely) discrete mixing distribution together with an infinite
 mixture representation of the form
-\begin{equation}
+\begin{equation*}
 f_{\mathrm{DP}}(y\mid x)
 =
 \int k(y\mid x;\theta)\,dH(\theta)
@@ -539,8 +534,7 @@ f_{\mathrm{DP}}(y\mid x)
 w_j\ge 0,
 \qquad
 \sum_{j=1}^{\infty} w_j=1.
-\label{eq:dpm_mixture}
-\end{equation}
+\end{equation*}
 One representation of the weights is Sethuraman's stick-breaking
 construction \citep{Sethuraman1994}, in which
 \begin{equation}
@@ -557,14 +551,13 @@ An equivalent characterization is obtained by marginalizing over $H$,
 yielding the Blackwell--MacQueen P\'olya urn representation.  In
 particular, the conditional distribution of a parameter value given all
 others can be written as
-\begin{equation}
+\begin{equation*}
 \theta_i \mid \{\theta_j\}_{j \neq i}
 \sim
 \frac{\kappa}{\kappa+n} H_0(\cdot)
 +
 \frac{1}{\kappa+n}\sum_{j=1}^{n}\delta_{\theta_j}(\cdot),
-\label{eq:crp}
-\end{equation}
+\end{equation*}
 where $\delta_{\theta_j}(\cdot)$ denotes a point mass at $\theta_j$.
 This specification induces a clustering structure commonly described
 via the Chinese restaurant process (CRP) \citep{Neal2000}.  Both the
@@ -591,10 +584,9 @@ parameter.  Let $\Theta$ collect the bulk-mixture parameters and
 $\Phi$ collect the tail quantities $\{u(x),\sigma(x),\xi\}$.  Write
 $F_{\mathrm{DP}}(y\mid x;\Theta)$ for the bulk conditional CDF and
 $F_{\mathrm{GPD}}(y\mid x;\Phi)$ for the exceedance CDF.  The fitted bulk mass below the threshold $u(x)$ is given by
-\begin{equation}
+\begin{equation*}
 p_u(x)=F_{\mathrm{DP}}(u(x)\mid x;\Theta),
-\label{eq:pu_theta}
-\end{equation}
+\end{equation*}
 and the spliced CDF is given by
 \begin{equation}
 F(y\mid x;\Theta,\Phi)=
@@ -739,10 +731,9 @@ bulk CDF.  Let $Q_{\mathrm{DP}}(\tau\mid x;\Theta)$ denote the bulk
 quantile function.  For $\tau > p_u(x;\Theta)$, the probability index
 must be rescaled relative to the exceedance probability, yielding the
 rescaled index
-\begin{equation}
+\begin{equation*}
 \tilde{\tau}(x;\Theta)=\dfrac{\tau-p_u(x;\Theta)}{1-p_u(x;\Theta)}\in(0,1),
-\label{eq:tau_tilde}
-\end{equation}
+\end{equation*}
 Combining both cases, the spliced quantile function is given by
 \begin{equation}
 Q(\tau\mid x;\Theta,\Phi)=
@@ -772,40 +763,35 @@ the package whenever the mean exists.
 The modeling scheme within the Bayesian nonparametric framework starts with representing the set $\{f(\,\cdot\mid x): x\in\mathcal{X}\}$ using predictor-indexed random probability measures. Within the Dependent Dirichlet Process setting of \citet{MacEachern1999,MacEachern2000}, one assumes a collection $\{G_x: x\in\mathcal{X}\}$ of random mixing measures whose dependence allows borrowing of information in $f(\,\cdot\mid x)$.
 
 In general terms, the model takes form as
-\begin{equation}
+\begin{equation*}
 f(y\mid x) \;=\; \int k\!\left(y\mid x,\theta\right)\, dG_x(\theta),
-\label{eq:clust_mix_int}
-\end{equation}
+\end{equation*}
 where $k(\cdot\mid x,\theta)$ denotes a kernel, and $G_x$ is a predictor dependent random mixing measure. If a mixture measure $G_x$ is discrete (e.g., constructed via stick-breaking), latent parameters exhibit ties. This induces partitioning of observations via a latent variable representation with cluster labels $z_i$, and component parameters $\{\theta_j\}_{j\ge1}$ defined by
-\begin{equation}
+\begin{equation*}
 y_i \mid z_i,\{\theta_j\},x_i \sim k\!\left(\,\cdot \mid x_i,\theta_{z_i}\right).
-\label{eq:clust_latent}
-\end{equation}
+\end{equation*}
 Clustering is thus encoded in the induced partition $\Pi=\{z_1,\ldots,z_n\}$'s posterior distribution and is characterized by label-invariant co-clustering statistics \citep{Binder1978,Dahl2006}. The clustering capabilities of \pkg{CausalMixGPD} incorporate three types of dependence in predictors, each corresponding to specific mixing measure constructions $G_x$.
 
 \begin{itemize}
 \item \textbf{Weight dependence only:} Dependence enters through predictor-modulated mixture weights, whereas component parameters are shared across predictors,
-\begin{equation}
+\begin{equation*}
 f(y\mid x) \;=\; \sum_{j=1}^{\infty} w_j(x)\, k\!\left(y\mid \theta_j\right).
-\label{eq:clust_weights_only}
-\end{equation}
+\end{equation*}
 One possible way to implement it is to use predictor-dependent stick-breaking \citep{MacEachern2000,Quintana2022}. In particular, stick lengths become regression functions of predictors, with logistic sticks corresponding to logistic regressions mapping to weights \citep{Ren2011}. One could think of such models as practical examples of the DDP framework, in which dependence is introduced through smooth weight variation.
 
 \item \textbf{Parameter dependence only:} Here, dependence arises through predictor-modulated component parameters, while weights remain constant,
-\begin{equation}
+\begin{equation*}
 f(y\mid x) \;=\; \sum_{j=1}^{\infty} w_j\, k\!\left(y\mid x,\theta_j\right).
-\label{eq:clust_param_only}
-\end{equation}
+\end{equation*}
 This type of dependence matches the DDP framework with shared weights but predictor-indexed component-specific kernel parameters \citep{MacEachern1999,MacEachern2000}. This class of models resembles dependent ANOVA prior constructions of random measures \citep{DeIorio2004}.
 
 
 \item \textbf{Weight and parameter dependence:} The most flexible
 specification allows predictors to influence both cluster prevalence
 and within-cluster behavior,
-\begin{equation}
+\begin{equation*}
 f(y\mid x) \;=\; \sum_{j=1}^{\infty} w_j(x)\, k\!\left(y\mid x,\theta_j\right).
-\label{eq:clust_both}
-\end{equation}
+\end{equation*}
 This corresponds to DDP-type models in which both selection
 probabilities and component-specific conditional structure vary with
 predictors \citep{Quintana2022}.
@@ -844,14 +830,13 @@ and we estimate it by Monte Carlo averaging,
 Because mixture labels are only identifiable up to permutation, we report clustering
 summaries through label-invariant posterior functionals. In particular, we estimate
 the posterior similarity matrix (PSM) as
-\begin{equation}
+\begin{equation*}
 \widehat S_{i\ell}
 =
 \frac{1}{M}\sum_{m=1}^M
 \mathbbm{1}\{z_i^{(m)}=z_\ell^{(m)}\},
 \qquad i,\ell=1,\dots,n,
-\label{eq:psm}
-\end{equation}
+\end{equation*}
 which approximates \(\Pr(z_i=z_\ell \mid \text{data})\). A representative partition is
 then obtained via Dahl's least-squares method, i.e., by selecting the sampled partition
 whose adjacency matrix is closest to \(\widehat S\) under squared loss
@@ -906,57 +891,50 @@ In this package, we use the potential outcomes framework for causal inference in
 is an indicator for a binary treatment assignment ($A=1$ treated, $A=0$
 control), $X$ denotes pre-treatment covariates, and $Y(a)$ denotes the
 potential outcome under treatment arm $a\in\{0,1\}$.  The observed outcome is then defined as
-\begin{equation}
+\begin{equation*}
 Y = A\,Y(1) + \bigl(1-A\bigr)\,Y(0).
-\label{eq:po_observed}
-\end{equation}
+\end{equation*}
 For each arm $a\in\{0,1\}$, the arm-specific conditional CDF
 can be expressed as
-\begin{equation}
+\begin{equation*}
 F_a(y\mid x)=\Pr\;\{Y(a)\le y \mid X=x\},\qquad a\in\{0,1\}.
-\label{eq:po_cond_cdf}
-\end{equation}
+\end{equation*}
 Under the \pkg{CausalMixGPD} approach, the arm-specific conditional
 densities $f_a(y\mid x)$ follow the spliced DP mixture form
 given in~\eqref{eq:splice_pdf}.  The conditional $\tau$-quantile function can be computed by taking the inverse CDF,
-\begin{equation}
+\begin{equation*}
 Q_a(\tau\mid x)=\inf\{y:\,F_a(y\mid x)\ge \tau\},\qquad \tau\in(0,1),
-\label{eq:po_cond_quantile}
-\end{equation}
+\end{equation*}
 whereas the conditional mean is computed via integration of the conditional
 density function,
-\begin{equation}
+\begin{equation*}
 \mu_a(x)=\mathrm{E}\{Y(a)\mid X=x\}=\int y\, f_a(y\mid x)\,dy.
-\label{eq:po_cond_mean}
-\end{equation}
+\end{equation*}
 
 
 Marginal distributions are obtained by averaging
 conditional distributions over a covariate distribution.  Writing
 $F_a^{\mathrm{m}}(\cdot)$ for the population arm-$a$ CDF and
 $F_a^{\mathrm{t}}(\cdot)$ for the treated analog, these are given by
-\begin{equation}
+\begin{equation*}
 F_a^{\mathrm{m}}(y)=\mathrm{E}\bigl\{F_a(y\mid X)\bigr\},
 \qquad
 F_a^{\mathrm{t}}(y)=\mathrm{E}\bigl\{F_a(y\mid X)\bigm\vert A=1\bigr\}.
-\label{eq:marginal_cdf_defs}
-\end{equation}
+\end{equation*}
 The associated marginal quantile functions are obtained by inverting
 these standardized CDFs,
-\begin{equation}
+\begin{equation*}
 Q_a^{\mathrm{m}}(\tau)=\inf\{y:\,F_a^{\mathrm{m}}(y)\ge \tau\},
 \qquad
 Q_a^{\mathrm{t}}(\tau)=\inf\{y:\,F_a^{\mathrm{t}}(y)\ge \tau\},
-\label{eq:marginal_quantile_defs}
-\end{equation}
+\end{equation*}
 while the marginal means integrate the conditional mean over the
 respective covariate distributions,
-\begin{equation}
+\begin{equation*}
 \mu_a^{\mathrm{m}}=\mathrm{E}\bigl\{\mu_a(X)\bigr\},
 \qquad
 \mu_a^{\mathrm{t}}=\mathrm{E}\bigl\{\mu_a(X)\mid A=1\bigr\}.
-\label{eq:marginal_mean_defs}
-\end{equation}
+\end{equation*}
 
 The identification of such variables is dependent upon the design of the study. For randomized experiments, randomness and positivity result in exchangeability between treatment assignment and potential outcomes \citep{ImbensRubin2015}. For observational studies, the conditions for identification include the following conditions \citep{RosenbaumRubin1983,ImbensRubin2015}.
 
@@ -967,44 +945,39 @@ is no interference between units and no hidden versions of treatment.
 the corresponding potential outcome, that is, $Y=Y(a)$.
 \item \textbf{Conditional ignorability:} treatment assignment is
 as-if randomized given covariates, so that
-\begin{equation}
+\begin{equation*}
 \bigl(Y(0),Y(1)\bigr)\ \perp\ A \ \mid\ X.
-\label{eq:ignorability}
-\end{equation}
+\end{equation*}
 \item \textbf{Overlap (positivity):} every covariate profile has a
 strictly positive probability of receiving either treatment,
-\begin{equation}
+\begin{equation*}
 0<\Pr\;(A=1\mid X=x)<1
-\label{eq:overlap}
-\end{equation}
+\end{equation*}
 for all covariate values of interest.
 \end{itemize}
 Under such circumstances, the treatment-specific conditional
 distributions can be inferred based on the observations as follows:
-\begin{equation}
+\begin{equation*}
 F_a(y\mid x)=\Pr\;(Y\le y\mid A=a,X=x),\qquad a\in\{0,1\}.
-\label{eq:identification_cdf}
-\end{equation}
+\end{equation*}
 
 To address the potential unobserved confounding in the observational
 setting, the package uses the propensity score (PS) method during the
 design phase \citep{RosenbaumRubin1983}.  The PS is the
 conditional probability of receiving the treatment given the
 covariates:
-\begin{equation}
+\begin{equation*}
 \rho(x)=\Pr\;(A=1\mid X=x).
-\label{eq:ps_def}
-\end{equation}
+\end{equation*}
 An important characteristic of the true propensity score is that
 conditioning on it balances the covariates in both treatment groups.
 Following a two-step procedure, the package first obtains an estimate
 of $\rho(x)$ using the data $(A,X)$ alone and then adds the estimated
 propensity score to the outcome model covariates. Thus, the
 augmented predictor vector will take the following form:
-\begin{equation}
+\begin{equation*}
 r(x)=\bigl(x^{\mathsf{T}},\widehat{\rho}(x)\bigr)^{\mathsf{T}}.
-\label{eq:augmented_covariate}
-\end{equation}
+\end{equation*}
 Next, the conditional distributions of the outcome are estimated
 separately for each treatment group using the augmented predictor
 $r(x)$, and causal contrasts are evaluated as functionals of the
@@ -1163,10 +1136,9 @@ one up to some residual probability mass allocated to other
 components. Kernel parameters can be constant, specific to a
 mixture component, or dependent on the covariates according to
 link functions of the form
-\begin{equation}
+\begin{equation*}
   g\!\left(\psi_j(x)\right)=x^\top \beta_{j,\psi},
-  \label{eq:overview-link}
-\end{equation}
+\end{equation*}
 Here, $\psi_j(x)$ is a generic kernel parameter for component $j$
 with input covariates $x$, while the link function $g(\cdot)$
 restricts the parameter support. All code illustrations in this
@@ -1201,17 +1173,16 @@ where $\Theta$ collects the bulk parameters
 $\{w_j,\theta_j\}_{j=1}^J$ and $\Phi$ collects the tail parameters
 governing $u(x)$, $\sigma(x)$, and $\xi$.  The log-likelihood can
 equivalently be written as
-\begin{align}
+\begin{align*}
   \log L(\Theta,\Phi;\mathcal{D})
   \;=&\;\sum_{i=1}^n (1-\delta_i)\,\log f_{\mathrm{DP}}(y_i\mid x_i;\Theta)
-  \nonumber\\
+  \\
   &\;+\;\sum_{i=1}^n \delta_i
   \Bigl[
     \log\!\bigl\{1-F_{\mathrm{DP}}(u(x_i)\mid x_i;\Theta)\bigr\}
     +\log f_{\mathrm{GPD}}\!\bigl(y_i\mid x_i;\Phi\bigr)
   \Bigr],
-  \label{eq:overview-loglik}
-\end{align}
+\end{align*}
 where $f_{\mathrm{GPD}}$ is the GPD tail density from
 Section~\ref{subsec:splice} and $F_{\mathrm{DP}}(\cdot\mid x)$ is the
 bulk mixture CDF.
