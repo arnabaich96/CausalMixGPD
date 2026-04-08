@@ -2597,85 +2597,87 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = FALSE,
   }
 
   if (is.null(cache_entry)) {
-    .cmgpd_progress_step(progress_ctx, "Building model and MCMC configuration")
-    t0_build <- tic()
-    # Generated models are validated upstream; NIMBLE's full check path can be
-    # disproportionately expensive for manuscript-scale fits.
-    .register_nimble_exports()
-    Rmodel <- tryCatch(
-      .cmgpd_capture_nimble(
-        nimble::nimbleModel(
-          code = code, data = data, constants = constants,
-          inits = inits_fun(), dimensions = dims, check = FALSE, calculate = FALSE
+    cache_entry <- .with_nimble_exports({
+      .cmgpd_progress_step(progress_ctx, "Building model and MCMC configuration")
+      t0_build <- tic()
+      # Generated models are validated upstream; NIMBLE's full check path can be
+      # disproportionately expensive for manuscript-scale fits.
+      .register_nimble_exports()
+      Rmodel <- tryCatch(
+        .cmgpd_capture_nimble(
+          nimble::nimbleModel(
+            code = code, data = data, constants = constants,
+            inits = inits_fun(), dimensions = dims, check = FALSE, calculate = FALSE
+          ),
+          suppress = nimble_quiet
+        ),
+        error = function(e) {
+          msg <- conditionMessage(e)
+          if (grepl("keywords:", msg, ignore.case = TRUE) && grepl("Please use a different name", msg, fixed = TRUE)) {
+            return(
+              .cmgpd_capture_nimble(
+                nimble::nimbleModel(
+                  code = code, data = data, constants = constants,
+                  inits = inits_fun(), dimensions = dims, check = FALSE, calculate = FALSE
+                ),
+                suppress = nimble_quiet
+              )
+            )
+          }
+          stop(e)
+        }
+      )
+
+      conf <- .cmgpd_capture_nimble(
+        nimble::configureMCMC(Rmodel, monitors = monitors, enableWAIC = waic_enabled),
+        suppress = nimble_quiet
+      )
+      conf <- .cmgpd_capture_nimble(
+        .configure_samplers(
+          conf,
+          spec = spec,
+          data_info = list(constants = constants, dimensions = dims),
+          z_update_every = z_update_every
         ),
         suppress = nimble_quiet
-      ),
-      error = function(e) {
-        msg <- conditionMessage(e)
-        if (grepl("keywords:", msg, ignore.case = TRUE) && grepl("Please use a different name", msg, fixed = TRUE)) {
-          return(
-            .cmgpd_capture_nimble(
-              nimble::nimbleModel(
-                code = code, data = data, constants = constants,
-                inits = inits_fun(), dimensions = dims, check = FALSE, calculate = FALSE
-              ),
-              suppress = nimble_quiet
-            )
-          )
+      )
+
+      Rmcmc <- .cmgpd_capture_nimble(nimble::buildMCMC(conf), suppress = nimble_quiet)
+      timing_info$build <- tic() - t0_build
+
+      .cmgpd_progress_step(progress_ctx, "Compiling NIMBLE model")
+      compiled <- TRUE
+      Cmodel <- NULL
+      Cmcmc <- NULL
+      t0_compile <- tic()
+      compile_err <- tryCatch({
+        Cmodel <- .cmgpd_capture_nimble(
+          nimble::compileNimble(Rmodel, showCompilerOutput = FALSE),
+          suppress = nimble_quiet
+        )
+        Cmcmc <- .cmgpd_capture_nimble(
+          nimble::compileNimble(Rmcmc, project = Rmodel, showCompilerOutput = FALSE),
+          suppress = nimble_quiet
+        )
+        NULL
+      }, error = function(e) e)
+      timing_info$compile <- tic() - t0_compile
+      if (inherits(compile_err, "error")) {
+        compiled <- FALSE
+        if (!isTRUE(quiet) && !isTRUE(show_progress)) {
+          warning(paste0("nimble model compilation failed; running uncompiled MCMC for portability: ", conditionMessage(compile_err)), call. = FALSE)
         }
-        stop(e)
       }
-    )
 
-    conf <- .cmgpd_capture_nimble(
-      nimble::configureMCMC(Rmodel, monitors = monitors, enableWAIC = waic_enabled),
-      suppress = nimble_quiet
-    )
-    conf <- .cmgpd_capture_nimble(
-      .configure_samplers(
-        conf,
-        spec = spec,
-        data_info = list(constants = constants, dimensions = dims),
-        z_update_every = z_update_every
-      ),
-      suppress = nimble_quiet
-    )
-
-    Rmcmc <- .cmgpd_capture_nimble(nimble::buildMCMC(conf), suppress = nimble_quiet)
-    timing_info$build <- tic() - t0_build
-
-    .cmgpd_progress_step(progress_ctx, "Compiling NIMBLE model")
-    compiled <- TRUE
-    Cmodel <- NULL
-    Cmcmc <- NULL
-    t0_compile <- tic()
-    compile_err <- tryCatch({
-      Cmodel <- .cmgpd_capture_nimble(
-        nimble::compileNimble(Rmodel, showCompilerOutput = FALSE),
-        suppress = nimble_quiet
+      list(
+        compiled = compiled,
+        Rmodel = Rmodel,
+        Rmcmc = Rmcmc,
+        Cmodel = if (compiled) Cmodel else NULL,
+        Cmcmc = if (compiled) Cmcmc else NULL,
+        conf = conf
       )
-      Cmcmc <- .cmgpd_capture_nimble(
-        nimble::compileNimble(Rmcmc, project = Rmodel, showCompilerOutput = FALSE),
-        suppress = nimble_quiet
-      )
-      NULL
-    }, error = function(e) e)
-    timing_info$compile <- tic() - t0_compile
-    if (inherits(compile_err, "error")) {
-      compiled <- FALSE
-      if (!isTRUE(quiet) && !isTRUE(show_progress)) {
-        warning(paste0("nimble model compilation failed; running uncompiled MCMC for portability: ", conditionMessage(compile_err)), call. = FALSE)
-      }
-    }
-
-    cache_entry <- list(
-      compiled = compiled,
-      Rmodel = Rmodel,
-      Rmcmc = Rmcmc,
-      Cmodel = if (compiled) Cmodel else NULL,
-      Cmcmc = if (compiled) Cmcmc else NULL,
-      conf = conf
-    )
+    })
     .mcmc_cache_set(cache_key, cache_entry)
   } else {
     .cmgpd_progress_step(progress_ctx, "Building model and MCMC configuration (cached)")
@@ -2723,7 +2725,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = FALSE,
       error = function(e) e
     )
   }
-  res <- run_mcmc_once(inits_list)
+  res <- .with_nimble_exports(run_mcmc_once(inits_list))
   is_crp_init_error <- inherits(res, "error") &&
     grepl(
       "CRP_sampler: sampler encountered case where the log probability density values corresponding to all potential cluster memberships are negative infinity",
@@ -2753,7 +2755,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = FALSE,
           X = data$X %||% NULL
         )
       }
-      res <- run_mcmc_once(retry_inits)
+      res <- .with_nimble_exports(run_mcmc_once(retry_inits))
       if (!inherits(res, "error")) {
         inits_list <- retry_inits
         break

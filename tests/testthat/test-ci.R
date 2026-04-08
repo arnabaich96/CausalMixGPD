@@ -5,6 +5,15 @@
 skip_if_not_test_level("ci")
 
 find_package_root <- function() {
+  source_root <- Sys.getenv("DPMIXGPD_SOURCE_ROOT", unset = "")
+  if (nzchar(source_root)) {
+    source_root <- normalizePath(source_root, winslash = "/", mustWork = FALSE)
+    if (file.exists(file.path(source_root, "DESCRIPTION")) &&
+        file.exists(file.path(source_root, "tools", "site-map", "extract_site_map.R"))) {
+      return(source_root)
+    }
+  }
+
   current <- normalizePath(getwd(), winslash = "/", mustWork = TRUE)
   for (i in 0:8) {
     candidate <- current

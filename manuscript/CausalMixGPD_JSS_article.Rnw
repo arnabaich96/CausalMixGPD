@@ -9,6 +9,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb}
+\usepackage{bbm}
 \usepackage{array}
 \usepackage{booktabs}
 \usepackage{float}
@@ -36,9 +37,9 @@
 
 %% ---- JSS metadata ----
 \author{Arnab Aich\\Florida State University}
-\title{\pkg{CausalMixGPD}: Bayesian Nonparametric Modeling with Optional Heavy-Tail Augmentation for Causal Inference and Clustering}
+\title{\pkg{CausalMixGPD}: An R Package for Bayesian Nonparametric Conditional Density Modeling in Causal Inference and Clustering with A Modular Heavy-Tail Extension}
 \Plainauthor{Arnab Aich}
-\Plaintitle{CausalMixGPD: Bayesian Nonparametric Modeling with Optional Heavy-Tail Augmentation for Causal Inference and Clustering}
+\Plaintitle{CausalMixGPD:  An R Package for Bayesian Nonparametric Conditional Density Modeling in Causal Inference and Clustering with A Modular Heavy-Tail Extension}
 \Shorttitle{\pkg{CausalMixGPD}}
 
 \Abstract{
@@ -329,23 +330,23 @@ causal analysis in the presence of covariates.  The package provides
 three simultaneous capabilities:
 
 \begin{itemize}
-  \item[(i)] \textbf{BNP density estimation with an optional GPD
-  tail:} the package fits DPMs below a threshold and can splice a
+  \item[(i)] \textbf{BNP conditional density estimation with an optional GPD
+  tail:} The package fits DPMs below a threshold and can splice a
   generalized Pareto tail above it for tail probabilities, extreme
   quantiles, and rare-event prediction.
 
-  \item[(ii)] \textbf{Predictor-dependent clustering:} dedicated
-  clustering wrappers support dependence through weights, component
-  parameters, or both, and report label-invariant summaries via
+  \item[(ii)] \textbf{Predictor-dependent clustering:} A dedicated
+  clustering framework that models different covariate dependence
+  structure of latent allocation and report label-invariant summaries via
   posterior similarity matrices and Dahl representative partitions
   \citep{Binder1978,Dahl2006}.
 
   \item[(iii)] \textbf{Causal estimation via posterior functionals:}
-  treatment-specific outcome distributions are modeled directly, so
-  that average, restricted-mean, and quantile treatment effects are
-  computed from the fitted distributions in both randomized and
-  observational studies, with optional propensity-score augmentation in
-  the latter.
+  Treatment-specific outcome distributions are modeled directly via
+  conditional desnity estimation, so that average, restricted-mean,
+  and quantile treatment effects are computed from the fitted distributions in
+  both randomized and observational studies, with optional propensity-score
+  augmentation in the latter.
 \end{itemize}
 
 Collectively, \pkg{CausalMixGPD} offers a unified workflow for
@@ -441,7 +442,7 @@ u(x)+\dfrac{\sigma(x)}{\xi}\Bigl((1-\tau)^{-\xi}-1\Bigr), & \xi\neq 0,
 <<gpdDensityFigure-build, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, include=FALSE>>=
 
 u <- 2.0
-y <- seq(u, u + 8, length.out = 500)
+y <- seq(u, u + 5, length.out = 500)
 sigma <- 1.2
 xi_vals <- c(-0.5, 0.0, 0.5)
 xi_legend_levels <- sprintf("xi==%.2f", xi_vals)
@@ -810,20 +811,92 @@ probabilities and component-specific conditional structure vary with
 predictors \citep{Quintana2022}.
 \end{itemize}
 
-Posterior clustering summaries are reported through label-invariant
-functionals.  The posterior similarity matrix (PSM) has entries
+\paragraph{Posterior inference and prediction for cluster allocation.}
+
+Let \(D_n=\{(y_i,x_i)\}_{i=1}^n\) denote the observed data and let
+\(z_i \in \{1,\dots,J\}\) be the latent component label under a finite truncation of
+the mixture model. At MCMC iteration \(m\), let
+\(\Theta^{(m)}=\{\theta_j^{(m)}\}_{j=1}^J\) denote the component-specific parameters
+and \(w_j^{(m)}(x)\) the predictor-dependent mixture weights. The corresponding
+conditional density is
+\[
+f^{(m)}(y \mid x)=\sum_{j=1}^J w_j^{(m)}(x)\,k(y \mid x,\theta_j^{(m)}),
+\]
+with \(w_j^{(m)}(x)\equiv w_j^{(m)}\) in the predictor-independent case.
+
+For each unit \(i\), the conditional posterior probability of allocation to component
+\(j\) at draw \(m\) is
+\[
+p_{ij}^{(m)}
+=
+\frac{
+w_j^{(m)}(x_i)\,k(y_i \mid x_i,\theta_j^{(m)})
+}{
+\sum_{\ell=1}^J
+w_\ell^{(m)}(x_i)\,k(y_i \mid x_i,\theta_\ell^{(m)})
+},
+\]
+and we estimate it by Monte Carlo averaging,
+\[
+\widehat p_{ij}=\frac{1}{M}\sum_{m=1}^M p_{ij}^{(m)}.
+\]
+
+Because mixture labels are only identifiable up to permutation, we report clustering
+summaries through label-invariant posterior functionals. In particular, we estimate
+the posterior similarity matrix (PSM) as
 \begin{equation}
-S_{i\ell} \;=\; \Pr(z_i=z_\ell \mid \text{data}), \qquad i,\ell=1,\ldots,n,
+\widehat S_{i\ell}
+=
+\frac{1}{M}\sum_{m=1}^M
+\mathbbm{1}\{z_i^{(m)}=z_\ell^{(m)}\},
+\qquad i,\ell=1,\dots,n,
 \label{eq:psm}
 \end{equation}
-estimated by Monte Carlo averages over MCMC output.  A representative
-partition is obtained by selecting the sampled partition whose
-adjacency matrix is closest to the PSM under squared loss
-\citep{Dahl2006}, yielding a stable point estimate while retaining the
-PSM as the primary uncertainty summary.
-Section~\ref{subsec:cluster_extension} provides further details on the
-package's implementation of these summaries.
+which approximates \(\Pr(z_i=z_\ell \mid \text{data})\). A representative partition is
+then obtained via Dahl's least-squares method, i.e., by selecting the sampled partition
+whose adjacency matrix is closest to \(\widehat S\) under squared loss
+\citep{Dahl2006}. We therefore use the PSM as the main uncertainty summary, and the
+representative partition as a stable point estimate; further implementation details are
+given in Section~\ref{subsec:cluster_extension}.
 
+If a hard allocation is needed for the training sample, observation \(i\) may be
+assigned to
+\[
+\widehat z_i^{\,\mathrm{train}}
+=
+\arg\max_{1\le j\le J}\widehat p_{ij},
+\]
+though substantive interpretation relies on the representative partition rather than
+the raw component indices.
+
+For a new covariate profile \(x^\star\), if the response is unobserved then the
+posterior predictive allocation probabilities reduce to the weights,
+\[
+p_j^{(m)}(x^\star)=w_j^{(m)}(x^\star),
+\qquad
+\widehat p_j(x^\star)=\frac{1}{M}\sum_{m=1}^M w_j^{(m)}(x^\star).
+\]
+If \(y^\star\) is also observed, the posterior allocation probabilities are
+\[
+p_j^{(m)}(x^\star,y^\star)
+=
+\frac{
+w_j^{(m)}(x^\star)\,k(y^\star \mid x^\star,\theta_j^{(m)})
+}{
+\sum_{\ell=1}^J
+w_\ell^{(m)}(x^\star)\,k(y^\star \mid x^\star,\theta_\ell^{(m)})
+},
+\qquad
+\widehat p_j(x^\star,y^\star)
+=
+\frac{1}{M}\sum_{m=1}^M p_j^{(m)}(x^\star,y^\star).
+\]
+
+In the package output, predictions for new observations are ultimately expressed
+relative to the representative training partition. Thus, in-sample inference is
+summarized by the PSM and its representative partition, while out-of-sample inference
+is summarized by posterior assignment scores and the induced allocation to the
+representative training clusters.
 
 \subsection{Causal Inference: Notation, Identification, and Reported Estimands}
 \label{subsec:causal}

@@ -1,5 +1,4 @@
 library(testthat)
-library(CausalMixGPD)
 testthat::set_max_fails(Inf)
 
 # Keep package checks at CRAN-level tests, regardless of ambient CI vars.

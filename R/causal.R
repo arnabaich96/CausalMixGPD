@@ -401,34 +401,36 @@ build_causal_bundle <- function(
 
   .cmgpd_progress_step(progress_ctx, "Building PS NIMBLE model")
   t0_build <- tic()
-  .register_nimble_exports()
-  Rmodel <- tryCatch(
-    {
-      # Generated PS models are validated before this stage; disabling NIMBLE's
-      # full check avoids a large startup penalty in manuscript workflows.
-      .cmgpd_capture_nimble(
-        nimble::nimbleModel(
-          code = code,
-          data = data,
-          constants = constants,
-          inits = inits,
-          check = FALSE,
-          calculate = FALSE
-        ),
-        suppress = nimble_quiet
-      )
-    },
-    error = function(e) {
-      msg <- conditionMessage(e)
-      covr_reserved <- grepl("checkReservedVarNames", msg, fixed = TRUE) && grepl("if, if", msg, fixed = TRUE)
-      if (!covr_reserved) stop(e)
-      timing_info$build <- tic() - t0_build
-      timing_info$total <- tic() - t0_total
-      fit <- .ps_glm_fallback_fit()
-      class(fit) <- "causalmixgpd_ps_fit"
-      return(fit)
-    }
-  )
+  Rmodel <- .with_nimble_exports({
+    .register_nimble_exports()
+    tryCatch(
+      {
+        # Generated PS models are validated before this stage; disabling NIMBLE's
+        # full check avoids a large startup penalty in manuscript workflows.
+        .cmgpd_capture_nimble(
+          nimble::nimbleModel(
+            code = code,
+            data = data,
+            constants = constants,
+            inits = inits,
+            check = FALSE,
+            calculate = FALSE
+          ),
+          suppress = nimble_quiet
+        )
+      },
+      error = function(e) {
+        msg <- conditionMessage(e)
+        covr_reserved <- grepl("checkReservedVarNames", msg, fixed = TRUE) && grepl("if, if", msg, fixed = TRUE)
+        if (!covr_reserved) stop(e)
+        timing_info$build <- tic() - t0_build
+        timing_info$total <- tic() - t0_total
+        fit <- .ps_glm_fallback_fit()
+        class(fit) <- "causalmixgpd_ps_fit"
+        return(fit)
+      }
+    )
+  })
   if (inherits(Rmodel, "causalmixgpd_ps_fit")) return(Rmodel)
 
   conf <- .cmgpd_capture_nimble(
@@ -480,19 +482,21 @@ build_causal_bundle <- function(
 
   .cmgpd_progress_step(progress_ctx, "Running PS MCMC")
   t0_mcmc <- tic()
-  res <- .cmgpd_capture_nimble(
-    nimble::runMCMC(
-      Cmcmc,
-      niter = niter,
-      nburnin = nburnin,
-      thin = thin,
-      nchains = nchains,
-      inits = inits_list,
-      setSeed = seed,
-      progressBar = FALSE,
-      samplesAsCodaMCMC = TRUE
-    ),
-    suppress = nimble_quiet
+  res <- .with_nimble_exports(
+    .cmgpd_capture_nimble(
+      nimble::runMCMC(
+        Cmcmc,
+        niter = niter,
+        nburnin = nburnin,
+        thin = thin,
+        nchains = nchains,
+        inits = inits_list,
+        setSeed = seed,
+        progressBar = FALSE,
+        samplesAsCodaMCMC = TRUE
+      ),
+      suppress = nimble_quiet
+    )
   )
   timing_info$mcmc <- tic() - t0_mcmc
   timing_info$total <- tic() - t0_total

@@ -13,7 +13,55 @@
 #   coverage_report()
 # ============================================================================
 
-setwd(here::here())
+.coverage_script_path <- function() {
+  args <- commandArgs(trailingOnly = FALSE)
+  file_args <- grep("^--file=", args, value = TRUE)
+  if (!length(file_args)) {
+    return("")
+  }
+  sub("^--file=", "", file_args[[1]])
+}
+
+.coverage_repo_root <- function() {
+  script_path <- .coverage_script_path()
+  candidates <- character(0)
+
+  if (nzchar(script_path)) {
+    candidates <- c(
+      candidates,
+      file.path(dirname(script_path), "..", "..")
+    )
+  }
+
+  candidates <- c(candidates, getwd())
+
+  if (requireNamespace("here", quietly = TRUE)) {
+    candidates <- c(candidates, here::here())
+  }
+
+  candidates <- unique(normalizePath(candidates, winslash = "/", mustWork = FALSE))
+  for (cand in candidates) {
+    if (file.exists(file.path(cand, "DESCRIPTION"))) {
+      return(cand)
+    }
+  }
+
+  stop(
+    "Coverage could not locate the package root. Run from the package root or invoke the script by full path.",
+    call. = FALSE
+  )
+}
+
+.coverage_activate_project <- function(path) {
+  if (requireNamespace("renv", quietly = TRUE)) {
+    try(renv::load(project = path, quiet = TRUE), silent = TRUE)
+  }
+  invisible(path)
+}
+
+.coverage_project_root <- .coverage_repo_root()
+.coverage_activate_project(.coverage_project_root)
+setwd(.coverage_project_root)
 
 .coverage_primary_dir <- function() {
   "covr/assets"
@@ -33,13 +81,13 @@ setwd(here::here())
 
 .coverage_modes <- function() {
   valid <- c("custom", "tests", "file")
-  # Prefer file mode first because it avoids the opaque package-install phase
-  # that can make local coverage runs look stalled on this repository.
-  raw <- Sys.getenv("DPMIXGPD_COVERAGE_MODES", unset = "file,custom,tests")
+  # Prefer package-aware modes first because some nimble-generated paths expect
+  # the package namespace and .onLoad initialization to be available.
+  raw <- Sys.getenv("DPMIXGPD_COVERAGE_MODES", unset = "custom,tests,file")
   parts <- trimws(strsplit(raw, ",", fixed = TRUE)[[1]])
   modes <- unique(parts[nzchar(parts) & parts %in% valid])
   if (!length(modes)) {
-    modes <- c("file", "custom", "tests")
+    modes <- c("custom", "tests", "file")
   }
   modes
 }
@@ -267,7 +315,8 @@ calculate_coverage <- function(quiet = FALSE) {
     DPMIXGPD_TEST_LEVEL = .coverage_test_level(),
     COVERAGE = "1",
     DPMIXGPD_CI_COVERAGE_ONLY = .coverage_ci_coverage_only(),
-    DPMIXGPD_SKIP_COVR_CAUSAL_BRANCHES = Sys.getenv("DPMIXGPD_SKIP_COVR_CAUSAL_BRANCHES", unset = "1")
+    DPMIXGPD_SKIP_COVR_CAUSAL_BRANCHES = Sys.getenv("DPMIXGPD_SKIP_COVR_CAUSAL_BRANCHES", unset = "1"),
+    DPMIXGPD_SOURCE_ROOT = normalizePath(.coverage_project_root, winslash = "/", mustWork = TRUE)
   )
 
   if (isNamespaceLoaded("CausalMixGPD")) {
@@ -631,7 +680,21 @@ args <- commandArgs(trailingOnly = FALSE)
 file_args <- grep("^--file=", args, value = TRUE)
 is_rscript <- any(grepl("coverage\\.R$", sub("^--file=", "", file_args), ignore.case = TRUE))
 if (is_rscript) {
-  cat("\nRunning canonical local coverage pipeline.\n")
-  coverage_report()
-  cat("\nCoverage report generation finished successfully.\n")
+  status <- tryCatch(
+    {
+      cat("\nRunning canonical local coverage pipeline.\n")
+      coverage_report()
+      cat("\nCoverage report generation finished successfully.\n")
+      0L
+    },
+    error = function(e) {
+      msg <- conditionMessage(e)
+      cat("\nCoverage report generation failed.\n", file = stderr())
+      cat(msg, "\n", sep = "", file = stderr())
+      1L
+    }
+  )
+  if (!identical(status, 0L)) {
+    quit(save = "no", status = status)
+  }
 }

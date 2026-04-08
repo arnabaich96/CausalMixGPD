@@ -320,14 +320,65 @@
   invisible(TRUE)
 }
 
+.nimble_export_source_env <- function(pkgname = "CausalMixGPD") {
+  src_env <- environment(.register_nimble_exports)
+  local_exports <- grep("^[dpqr][A-Z]", ls(src_env, all.names = TRUE), value = TRUE)
+  if (length(local_exports)) {
+    return(src_env)
+  }
+  asNamespace(pkgname)
+}
+
+.nimble_export_names <- function(pkgname = "CausalMixGPD") {
+  src_env <- .nimble_export_source_env(pkgname)
+  nms <- grep("^[dpqr][A-Z]", ls(src_env, all.names = TRUE), value = TRUE)
+  nms[vapply(
+    nms,
+    function(nm) exists(nm, envir = src_env, inherits = FALSE) &&
+      is.function(get(nm, envir = src_env, inherits = FALSE)),
+    logical(1)
+  )]
+}
+
 .register_nimble_exports <- function(pkgname = "CausalMixGPD", envir = parent.frame()) {
-  ns <- asNamespace(pkgname)
-  exports <- grep("^[dpqr][A-Z]", getNamespaceExports(pkgname), value = TRUE)
+  src_env <- .nimble_export_source_env(pkgname)
+  exports <- .nimble_export_names(pkgname)
   for (nm in exports) {
-    if (!exists(nm, envir = ns, inherits = FALSE)) next
-    assign(nm, get(nm, envir = ns, inherits = FALSE), envir = envir)
+    if (!exists(nm, envir = src_env, inherits = FALSE)) next
+    assign(nm, get(nm, envir = src_env, inherits = FALSE), envir = envir)
   }
   invisible(exports)
+}
+
+.with_nimble_exports <- function(expr, pkgname = "CausalMixGPD", envir = .GlobalEnv) {
+  src_env <- .nimble_export_source_env(pkgname)
+  exports <- .nimble_export_names(pkgname)
+  if (!length(exports)) {
+    return(eval.parent(substitute(expr)))
+  }
+
+  had_binding <- stats::setNames(logical(length(exports)), exports)
+  old_values <- stats::setNames(vector("list", length(exports)), exports)
+
+  for (nm in exports) {
+    had_binding[[nm]] <- exists(nm, envir = envir, inherits = FALSE)
+    if (isTRUE(had_binding[[nm]])) {
+      old_values[[nm]] <- get(nm, envir = envir, inherits = FALSE)
+    }
+    assign(nm, get(nm, envir = src_env, inherits = FALSE), envir = envir)
+  }
+
+  on.exit({
+    for (nm in rev(exports)) {
+      if (isTRUE(had_binding[[nm]])) {
+        assign(nm, old_values[[nm]], envir = envir)
+      } else if (exists(nm, envir = envir, inherits = FALSE)) {
+        rm(list = nm, envir = envir)
+      }
+    }
+  }, add = TRUE)
+
+  eval.parent(substitute(expr))
 }
 
 #' Extract indexed parameter blocks from a draws matrix

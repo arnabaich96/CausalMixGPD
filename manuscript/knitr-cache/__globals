@@ -1,0 +1,45 @@
+gpdDensityFigure-build	cmgpd_pal	cmgpd_theme
+gpdDensityFigure-plot	gpd_density_plot
+splicedDensityFigure-build	cmgpd_pal	cmgpd_theme
+splicedDensityFigure-plot	spliced_density_plot
+causalEstimandFigure-build	cmgpd_pal	cmgpd_theme	y
+causalEstimandFigure-plot	causal_estimand_plot
+overview-data-reload	
+overview-mcmc-settings	mcmc_fixed
+overview-fit-model1	mcmc_fixed
+overview-fit-model2	mcmc_fixed
+overview-fit-diagnostics	
+overview-estimation	
+overview-predict-quantile-prep	
+overview-predict-quantile	
+cluster_example_data	
+cluster_example_fit	mcmc_fixed
+cluster_psm	
+cluster_label_new	
+overview-causal-data	
+overview-causal-fit-model	mcmc_fixed
+overview-causal-effects	
+overview-causal-predict-contrast-prep	
+overview-causal-predict-contrast	
+app_cluster_data	Boston
+app_cluster_response_panels	cmgpd_pal	cmgpd_theme	dat
+app_cluster_fit-code	mcmc_fixed	train_dat
+app_cluster_psm-code	fit_clust
+app_cluster_psm_plot-code	z_train_psm
+app_cluster_label-code	fit_clust
+app_cluster_overlay	z_train_lab
+app_cluster_predict_new-code	fit_clust	test_dat
+app_cluster_test_profiles	z_test
+app_cluster_test_sizes	z_test
+causal-data-setup	lalonde
+app_lalonde_response_panels	app_lalonde_covars	cmgpd_pal	cmgpd_theme
+fit-code	app_lalonde_A	app_lalonde_X	app_lalonde_y	mcmc_fixed
+posterior-code	fit
+ate-code	fit
+qte-call	fit
+qte_plot	qte_fit
+xnew-code	app_lalonde_covars	app_lalonde_scale_center	app_lalonde_scale_scale	app_lalonde_X	app_lalonde_x_formula
+xnew-results	profile_display
+cate-call	fit	xnew
+cqte-call	fit	xnew
+cate_plot	cate_fit	cqte_fit

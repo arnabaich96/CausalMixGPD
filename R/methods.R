@@ -1830,6 +1830,24 @@ plot.mixgpd_fit <- function(x,
 
   nChains <- attr(D, "nChains") %||% length(smp)
 
+  .with_plot_warning_muffle <- function(expr) {
+    withCallingHandlers(
+      expr,
+      warning = function(w) {
+        msg <- conditionMessage(w)
+        known_noisy <- c(
+          "Arguments in `...` must be used.",
+          "Groups with fewer than two data points have been dropped.",
+          "Scale for colour is already present.",
+          "Scale for fill is already present."
+        )
+        if (any(vapply(known_noisy, grepl, logical(1), x = msg, fixed = TRUE))) {
+          invokeRestart("muffleWarning")
+        }
+      }
+    )
+  }
+
   # Helper: only run chain-comparison diagnostics when possible
   .need_multi <- function(f) f %in% c("crosscorrelation", "Rhat", "grb", "effective")
   .need_params <- function(f) f %in% c("pairs", "crosscorrelation")
@@ -1865,7 +1883,7 @@ plot.mixgpd_fit <- function(x,
         ggplot2::geom_vline(xintercept = c(-1.96, 1.96), linetype = "dashed", color = "grey50") +
         ggplot2::labs(x = "Geweke z-score", y = NULL, title = "Geweke diagnostic")
     } else {
-      p <- switch(
+      p <- .with_plot_warning_muffle(switch(
         f,
         histogram        = ggmcmc::ggs_histogram(D, family = NA, ...),
         density          = ggmcmc::ggs_density(D, family = NA, ...),
@@ -1879,11 +1897,11 @@ plot.mixgpd_fit <- function(x,
         effective        = ggmcmc::ggs_effective(D, family = NA, ...),
         caterpillar      = ggmcmc::ggs_caterpillar(D, family = NA, ...),
         pairs            = ggmcmc::ggs_pairs(D, family = NA, ...)
-      )
+      ))
     }
 
     fill_scale <- "manual"
-    built <- tryCatch(ggplot2::ggplot_build(p), error = function(e) NULL)
+    built <- tryCatch(.with_plot_warning_muffle(ggplot2::ggplot_build(p)), error = function(e) NULL)
     if (!is.null(built)) {
       fill_vals <- unlist(lapply(built$data, function(df) {
         if ("fill" %in% names(df)) df$fill else NULL
@@ -1901,11 +1919,11 @@ plot.mixgpd_fit <- function(x,
     }
 
     p <- p + .plot_theme()
-    p <- tryCatch(p + ggplot2::scale_color_manual(values = pal), error = function(e) p)
+    p <- tryCatch(.with_plot_warning_muffle(p + ggplot2::scale_color_manual(values = pal)), error = function(e) p)
     if (identical(fill_scale, "manual")) {
-      p <- tryCatch(p + ggplot2::scale_fill_manual(values = pal), error = function(e) p)
+      p <- tryCatch(.with_plot_warning_muffle(p + ggplot2::scale_fill_manual(values = pal)), error = function(e) p)
     } else if (identical(fill_scale, "continuous")) {
-      p <- tryCatch(p + ggplot2::scale_fill_viridis_c(option = "C"), error = function(e) p)
+      p <- tryCatch(.with_plot_warning_muffle(p + ggplot2::scale_fill_viridis_c(option = "C")), error = function(e) p)
     }
     plots[[f]] <- p
   }
