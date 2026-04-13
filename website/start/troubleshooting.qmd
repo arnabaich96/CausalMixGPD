@@ -155,7 +155,7 @@ cb <- bundle(
   X = X,
   PS = "logit"
 )
-fit <- dpmix.causal(cb)
+fit <- dpmix.causal(cb, mcmc = list(parallel_arms = TRUE, workers = 10))
 ```
 
 ---
@@ -209,7 +209,6 @@ cb <- bundle(
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
 
 
 

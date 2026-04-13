@@ -640,9 +640,9 @@ rAmoroso <- nimble::nimbleFunction(
 #' @details
 #' The Cauchy law is a stable heavy-tailed distribution with undefined mean and variance. That is
 #' why the package allows the Cauchy kernel only as a bulk distribution and deliberately does not
-#' pair it with GPD tails in the kernel registry. For predictive summaries, ordinary means are not
-#' available under Cauchy kernels; tail-robust summaries such as medians, quantiles, survival
-#' curves, and restricted means remain well defined.
+#' pair it with GPD tails in the kernel registry. For predictive summaries,
+#' ordinary means are not available under Cauchy kernels; medians, quantiles,
+#' survival curves, and restricted means remain well defined.
 #'
 #' The distribution function is
 #' \deqn{
@@ -772,10 +772,11 @@ qCauchy <- function(p, location, scale,
 #' @return Numeric vector of densities, probabilities, quantiles, or random variates.
 #'
 #' @details
-#' Each lowercase helper is a vectorized R wrapper around the corresponding uppercase scalar
-#' routine documented in this file. The wrapper keeps the same parameterization and simply applies
-#' the scalar kernel repeatedly over the supplied evaluation points or simulation index. These
-#' helpers are therefore appropriate for interactive analysis, testing, and examples, whereas the
+#' Each lowercase helper is a vectorized R wrapper around the corresponding
+#' uppercase scalar routine documented in this file. The wrapper keeps the same
+#' parameterization and applies the scalar kernel repeatedly over the supplied
+#' evaluation points or simulation index. These helpers are therefore
+#' appropriate for interactive analysis, testing, and examples, whereas the
 #' uppercase functions are the building blocks used inside NIMBLE model code.
 #'
 #' The wrappers do not change the underlying theory. For example, \code{qgpd()} still uses the

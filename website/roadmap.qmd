@@ -51,7 +51,7 @@ Each track is a curated set of pages with explicit prerequisites and “next ste
 ## Quarto vs pkgdown split (why two sites)
 
 - **Quarto (this site)**: narrative, workflows, comparisons, and “how to think about choices”. It is optimized for reading and learning.
-- **pkgdown**: authoritative **function signatures**, arguments, return objects, and examples.
+- **pkgdown**: primary **function signatures**, arguments, return objects, and examples.
 
 When in doubt: learn the workflow here, then confirm details in pkgdown.
 
@@ -69,7 +69,6 @@ When in doubt: learn the workflow here, then confirm details in pkgdown.
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
 
 
 

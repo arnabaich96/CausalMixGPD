@@ -24,7 +24,7 @@ ess_summary(
 \item{wall_time}{Optional numeric total MCMC time in seconds. If \code{NULL},
 uses \code{fit$timing$mcmc} when available.}
 
-\item{robust}{Logical; if \code{TRUE}, skip missing parameters gracefully.}
+\item{robust}{Logical; if \code{TRUE}, ignore missing parameters.}
 
 \item{...}{Unused.}
 }

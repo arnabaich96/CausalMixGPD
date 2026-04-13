@@ -19,7 +19,7 @@ describes which bulk parameters are present, how those parameters may depend
 on covariates, whether a GPD tail is allowed, and which density or mean
 functions should be dispatched for the supported backends.
 
-Downstream builders treat this registry as the authoritative source of
+Downstream builders use this registry as the package-level reference for
 kernel-specific implementation metadata. Reading it is appropriate when you
 need to inspect what the package believes a kernel can do before constructing
 or debugging a model specification.

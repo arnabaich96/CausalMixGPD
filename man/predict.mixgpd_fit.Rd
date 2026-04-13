@@ -142,7 +142,7 @@ GPD-tail fits this analytical path is used when the tail shape parameter
 satisfies \eqn{\xi < 1}. If the mean does not exist analytically for the
 chosen kernel or if any required GPD tail has \eqn{\xi \ge 1}, the ordinary
 mean is undefined and the function errors with a message directing you to
-\code{type = "rmean"} or other tail-robust summaries.
+\code{type = "rmean"} or other summaries that remain well defined.
 }
 \examples{
 \dontrun{

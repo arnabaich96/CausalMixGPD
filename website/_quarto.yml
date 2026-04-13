@@ -78,6 +78,7 @@ website:
 
 format:
   html:
+    page-layout: full
     theme: [cosmo, theme.scss]
     toc: false
     smooth-scroll: true

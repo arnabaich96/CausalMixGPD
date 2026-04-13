@@ -32,7 +32,7 @@ Use this page to route into workflows and concepts. Function-level details remai
 - [Advanced hub](advanced/index.qmd)
 - [Examples hub](examples/index.qmd)
 
-## pkgdown authoritative docs
+## pkgdown function docs
 
 - [Function reference by job](reference-by-action.qmd)
 - [Function reference](pkgdown/reference/index.html)
@@ -54,7 +54,6 @@ Use this page to route into workflows and concepts. Function-level details remai
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
 
 
 

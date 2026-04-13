@@ -70,7 +70,20 @@
 \usepackage{pdflscape}
 \usepackage{natbib}
 \usepackage{xurl}
-\usepackage[font=footnotesize,labelfont=bf,skip=4pt]{caption}
+\usepackage{enumitem}
+\setlist[itemize]{itemsep=0.25ex,parsep=0.25ex,topsep=0.45ex,partopsep=0pt,leftmargin=*}
+\usepackage[font=footnotesize,labelfont=bf,skip=1pt]{caption}
+%% Tighter float spacing and more permissive float placement (layout only)
+\setlength{\textfloatsep}{4pt plus 2pt minus 2pt}
+\setlength{\floatsep}{4pt plus 2pt minus 2pt}
+\setlength{\intextsep}{4pt plus 2pt minus 2pt}
+\setcounter{topnumber}{5}
+\setcounter{bottomnumber}{5}
+\setcounter{totalnumber}{10}
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.95}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.85}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
@@ -83,7 +96,7 @@
 \vfuzz=2pt
 \hbadness=10000
 \vbadness=2000
-\setkeys{Gin}{width=\linewidth,height=0.82\textheight,keepaspectratio}
+\setkeys{Gin}{width=\linewidth,height=0.68\textheight,keepaspectratio}
 
 %% ---- JSS metadata ----
 \author{Arnab Aich\\Florida State University}
@@ -97,26 +110,26 @@ Heavy-tailed outcomes arise frequently in settings where rare extreme
 events drive risk, cost, or policy decisions.  Parametric models often
 provide adequate descriptions of the location but can
 mischaracterize tail behavior, whereas fully nonparametric
-approaches lack principled mechanisms for tail extrapolation.  This
+approaches lack clear mechanisms for tail extrapolation.  This
 article introduces \pkg{CausalMixGPD}, an \textsf{R} package for
 Bayesian modeling of heavy-tailed outcomes that splices Dirichlet
 process mixture models for the bulk of the distribution with optional
-generalized Pareto tails within a unified inferential framework.  The
+generalized Pareto tails in a single modeling framework.  The
 package accommodates both unconditional and covariate-dependent mixture
 specifications, performs posterior computation via Markov chain Monte
-Carlo through \pkg{nimble}, and extends naturally to arm-specific
-outcome models for causal inference.  Posterior predictive summaries
-are provided for densities, quantiles, means, survival curves, and
-causal contrasts, with particular emphasis on extreme quantiles and
-other tail-sensitive functionals.  The same modeling framework
-additionally supports predictor-dependent clustering under multiple
-kernel families.  Taken together, \pkg{CausalMixGPD} furnishes a
-practical and extensible workflow for heavy-tailed density estimation,
-model-based clustering, and quantile and tail causal reporting.
+Carlo through \pkg{nimble}, and supports arm-specific outcome models
+for causal inference.  Posterior predictive summaries are provided for
+densities, quantiles, means, survival curves, and causal contrasts,
+with particular emphasis on extreme quantiles and other
+tail-sensitive functionals.  The same framework also supports
+predictor-dependent clustering under multiple kernel families.
+\pkg{CausalMixGPD} therefore supports heavy-tailed density estimation,
+model-based clustering, and quantile- and tail-focused causal
+reporting within a common interface.
 }
 
 \Keywords{Bayesian nonparametrics; Dirichlet Process Mixture; Generalized Pareto Distribution; Extreme Value Theory; Cluster Analysis; Causal Inference; \textsf{R}; \pkg{nimble}}
-\Plainkeywords{Bayesian nonparametrics, Dirichlet Process Mixture, Generalized Pareto Distribution, Extreme Value Theory, MCMC, Clustering, Quantile Regression, Causal Inference, Treatment Effect, R, nimble}
+\Plainkeywords{Bayesian nonparametrics, Dirichlet Process Mixture, Generalized Pareto Distribution, Extreme Value Theory, MCMC, Clustering, Quantile Estimation, Causal Inference, Treatment Effect, R, nimble}
 
 %% ---- Begin document ----
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
@@ -124,6 +137,15 @@ model-based clustering, and quantile and tail causal reporting.
 \maketitle
 \sloppy
 \raggedbottom
+%% Slightly tighter JSS section vertical glue (layout only; same headings)
+\setlength{\preXLskip}{1.2\baselineskip plus 0.35ex minus 0ex}
+\setlength{\preLskip}{1.05\baselineskip plus 0.2ex minus 0ex}
+\setlength{\preMskip}{0.68\baselineskip plus 0.12ex minus 0ex}
+\setlength{\preSskip}{0.55\baselineskip plus 0.12ex minus 0ex}
+\setlength{\postMskip}{0.3\baselineskip plus 0ex minus 0.1ex}
+\setlength{\postSskip}{0.18\baselineskip plus 0ex minus 0.1ex}
+\setlength{\parskip}{0.48ex plus 0.06ex minus 0.06ex}
+\global\advance\textheight by 1\baselineskip
 
 
 
@@ -229,9 +251,9 @@ contrasts in the upper tail still oblige users to integrate multiple
 disparate workflows.
 
 This article introduces \pkg{CausalMixGPD}, an \textsf{R} package
-that unifies Bayesian nonparametric modeling with EVT, clustering, and
-causal analysis in the presence of covariates.  The package provides
-three simultaneous capabilities:
+that combines Bayesian nonparametric modeling with EVT, clustering,
+and causal analysis in the presence of covariates.  The package
+provides three main capabilities:
 
 \begin{itemize}
   \item[(i)] \textbf{BNP conditional density estimation with an optional GPD
@@ -240,8 +262,8 @@ three simultaneous capabilities:
   quantiles, and rare-event prediction.
 
   \item[(ii)] \textbf{Predictor-dependent clustering:} A dedicated
-  clustering framework that models different covariate dependence
-  structure of latent allocation and reports label-invariant summaries via
+  clustering framework that models different forms of covariate
+  dependence in latent allocation and reports label-invariant summaries via
   posterior similarity matrices and Dahl representative partitions
   \citep{Binder1978,Dahl2006}.
 
@@ -253,7 +275,7 @@ three simultaneous capabilities:
   augmentation in the latter.
 \end{itemize}
 
-Collectively, \pkg{CausalMixGPD} offers a unified workflow for
+Overall, \pkg{CausalMixGPD} provides a common interface for
 density estimation, prediction, clustering, and causal inference when
 tail behavior is of concern.  The package is implemented in
 \textsf{R}, with computationally intensive components delegated to
@@ -342,9 +364,9 @@ u(x)+\dfrac{\sigma(x)}{\xi}\Bigl((1-\tau)^{-\xi}-1\Bigr), & \xi\neq 0,
 
 
 \begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.78\linewidth]{figure/gpdDensityFigure-plot-1} 
+{\centering \includegraphics[width=0.76\linewidth]{figure/gpdDensityFigure-plot-1} 
 
 }
 
@@ -481,9 +503,9 @@ quantile.
 
 
 \begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.78\linewidth]{figure/splicedDensityFigure-plot-1} 
+{\centering \includegraphics[width=0.76\linewidth]{figure/splicedDensityFigure-plot-1} 
 
 }
 
@@ -754,9 +776,9 @@ treatment-specific distributions. Figure~\ref{fig:causalEstimandFigure-plot} dep
 
 
 \begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.78\linewidth]{figure/causalEstimandFigure-plot-1} 
+{\centering \includegraphics[width=0.76\linewidth]{figure/causalEstimandFigure-plot-1} 
 
 }
 
@@ -770,13 +792,13 @@ Table~\ref{tab:causal-estimands-main}, where superscripts
 $\mathrm{m}$ and $\mathrm{t}$ denote full-population and
 treated-population standardization, respectively.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \small
 \caption[Causal estimands reported by the package]{Causal estimands reported by \pkg{CausalMixGPD}. Columns list the estimand name, its defining contrast as a functional of the treatment-specific outcome distributions, and the target population.}
 \label{tab:causal-estimands-main}
 {
-\renewcommand{\arraystretch}{1.15}
+\renewcommand{\arraystretch}{1.08}
 \begin{tabular}{
   @{}>{\raggedright\arraybackslash}p{0.15\linewidth}
   >{\centering\arraybackslash}p{0.30\linewidth}
@@ -852,7 +874,7 @@ link functions of the form
 Here, $\psi_j(x)$ is a generic kernel parameter for component $j$
 with input covariates $x$, while the link function $g(\cdot)$
 restricts the parameter support. All code illustrations in this
-section utilize the MCMC sampling options shown below;
+section use the MCMC sampling options shown below;
 longer sampling and multiple chains are encouraged in applied settings.
 
 \begin{knitrout}\footnotesize
@@ -1171,7 +1193,7 @@ of the training variables.
 The corresponding bulk-only version is \code{dpmix.causal()},
 where the causal estimand and prediction remain unchanged without
 the GPD tail. For randomized trials, the procedure is identical but
-without the PS adjustment, where \code{PS} can be set to \code{NULL}.
+without the PS adjustment, where \code{PS} can be set to \code{FALSE}.
 Other causal estimands, PS adjustments, and plots are documented in
 Appendix~\ref{subsec:app-workflows}.
 
@@ -1204,12 +1226,12 @@ The Boston data set is used in this analysis, where each observation corresponds
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-In Figure~\ref{fig:app_cluster_response_panels}, we show the descriptive analyses of the Boston housing price data as represented by the median home value (\code{medv}). The variability in the response is substantial, and the distribution exhibits a pronounced upper tail. A flexible mixture model is therefore better suited than a simple regression to capture this structure.
+Figure~\ref{fig:app_cluster_response_panels} summarizes the distribution of the Boston housing response, median home value (\code{medv}). The variability in the response is substantial, and the distribution exhibits a pronounced upper tail. These features motivate a flexible distributional model rather than relying only on a simple mean-regression specification.
 
 \begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.95\linewidth]{figure/app_cluster_response_panels-1} 
+{\centering \includegraphics[width=0.84\linewidth]{figure/app_cluster_response_panels-1} 
 
 }
 
@@ -1253,7 +1275,7 @@ recording posterior co-clustering probabilities.
 \begin{alltt}
 \hlkwd{plot}\hldef{(z_train_psm,} \hlkwc{type} \hldef{=} \hlsng{"summary"}\hldef{)}
 \end{alltt}
-\end{kframe}\begin{figure}[H]
+\end{kframe}\begin{figure}[!htbp]
 
 {\centering \includegraphics[width=0.85\linewidth]{figure/app_cluster_psm_plot-code-1} 
 
@@ -1290,7 +1312,7 @@ to the training labels object.
 \begin{alltt}
 \hlkwd{plot}\hldef{(z_train_lab,} \hlkwc{type} \hldef{=} \hlsng{"summary"}\hldef{)}
 \end{alltt}
-\end{kframe}\begin{figure}[H]
+\end{kframe}\begin{figure}[!htbp]
 
 {\centering \includegraphics[width=0.85\linewidth]{figure/app_cluster_overlay-1} 
 
@@ -1353,7 +1375,7 @@ package \code{plot()} method applied to the test labels object.
 \begin{alltt}
 \hlkwd{plot}\hldef{(z_test,} \hlkwc{type} \hldef{=} \hlsng{"sizes"}\hldef{)}
 \end{alltt}
-\end{kframe}\begin{figure}[H]
+\end{kframe}\begin{figure}[!htbp]
 
 {\centering \includegraphics[width=0.8\linewidth]{figure/app_cluster_test_sizes-1} 
 
@@ -1428,9 +1450,9 @@ These features motivate modeling the full treatment-specific outcome
 distributions directly rather than relying solely on average effects.
 
 \begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.95\linewidth]{figure/app_lalonde_response_panels-1} 
+{\centering \includegraphics[width=0.84\linewidth]{figure/app_lalonde_response_panels-1} 
 
 }
 
@@ -1486,8 +1508,8 @@ of the same fitted posterior distribution.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{verbatim}
-  total    ps    con    trt parallel_arms
-1 418.5 31.77 262.91 123.77         FALSE
+   total    ps    con    trt parallel_arms
+1 336.35 32.98 199.02 104.28         FALSE
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1547,9 +1569,9 @@ treated-versus-control quantile curves with uncertainty intervals.
 \hldef{qte_arms_plot} \hlkwb{<-} \hlkwd{plot}\hldef{(qte_fit,} \hlkwc{type} \hldef{=} \hlsng{"arms"}\hldef{)}
 \hldef{qte_effect_plot} \hlopt{+} \hldef{qte_arms_plot} \hlopt{+} \hlkwd{plot_layout}\hldef{(}\hlkwc{ncol} \hldef{=} \hlnum{2}\hldef{)}
 \end{alltt}
-\end{kframe}\begin{figure}[H]
+\end{kframe}\begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.95\linewidth]{figure/qte_plot-1} 
+{\centering \includegraphics[width=0.84\linewidth]{figure/qte_plot-1} 
 
 }
 
@@ -1566,7 +1588,7 @@ To characterize heterogeneity in the treatment effect, conditional estimands are
 
 
 
-\begin{table}[H]
+\begin{table}
 \centering
 \caption{\label{tab:xnew-results}Representative Lalonde participant profiles used as new-data inputs for the conditional causal contrasts in Figure~\ref{fig:cate_plot}. Columns (Profile~1--Profile~4) give the covariate values for one synthetic individual on the original data scale: \code{age} (years), \code{educ} (years of schooling), \code{race}, \code{married}, \code{nodegree}, and prior annual earnings \code{re74} and \code{re75} (US dollars).}
 \centering
@@ -1624,9 +1646,9 @@ can be read together. The table entries report posterior estimates with
 95\% credible intervals in brackets.
 
 \begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[!htbp]
 
-{\centering \includegraphics[width=\linewidth]{figure/cate_plot-1} 
+{\centering \includegraphics[width=0.88\linewidth]{figure/cate_plot-1} 
 
 }
 
@@ -1646,23 +1668,22 @@ This analysis underscores the value of quantile-based methods for heavy-tailed o
 \section{Discussion}
 \label{sec:discussion}
 
-\pkg{CausalMixGPD} integrates flexible bulk density estimation,
+\pkg{CausalMixGPD} combines flexible bulk density estimation,
 optional EVT-based tail extrapolation, predictor-dependent clustering,
-and quantile and density-level causal inference within a single coherent workflow.
+and quantile- and density-level causal inference within one package.
 The same fitted model supports posterior summaries for densities,
 survival curves, analytical means (when they exist), restricted means,
-quantiles, and treatment contrasts, thereby obviating the fragmented
-analysis pipelines often required when heavy tails and density-level
-effects are both of concern.
+quantiles, and treatment contrasts. This is useful in settings where
+heavy tails and density-level effects are both of concern.
 
 The package is considerably broader than the spliced examples
 emphasized in this article.  Users may work with bulk-only or spliced
 models, multiple kernel families on the real line or on positive
 support, stick-breaking or CRP backends, and clustering or causal
 wrappers built upon the same predictive machinery.  This shared
-infrastructure facilitates transitions from exploratory subgroup
-analysis to tail-focused prediction and causal reporting without
-altering the underlying modeling language.
+infrastructure lets users move from exploratory subgroup analysis to
+tail-focused prediction and causal reporting without changing the
+underlying modeling language.
 
 Several practical limitations warrant acknowledgment.  First,
 computation can be demanding.  Mixture models with covariate
@@ -1692,8 +1713,6 @@ confounding.
 
 \bibliography{CausalMixGPD_JSS_refs}
 
-
-\clearpage
 \appendix
 \section{Customization of Package and Additional Features}
 \label{sec:appendix-features}
@@ -1706,7 +1725,7 @@ This appendix details the customizable features of \pkg{CausalMixGPD}. It covers
 Besides the customizable features illustrated in Sections \ref{subsec:gpd}, \ref{subsec:dpm}, \ref{subsec:causal}, and \ref{subsec:overview-model}, this section lists arguments that allow kernel choice, latent structure, and prior customization alternative to default choices.
 
 \begin{itemize}
-\item \textbf{Kernel families and support} (\label{subsec:app-kernels}): the argument \code{kernel} allows to choose among seven different kernel families, defined either with positive support or on the real line. The kernels with positive support are \code{"gamma"}, \code{"lognormal"}, and \code{"invgauss"}; the kernels with real support are \code{"normal"}, \code{"laplace"}, \code{"cauchy"}, and \code{"amoroso"}. The function \code{kernel_support_table()} reports the support, whether the kernel is compatible with GPD, and the supports of the covariates and backend. The function \code{get_kernel_registry()} returns the kernel registry with detailed information such as the parameter names, the default prior mode, and the density/CDF/quantile functions. For causal models, \code{kernel} can be either a single string or a length-two vector specifying different DPM kernels for the two arms. The kernel choice determines the support of the outcome variable and should be made based on the characteristics of the data.
+\item \textbf{Kernel families and support} (\label{subsec:app-kernels}): the argument \code{kernel} allows to choose among seven different kernel families, defined either with positive support or on the real line. The kernels with positive support are \code{"gamma"}, \code{"lognormal"}, \code{"invgauss"}, and \code{"amoroso"}; the kernels with real support are \code{"normal"}, \code{"laplace"}, and \code{"cauchy"}. The function \code{kernel_support_table()} reports the support, whether the kernel is compatible with GPD, and the supports of the covariates and backend. The function \code{get_kernel_registry()} returns the kernel registry with detailed information such as the parameter names, the default prior mode, and the density/CDF/quantile functions. For causal models, \code{kernel} can be either a single string or a length-two vector specifying different DPM kernels for the two arms. The kernel choice determines the support of the outcome variable and should be made based on the characteristics of the data.
 
 \item \textbf{Backend type and truncation rule} (\label{subsec:app-backends}): the argument \code{backend} determines the structure of the mixing coefficients. The value \code{sb} stands for the stick-breaking scheme while \code{crp} denotes the Chinese Restaurant Process latent allocation scheme. For causal models, \code{backend} can be either a single string or a length-two vector specifying different latent allocation schemes for the two arms. The argument \code{components} sets the maximum number of mixture components (defaulting to the sample size). The argument \code{epsilon} specifies a truncation threshold below which components are dropped and the smallest weight is readjusted. Both arguments can be customized separately for each causal arm.
 

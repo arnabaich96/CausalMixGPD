@@ -1,5 +1,7 @@
 ---
 title: "ex14. Causal (Different backends, SB Backend) - Amoroso Kernel"
+execute:
+  freeze: true
 ---
 
 ```{r setup, include=FALSE, cache=FALSE}
@@ -19,8 +21,15 @@ set.seed(1)
 
 # Fast-by-default rendering. Flip to FALSE for a fuller run.
 FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
-mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
-mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_arms = TRUE, workers = 2, z_update_every = 2)
+max_workers <- local({
+  n_phys <- suppressWarnings(tryCatch(parallel::detectCores(logical = FALSE), error = function(e) NA_integer_))
+  n_log <- suppressWarnings(tryCatch(parallel::detectCores(logical = TRUE), error = function(e) NA_integer_))
+  n <- if (is.finite(n_phys) && !is.na(n_phys) && n_phys >= 1L) n_phys else n_log
+  if (!is.finite(n) || is.na(n) || n < 1L) n <- 1L
+  as.integer(min(10L, n))
+})
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, parallel_arms = TRUE, workers = max_workers)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_arms = TRUE, workers = max_workers, z_update_every = 2)
 
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
@@ -32,6 +41,32 @@ library(CausalMixGPD)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
+max_workers <- min(max_workers, CMGPD_MAX_WORKERS)
+causal_run_mcmc <- list(
+  show_progress = FALSE,
+  parallel_arms = if (isTRUE(FAST)) FALSE else TRUE,
+  workers = if (isTRUE(FAST)) 1L else max_workers,
+  timing = TRUE
+)
+components_ex14 <- if (isTRUE(FAST)) c(3L, 3L) else c(5L, 5L)
+gpd_mcmc_ex14 <- if (isTRUE(FAST)) {
+  list(niter = 80, nburnin = 20, nchains = 1, thin = 1, seed = 1)
+} else {
+  list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 1)
+}
+gpd_mcmc_ex14_b <- if (isTRUE(FAST)) {
+  list(niter = 80, nburnin = 20, nchains = 1, thin = 1, seed = 2)
+} else {
+  list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 2)
+}
+mcmc_ps_ex14 <- gpd_mcmc_ex14
+mcmc_ps_ex14_b <- gpd_mcmc_ex14_b
+predict_workers_ex14 <- if (isTRUE(FAST)) 1L else max_workers
+nsim_mean_ex14 <- if (isTRUE(FAST)) 50L else 100L
+plot_family_sb_crp_ex14 <- if (isTRUE(FAST)) "traceplot" else c("traceplot", "autocorrelation", "running")
+plot_family_crp_sb_ex14 <- if (isTRUE(FAST)) "density" else c("density", "geweke", "caterpillar")
+tag_sb_crp_ex14 <- if (isTRUE(FAST)) "ex14-causal-different-backends-sb-fit_sb_crp_fast" else "ex14-causal-different-backends-sb-fit_sb_crp"
+tag_crp_sb_ex14 <- if (isTRUE(FAST)) "ex14-causal-different-backends-sb-fit_crp_sb_fast" else "ex14-causal-different-backends-sb-fit_crp_sb"
 ```
 
 
@@ -86,8 +121,8 @@ summary_tbl <- tibble(
 
 summary_tbl
 
-x_eval <- X[1:40, , drop = FALSE]
-y_eval <- y[1:40]
+x_eval <- X[seq_len(if (isTRUE(FAST)) 20L else 40L), , drop = FALSE]
+y_eval <- y[seq_len(if (isTRUE(FAST)) 20L else 40L)]
 u_threshold <- as.numeric(stats::quantile(y, 0.8, names = FALSE))
 ```
 
@@ -96,7 +131,7 @@ df_causal <- data.frame(y = y, A = as.factor(A), x1 = X[, 1])
 
 p_scatter <- ggplot(df_causal, aes(x = x1, y = y, color = A)) +
   geom_point(alpha = 0.5) +
-  labs(title = "Shifted Outcome vs X1", newdata ="X1", y = "y (shifted)", color = "Treatment") +
+  labs(title = "Shifted Outcome vs X1", x = "X1", y = "y (shifted)", color = "Treatment") +
   theme_minimal()
 
 p_scatter
@@ -119,17 +154,17 @@ param_specs_gpd <- list(
 )
 
 bundle_sb_crp <- bundle(
-  x = y,
+  y = y,
   treat = A,
   X = X,
   kernel = c("amoroso", "amoroso"),
   backend = c("sb", "crp"),
   PS = "logit",
   GPD = c(TRUE, TRUE),
-  components = c(5, 5),
+  components = components_ex14,
   param_specs = param_specs_gpd,
-  mcmc_outcome = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 1),
-  mcmc_ps = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 1)
+  mcmc_outcome = gpd_mcmc_ex14,
+  mcmc_ps = mcmc_ps_ex14
 )
 
 bundle_sb_crp
@@ -138,43 +173,43 @@ summary(bundle_sb_crp)
 
 ```{r fit-sb-crp, cache = FALSE}
 fit_sb_crp <- load_or_fit(
-  "ex14-causal-different-backends-sb-fit_sb_crp",
-  quiet_mcmc(dpmgpd.causal(bundle_sb_crp))
+  tag_sb_crp_ex14,
+  quiet_mcmc(dpmgpd.causal(bundle_sb_crp, mcmc = causal_run_mcmc))
 )
 summary(fit_sb_crp)
 params(fit_sb_crp)
 ```
 
 ```{r plot-fit-sb-crp}
-plot(fit_sb_crp, family = c("traceplot", "autocorrelation", "running"))
+plot(fit_sb_crp, family = plot_family_sb_crp_ex14)
 ```
 
 ```{r predict-mean-sb-crp}
 pred_mean_sb_crp <- predict(fit_sb_crp, newdata =x_eval, type = "mean",
-                            interval = "credible", nsim_mean = 100)
+                            interval = "credible", nsim_mean = nsim_mean_ex14, workers = predict_workers_ex14)
 plot(pred_mean_sb_crp)
 ```
 
 ```{r predict-quantile-sb-crp}
 pred_q_sb_crp <- predict(fit_sb_crp, newdata =x_eval, type = "quantile",
-                         p = 0.5, interval = "credible")
+                         p = 0.5, interval = "credible", workers = predict_workers_ex14)
 plot(pred_q_sb_crp)
 ```
 
 ```{r predict-density-sb-crp}
 pred_d_sb_crp <- predict(fit_sb_crp, newdata =x_eval, y = y_eval,
-                         type = "density", interval = "credible")
+                         type = "density", interval = "credible", workers = predict_workers_ex14)
 plot(pred_d_sb_crp)
 ```
 
 ```{r predict-survival-sb-crp}
 pred_surv_sb_crp <- predict(fit_sb_crp, newdata =x_eval, y = y_eval,
-                            type = "survival", interval = "credible")
+                            type = "survival", interval = "credible", workers = predict_workers_ex14)
 plot(pred_surv_sb_crp)
 ```
 
 ```{r ate-sb-crp}
-ate_sb_crp <- ate(fit_sb_crp, interval = "credible", nsim_mean = 100)
+ate_sb_crp <- ate(fit_sb_crp, interval = "credible", nsim_mean = nsim_mean_ex14)
 plot(ate_sb_crp)
 ```
 
@@ -189,17 +224,17 @@ plot(qte_sb_crp)
 
 ```{r bundle-crp-sb, cache = FALSE}
 bundle_crp_sb <- bundle(
-  x = y,
+  y = y,
   treat = A,
   X = X,
   kernel = c("amoroso", "amoroso"),
   backend = c("crp", "sb"),
   PS = "logit",
   GPD = c(TRUE, TRUE),
-  components = c(5, 5),
+  components = components_ex14,
   param_specs = param_specs_gpd,
-  mcmc_outcome = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 2),
-  mcmc_ps = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 2)
+  mcmc_outcome = gpd_mcmc_ex14_b,
+  mcmc_ps = mcmc_ps_ex14_b
 )
 
 bundle_crp_sb
@@ -208,44 +243,44 @@ summary(bundle_crp_sb)
 
 ```{r fit-crp-sb, cache = FALSE}
 fit_crp_sb <- load_or_fit(
-  "ex14-causal-different-backends-sb-fit_crp_sb",
-  quiet_mcmc(dpmgpd.causal(bundle_crp_sb))
+  tag_crp_sb_ex14,
+  quiet_mcmc(dpmgpd.causal(bundle_crp_sb, mcmc = causal_run_mcmc))
 )
 summary(fit_crp_sb)
 params(fit_crp_sb)
 ```
 
 ```{r plot-fit-crp-sb}
-plot(fit_crp_sb, family = c("density", "geweke", "caterpillar"))
+plot(fit_crp_sb, family = plot_family_crp_sb_ex14)
 ```
 
 ```{r predict-mean-crp-sb}
 pred_mean_crp_sb <- predict(fit_crp_sb, newdata =x_eval, type = "mean",
-                            interval = "credible", nsim_mean = 100)
+                            interval = "credible", nsim_mean = nsim_mean_ex14, workers = predict_workers_ex14)
 plot(pred_mean_crp_sb)
 ```
 
 ```{r predict-quantile-crp-sb}
 pred_q_crp_sb <- predict(fit_crp_sb, newdata =x_eval, type = "quantile",
-                         p = 0.5, interval = "credible")
+                         p = 0.5, interval = "credible", workers = predict_workers_ex14)
 plot(pred_q_crp_sb)
 ```
 
 ```{r predict-density-crp-sb}
 pred_d_crp_sb <- predict(fit_crp_sb, newdata =x_eval, y = y_eval,
-                         type = "density", interval = "credible")
+                         type = "density", interval = "credible", workers = predict_workers_ex14)
 plot(pred_d_crp_sb)
 ```
 
 ```{r predict-survival-crp-sb}
 pred_surv_crp_sb <- predict(fit_crp_sb, newdata =x_eval, y = y_eval,
-                            type = "survival", interval = "credible")
+                            type = "survival", interval = "credible", workers = predict_workers_ex14)
 plot(pred_surv_crp_sb)
 ```
 
 ```{r cate-crp-sb}
 cate_crp_sb <- cate(fit_crp_sb, newdata = x_eval,
-                   interval = "credible", nsim_mean = 100)
+                   interval = "credible", nsim_mean = nsim_mean_ex14)
 head(format_cate_table(cate_crp_sb))
 plot(cate_crp_sb)
 ```
@@ -282,4 +317,3 @@ plot(cqte_crp_sb)
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-

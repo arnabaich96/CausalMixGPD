@@ -81,7 +81,7 @@ summary_tbl <- tibble(
 ggplot(data.frame(y = y, x1 = X[, 1]), aes(x = x1, y = y)) +
   geom_point(alpha = 0.6, color = "darkorange") +
   geom_smooth(method = "loess", color = "navy", fill = NA) +
-  labs(title = "y vs X1 (SB)", newdata ="X1", y = "y") +
+  labs(title = "y vs X1 (SB)", x = "X1", y = "y") +
   theme_minimal()
 ```
 
@@ -95,7 +95,7 @@ summary_tbl
 
 ```{r spec, cache = FALSE}
 bundle_sb_normal <- bundle(
-  x = y,
+  y = y,
   X = X,
   kernel = "normal",
   backend = "sb",
@@ -105,7 +105,7 @@ bundle_sb_normal <- bundle(
 )
 
 bundle_sb_cauchy <- bundle(
-  x = y,
+  y = y,
   X = X,
   kernel = "cauchy",
   backend = "sb",
@@ -166,7 +166,7 @@ df_cond <- bind_rows(densities_normal, densities_cauchy)
 ggplot(df_cond, aes(x = y, y = density, color = label)) +
   geom_line(linewidth = 1) +
   facet_wrap(~ model) +
-  labs(title = "SB Conditional Predictive Densities", newdata ="y", y = "Density") +
+  labs(title = "SB Conditional Predictive Densities", x = "y", y = "Density") +
   theme_minimal() +
   theme(legend.position = "bottom")
 ```
@@ -196,7 +196,7 @@ bind_rows(quant_df_normal, quant_df_cauchy) %>%
   geom_line(linewidth = 1) +
   geom_point(size = 2) +
   facet_wrap(~ model) +
-  labs(title = "SB Conditional Quantiles vs x1", newdata ="x1", y = "y", color = "Quantile") +
+  labs(title = "SB Conditional Quantiles vs x1", x = "x1", y = "y", color = "Quantile") +
   theme_minimal()
 ```
 
@@ -247,8 +247,6 @@ plot(fit_sb_cauchy, family = c("density", "running", "caterpillar"))
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
-
 
 
 

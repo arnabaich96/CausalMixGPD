@@ -13,8 +13,8 @@ A list of tail metadata.
 Get tail registry
 }
 \details{
-The tail registry is the authoritative description of the generalized Pareto
-splice used by bulk-tail models. It records the tail parameter names
+The tail registry records the generalized Pareto splice used by bulk-tail
+models. It stores the tail parameter names
 \code{threshold}, \code{tail_scale}, and \code{tail_shape}, together with the support each
 parameter must satisfy and the modeling modes the builders may assign to
 them.

@@ -431,8 +431,8 @@ qLognormalMixGpd <- function(p, w, meanlog, sdlog, threshold, tail_scale, tail_s
 #' \end{array}
 #' \right.
 #' }
-#' The ordinary mean is finite only when the GPD tail has \eqn{\xi < 1}; otherwise the package
-#' requires restricted means or quantiles for tail-robust inference.
+#' The ordinary mean is finite only when the GPD tail has \eqn{\xi < 1};
+#' otherwise the package requires restricted means or quantiles.
 #'
 #' @seealso [lognormal_mix()], [lognormal_mixgpd()], [gpd()], [lognormal_lowercase()].
 #' @family lognormal kernel families

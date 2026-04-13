@@ -83,7 +83,7 @@ df_cov <- data.frame(y = y, x1 = X[, 1], x2 = X[, 2])
 p_cov <- ggplot(df_cov, aes(x = x1, y = y)) +
   geom_point(alpha = 0.6, color = "steelblue") +
   geom_smooth(method = "loess", color = "firebrick", fill = NA) +
-  labs(title = "y vs X1 (loess smoother)", newdata ="X1", y = "y") +
+  labs(title = "y vs X1 (loess smoother)", x = "X1", y = "y") +
   theme_minimal()
 
 print(p_cov)
@@ -99,7 +99,7 @@ summary_tbl
 
 ```{r spec-bundle, cache = FALSE}
 bundle_cond_normal <- bundle(
-  x = y,
+  y = y,
   X = X,
   kernel = "normal",
   backend = "crp",
@@ -109,7 +109,7 @@ bundle_cond_normal <- bundle(
 )
 
 bundle_cond_amoroso <- bundle(
-  x = y,
+  y = y,
   X = X,
   kernel = "amoroso",
   backend = "crp",
@@ -173,7 +173,7 @@ df_dens <- bind_rows(densities_normal, densities_amoroso)
 ggplot(df_dens, aes(x = y, y = density, color = group)) +
   geom_line(linewidth = 1) +
   facet_wrap(~ model) +
-  labs(title = "Conditional Predictive Densities", newdata ="y", y = "Density") +
+  labs(title = "Conditional Predictive Densities", x = "y", y = "Density") +
   theme_minimal() +
   theme(legend.position = "bottom")
 ```
@@ -207,7 +207,7 @@ bind_rows(quant_df_normal, quant_df_amoroso) %>%
   geom_line(linewidth = 1) +
   geom_point(size = 2) +
   facet_wrap(~ model) +
-  labs(title = "Conditional Quantiles vs x1 (x2=0)", newdata ="x1", y = "y", color = "Quantile") +
+  labs(title = "Conditional Quantiles vs x1 (x2=0)", x = "x1", y = "y", color = "Quantile") +
   theme_minimal()
 ```
 
@@ -259,7 +259,5 @@ plot(fit_cond_amoroso, family = c("density", "running", "caterpillar"))
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
-
 
 

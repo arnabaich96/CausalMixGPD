@@ -2,8 +2,9 @@
 #'
 #' Generate synthetic outcomes with a light-to-moderate bulk and a heavier upper tail.
 #' The sample is assembled from a lognormal-gamma bulk and a shifted tail sample, then sorted.
-#' This is a quick data generator for examples, help pages, and workflow checks rather than a
-#' formal generative model matching the full package hierarchy exactly.
+#' This generator is intended for examples, help pages, and workflow checks
+#' rather than as a formal generative model matching the full package
+#' hierarchy exactly.
 #'
 #' @param n Integer sample size.
 #' @param tail_prob Approximate tail probability \eqn{\Pr(X > u)} used to split the sample into

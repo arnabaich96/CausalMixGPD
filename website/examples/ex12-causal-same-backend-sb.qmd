@@ -1,5 +1,7 @@
 ---
 title: "ex12. Causal (Same backend, SB Backend) - Laplace Kernel"
+execute:
+  freeze: true
 ---
 
 ```{r setup, include=FALSE, cache=FALSE}
@@ -19,8 +21,15 @@ set.seed(1)
 
 # Fast-by-default rendering. Flip to FALSE for a fuller run.
 FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
-mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
-mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_arms = TRUE, workers = 2, z_update_every = 2)
+max_workers <- local({
+  n_phys <- suppressWarnings(tryCatch(parallel::detectCores(logical = FALSE), error = function(e) NA_integer_))
+  n_log <- suppressWarnings(tryCatch(parallel::detectCores(logical = TRUE), error = function(e) NA_integer_))
+  n <- if (is.finite(n_phys) && !is.na(n_phys) && n_phys >= 1L) n_phys else n_log
+  if (!is.finite(n) || is.na(n) || n < 1L) n <- 1L
+  as.integer(min(10L, n))
+})
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, parallel_arms = TRUE, workers = max_workers)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_arms = TRUE, workers = max_workers, z_update_every = 2)
 
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
@@ -32,6 +41,33 @@ library(CausalMixGPD)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
+max_workers <- min(max_workers, CMGPD_MAX_WORKERS)
+causal_run_mcmc_bulk <- list(show_progress = FALSE, parallel_arms = TRUE, workers = max_workers, timing = TRUE)
+causal_run_mcmc_gpd <- list(
+  show_progress = FALSE,
+  parallel_arms = if (isTRUE(FAST)) FALSE else TRUE,
+  workers = if (isTRUE(FAST)) 1L else max_workers,
+  timing = TRUE
+)
+components_ex12 <- if (isTRUE(FAST)) 3L else 5L
+bulk_mcmc_ex12 <- if (isTRUE(FAST)) {
+  list(niter = 120, nburnin = 30, nchains = 1, thin = 1, seed = 1)
+} else {
+  list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 1)
+}
+gpd_mcmc_ex12 <- if (isTRUE(FAST)) {
+  list(niter = 80, nburnin = 20, nchains = 1, thin = 1, seed = 2)
+} else {
+  list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 2)
+}
+mcmc_ps_bulk_ex12 <- bulk_mcmc_ex12
+mcmc_ps_gpd_ex12 <- gpd_mcmc_ex12
+predict_workers_ex12 <- if (isTRUE(FAST)) 1L else max_workers
+nsim_mean_ex12 <- if (isTRUE(FAST)) 50L else 100L
+plot_family_bulk_ex12 <- if (isTRUE(FAST)) "traceplot" else c("traceplot", "autocorrelation", "running")
+plot_family_gpd_ex12 <- if (isTRUE(FAST)) "density" else c("density", "geweke", "caterpillar")
+tag_sb_bulk_ex12 <- if (isTRUE(FAST)) "ex12-causal-same-backend-sb-fit_sb_bulk_fast" else "ex12-causal-same-backend-sb-fit_sb_bulk"
+tag_sb_gpd_ex12 <- if (isTRUE(FAST)) "ex12-causal-same-backend-sb-fit_sb_gpd_fast" else "ex12-causal-same-backend-sb-fit_sb_gpd"
 ```
 
 
@@ -77,8 +113,8 @@ summary_tbl <- tibble(
 
 summary_tbl
 
-x_eval <- X[1:40, , drop = FALSE]
-y_eval <- y[1:40]
+x_eval <- X[seq_len(if (isTRUE(FAST)) 20L else 40L), , drop = FALSE]
+y_eval <- y[seq_len(if (isTRUE(FAST)) 20L else 40L)]
 u_threshold <- as.numeric(stats::quantile(y, 0.8, names = FALSE))
 ```
 
@@ -87,7 +123,7 @@ df_causal <- data.frame(y = y, A = as.factor(A), x1 = X[, 1], x2 = X[, 2])
 
 p_scatter <- ggplot(df_causal, aes(x = x1, y = y, color = A)) +
   geom_point(alpha = 0.5) +
-  labs(title = "Outcome vs X1 by Treatment", newdata ="X1", y = "y", color = "Treatment") +
+  labs(title = "Outcome vs X1 by Treatment", x = "X1", y = "y", color = "Treatment") +
   theme_minimal()
 
 p_scatter
@@ -99,16 +135,16 @@ p_scatter
 
 ```{r bundle-sb-bulk, cache = FALSE}
 bundle_sb_bulk <- bundle(
-  x = y,
+  y = y,
   treat = A,
   X = X,
   kernel = "laplace",
   backend = "sb",
   PS = "logit",
   GPD = FALSE,
-  components = 5,
-  mcmc_outcome = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 1),
-  mcmc_ps = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 1)
+  components = components_ex12,
+  mcmc_outcome = bulk_mcmc_ex12,
+  mcmc_ps = mcmc_ps_bulk_ex12
 )
 
 bundle_sb_bulk
@@ -117,44 +153,44 @@ summary(bundle_sb_bulk)
 
 ```{r fit-sb-bulk, cache = FALSE}
 fit_sb_bulk <- load_or_fit(
-  "ex12-causal-same-backend-sb-fit_sb_bulk",
-  quiet_mcmc(dpmix.causal(bundle_sb_bulk))
+  tag_sb_bulk_ex12,
+  quiet_mcmc(dpmix.causal(bundle_sb_bulk, mcmc = causal_run_mcmc_bulk))
 )
 summary(fit_sb_bulk)
 params(fit_sb_bulk)
 ```
 
 ```{r plot-fit-sb-bulk}
-plot(fit_sb_bulk, family = c("traceplot", "autocorrelation", "running"))
+plot(fit_sb_bulk, family = plot_family_bulk_ex12)
 ```
 
 ```{r predict-mean-sb-bulk}
 pred_mean_bulk <- predict(fit_sb_bulk, newdata =x_eval, type = "mean",
-                          interval = "credible", nsim_mean = 100)
+                          interval = "credible", nsim_mean = nsim_mean_ex12, workers = predict_workers_ex12)
 plot(pred_mean_bulk)
 ```
 
 ```{r predict-quantile-sb-bulk}
 pred_q_bulk <- predict(fit_sb_bulk, newdata =x_eval, type = "quantile",
-                       p = 0.5, interval = "credible")
+                       p = 0.5, interval = "credible", workers = predict_workers_ex12)
 plot(pred_q_bulk)
 ```
 
 ```{r predict-density-sb-bulk}
 pred_d_bulk <- predict(fit_sb_bulk, newdata =x_eval, y = y_eval,
-                       type = "density", interval = "credible")
+                       type = "density", interval = "credible", workers = predict_workers_ex12)
 plot(pred_d_bulk)
 ```
 
 ```{r predict-survival-sb-bulk}
 pred_surv_bulk <- predict(fit_sb_bulk, newdata =x_eval, y = y_eval,
-                          type = "survival", interval = "credible")
+                          type = "survival", interval = "credible", workers = predict_workers_ex12)
 plot(pred_surv_bulk)
 ```
 
 ```{r cate-sb-bulk}
 cate_bulk <- cate(fit_sb_bulk, newdata = x_eval,
-                 interval = "credible", nsim_mean = 100)
+                 interval = "credible", nsim_mean = nsim_mean_ex12)
 head(format_cate_table(cate_bulk))
 plot(cate_bulk)
 ```
@@ -182,17 +218,17 @@ param_specs_gpd <- list(
 )
 
 bundle_sb_gpd <- bundle(
-  x = y,
+  y = y,
   treat = A,
   X = X,
   kernel = "laplace",
   backend = "sb",
   PS = "logit",
   GPD = TRUE,
-  components = 5,
+  components = components_ex12,
   param_specs = param_specs_gpd,
-  mcmc_outcome = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 2),
-  mcmc_ps = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 2)
+  mcmc_outcome = gpd_mcmc_ex12,
+  mcmc_ps = mcmc_ps_gpd_ex12
 )
 
 bundle_sb_gpd
@@ -201,43 +237,43 @@ summary(bundle_sb_gpd)
 
 ```{r fit-sb-gpd, cache = FALSE}
 fit_sb_gpd <- load_or_fit(
-  "ex12-causal-same-backend-sb-fit_sb_gpd",
-  quiet_mcmc(dpmgpd.causal(bundle_sb_gpd))
+  tag_sb_gpd_ex12,
+  quiet_mcmc(dpmgpd.causal(bundle_sb_gpd, mcmc = causal_run_mcmc_gpd))
 )
 summary(fit_sb_gpd)
 params(fit_sb_gpd)
 ```
 
 ```{r plot-fit-sb-gpd}
-plot(fit_sb_gpd, family = c("density", "geweke", "caterpillar"))
+plot(fit_sb_gpd, family = plot_family_gpd_ex12)
 ```
 
 ```{r predict-mean-sb-gpd}
 pred_mean_gpd <- predict(fit_sb_gpd, newdata =x_eval, type = "mean",
-                         interval = "credible", nsim_mean = 100)
+                         interval = "credible", nsim_mean = nsim_mean_ex12, workers = predict_workers_ex12)
 plot(pred_mean_gpd)
 ```
 
 ```{r predict-quantile-sb-gpd}
 pred_q_gpd <- predict(fit_sb_gpd, newdata =x_eval, type = "quantile",
-                      p = 0.5, interval = "credible")
+                      p = 0.5, interval = "credible", workers = predict_workers_ex12)
 plot(pred_q_gpd)
 ```
 
 ```{r predict-density-sb-gpd}
 pred_d_gpd <- predict(fit_sb_gpd, newdata =x_eval, y = y_eval,
-                      type = "density", interval = "credible")
+                      type = "density", interval = "credible", workers = predict_workers_ex12)
 plot(pred_d_gpd)
 ```
 
 ```{r predict-survival-sb-gpd}
 pred_surv_gpd <- predict(fit_sb_gpd, newdata =x_eval, y = y_eval,
-                         type = "survival", interval = "credible")
+                         type = "survival", interval = "credible", workers = predict_workers_ex12)
 plot(pred_surv_gpd)
 ```
 
 ```{r ate-sb-gpd}
-ate_gpd <- ate(fit_sb_gpd, interval = "credible", nsim_mean = 100)
+ate_gpd <- ate(fit_sb_gpd, interval = "credible", nsim_mean = nsim_mean_ex12)
 plot(ate_gpd)
 ```
 
@@ -271,5 +307,3 @@ plot(qte_gpd)
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
-

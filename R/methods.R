@@ -550,8 +550,8 @@ summary.causalmixgpd_causal_fit <- function(object, pars = NULL, ps_pars = NULL,
 #' first when that block is present, followed by the control and treated outcome
 #' summaries on the same scale of posterior diagnostics.
 #'
-#' No new computation is performed here. The method simply organizes the stored
-#' summary tables so that the three fitted blocks can be inspected together.
+#' No new computation is performed here. The method arranges the stored summary
+#' tables so that the three fitted blocks can be inspected together.
 #'
 #' @param x A \code{"summary.causalmixgpd_causal_fit"} object.
 #' @param digits Number of digits to print in summary tables.
@@ -1527,7 +1527,7 @@ print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, show_ess = FALSE,
 #' @param per_chain Logical; if \code{TRUE}, include per-chain ESS rows.
 #' @param wall_time Optional numeric total MCMC time in seconds. If \code{NULL},
 #'   uses \code{fit$timing$mcmc} when available.
-#' @param robust Logical; if \code{TRUE}, skip missing parameters gracefully.
+#' @param robust Logical; if \code{TRUE}, ignore missing parameters.
 #' @param ... Unused.
 #' @return Object of class \code{"mixgpd_ess_summary"} with elements
 #'   \code{table}, \code{overall}, and \code{meta}.
@@ -1967,7 +1967,7 @@ plot.mixgpd_fit <- function(x,
 #' satisfies \eqn{\xi < 1}. If the mean does not exist analytically for the
 #' chosen kernel or if any required GPD tail has \eqn{\xi \ge 1}, the ordinary
 #' mean is undefined and the function errors with a message directing you to
-#' \code{type = "rmean"} or other tail-robust summaries.
+#' \code{type = "rmean"} or other summaries that remain well defined.
 #'
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
 #' @param newdata Optional new data. If \code{NULL}, uses training design (if stored).

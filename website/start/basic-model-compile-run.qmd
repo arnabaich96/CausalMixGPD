@@ -70,7 +70,7 @@ y <- nc_pos200_k3$y
 
 # Direct call
 bundle_direct <- bundle(
-  x = y,
+  y = y,
   kernel = "gamma",
   backend = "crp",
   GPD = FALSE,
@@ -134,7 +134,7 @@ y_data <- nc_pos200_k3$y
 
 # PHASE 1: Bundle
 bundle_final <- bundle(
-  x = y_data,
+  y = y_data,
   kernel = "gamma",
   backend = "crp",
   GPD = FALSE,
@@ -156,7 +156,7 @@ summary(fit_final)
 ```{r backend-crp, cache = FALSE}
 # Chinese Restaurant Process
 bundle_crp <- bundle(
-  x = y_data,
+  y = y_data,
   kernel = "gamma",
   backend = "crp",
   components = 5,
@@ -172,7 +172,7 @@ invisible(fit_crp)
 ```{r backend-sb, cache = FALSE}
 # Stick-Breaking Process
 bundle_sb <- bundle(
-  x = y_data,
+  y = y_data,
   kernel = "gamma",
   backend = "sb",
   components = 5,
@@ -201,12 +201,12 @@ kernels_available
 
 ```{r gpd-example, eval=TRUE, cache = FALSE}
 # Data with tail behavior
-data("nc_pos200_k3")
+data("nc_pos_tail200_k4")
 y_tail <- nc_pos_tail200_k4$y
 
 # Build with GPD
 bundle_gpd <- bundle(
-  x = y_tail,
+  y = y_tail,
   kernel = "gamma",
   backend = "sb",
   GPD = TRUE,
@@ -276,8 +276,6 @@ recommended_mcmc
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
-
 
 
 

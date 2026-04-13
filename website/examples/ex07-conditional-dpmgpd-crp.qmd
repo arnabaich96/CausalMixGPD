@@ -81,7 +81,7 @@ summary_tbl <- tibble(
 ggplot(data.frame(y = y, x1 = X[, 1]), aes(x = x1, y = y)) +
   geom_point(alpha = 0.5, color = "darkgreen") +
   geom_smooth(method = "loess", color = "steelblue", fill = NA) +
-  labs(title = "Outcome vs X1 (Tail dataset)", newdata ="X1", y = "y") +
+  labs(title = "Outcome vs X1 (Tail dataset)", x = "X1", y = "y") +
   theme_minimal()
 ```
 
@@ -99,7 +99,7 @@ u_threshold <- quantile(y, 0.85)
 ggplot(data.frame(y = y), aes(x = y)) +
   geom_histogram(aes(y = after_stat(density)), bins = 40, fill = "magenta", alpha = 0.6, color = "black") +
   geom_vline(xintercept = u_threshold, linetype = "dashed", color = "black") +
-  labs(title = paste("Threshold at", signif(u_threshold, 3)), newdata ="y", y = "Density") +
+  labs(title = paste("Threshold at", signif(u_threshold, 3)), x = "y", y = "Density") +
   theme_minimal()
 ```
 
@@ -109,7 +109,7 @@ ggplot(data.frame(y = y), aes(x = y)) +
 
 ```{r bundle, cache = FALSE}
 bundle_cond_gpd_lognormal <- bundle(
-  x = y,
+  y = y,
   X = X,
   kernel = "lognormal",
   backend = "crp",
@@ -124,7 +124,7 @@ bundle_cond_gpd_lognormal <- bundle(
 )
 
 bundle_cond_gpd_normal <- bundle(
-  x = y,
+  y = y,
   X = X,
   kernel = "normal",
   backend = "crp",
@@ -192,7 +192,7 @@ bind_rows(df_pred_lognormal, df_pred_normal) %>%
   ggplot(aes(x = y, y = density, color = label)) +
   geom_line(linewidth = 1) +
   facet_wrap(~ model) +
-  labs(title = "Conditional Density with GPD Tail", newdata ="y", y = "Density") +
+  labs(title = "Conditional Density with GPD Tail", x = "y", y = "Density") +
   theme_minimal() +
   theme(legend.position = "bottom")
 ```
@@ -222,7 +222,7 @@ bind_rows(quant_df_lognormal, quant_df_normal) %>%
   geom_line(linewidth = 1) +
   geom_point(size = 2) +
   facet_wrap(~ model) +
-  labs(title = "Tail Quantiles vs x1 (CRP)", newdata ="x1", y = "Quantile", color = "Probability") +
+  labs(title = "Tail Quantiles vs x1 (CRP)", x = "x1", y = "Quantile", color = "Probability") +
   theme_minimal()
 ```
 
@@ -273,8 +273,6 @@ plot(fit_cond_gpd_normal, family = c("running", "geweke", "caterpillar"))
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
-
 
 
 

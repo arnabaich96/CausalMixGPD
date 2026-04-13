@@ -119,7 +119,7 @@ Work from architecture, tools, and contracts.
 ## Docs live in two places
 
 - Quarto (`docs/`): curated navigation, workflows, kernel catalog, and architecture pages.
-- pkgdown (`docs/pkgdown/`): authoritative function reference and package reference pages.
+- pkgdown (`docs/pkgdown/`): primary function reference and package reference pages.
 
 [Quarto reference hub](reference.qmd){.btn .btn-outline-primary}
 [pkgdown reference](pkgdown/reference/index.html){.btn .btn-outline-primary}
@@ -149,7 +149,6 @@ Small links: [Cite](cite.qmd) | [GitHub](https://github.com/arnabaich96/CausalMi
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
 
 
 

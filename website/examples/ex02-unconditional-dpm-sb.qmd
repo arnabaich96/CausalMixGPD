@@ -111,7 +111,7 @@ We build the stick-breaking mixture explicitly with `components = 5` so that the
 ```{r bundle-mcmc-sb, cache = FALSE}
 # --- Gamma kernel ---
 bundle_sb_gamma <- bundle(
-  x = y_mixed,
+  y = y_mixed,
   kernel = "gamma",
   backend = "sb",
   components = 5,            # fixed truncation level for SB
@@ -121,7 +121,7 @@ bundle_sb_gamma <- bundle(
 
 # --- Cauchy kernel ---
 bundle_sb_cauchy <- bundle(
-  x = y_mixed,
+  y = y_mixed,
   kernel = "cauchy",
   backend = "sb",
   components = 5,
@@ -205,7 +205,7 @@ plot(pred_mean_cauchy)
 
 ```{r compare-backend, cache = FALSE}
 bundle_crp_small <- bundle(
-  x = y_mixed,
+  y = y_mixed,
   kernel = "gamma",
   backend = "crp",
   components = 5,
@@ -268,7 +268,6 @@ For unconditional models, use `predict()` only; `fitted()` and `residuals()` are
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
 
 
 

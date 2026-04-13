@@ -28,6 +28,16 @@ if (requireNamespace("patchwork", quietly = TRUE)) {
 
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
+.cmgpd_detect_workers <- function(max_workers = 10L) {
+  n_phys <- suppressWarnings(tryCatch(parallel::detectCores(logical = FALSE), error = function(e) NA_integer_))
+  n_log  <- suppressWarnings(tryCatch(parallel::detectCores(logical = TRUE), error = function(e) NA_integer_))
+  n <- if (is.finite(n_phys) && !is.na(n_phys) && n_phys >= 1L) n_phys else n_log
+  if (!is.finite(n) || is.na(n) || n < 1L) n <- 1L
+  as.integer(min(max_workers, n))
+}
+
+CMGPD_MAX_WORKERS <- .cmgpd_detect_workers(10L)
+
 # Prefer interactive Plotly output in website HTML when available and renderable.
 # Some environments can have plotly/htmlwidgets installed but broken for knitting.
 .cmgpd_can_use_plotly <- function() {

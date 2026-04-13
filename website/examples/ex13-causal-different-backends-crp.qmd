@@ -1,5 +1,7 @@
 ---
 title: "ex13. Causal (Different backends, CRP Backend) - Cauchy Kernel"
+execute:
+  freeze: true
 ---
 
 ```{r setup, include=FALSE, cache=FALSE}
@@ -19,8 +21,15 @@ set.seed(1)
 
 # Fast-by-default rendering. Flip to FALSE for a fuller run.
 FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
-mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
-mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_arms = TRUE, workers = 2, z_update_every = 2)
+max_workers <- local({
+  n_phys <- suppressWarnings(tryCatch(parallel::detectCores(logical = FALSE), error = function(e) NA_integer_))
+  n_log <- suppressWarnings(tryCatch(parallel::detectCores(logical = TRUE), error = function(e) NA_integer_))
+  n <- if (is.finite(n_phys) && !is.na(n_phys) && n_phys >= 1L) n_phys else n_log
+  if (!is.finite(n) || is.na(n) || n < 1L) n <- 1L
+  as.integer(min(10L, n))
+})
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, parallel_arms = TRUE, workers = max_workers)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_arms = TRUE, workers = max_workers, z_update_every = 2)
 
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
@@ -32,6 +41,28 @@ library(CausalMixGPD)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
+max_workers <- min(max_workers, CMGPD_MAX_WORKERS)
+causal_run_mcmc <- list(show_progress = FALSE, parallel_arms = TRUE, workers = max_workers, timing = TRUE)
+components_ex13 <- if (isTRUE(FAST)) c(3L, 3L) else c(5L, 5L)
+bulk_mcmc_ex13 <- if (isTRUE(FAST)) {
+  list(niter = 120, nburnin = 30, nchains = 1, thin = 1, seed = 1)
+} else {
+  list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 1)
+}
+bulk_mcmc_ex13_b <- if (isTRUE(FAST)) {
+  list(niter = 120, nburnin = 30, nchains = 1, thin = 1, seed = 2)
+} else {
+  list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 2)
+}
+mcmc_ps_ex13 <- bulk_mcmc_ex13
+mcmc_ps_ex13_b <- bulk_mcmc_ex13_b
+predict_workers_ex13 <- if (isTRUE(FAST)) 1L else max_workers
+nsim_mean_ex13 <- if (isTRUE(FAST)) 50L else 100L
+rmean_cutoff_ex13 <- 10
+plot_family_sb_crp_ex13 <- if (isTRUE(FAST)) "traceplot" else c("traceplot", "autocorrelation", "running")
+plot_family_crp_sb_ex13 <- if (isTRUE(FAST)) "density" else c("density", "geweke", "caterpillar")
+tag_sb_crp_ex13 <- if (isTRUE(FAST)) "ex13-causal-different-backends-crp-fit_sb_crp_fast" else "ex13-causal-different-backends-crp-fit_sb_crp"
+tag_crp_sb_ex13 <- if (isTRUE(FAST)) "ex13-causal-different-backends-crp-fit_crp_sb_fast" else "ex13-causal-different-backends-crp-fit_crp_sb"
 ```
 
 
@@ -63,6 +94,7 @@ This vignette fits two mixed-backend causal models with a shared Cauchy kernel:
 ## Next steps
 
 - Turn on tail augmentation (mixed-backend + `GPD = TRUE`) when extremes plausibly drive effect heterogeneity.
+- Because the Cauchy kernel does not have a finite mean, this page uses median and upper-quantile predictions, plus restricted-mean causal effects.
 ---
 
 ## Data Setup
@@ -80,8 +112,8 @@ summary_tbl <- tibble(
 
 summary_tbl
 
-x_eval <- X[1:40, , drop = FALSE]
-y_eval <- y[1:40]
+x_eval <- X[seq_len(if (isTRUE(FAST)) 20L else 40L), , drop = FALSE]
+y_eval <- y[seq_len(if (isTRUE(FAST)) 20L else 40L)]
 ```
 
 ```{r data-scatter}
@@ -89,7 +121,7 @@ df_causal <- data.frame(y = y, A = as.factor(A), x1 = X[, 1])
 
 p_scatter <- ggplot(df_causal, aes(x = x1, y = y, color = A)) +
   geom_point(alpha = 0.5) +
-  labs(title = "Outcome vs X1", newdata ="X1", y = "y", color = "Treatment") +
+  labs(title = "Outcome vs X1", x = "X1", y = "y", color = "Treatment") +
   theme_minimal()
 
 p_scatter
@@ -101,16 +133,16 @@ p_scatter
 
 ```{r bundle-sb-crp, cache = FALSE}
 bundle_sb_crp <- bundle(
-  x = y,
+  y = y,
   treat = A,
   X = X,
   kernel = c("cauchy", "cauchy"),
   backend = c("sb", "crp"),
   PS = "logit",
   GPD = c(FALSE, FALSE),
-  components = c(5, 5),
-  mcmc_outcome = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 1),
-  mcmc_ps = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 1)
+  components = components_ex13,
+  mcmc_outcome = bulk_mcmc_ex13,
+  mcmc_ps = mcmc_ps_ex13
 )
 
 bundle_sb_crp
@@ -119,43 +151,55 @@ summary(bundle_sb_crp)
 
 ```{r fit-sb-crp, cache = FALSE}
 fit_sb_crp <- load_or_fit(
-  "ex13-causal-different-backends-crp-fit_sb_crp",
-  quiet_mcmc(dpmix.causal(bundle_sb_crp))
+  tag_sb_crp_ex13,
+  quiet_mcmc(dpmix.causal(bundle_sb_crp, mcmc = causal_run_mcmc))
 )
 summary(fit_sb_crp)
 params(fit_sb_crp)
 ```
 
 ```{r plot-fit-sb-crp}
-plot(fit_sb_crp, family = c("traceplot", "autocorrelation", "running"))
+plot(fit_sb_crp, family = plot_family_sb_crp_ex13)
 ```
 
 ```{r predict-mean-sb-crp}
-pred_mean_sb_crp <- predict(fit_sb_crp, newdata =x_eval, type = "mean",
-                            interval = "credible", nsim_mean = 100)
-plot(pred_mean_sb_crp)
+pred_median_sb_crp <- predict(
+  fit_sb_crp,
+  newdata =x_eval,
+  type = "quantile",
+  p = 0.5,
+  interval = "credible",
+  workers = predict_workers_ex13
+)
+plot(pred_median_sb_crp)
 ```
 
 ```{r predict-quantile-sb-crp}
 pred_q_sb_crp <- predict(fit_sb_crp, newdata =x_eval, type = "quantile",
-                         p = 0.5, interval = "credible")
+                         p = 0.9, interval = "credible", workers = predict_workers_ex13)
 plot(pred_q_sb_crp)
 ```
 
 ```{r predict-density-sb-crp}
 pred_d_sb_crp <- predict(fit_sb_crp, newdata =x_eval, y = y_eval,
-                         type = "density", interval = "credible")
+                         type = "density", interval = "credible", workers = predict_workers_ex13)
 plot(pred_d_sb_crp)
 ```
 
 ```{r predict-survival-sb-crp}
 pred_surv_sb_crp <- predict(fit_sb_crp, newdata =x_eval, y = y_eval,
-                            type = "survival", interval = "credible")
+                            type = "survival", interval = "credible", workers = predict_workers_ex13)
 plot(pred_surv_sb_crp)
 ```
 
 ```{r ate-sb-crp}
-att_sb_crp <- att(fit_sb_crp, interval = "credible", nsim_mean = 100)
+att_sb_crp <- att(
+  fit_sb_crp,
+  type = "rmean",
+  cutoff = rmean_cutoff_ex13,
+  interval = "credible",
+  nsim_mean = nsim_mean_ex13
+)
 plot(att_sb_crp)
 ```
 
@@ -170,16 +214,16 @@ plot(qtt_sb_crp)
 
 ```{r bundle-crp-sb, cache = FALSE}
 bundle_crp_sb <- bundle(
-  x = y,
+  y = y,
   treat = A,
   X = X,
   kernel = c("cauchy", "cauchy"),
   backend = c("crp", "sb"),
   PS = "logit",
   GPD = c(FALSE, FALSE),
-  components = c(5, 5),
-  mcmc_outcome = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 2),
-  mcmc_ps = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 2)
+  components = components_ex13,
+  mcmc_outcome = bulk_mcmc_ex13_b,
+  mcmc_ps = mcmc_ps_ex13_b
 )
 
 bundle_crp_sb
@@ -188,44 +232,56 @@ summary(bundle_crp_sb)
 
 ```{r fit-crp-sb, cache = FALSE}
 fit_crp_sb <- load_or_fit(
-  "ex13-causal-different-backends-crp-fit_crp_sb",
-  quiet_mcmc(dpmix.causal(bundle_crp_sb))
+  tag_crp_sb_ex13,
+  quiet_mcmc(dpmix.causal(bundle_crp_sb, mcmc = causal_run_mcmc))
 )
 summary(fit_crp_sb)
 params(fit_crp_sb)
 ```
 
 ```{r plot-fit-crp-sb}
-plot(fit_crp_sb, family = c("density", "geweke", "caterpillar"))
+plot(fit_crp_sb, family = plot_family_crp_sb_ex13)
 ```
 
 ```{r predict-mean-crp-sb}
-pred_mean_crp_sb <- predict(fit_crp_sb, newdata =x_eval, type = "mean",
-                            interval = "credible", nsim_mean = 100)
-plot(pred_mean_crp_sb)
+pred_median_crp_sb <- predict(
+  fit_crp_sb,
+  newdata =x_eval,
+  type = "quantile",
+  p = 0.5,
+  interval = "credible",
+  workers = predict_workers_ex13
+)
+plot(pred_median_crp_sb)
 ```
 
 ```{r predict-quantile-crp-sb}
 pred_q_crp_sb <- predict(fit_crp_sb, newdata =x_eval, type = "quantile",
-                         p = 0.5, interval = "credible")
+                         p = 0.9, interval = "credible", workers = predict_workers_ex13)
 plot(pred_q_crp_sb)
 ```
 
 ```{r predict-density-crp-sb}
 pred_d_crp_sb <- predict(fit_crp_sb, newdata =x_eval, y = y_eval,
-                         type = "density", interval = "credible")
+                         type = "density", interval = "credible", workers = predict_workers_ex13)
 plot(pred_d_crp_sb)
 ```
 
 ```{r predict-survival-crp-sb}
 pred_surv_crp_sb <- predict(fit_crp_sb, newdata =x_eval, y = y_eval,
-                            type = "survival", interval = "credible")
+                            type = "survival", interval = "credible", workers = predict_workers_ex13)
 plot(pred_surv_crp_sb)
 ```
 
 ```{r cate-crp-sb}
-cate_crp_sb <- cate(fit_crp_sb, newdata = x_eval,
-                   interval = "credible", nsim_mean = 100)
+cate_crp_sb <- cate(
+  fit_crp_sb,
+  type = "rmean",
+  cutoff = rmean_cutoff_ex13,
+  newdata = x_eval,
+  interval = "credible",
+  nsim_mean = nsim_mean_ex13
+)
 head(format_cate_table(cate_crp_sb))
 plot(cate_crp_sb)
 ```
@@ -262,5 +318,3 @@ plot(cqte_crp_sb)
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
-

@@ -79,8 +79,8 @@ f_{LN}(x \mid \mu,\sigma), & x < u, \\
 \end{array}
 \right.
 }
-The ordinary mean is finite only when the GPD tail has \eqn{\xi < 1}; otherwise the package
-requires restricted means or quantiles for tail-robust inference.
+The ordinary mean is finite only when the GPD tail has \eqn{\xi < 1};
+otherwise the package requires restricted means or quantiles.
 }
 \section{Functions}{
 \itemize{

@@ -95,8 +95,8 @@ in the PS model.}
 \item \code{"naive"}: Gaussian naive Bayes PS model
 \item \code{FALSE}: No PS estimation; outcome models use only \code{X}
 }
-The PS model choice is stored in bundle metadata for downstream use in prediction
-and summaries, enabling seamless integration of future PS estimation methods.}
+The PS model choice is stored in bundle metadata for downstream use in
+prediction and summaries.}
 
 \item{ps_scale}{Scale used when augmenting outcomes with PS:
 \itemize{

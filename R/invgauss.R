@@ -629,9 +629,10 @@ qInvGaussGpd <- function(p, mean, shape, threshold, tail_scale, tail_shape,
 #' @return Numeric vector of densities, probabilities, quantiles, or random variates.
 #'
 #' @details
-#' These functions are vectorized R front ends to the scalar inverse-Gaussian and splice routines.
-#' They retain the \eqn{(\mu,\lambda)} parameterization used everywhere else in the package and
-#' simply apply the scalar evaluator repeatedly over the supplied input vector or draw index.
+#' These functions are vectorized R front ends to the scalar inverse-Gaussian
+#' and splice routines. They retain the \eqn{(\mu,\lambda)} parameterization
+#' used everywhere else in the package and apply the scalar evaluator
+#' repeatedly over the supplied input vector or draw index.
 #'
 #' @seealso [InvGauss_mix()], [InvGauss_mixgpd()], [InvGauss_gpd()], [bundle()],
 #'   [get_kernel_registry()].

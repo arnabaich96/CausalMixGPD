@@ -37,11 +37,11 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-`CausalMixGPD` is designed to handle contexts where the underlying distribution of the response variable does not admit a parametric representation that captures its complexity. Many problems have heteroskedastic, skewed, or multimodal distributions that need to be modeled with non-parametric mixtures of some form, coupled with tails that are light and may require some extrapolation. The `CausalMixGPD` package provides a solution by employing a spliced distribution, where a Dirichlet process mixture (DPM) model for the core is augmented with a possible generalized Pareto distribution (GPD) tail [@EscobarWest1995; @BalkemaDeHaan1974; @Pickands1975; @Coles2001].
+`CausalMixGPD` is designed for settings where the response distribution is not well represented by a simple parametric family. Many applications have heteroskedastic, skewed, or multimodal outcomes that are better modeled with flexible mixtures, together with upper-tail behavior that may require extrapolation. The `CausalMixGPD` package addresses this setting with a spliced distribution in which a Dirichlet process mixture (DPM) model for the core is optionally augmented with a generalized Pareto distribution (GPD) tail [@EscobarWest1995; @BalkemaDeHaan1974; @Pickands1975; @Coles2001].
 
-The one-arm workflow is a fundamental component of the package. A conditional outcome distribution is fitted first, and densities, survival functions, quantiles, means, and restricted means are extracted from the fitted distribution. The software paper provides a detailed description of the one-arm workflow that the causal and clustering extensions are based on.
+A conditional outcome distribution is fitted first, and densities, survival functions, quantiles, means, and restricted means are then extracted from the fitted distribution. The software paper describes the one-arm workflow that the causal and clustering extensions build on.
 
-This vignette provides a comprehensive guide to the workflow using a built-in simulation study data set. There are four objectives to be achieved here. Firstly, notation and the model setup will be described. Secondly, we will provide descriptions of the one-arm workflow functions and their statistical objects. Thirdly, the interface of the package will be presented using executable code. Finally, the main customization options available in the package will be discussed.
+This vignette walks through the workflow using a built-in simulated data set. It introduces the notation and model setup, describes the main one-arm workflow functions and their statistical targets, shows the interface through executable code, and summarizes the main customization options.
 
 # Notation and statistical background
 
@@ -509,9 +509,9 @@ This comparison is one of the most revealing diagnostics in a heavy-tailed appli
 
 # Analysis summary
 
-The one-arm workflow is easiest to interpret if the fitted conditional distribution is treated as the scientific object of interest. In this example, the positive-support mixture captures the main structure of the response across covariate profiles, while the optional GPD tail modifies the way upper-tail mass is extrapolated. The density and survival summaries show the global shape of the fitted conditional distribution, the quantile summaries highlight profile-specific location and tail changes, and the restricted mean gives a robust bounded summary on the original response scale.
+The one-arm workflow is easiest to interpret when the fitted conditional distribution is the main object of interest. In this example, the positive-support mixture captures the main structure of the response across covariate profiles, while the optional GPD tail changes how upper-tail mass is extrapolated. The density and survival summaries describe the overall shape of the fitted conditional distribution, the quantile summaries highlight profile-specific location and tail changes, and the restricted mean provides a bounded summary on the original response scale.
 
-From a practical modeling standpoint, the most important takeaway is that `dpmix()` and `dpmgpd()` are not competing prediction APIs. They are two related model classes that feed the same summary interface. The decision between them should be driven by the scientific role of the upper tail. If the target is mainly bulk prediction, a bulk-only mixture may be adequate. If inference on extreme upper quantiles, tail probabilities, or heavy-tail-sensitive means matters, the spliced formulation is usually preferable.
+From a practical modeling standpoint, `dpmix()` and `dpmgpd()` are two related model classes with the same summary interface. The choice between them should be driven by the role of the upper tail in the analysis. If the target is mainly bulk prediction, a bulk-only mixture may be adequate. If inference on extreme upper quantiles, tail probabilities, or means sensitive to upper-tail behavior matters, the spliced formulation is often more appropriate.
 
 # Customization options for one-arm models
 
@@ -519,7 +519,7 @@ This section collects the main arguments that users typically customize in one-a
 
 ## Model specification options
 
-`kernel` selects the bulk family. Positive-support choices include `"gamma"`, `"lognormal"`, and `"invgauss"`; real-line kernels include `"normal"`, `"laplace"`, `"cauchy"`, and `"amoroso"`. The support of the response should guide this choice.
+`kernel` selects the bulk family. Positive-support choices include `"gamma"`, `"lognormal"`, `"invgauss"`, and `"amoroso"`; real-line kernels include `"normal"`, `"laplace"`, and `"cauchy"`. The support of the response should guide this choice.
 
 `backend` determines how the DPM is represented internally. The main options are `"sb"` for stick-breaking and `"crp"` for a Chinese restaurant process representation.
 

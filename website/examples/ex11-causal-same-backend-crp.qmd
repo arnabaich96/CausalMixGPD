@@ -1,5 +1,7 @@
 ---
-title: "ex11. Causal (Same backend, CRP Backend) - Cauchy/Laplace"
+title: "ex11. Causal (Same backend, CRP Backend) - Laplace Kernel"
+execute:
+  freeze: true
 ---
 
 ```{r setup, include=FALSE, cache=FALSE}
@@ -19,8 +21,15 @@ set.seed(1)
 
 # Fast-by-default rendering. Flip to FALSE for a fuller run.
 FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
-mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
-mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_arms = TRUE, workers = 2, z_update_every = 2)
+max_workers <- local({
+  n_phys <- suppressWarnings(tryCatch(parallel::detectCores(logical = FALSE), error = function(e) NA_integer_))
+  n_log <- suppressWarnings(tryCatch(parallel::detectCores(logical = TRUE), error = function(e) NA_integer_))
+  n <- if (is.finite(n_phys) && !is.na(n_phys) && n_phys >= 1L) n_phys else n_log
+  if (!is.finite(n) || is.na(n) || n < 1L) n <- 1L
+  as.integer(min(10L, n))
+})
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, parallel_arms = TRUE, workers = max_workers)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_arms = TRUE, workers = max_workers, z_update_every = 2)
 
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
@@ -32,8 +41,34 @@ library(CausalMixGPD)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
+max_workers <- min(max_workers, CMGPD_MAX_WORKERS)
+causal_run_mcmc_bulk <- list(show_progress = FALSE, parallel_arms = TRUE, workers = max_workers, timing = TRUE)
+causal_run_mcmc_gpd <- list(
+  show_progress = FALSE,
+  parallel_arms = if (isTRUE(FAST)) FALSE else TRUE,
+  workers = if (isTRUE(FAST)) 1L else max_workers,
+  timing = TRUE
+)
+components_ex11 <- if (isTRUE(FAST)) 3L else 5L
+bulk_mcmc_ex11 <- if (isTRUE(FAST)) {
+  list(niter = 120, nburnin = 30, nchains = 1, thin = 1, seed = 1)
+} else {
+  list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 1)
+}
+gpd_mcmc_ex11 <- if (isTRUE(FAST)) {
+  list(niter = 80, nburnin = 20, nchains = 1, thin = 1, seed = 2)
+} else {
+  list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 2)
+}
+mcmc_ps_bulk_ex11 <- bulk_mcmc_ex11
+mcmc_ps_gpd_ex11 <- gpd_mcmc_ex11
+predict_workers_ex11 <- if (isTRUE(FAST)) 1L else max_workers
+nsim_mean_ex11 <- if (isTRUE(FAST)) 50L else 100L
+plot_family_bulk_ex11 <- if (isTRUE(FAST)) "traceplot" else c("traceplot", "autocorrelation", "running")
+plot_family_gpd_ex11 <- if (isTRUE(FAST)) "density" else c("density", "geweke", "caterpillar")
+tag_crp_bulk_ex11 <- if (isTRUE(FAST)) "ex11-causal-same-backend-crp-fit_crp_bulk_laplace_fast" else "ex11-causal-same-backend-crp-fit_crp_bulk_laplace"
+tag_crp_gpd_ex11 <- if (isTRUE(FAST)) "ex11-causal-same-backend-crp-fit_crp_gpd_laplace_fast" else "ex11-causal-same-backend-crp-fit_crp_gpd_laplace"
 ```
-
 
 > **Website workflow note.**
 > This page reflects the current exported API and recommended wrapper-first usage.
@@ -41,28 +76,30 @@ source("_legacy-setup.R")
 >
 > For the full package narrative, see the main package vignettes (basic, unconditional, conditional, and causal).
 
+# Causal Inference: Same Backend (CRP) - Laplace Kernel {#causal-crp-same-backend}
 
-# Causal Inference: Mixed Backends (CRP+SB) {#causal-mixed-backends}
+This vignette fits two CRP-based causal models using the same kernel (Laplace):
 
-This vignette fits two causal models using different backends and kernels:
+- Model A: bulk-only outcome models (`GPD = FALSE`)
+- Model B: GPD-augmented outcome models (`GPD = TRUE`)
 
-- Model A: CRP bulk-only (Cauchy)
-- Model B: SB with GPD tail (Laplace)
+Each model demonstrates the standard causal S3 workflow: bundle, fit, predict, plot, ATE, and QTE.
 
-Each model demonstrates the full causal S3 workflow: bundle, fit, predict, plot, ATE, and QTE.
+## What you'll learn
 
-## What you’ll learn
+- How to hold backend and kernel fixed and isolate the impact of tail augmentation.
+- How tail augmentation can change upper-quantile behavior even when mean effects look similar.
+- How to run the standard causal post-fit workflow for multiple estimands.
 
-- How backend choice (CRP vs SB) and tail choice (`GPD = FALSE/TRUE`) affect predictive uncertainty and downstream causal estimands.
-- How to keep comparisons interpretable by using the same post-fit S3 surface across models (`summary()`, `predict()`, `plot()`).
-- How to read both mean and quantile effect summaries and treat them as model-based functionals.
 ## When to use this template
 
-- You want an apples-to-apples comparison of causal models that differ by **backend** and/or **tail augmentation**.
-- You want a compact example of the full causal S3 workflow in one place.
+- You want a clean sensitivity check focused on tail modeling rather than backend or kernel changes.
+- You want predictable runtime and an explicit complexity knob (`components`) inside a causal workflow.
+
 ## Next steps
 
-- Use the “same-backend” causal examples to isolate tail effects from backend effects.
+- Compare this page with the SB version to study how tail augmentation behaves under a different backend.
+
 ---
 
 ## Data Setup
@@ -80,8 +117,8 @@ summary_tbl <- tibble(
 
 summary_tbl
 
-x_eval <- X[1:40, , drop = FALSE]
-y_eval <- y[1:40]
+x_eval <- X[seq_len(if (isTRUE(FAST)) 20L else 40L), , drop = FALSE]
+y_eval <- y[seq_len(if (isTRUE(FAST)) 20L else 40L)]
 u_threshold <- as.numeric(stats::quantile(y, 0.8, names = FALSE))
 ```
 
@@ -90,7 +127,7 @@ df_causal <- data.frame(y = y, A = as.factor(A), x1 = X[, 1], x2 = X[, 2])
 
 p_scatter <- ggplot(df_causal, aes(x = x1, y = y, color = A)) +
   geom_point(alpha = 0.5) +
-  labs(title = "Outcome vs X1 by Treatment", newdata ="X1", y = "y", color = "Treatment") +
+  labs(title = "Outcome vs X1 by Treatment", x = "X1", y = "y", color = "Treatment") +
   theme_minimal()
 
 p_scatter
@@ -98,20 +135,20 @@ p_scatter
 
 ---
 
-## Model A: CRP Bulk-only (Cauchy)
+## Model A: CRP Bulk-only (Laplace)
 
 ```{r bundle-crp-bulk, cache = FALSE}
 bundle_crp_bulk <- bundle(
-  x = y,
+  y = y,
   treat = A,
   X = X,
-  kernel = "cauchy",
+  kernel = "laplace",
   backend = "crp",
   PS = "logit",
   GPD = FALSE,
-  components = 5,
-  mcmc_outcome = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 1),
-  mcmc_ps = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 1)
+  components = components_ex11,
+  mcmc_outcome = bulk_mcmc_ex11,
+  mcmc_ps = mcmc_ps_bulk_ex11
 )
 
 bundle_crp_bulk
@@ -120,47 +157,47 @@ summary(bundle_crp_bulk)
 
 ```{r fit-crp-bulk, cache = FALSE}
 fit_crp_bulk <- load_or_fit(
-  "ex11-causal-same-backend-crp-fit_crp_bulk",
-  quiet_mcmc(dpmix.causal(bundle_crp_bulk))
+  tag_crp_bulk_ex11,
+  quiet_mcmc(dpmix.causal(bundle_crp_bulk, mcmc = causal_run_mcmc_bulk))
 )
 summary(fit_crp_bulk)
 params(fit_crp_bulk)
 ```
 
 ```{r plot-fit-crp-bulk}
-plot(fit_crp_bulk, family = c("traceplot", "autocorrelation", "running"))
+plot(fit_crp_bulk, family = plot_family_bulk_ex11)
 ```
 
 ```{r predict-mean-crp-bulk}
-pred_mean_bulk <- predict(fit_crp_bulk, newdata =x_eval, type = "mean",
-                          interval = "credible", nsim_mean = 100)
+pred_mean_bulk <- predict(fit_crp_bulk, newdata = x_eval, type = "mean",
+                          interval = "credible", nsim_mean = nsim_mean_ex11, workers = predict_workers_ex11)
 head(pred_mean_bulk)
 plot(pred_mean_bulk)
 ```
 
 ```{r predict-quantile-crp-bulk}
-pred_q_bulk <- predict(fit_crp_bulk, newdata =x_eval, type = "quantile",
-                       p = 0.5, interval = "credible")
+pred_q_bulk <- predict(fit_crp_bulk, newdata = x_eval, type = "quantile",
+                       p = 0.5, interval = "credible", workers = predict_workers_ex11)
 head(pred_q_bulk)
 plot(pred_q_bulk)
 ```
 
 ```{r predict-density-crp-bulk}
-pred_d_bulk <- predict(fit_crp_bulk, newdata =x_eval, y = y_eval,
-                       type = "density", interval = "credible")
+pred_d_bulk <- predict(fit_crp_bulk, newdata = x_eval, y = y_eval,
+                       type = "density", interval = "credible", workers = predict_workers_ex11)
 head(pred_d_bulk)
 plot(pred_d_bulk)
 ```
 
 ```{r predict-survival-crp-bulk}
-pred_surv_bulk <- predict(fit_crp_bulk, newdata =x_eval, y = y_eval,
-                          type = "survival", interval = "credible")
+pred_surv_bulk <- predict(fit_crp_bulk, newdata = x_eval, y = y_eval,
+                          type = "survival", interval = "credible", workers = predict_workers_ex11)
 head(pred_surv_bulk)
 plot(pred_surv_bulk)
 ```
 
 ```{r ate-crp-bulk}
-ate_bulk <- ate(fit_crp_bulk, interval = "credible", nsim_mean = 100)
+ate_bulk <- ate(fit_crp_bulk, interval = "credible", nsim_mean = nsim_mean_ex11)
 head(ate_bulk)
 plot(ate_bulk)
 ```
@@ -173,7 +210,7 @@ plot(qte_bulk)
 
 ---
 
-## Model B: SB with GPD Tail (Laplace)
+## Model B: CRP with GPD Tail (Laplace)
 
 ```{r bundle-crp-gpd, cache = FALSE}
 param_specs_gpd <- list(
@@ -186,77 +223,75 @@ param_specs_gpd <- list(
   )
 )
 
-bundle_sb_gpd <- bundle(
-  x = y,
+bundle_crp_gpd <- bundle(
+  y = y,
   treat = A,
   X = X,
   kernel = "laplace",
-  backend = "sb",
+  backend = "crp",
   PS = "logit",
   GPD = TRUE,
-  components = 5,
+  components = components_ex11,
   param_specs = param_specs_gpd,
-  mcmc_outcome = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 2),
-  mcmc_ps = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 2)
+  mcmc_outcome = gpd_mcmc_ex11,
+  mcmc_ps = mcmc_ps_gpd_ex11
 )
 
-bundle_sb_gpd
-summary(bundle_sb_gpd)
+bundle_crp_gpd
+summary(bundle_crp_gpd)
 ```
 
-```{r fit-sb-gpd, cache = FALSE}
-fit_sb_gpd <- load_or_fit(
-  "ex11-causal-same-backend-crp-fit_sb_gpd",
-  quiet_mcmc(dpmgpd.causal(bundle_sb_gpd))
+```{r fit-crp-gpd, cache = FALSE}
+fit_crp_gpd <- load_or_fit(
+  tag_crp_gpd_ex11,
+  quiet_mcmc(dpmgpd.causal(bundle_crp_gpd, mcmc = causal_run_mcmc_gpd))
 )
-summary(fit_sb_gpd)
-params(fit_sb_gpd)
+summary(fit_crp_gpd)
+params(fit_crp_gpd)
 ```
 
-```{r plot-fit-sb-gpd}
-plot(fit_sb_gpd, family = c("density", "geweke", "caterpillar"))
+```{r plot-fit-crp-gpd}
+plot(fit_crp_gpd, family = plot_family_gpd_ex11)
 ```
 
-```{r predict-mean-sb-gpd}
-pred_mean_gpd <- predict(fit_sb_gpd, newdata =x_eval, type = "mean",
-                         interval = "credible", nsim_mean = 100)
+```{r predict-mean-crp-gpd}
+pred_mean_gpd <- predict(fit_crp_gpd, newdata = x_eval, type = "mean",
+                         interval = "credible", nsim_mean = nsim_mean_ex11, workers = predict_workers_ex11)
 head(pred_mean_gpd)
 plot(pred_mean_gpd)
 ```
 
-```{r predict-quantile-sb-gpd}
-pred_q_gpd <- predict(fit_sb_gpd, newdata =x_eval, type = "quantile",
-                      p = 0.5, interval = "credible")
+```{r predict-quantile-crp-gpd}
+pred_q_gpd <- predict(fit_crp_gpd, newdata = x_eval, type = "quantile",
+                      p = 0.5, interval = "credible", workers = predict_workers_ex11)
 head(pred_q_gpd)
 plot(pred_q_gpd)
 ```
 
-```{r predict-density-sb-gpd}
-pred_d_gpd <- predict(fit_sb_gpd, newdata =x_eval, y = y_eval,
-                      type = "density", interval = "credible")
+```{r predict-density-crp-gpd}
+pred_d_gpd <- predict(fit_crp_gpd, newdata = x_eval, y = y_eval,
+                      type = "density", interval = "credible", workers = predict_workers_ex11)
 head(pred_d_gpd)
 plot(pred_d_gpd)
 ```
 
-```{r predict-survival-sb-gpd}
-pred_surv_gpd <- predict(fit_sb_gpd, newdata =x_eval, y = y_eval,
-                         type = "survival", interval = "credible")
+```{r predict-survival-crp-gpd}
+pred_surv_gpd <- predict(fit_crp_gpd, newdata = x_eval, y = y_eval,
+                         type = "survival", interval = "credible", workers = predict_workers_ex11)
 head(pred_surv_gpd)
 plot(pred_surv_gpd)
 ```
 
-```{r cate-sb-gpd}
-cate_gpd <- cate(fit_sb_gpd, newdata = x_eval,
-                interval = "credible", nsim_mean = 100)
-head(format_cate_table(cate_gpd))
-plot(cate_gpd)
+```{r ate-crp-gpd}
+ate_gpd <- ate(fit_crp_gpd, interval = "credible", nsim_mean = nsim_mean_ex11)
+head(ate_gpd)
+plot(ate_gpd)
 ```
 
-```{r cqte-sb-gpd}
-cqte_gpd <- cqte(fit_sb_gpd, probs = c(0.25, 0.5, 0.75),
-                newdata = x_eval, interval = "credible")
-head(format_cqte_table(cqte_gpd))
-plot(cqte_gpd)
+```{r qte-crp-gpd}
+qte_gpd <- qte(fit_crp_gpd, probs = c(0.25, 0.5, 0.75), interval = "credible")
+head(qte_gpd)
+plot(qte_gpd)
 ```
 
 ---
@@ -284,5 +319,3 @@ plot(cqte_gpd)
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
-

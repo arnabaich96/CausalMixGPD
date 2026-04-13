@@ -113,7 +113,7 @@ This follows the same structure as the SB bulk-only vignette (`ex02`): build a b
 
 ```{r spec-bundle, cache = FALSE}
 bundle_sb_gpd <- bundle(
-  x = y_tail,
+  y = y_tail,
   kernel = "gamma",
   backend = "sb",
   GPD = TRUE,
@@ -173,7 +173,7 @@ plot(pred_quant)
 
 ```{r bulk-comparison, cache = FALSE}
 bundle_sb_bulk <- bundle(
-  x = y_tail,
+  y = y_tail,
   kernel = "laplace",
   backend = "sb",
   GPD = FALSE,
@@ -239,7 +239,6 @@ plot(fit_sb_gpd, family = c("histogram", "autocorrelation", "running"))
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
 
 
 

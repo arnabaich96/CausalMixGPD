@@ -53,10 +53,11 @@ Numeric vector of densities, probabilities, quantiles, or random variates.
 Vectorized R wrappers for the scalar Cauchy mixture functions in this file.
 }
 \details{
-These are vectorized R wrappers around the scalar Cauchy-mixture routines. They retain the same
-location-scale parameterization and the same inverse-CDF logic for simulation and quantiles. The
-lowercase functions do not alter the heavy-tail theory of the underlying Cauchy components; they
-simply make the scalar routines convenient to use on vectors in R.
+These are vectorized R wrappers around the scalar Cauchy-mixture routines.
+They retain the same location-scale parameterization and the same inverse-CDF
+logic for simulation and quantiles. The lowercase functions do not alter the
+heavy-tail theory of the underlying Cauchy components; they apply the scalar
+routines elementwise to vector inputs in R.
 }
 \section{Functions}{
 \itemize{

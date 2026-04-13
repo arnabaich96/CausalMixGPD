@@ -77,8 +77,8 @@
 #'     \item \code{"naive"}: Gaussian naive Bayes PS model
 #'     \item \code{FALSE}: No PS estimation; outcome models use only \code{X}
 #'   }
-#'   The PS model choice is stored in bundle metadata for downstream use in prediction
-#'   and summaries, enabling seamless integration of future PS estimation methods.
+#'   The PS model choice is stored in bundle metadata for downstream use in
+#'   prediction and summaries.
 #' @param ps_scale Scale used when augmenting outcomes with PS:
 #'   \itemize{
 #'     \item \code{"logit"}: augment on the logit (log-odds) scale
@@ -3110,4 +3110,3 @@ predict.causalmixgpd_causal_fit <- function(object,
     ps_vec
   }
 }
-

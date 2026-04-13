@@ -56,9 +56,9 @@ For vectorized R usage, use \code{\link[=base_lowercase]{base_lowercase()}}.
 
 The Cauchy law is a stable heavy-tailed distribution with undefined mean and variance. That is
 why the package allows the Cauchy kernel only as a bulk distribution and deliberately does not
-pair it with GPD tails in the kernel registry. For predictive summaries, ordinary means are not
-available under Cauchy kernels; tail-robust summaries such as medians, quantiles, survival
-curves, and restricted means remain well defined.
+pair it with GPD tails in the kernel registry. For predictive summaries,
+ordinary means are not available under Cauchy kernels; medians, quantiles,
+survival curves, and restricted means remain well defined.
 
 The distribution function is
 \deqn{

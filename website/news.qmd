@@ -13,7 +13,7 @@ This page tracks concise documentation and release updates.
 ## Current doc structure
 
 - Quarto is the curated front door for workflows and architecture.
-- pkgdown is the authoritative API and article reference.
+- pkgdown is the primary API and article reference.
 
 <!-- cmgpd-footer:start -->
 ## Prereqs
@@ -29,7 +29,6 @@ This page tracks concise documentation and release updates.
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
 
 
 

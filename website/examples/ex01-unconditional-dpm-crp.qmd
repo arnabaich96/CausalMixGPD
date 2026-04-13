@@ -94,7 +94,7 @@ This page keeps the direct `bundle()` workflow because it is still useful for sh
 
 ```{r mcmc-crp, cache = FALSE}
 bundle_crp <- bundle(
-  x = y_mixed,
+  y = y_mixed,
   kernel = "laplace",
   backend = "crp",
   GPD = FALSE,
@@ -171,7 +171,7 @@ plot(quantiles_pred)
 ```{r components-sensitivity, cache = FALSE}
 # Demonstrate with one value
 bundle_components <- bundle(
-  x = y_mixed,
+  y = y_mixed,
   kernel = "laplace",
   backend = "crp",
   components = 5,
@@ -197,7 +197,7 @@ For unconditional models, use `predict()` for posterior summaries; `fitted()` an
 
 ```{r comp-laplace, cache = FALSE}
 bundle_laplace <- bundle(
-  x = y_mixed,
+  y = y_mixed,
   kernel = "laplace",
   backend = "crp",
   components = 5,
@@ -215,7 +215,7 @@ summary(fit_laplace)
 
 ```{r comp-amoroso, cache = FALSE}
 bundle_amoroso <- bundle(
-  x = y_mixed,
+  y = y_mixed,
   kernel = "amoroso",
   backend = "crp",
   components = 5,
@@ -276,7 +276,6 @@ pred_amoroso <- predict(fit_amoroso, type = "mean", level = 0.9, interval = "cre
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
 
 
 

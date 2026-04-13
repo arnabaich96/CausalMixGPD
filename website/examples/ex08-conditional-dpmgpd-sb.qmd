@@ -81,7 +81,7 @@ summary_tbl <- tibble(
 ggplot(data.frame(y = y, x1 = X[, 1]), aes(x = x1, y = y)) +
   geom_point(alpha = 0.6, color = "purple") +
   geom_smooth(method = "loess", color = "orange", fill = NA) +
-  labs(title = "Tail Outcome vs x1 (SB)", newdata ="x1", y = "y") +
+  labs(title = "Tail Outcome vs x1 (SB)", x = "x1", y = "y") +
   theme_minimal()
 ```
 
@@ -99,7 +99,7 @@ u_threshold <- quantile(y, 0.85)
 ggplot(data.frame(y = y), aes(x = y)) +
   geom_histogram(aes(y = after_stat(density)), bins = 40, fill = "lightgreen", alpha = 0.6, color = "black") +
   geom_vline(xintercept = u_threshold, linetype = "dashed", color = "black") +
-  labs(title = "Threshold for SB tail (85%)", newdata ="y", y = "Density") +
+  labs(title = "Threshold for SB tail (85%)", x = "y", y = "Density") +
   theme_minimal()
 ```
 
@@ -109,7 +109,7 @@ ggplot(data.frame(y = y), aes(x = y)) +
 
 ```{r bundle, cache = FALSE}
 bundle_sb_cond_gpd_gamma <- bundle(
-  x = y,
+  y = y,
   X = X,
   kernel = "gamma",
   backend = "sb",
@@ -124,7 +124,7 @@ bundle_sb_cond_gpd_gamma <- bundle(
 )
 
 bundle_sb_cond_gpd_laplace <- bundle(
-  x = y,
+  y = y,
   X = X,
   kernel = "laplace",
   backend = "sb",
@@ -192,7 +192,7 @@ bind_rows(df_pred_gamma, df_pred_laplace) %>%
   ggplot(aes(x = y, y = density, color = label)) +
   geom_line(linewidth = 1) +
   facet_wrap(~ model) +
-  labs(title = "Conditional Density (SB + GPD)", newdata ="y", y = "Density") +
+  labs(title = "Conditional Density (SB + GPD)", x = "y", y = "Density") +
   theme_minimal() +
   theme(legend.position = "bottom")
 ```
@@ -222,7 +222,7 @@ bind_rows(quant_df_gamma, quant_df_laplace) %>%
   geom_line(linewidth = 1) +
   geom_point(size = 2) +
   facet_wrap(~ model) +
-  labs(title = "Tail Quantiles vs x1 (SB)", newdata ="x1", y = "Quantile", color = "Probability") +
+  labs(title = "Tail Quantiles vs x1 (SB)", x = "x1", y = "Quantile", color = "Probability") +
   theme_minimal()
 ```
 
@@ -273,8 +273,6 @@ plot(fit_sb_cond_gpd_laplace, family = c("density", "running", "caterpillar"))
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
-
 
 
 

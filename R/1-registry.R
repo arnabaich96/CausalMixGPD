@@ -1,8 +1,8 @@
 #+ filtered ###################################################################
 #' Global contracts for CausalMixGPD
 #'
-#' These lists and helpers capture the frozen modeling rules that must hold
-#' everywhere in the package: backends, kernels, GPD usage, and mixture sizes.
+#' These lists and helpers capture the modeling rules used throughout the
+#' package: backends, kernels, GPD usage, and mixture sizes.
 #' They are intentionally loaded before the rest of the core code so downstream
 #' builders can reuse the same constants.
 #'
@@ -330,7 +330,7 @@ init_kernel_registry <- function() {
 #' on covariates, whether a GPD tail is allowed, and which density or mean
 #' functions should be dispatched for the supported backends.
 #'
-#' Downstream builders treat this registry as the authoritative source of
+#' Downstream builders use this registry as the package-level reference for
 #' kernel-specific implementation metadata. Reading it is appropriate when you
 #' need to inspect what the package believes a kernel can do before constructing
 #' or debugging a model specification.
@@ -356,8 +356,8 @@ get_kernel_registry <- function() {
 #' Get tail registry
 #'
 #' @details
-#' The tail registry is the authoritative description of the generalized Pareto
-#' splice used by bulk-tail models. It records the tail parameter names
+#' The tail registry records the generalized Pareto splice used by bulk-tail
+#' models. It stores the tail parameter names
 #' `threshold`, `tail_scale`, and `tail_shape`, together with the support each
 #' parameter must satisfy and the modeling modes the builders may assign to
 #' them.
