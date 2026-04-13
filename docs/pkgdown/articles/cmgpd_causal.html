@@ -58,27 +58,28 @@
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p><code>CausalMixGPD</code> extends its one-arm modeling framework to
-causal analyses by fitting treatment-specific outcome distributions and
-then computing causal contrasts as posterior functionals of those fitted
-distributions. This is a distribution-first approach: rather than
-modeling only an average treatment effect, the package models the
-treated and control outcome laws and derives means, quantiles,
-restricted means, survival summaries, and their contrasts from the
-resulting posterior object <span class="citation">(<a href="#ref-Rubin1974">Rubin 1974</a>; <a href="#ref-RosenbaumRubin1983">Rosenbaum and Rubin 1983</a>; <a href="#ref-ImbensRubin2015">Imbens and Rubin 2015</a>)</span>.</p>
-<p>The software article emphasizes that this design is particularly
-useful when the outcome is skewed or heavy-tailed. In those cases,
-mean-only summaries can miss treatment-effect heterogeneity across the
-outcome scale, while direct modeling of treatment-specific distributions
-allows quantile treatment effects and upper-tail contrasts to be
-reported coherently.</p>
-<p>This vignette develops the causal workflow in four steps. We first
-define the potential-outcomes notation and the causal estimands returned
-by the package. We then describe how the spliced DPM-GPD model is used
-arm by arm. Next, we work through the main causal interface using a
-bundled simulated dataset. Finally, we summarize the main customization
-options for propensity score augmentation, arm-specific model choices,
-posterior effect summaries, and prediction.</p>
+<p>In contrast to <code>CausalMix</code>, which was limited to modeling
+the average treatment effect, <code>CausalMixGPD</code> expands on the
+framework of causal inference by fitting treatment-specific outcome
+distributions and obtaining the contrasts by evaluating posterior
+functional of the fitted distribution <span class="citation">(<a href="#ref-Rubin1974">Rubin 1974</a>; <a href="#ref-RosenbaumRubin1983">Rosenbaum and Rubin 1983</a>; <a href="#ref-ImbensRubin2015">Imbens and Rubin 2015</a>)</span>. Thus, it
+is a distribution-based approach where one obtains means, quantiles,
+restricted means, survival summaries, and their contrasts based on
+posterior objects obtained from the modeled outcome distributions.</p>
+<p>The key point made in the software article is that the proposed
+approach becomes especially relevant when the outcome is skewed or
+heavy-tailed. In such settings, treatment heterogeneity might not
+manifest itself via contrasts of means but rather in terms of other
+summaries of interest such as quantiles, and hence the modeling of
+treatment-specific distributions becomes critical for obtaining a
+coherent picture of the heterogeneous treatment effect.</p>
+<p>In this vignette, we describe the process of performing causal
+analysis with <code>CausalMixGPD</code> in four parts. First, we
+introduce potential outcomes framework and discuss the causal estimands
+computed by the package. Next, we explain what happens under the hood
+when the spliced DPM-GPD model is fit to each of the arms. After that,
+we demonstrate the usage of the key functions of the package using the
+example of the provided simulated data set.</p>
 </div>
 <div class="section level2">
 <h2 id="notation-and-short-theory-background">Notation and short theory background<a class="anchor" aria-label="anchor" href="#notation-and-short-theory-background"></a>
@@ -252,6 +253,21 @@ summaries and visualization.</li>
 <span>  thin <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  nchains <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">2026</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co"># Settings used when regenerating `inst/extdata/causal_*.csv` (see tools/.Rscripts/build_vignette_fits.R).</span></span>
+<span><span class="va">mcmc_out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  niter <span class="op">=</span> <span class="fl">1200</span>,</span>
+<span>  nburnin <span class="op">=</span> <span class="fl">300</span>,</span>
+<span>  thin <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  nchains <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  seed <span class="op">=</span> <span class="fl">2027</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">mcmc_ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  niter <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  nburnin <span class="op">=</span> <span class="fl">250</span>,</span>
+<span>  thin <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  nchains <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  seed <span class="op">=</span> <span class="fl">2028</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -266,30 +282,7 @@ indicator <code>A</code>, and a predictor matrix <code>X</code>.</p>
 <span>  y <span class="op">=</span> <span class="va">causal_pos500_p3_k2</span><span class="op">$</span><span class="va">y</span>,</span>
 <span>  A <span class="op">=</span> <span class="va">causal_pos500_p3_k2</span><span class="op">$</span><span class="va">A</span>,</span>
 <span>  <span class="va">causal_pos500_p3_k2</span><span class="op">$</span><span class="va">X</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">causal_dat</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 'data.frame':    500 obs. of  5 variables:</span></span>
-<span><span class="co">#&gt;  $ y : num  4.306 1.053 0.712 2.658 1.163 ...</span></span>
-<span><span class="co">#&gt;  $ A : int  1 1 0 0 0 1 1 1 1 0 ...</span></span>
-<span><span class="co">#&gt;  $ x1: num  -0.00378 0.52316 0.96922 0.2559 0.52141 ...</span></span>
-<span><span class="co">#&gt;  $ x2: num  -0.6949 -0.0319 0.5585 -0.395 -0.7697 ...</span></span>
-<span><span class="co">#&gt;  $ x3: num  -1.588 2.201 0.719 1.774 0.365 ...</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">causal_dat</span><span class="op">)</span></span>
-<span><span class="co">#&gt;        y                 A               x1                 x2          </span></span>
-<span><span class="co">#&gt;  Min.   : 0.1087   Min.   :0.000   Min.   :-3.32287   Min.   :-0.99592  </span></span>
-<span><span class="co">#&gt;  1st Qu.: 1.3737   1st Qu.:0.000   1st Qu.:-0.66115   1st Qu.:-0.54574  </span></span>
-<span><span class="co">#&gt;  Median : 2.6414   Median :1.000   Median : 0.07650   Median :-0.09628  </span></span>
-<span><span class="co">#&gt;  Mean   : 3.3667   Mean   :0.618   Mean   : 0.01061   Mean   :-0.04422  </span></span>
-<span><span class="co">#&gt;  3rd Qu.: 4.7344   3rd Qu.:1.000   3rd Qu.: 0.66247   3rd Qu.: 0.46395  </span></span>
-<span><span class="co">#&gt;  Max.   :17.2006   Max.   :1.000   Max.   : 2.83896   Max.   : 0.99651  </span></span>
-<span><span class="co">#&gt;        x3          </span></span>
-<span><span class="co">#&gt;  Min.   :-2.98427  </span></span>
-<span><span class="co">#&gt;  1st Qu.:-0.65955  </span></span>
-<span><span class="co">#&gt;  Median : 0.01209  </span></span>
-<span><span class="co">#&gt;  Mean   : 0.02806  </span></span>
-<span><span class="co">#&gt;  3rd Qu.: 0.68340  </span></span>
-<span><span class="co">#&gt;  Max.   : 3.62360</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 <p>A quick empirical comparison between the observed outcome
 distributions by treatment arm gives a sense of the modeling
 problem.</p>
@@ -297,7 +290,6 @@ problem.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">causal_dat</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">y</span>, colour <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span>, fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes_eval.html" class="external-link">after_stat</a></span><span class="op">(</span><span class="va">density</span><span class="op">)</span><span class="op">)</span>, bins <span class="op">=</span> <span class="fl">25</span>,</span>
 <span>                 alpha <span class="op">=</span> <span class="fl">0.25</span>, position <span class="op">=</span> <span class="st">"identity"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_density.html" class="external-link">geom_density</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
 <span>    x <span class="op">=</span> <span class="st">"y"</span>,</span>
 <span>    y <span class="op">=</span> <span class="st">"Density"</span>,</span>
@@ -306,7 +298,7 @@ problem.</p>
 <span>    title <span class="op">=</span> <span class="st">"Observed outcome distributions by treatment arm"</span></span>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cmgpd_causal_files/figure-html/exploratory-plots-1.png" class="r-plt" alt="" width="85%" style="display: block; margin: auto;"></p>
+<p><img src="cmgpd_causal_files/figure-html/exploratory-plots-1.png" alt="" width="85%" style="display: block; margin: auto;"></p>
 <p>Even in a simulated benchmark, the treated and control distributions
 can differ in ways that are not well summarized by a single average
 shift. That is exactly where the distributional causal framework is
@@ -321,33 +313,28 @@ score stage. The software article presents this as the direct causal
 extension of the one-arm workflow.</p>
 <p>To keep vignette building stable, the numerical outputs shown below
 are read from small precomputed files shipped in
-<code>inst/extdata/</code>. The code chunks remain fully runnable and
-display the same tables and graphics shipped with the package.</p>
+<code>inst/extdata/</code>. The following chunk shows the package call
+you would use for a full fit; the tables and figures in this section are
+rendered from those shipped artifacts in hidden companion chunks.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">causal_call</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="../reference/dpmgpd.causal.html">dpmgpd.causal</a></span><span class="op">(</span></span>
-<span>    formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">+</span> <span class="va">x3</span>,</span>
-<span>    data <span class="op">=</span> <span class="va">causal_dat</span>,</span>
-<span>    treat <span class="op">=</span> <span class="st">"A"</span>,</span>
-<span>    backend <span class="op">=</span> <span class="st">"sb"</span>,</span>
-<span>    kernel <span class="op">=</span> <span class="st">"gamma"</span>,</span>
-<span>    components <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>    PS <span class="op">=</span> <span class="st">"logit"</span>,</span>
-<span>    ps_scale <span class="op">=</span> <span class="st">"logit"</span>,</span>
-<span>    ps_summary <span class="op">=</span> <span class="st">"mean"</span>,</span>
-<span>    mcmc_outcome <span class="op">=</span> <span class="va">mcmc_vig</span>,</span>
-<span>    mcmc_ps <span class="op">=</span> <span class="va">mcmc_vig</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">causal_call</span></span>
-<span><span class="co">#&gt; dpmgpd.causal(formula = y ~ x1 + x2 + x3, data = causal_dat, </span></span>
-<span><span class="co">#&gt;     treat = "A", backend = "sb", kernel = "gamma", components = 5, </span></span>
-<span><span class="co">#&gt;     PS = "logit", ps_scale = "logit", ps_summary = "mean", mcmc_outcome = mcmc_vig, </span></span>
-<span><span class="co">#&gt;     mcmc_ps = mcmc_vig)</span></span></code></pre></div>
-<p>The printed call shows the structure of the fitted model we want:
-arm-specific spliced outcome distributions, a gamma bulk kernel, and a
-logistic propensity score stage summarized on the logit scale.</p>
+<code class="sourceCode R"><span><span class="va">fit_causal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dpmgpd.causal.html">dpmgpd.causal</a></span><span class="op">(</span></span>
+<span>  formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">+</span> <span class="va">x3</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">causal_dat</span>,</span>
+<span>  treat <span class="op">=</span> <span class="st">"A"</span>,</span>
+<span>  backend <span class="op">=</span> <span class="st">"crp"</span>,</span>
+<span>  kernel <span class="op">=</span> <span class="st">"gamma"</span>,</span>
+<span>  components <span class="op">=</span> <span class="fl">6</span>,</span>
+<span>  PS <span class="op">=</span> <span class="st">"logit"</span>,</span>
+<span>  ps_scale <span class="op">=</span> <span class="st">"logit"</span>,</span>
+<span>  ps_summary <span class="op">=</span> <span class="st">"mean"</span>,</span>
+<span>  mcmc_outcome <span class="op">=</span> <span class="va">mcmc_out</span>,</span>
+<span>  mcmc_ps <span class="op">=</span> <span class="va">mcmc_ps</span>,</span>
+<span>  parallel_arms <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>The call matches the structure used to build the shipped causal
+summaries: arm-specific spliced outcome distributions, a gamma bulk
+kernel, a CRP backend for the mixture, and a logistic propensity score
+stage summarized on the logit scale.</p>
 </div>
 <div class="section level2">
 <h2 id="standardized-causal-summaries">Standardized causal summaries<a class="anchor" aria-label="anchor" href="#standardized-causal-summaries"></a>
@@ -358,8 +345,8 @@ logistic propensity score stage summarized on the logit scale.</p>
 <p>The standardized ATE contrasts the arm-specific means after averaging
 over the empirical covariate distribution.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ate_tab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="fu">.pkg_extdata</span><span class="op">(</span><span class="st">"causal_ate.csv"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">ate_tab</span>, format <span class="op">=</span> <span class="st">"html"</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">ate_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ate.html">ate</a></span><span class="op">(</span><span class="va">fit_causal</span>, interval <span class="op">=</span> <span class="st">"hpd"</span>, level <span class="op">=</span> <span class="fl">0.95</span>, show_progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">ate_fit</span><span class="op">)</span><span class="op">$</span><span class="va">effect_table</span>, format <span class="op">=</span> <span class="st">"html"</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr>
 <th style="text-align:left;">
@@ -402,8 +389,14 @@ regression coefficient.</p>
 <p>Quantile treatment effects are often more informative than a single
 average contrast in skewed or heavy-tailed settings.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">qte_tab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="fu">.pkg_extdata</span><span class="op">(</span><span class="st">"causal_qte.csv"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">qte_tab</span>, format <span class="op">=</span> <span class="st">"html"</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">qte_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qte.html">qte</a></span><span class="op">(</span></span>
+<span>  <span class="va">fit_causal</span>,</span>
+<span>  probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.50</span>, <span class="fl">0.75</span>, <span class="fl">0.90</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
+<span>  interval <span class="op">=</span> <span class="st">"credible"</span>,</span>
+<span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
+<span>  show_progress <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">qte_fit</span><span class="op">)</span><span class="op">$</span><span class="va">effect_table</span>, format <span class="op">=</span> <span class="st">"html"</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr>
 <th style="text-align:right;">
@@ -465,19 +458,15 @@ upper
 </tbody>
 </table>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">qte_tab</span><span class="op">$</span><span class="va">prob</span>,</span>
-<span>  <span class="va">qte_tab</span><span class="op">$</span><span class="va">estimate</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"b"</span>,</span>
-<span>  pch <span class="op">=</span> <span class="fl">19</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="st">"Quantile level"</span>,</span>
-<span>  ylab <span class="op">=</span> <span class="st">"Estimated QTE"</span>,</span>
-<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">qte_tab</span><span class="op">$</span><span class="va">lower</span>, <span class="va">qte_tab</span><span class="op">$</span><span class="va">upper</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"Quantile treatment effect curve"</span></span>
+<code class="sourceCode R"><span><span class="va">qte_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qte.html">qte</a></span><span class="op">(</span></span>
+<span>  <span class="va">fit_causal</span>,</span>
+<span>  probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.50</span>, <span class="fl">0.75</span>, <span class="fl">0.90</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
+<span>  interval <span class="op">=</span> <span class="st">"credible"</span>,</span>
+<span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
+<span>  show_progress <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/segments.html" class="external-link">segments</a></span><span class="op">(</span><span class="va">qte_tab</span><span class="op">$</span><span class="va">prob</span>, <span class="va">qte_tab</span><span class="op">$</span><span class="va">lower</span>, <span class="va">qte_tab</span><span class="op">$</span><span class="va">prob</span>, <span class="va">qte_tab</span><span class="op">$</span><span class="va">upper</span>, lwd <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"grey50"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cmgpd_causal_files/figure-html/qte-plot-1.png" class="r-plt" alt="" width="85%" style="display: block; margin: auto;"></p>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">qte_fit</span>, type <span class="op">=</span> <span class="st">"effect"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="cmgpd_causal_files/figure-html/qte-plot-1.png" alt="" width="85%" style="display: block; margin: auto;"></p>
 <p>The QTE display shows how the treatment effect varies with the
 quantile level. This is one of the main scientific motivations for
 fitting treatment-specific distributions directly rather than relying on
@@ -506,8 +495,22 @@ quartiles of the predictors.</p>
 vignette, we reuse the package’s shipped conditional quantile
 summaries.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cond_q</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="fu">.pkg_extdata</span><span class="op">(</span><span class="st">"conditional_quantiles.csv"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">cond_q</span>, format <span class="op">=</span> <span class="st">"html"</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">Xgrid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span></span>
+<span>  <span class="va">causal_dat</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x1"</span>, <span class="st">"x2"</span>, <span class="st">"x3"</span><span class="op">)</span><span class="op">]</span>,</span>
+<span>  <span class="fu">stats</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span>,</span>
+<span>  probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.50</span>, <span class="fl">0.75</span><span class="op">)</span>,</span>
+<span>  na.rm <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">Xgrid</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"low"</span>, <span class="st">"mid"</span>, <span class="st">"high"</span><span class="op">)</span></span>
+<span><span class="va">cqte_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cqte.html">cqte</a></span><span class="op">(</span></span>
+<span>  <span class="va">fit_causal</span>,</span>
+<span>  newdata <span class="op">=</span> <span class="va">Xgrid</span>,</span>
+<span>  probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.50</span>, <span class="fl">0.75</span>, <span class="fl">0.90</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
+<span>  interval <span class="op">=</span> <span class="st">"credible"</span>,</span>
+<span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
+<span>  show_progress <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">cqte_fit</span><span class="op">)</span><span class="op">$</span><span class="va">effect_table</span>, format <span class="op">=</span> <span class="st">"html"</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr>
 <th style="text-align:right;">
@@ -744,7 +747,7 @@ contrast-based manner depending on the chosen output.</p>
 </h2>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; R version 4.5.2 (2025-10-31 ucrt)</span></span>
+<span><span class="co">#&gt; R version 4.5.3 (2026-03-11 ucrt)</span></span>
 <span><span class="co">#&gt; Platform: x86_64-w64-mingw32/x64</span></span>
 <span><span class="co">#&gt; Running under: Windows 11 x64 (build 26200)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -765,26 +768,26 @@ contrast-based manner depending on the chosen output.</p>
 <span><span class="co">#&gt; [1] stats     graphics  grDevices datasets  utils     methods   base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt; [1] ggplot2_4.0.2      CausalMixGPD_0.5.0 nimble_1.4.1      </span></span>
+<span><span class="co">#&gt; [1] ggplot2_4.0.2      CausalMixGPD_0.5.0 nimble_1.4.0      </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;  [1] gtable_0.3.6        jsonlite_2.0.0      dplyr_1.2.0        </span></span>
-<span><span class="co">#&gt;  [4] compiler_4.5.2      renv_1.1.7          tidyselect_1.2.1   </span></span>
-<span><span class="co">#&gt;  [7] parallel_4.5.2      jquerylib_0.1.4     systemfonts_1.3.2  </span></span>
-<span><span class="co">#&gt; [10] scales_1.4.0        textshaping_1.0.5   yaml_2.3.12        </span></span>
+<span><span class="co">#&gt;  [4] compiler_4.5.3      renv_1.1.7          tidyselect_1.2.1   </span></span>
+<span><span class="co">#&gt;  [7] parallel_4.5.3      jquerylib_0.1.4     systemfonts_1.3.1  </span></span>
+<span><span class="co">#&gt; [10] scales_1.4.0        textshaping_1.0.4   yaml_2.3.12        </span></span>
 <span><span class="co">#&gt; [13] fastmap_1.2.0       lattice_0.22-9      coda_0.19-4.1      </span></span>
 <span><span class="co">#&gt; [16] R6_2.6.1            labeling_0.4.3      generics_0.1.4     </span></span>
-<span><span class="co">#&gt; [19] igraph_2.2.2        knitr_1.51          htmlwidgets_1.6.4  </span></span>
-<span><span class="co">#&gt; [22] tibble_3.3.1        desc_1.4.3          pillar_1.11.1      </span></span>
+<span><span class="co">#&gt; [19] igraph_2.2.1        knitr_1.51          htmlwidgets_1.6.4  </span></span>
+<span><span class="co">#&gt; [22] tibble_3.3.0        desc_1.4.3          pillar_1.11.1      </span></span>
 <span><span class="co">#&gt; [25] bslib_0.10.0        RColorBrewer_1.1-3  rlang_1.1.7        </span></span>
-<span><span class="co">#&gt; [28] cachem_1.1.0        xfun_0.57           S7_0.2.1           </span></span>
-<span><span class="co">#&gt; [31] fs_2.0.1            sass_0.4.10         otel_0.2.0         </span></span>
-<span><span class="co">#&gt; [34] cli_3.6.5           withr_3.0.2         pkgdown_2.2.0      </span></span>
-<span><span class="co">#&gt; [37] magrittr_2.0.4      digest_0.6.39       grid_4.5.2         </span></span>
-<span><span class="co">#&gt; [40] lifecycle_1.0.5     vctrs_0.7.2         evaluate_1.0.5     </span></span>
-<span><span class="co">#&gt; [43] pracma_2.4.6        glue_1.8.0          farver_2.1.2       </span></span>
-<span><span class="co">#&gt; [46] numDeriv_2016.8-1.1 ragg_1.5.0          rmarkdown_2.31     </span></span>
-<span><span class="co">#&gt; [49] tools_4.5.2         pkgconfig_2.0.3     htmltools_0.5.9</span></span></code></pre></div>
+<span><span class="co">#&gt; [28] cachem_1.1.0        xfun_0.56           S7_0.2.1           </span></span>
+<span><span class="co">#&gt; [31] fs_1.6.6            sass_0.4.10         cli_3.6.5          </span></span>
+<span><span class="co">#&gt; [34] withr_3.0.2         pkgdown_2.1.3       magrittr_2.0.4     </span></span>
+<span><span class="co">#&gt; [37] digest_0.6.39       grid_4.5.3          lifecycle_1.0.5    </span></span>
+<span><span class="co">#&gt; [40] vctrs_0.7.1         evaluate_1.0.5      pracma_2.4.6       </span></span>
+<span><span class="co">#&gt; [43] glue_1.8.0          farver_2.1.2        numDeriv_2016.8-1.1</span></span>
+<span><span class="co">#&gt; [46] ragg_1.5.0          rmarkdown_2.30      tools_4.5.3        </span></span>
+<span><span class="co">#&gt; [49] pkgconfig_2.0.3     htmltools_0.5.9</span></span></code></pre></div>
 <div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-ImbensRubin2015" class="csl-entry">
 Imbens, Guido W., and Donald B. Rubin. 2015. <em>Causal Inference for
@@ -814,7 +817,7 @@ Psychology</em> 66 (5): 688–701. <a href="https://doi.org/10.1037/h0037350" cl
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>

@@ -42,4 +42,5 @@ xnew-code	app_lalonde_covars	app_lalonde_scale_center	app_lalonde_scale_scale	ap
 xnew-results	profile_display
 cate-call	fit	xnew
 cqte-call	fit	xnew
-cate_plot	cate_fit	cqte_fit
+cate_plot	cate_fit
+cqte_plot	cqte_fit

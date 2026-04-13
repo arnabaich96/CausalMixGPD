@@ -23,6 +23,61 @@ build_docs <- function(
 ) {
   msg <- function(...) if (isTRUE(verbose)) message(...)
 
+  prefer_newer_pandoc <- function() {
+    pandoc_executable <- function(dir) {
+      if (!nzchar(dir)) {
+        return(NULL)
+      }
+      bin <- file.path(dir, if (.Platform$OS.type == "windows") "pandoc.exe" else "pandoc")
+      if (!file.exists(bin)) {
+        return(NULL)
+      }
+      normalizePath(bin, winslash = "/", mustWork = TRUE)
+    }
+
+    pandoc_version <- function(bin) {
+      out <- tryCatch(
+        suppressWarnings(system2(bin, "--version", stdout = TRUE, stderr = TRUE)),
+        error = function(e) character()
+      )
+      if (!length(out)) {
+        return(NULL)
+      }
+      m <- regexec("^pandoc(?:\\.exe)?\\s+([0-9]+(?:\\.[0-9]+)*)", out[[1L]])
+      parts <- regmatches(out[[1L]], m)[[1L]]
+      if (length(parts) < 2L) {
+        return(NULL)
+      }
+      tryCatch(package_version(parts[[2L]]), error = function(e) NULL)
+    }
+
+    current_dir <- Sys.getenv("RSTUDIO_PANDOC", unset = "")
+    system_dir <- dirname(Sys.which("pandoc"))
+    candidates <- unique(Filter(nzchar, c(current_dir, system_dir, "C:/Program Files/Pandoc")))
+
+    best_dir <- current_dir
+    best_ver <- pandoc_version(pandoc_executable(current_dir))
+
+    for (dir in candidates) {
+      ver <- pandoc_version(pandoc_executable(dir))
+      if (is.null(ver)) {
+        next
+      }
+      if (is.null(best_ver) || ver > best_ver) {
+        best_dir <- dir
+        best_ver <- ver
+      }
+    }
+
+    if (!nzchar(best_dir) || identical(best_dir, current_dir)) {
+      return(invisible(current_dir))
+    }
+
+    Sys.setenv(RSTUDIO_PANDOC = best_dir)
+    msg("Using Pandoc from: ", best_dir)
+    invisible(best_dir)
+  }
+
   # ---------------------------------------------------------------------------
   # 1) Locate project root via rprojroot
   # ---------------------------------------------------------------------------
@@ -33,6 +88,7 @@ build_docs <- function(
   root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
   root <- normalizePath(root, winslash = "/", mustWork = TRUE)
   msg("Project root: ", root)
+  prefer_newer_pandoc()
 
   quarto_project <- file.path(root, "website")
   if (!file.exists(file.path(quarto_project, "_quarto.yml"))) {

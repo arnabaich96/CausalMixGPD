@@ -16,10 +16,10 @@
 
 %% ---- JSS metadata ----
 \author{Arnab Aich\\Florida State University}
-\title{\pkg{CausalMixGPD}: An R Package for Bayesian Nonparametric Conditional Density Modeling in Causal Inference and Clustering with A Modular Heavy-Tail Extension}
+\title{\pkg{CausalMixGPD}: An \proglang{R} Package for Bayesian Nonparametric Conditional Density Modeling in Causal Inference and Clustering with a Heavy-Tail Extension}
 \Plainauthor{Arnab Aich}
-\Plaintitle{CausalMixGPD:  An R Package for Bayesian Nonparametric Conditional Density Modeling in Causal Inference and Clustering with A Modular Heavy-Tail Extension}
-\Shorttitle{CausalMixGPD}
+\Plaintitle{CausalMixGPD: An R Package for Bayesian Nonparametric Conditional Density Modeling in Causal Inference and Clustering with a Heavy-Tail Extension}
+\Shorttitle{\pkg{CausalMixGPD}}
 \Volume{000}
 \Issue{00}
 \Year{2026}
@@ -47,7 +47,7 @@ process mixture models for the bulk of the distribution with optional
 generalized Pareto tails in a single modeling framework.  The
 package accommodates both unconditional and covariate-dependent mixture
 specifications, performs posterior computation via Markov chain Monte
-Carlo through \pkg{nimble}, and supports arm-specific outcome models
+Carlo (MCMC) through \pkg{nimble}, and supports arm-specific outcome models
 for causal inference.  Posterior predictive summaries are provided for
 densities, quantiles, means, survival curves, and causal contrasts,
 with particular emphasis on extreme quantiles and other
@@ -603,7 +603,6 @@ quantile.
 <<splicedDensityFigure-build, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, include=FALSE>>=
 y <- seq(0, 30, length.out = 900)
 
-# One-component gamma with mean 6.
 f_single <- dgammamix(
   y,
   w = c(1),
@@ -611,7 +610,6 @@ f_single <- dgammamix(
   scale = c(1)
 )
 
-# Two-component gamma mixture tuned for visibly separated modes.
 w_bulk <- c(0.6, 0.4)
 shape_mix <- c(12, 16)
 scale_mix <- c(0.3, 0.8)
@@ -622,7 +620,6 @@ f_bulk_mix <- dgammamix(
   scale = scale_mix
 )
 
-# Splice threshold at the 80% quantile of the bulk gamma mixture.
 u80 <- qgammamix(
   0.80,
   w = w_bulk,
@@ -966,7 +963,6 @@ treatment-specific distributions. Figure~\ref{fig:causalEstimandFigure-plot} dep
 <<causalEstimandFigure-build, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, include=FALSE>>=
 y_seq <- seq(0, 40, length.out = 1000)
 
-# Control arm: moderate mean, lighter tail
 w0 <- c(0.55, 0.45); shape0 <- c(9, 16); scale0 <- c(0.42, 0.52)
 thr0 <- qgammamix(0.85, w = w0, shape = shape0, scale = scale0)
 f0_vals <- dgammamixgpd(
@@ -974,7 +970,6 @@ f0_vals <- dgammamixgpd(
   threshold = thr0, tail_scale = 1.4, tail_shape = 0.18
 )
 
-# Treated arm: higher mean, heavier tail
 w1 <- c(0.45, 0.55); shape1 <- c(11, 20); scale1 <- c(0.52, 0.72)
 thr1 <- qgammamix(0.85, w = w1, shape = shape1, scale = scale1)
 f1_vals <- dgammamixgpd(
@@ -982,7 +977,6 @@ f1_vals <- dgammamixgpd(
   threshold = thr1, tail_scale = 2.0, tail_shape = 0.28
 )
 
-# Numerically compute CDFs and 90th quantiles
 dy <- diff(y_seq[1:2])
 F0 <- pmin(cumsum(f0_vals) * dy, 1)
 F1 <- pmin(cumsum(f1_vals) * dy, 1)
@@ -1039,10 +1033,13 @@ causal_estimand_plot <- ggplot(arm_df, aes(x = y, y = density, color = arm, line
 causal_estimand_plot
 @
 
-The package reports the causal estimands listed in
-Table~\ref{tab:causal-estimands-main}, where superscripts
-$\mathrm{m}$ and $\mathrm{t}$ denote full-population and
-treated-population standardization, respectively.
+The package reports six causal estimands in
+Table~\ref{tab:causal-estimands-main}: the average treatment effect
+(ATE), the average treatment effect on the treated (ATT), the quantile
+treatment effect (QTE) and its treated analog (QTT), the conditional
+average treatment effect (CATE), and the conditional quantile treatment
+effect (CQTE).  Superscripts $\mathrm{m}$ and $\mathrm{t}$ denote
+full-population and treated-population standardization, respectively.
 
 \begin{table}[!htbp]
 \centering
@@ -1193,7 +1190,7 @@ a regression-based specification for the threshold $u(x)$ and scale
 $\sigma(x)$, together with a weakly informative prior for the shape
 parameter~$\xi$.
 
-\subsection{Statistical Inference: Estimation and prediction}
+\subsection{Statistical inference: estimation and prediction}
 
 Posterior simulation targets the joint posterior, which is given by
 $$p(\Theta,\Phi\mid \mathcal{D}) \propto L(\Theta,\Phi;\mathcal{D})\,p(\Theta,\Phi)$$
@@ -1483,7 +1480,7 @@ test_dat  <- dat[-idx_train, ]
 @
 Figure~\ref{fig:app_cluster_response_panels} summarizes the distribution of the Boston housing response, median home value (\code{medv}). The variability in the response is substantial, and the distribution exhibits a pronounced upper tail. These features motivate a flexible distributional model rather than relying only on a simple mean-regression specification.
 
-<<app_cluster_response_panels, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=10, fig.height=4.8, out.width='0.84\\linewidth', fig.pos='!htbp', fig.cap='Full-sample distribution of median house values (\\texttt{medv}, in thousands of US dollars) for the $506$ census tracts in the \\texttt{MASS::Boston} data set. Left panel: boxplot with upper outliers highlighted. Right panel: density-scaled histogram on the same variable.'>>=
+<<app_cluster_response_panels, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=10, fig.height=4.8, out.width='0.84\\linewidth', fig.pos='!htbp', fig.cap='Full-sample distribution of median house values (\\code{medv}, in thousands of US dollars) for the $506$ census tracts in the \\code{MASS::Boston} data set. Left panel: boxplot with upper outliers highlighted. Right panel: density-scaled histogram on the same variable.'>>=
 app_cluster_plot_df <- data.frame(
   medv = dat$medv,
   sample = "All tracts"
@@ -1555,7 +1552,7 @@ recording posterior co-clustering probabilities.
 z_train_psm <- predict(fit_clust, type = "psm")
 @
 
-<<app_cluster_psm_plot-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=8, fig.height=5.5, out.width='0.85\\linewidth', fig.pos='!htbp', fig.cap='Posterior similarity matrix (PSM) summary for the Boston training sample, returned by \\texttt{plot(predict(fit\\_clust, type = "psm"), type = "summary")}. Each cell $(i,\\ell)$ encodes the posterior co-clustering probability $\\Pr(z_i=z_\\ell\\mid\\text{data})$, with rows and columns ordered to expose block structure. Darker shading corresponds to higher co-clustering probability.'>>=
+<<app_cluster_psm_plot-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=8, fig.height=5.5, out.width='0.85\\linewidth', fig.pos='!htbp', fig.cap='Posterior similarity matrix (PSM) summary for the Boston training sample, returned by \\code{plot(predict(fit\\_clust, type = "psm"), type = "summary")}. Each cell $(i,\\ell)$ encodes the posterior co-clustering probability $\\Pr(z_i=z_\\ell\\mid\\text{data})$, with rows and columns ordered to expose block structure. Darker shading corresponds to higher co-clustering probability.'>>=
 plot(z_train_psm, type = "summary")
 @
 
@@ -1576,7 +1573,7 @@ Figure~\ref{fig:app_cluster_overlay} shows the representative training
 cluster summary produced by the package \code{plot()} method applied
 to the training labels object.
 
-<<app_cluster_overlay, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=8, fig.height=5.5, out.width='0.85\\linewidth', fig.pos='!htbp', fig.cap='Representative training-cluster summary for the Boston \\texttt{medv} analysis, returned by the \\texttt{plot()} method applied to the labels object from \\texttt{predict(fit\\_clust, type = "label")}. Training observations are shown on the response scale and coloured by their assigned cluster in the representative partition.'>>=
+<<app_cluster_overlay, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=8, fig.height=5.5, out.width='0.85\\linewidth', fig.pos='!htbp', fig.cap='Representative training-cluster summary for the Boston \\code{medv} analysis, returned by the \\code{plot()} method applied to the labels object from \\code{predict(fit\\_clust, type = "label")}. Training observations are shown on the response scale and coloured by their assigned cluster in the representative partition.'>>=
 plot(z_train_lab, type = "summary")
 @
 
@@ -1611,7 +1608,7 @@ package \code{plot()} method applied to the test labels object.
 summary(z_test)$cluster_profiles
 @
 
-<<app_cluster_test_sizes, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=7, fig.height=4, out.width='0.8\\linewidth', fig.pos='!htbp', fig.cap='Bar plot of predicted cluster assignments for the held-out Boston test sample (the $20\\%$ of \\texttt{medv} observations excluded from training), returned by \\texttt{plot(predict(fit\\_clust, newdata = test\\_dat, type = "label"), type = "sizes")}. Each bar corresponds to one representative training cluster from Figure~\\ref{fig:app_cluster_overlay}; bar heights give the number of test tracts assigned to that cluster.'>>=
+<<app_cluster_test_sizes, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=7, fig.height=4, out.width='0.8\\linewidth', fig.pos='!htbp', fig.cap='Bar plot of predicted cluster assignments for the held-out Boston test sample (the $20\\%$ of \\code{medv} observations excluded from training), returned by \\code{plot(predict(fit\\_clust, newdata = test\\_dat, type = "label"), type = "sizes")}. Each bar corresponds to one representative training cluster from Figure~\\ref{fig:app_cluster_overlay}; bar heights give the number of test tracts assigned to that cluster.'>>=
 plot(z_test, type = "sizes")
 @
 
@@ -1685,7 +1682,7 @@ differ in ways that are not well summarized by a simple location shift.
 These features motivate modeling the full treatment-specific outcome
 distributions directly rather than relying solely on average effects.
 
-<<app_lalonde_response_panels, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=10, fig.height=4.8, out.width='0.84\\linewidth', fig.pos='!htbp', fig.cap='Full-sample distribution of 1978 annual earnings (\\texttt{re78}, in US dollars) from the \\texttt{MatchIt::lalonde} data set, stratified by treatment arm. Left panel: arm-specific boxplots with upper outliers highlighted. Right panel: overlaid density-scaled histograms for the control and treated arms.'>>=
+<<app_lalonde_response_panels, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=10, fig.height=4.8, out.width='0.84\\linewidth', fig.pos='!htbp', fig.cap='Full-sample distribution of 1978 annual earnings (\\code{re78}, in US dollars) from the \\code{MatchIt::lalonde} data set, stratified by treatment arm. Left panel: arm-specific boxplots with upper outliers highlighted. Right panel: overlaid density-scaled histograms for the control and treated arms.'>>=
 app_lalonde_plot_df <- data.frame(
   re78 = app_lalonde_covars$re78,
   treat_label = factor(
@@ -1825,7 +1822,7 @@ Figure~\ref{fig:qte_plot} displays two standardized QTE views side by
 side from the spliced causal model: the effect curve and the
 treated-versus-control quantile curves with uncertainty intervals.
 
-<<qte_plot, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, out.width='0.84\\linewidth', fig.pos='!htbp', fig.cap='Standardized quantile treatment effect (QTE) summaries for Lalonde 1978 earnings, returned by \\texttt{qte(fit, probs = c(0.25, 0.50, 0.75), interval = "credible")}. Left panel: effect curve $Q_1^{\\mathrm{m}}(\\tau)-Q_0^{\\mathrm{m}}(\\tau)$ versus $\\tau$ with pointwise $95\\%$ credible band. Right panel: standardized treated and control quantile curves $Q_1^{\\mathrm{m}}(\\tau)$ and $Q_0^{\\mathrm{m}}(\\tau)$ on the original earnings scale, with pointwise credible bands.'>>=
+<<qte_plot, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, out.width='0.84\\linewidth', fig.pos='!htbp', fig.cap='Standardized quantile treatment effect (QTE) summaries for Lalonde 1978 earnings, returned by \\code{qte(fit, probs = c(0.25, 0.50, 0.75), interval = "credible")}. Left panel: effect curve $Q_1^{\\mathrm{m}}(\\tau)-Q_0^{\\mathrm{m}}(\\tau)$ versus $\\tau$ with pointwise $95\\%$ credible band. Right panel: standardized treated and control quantile curves $Q_1^{\\mathrm{m}}(\\tau)$ and $Q_0^{\\mathrm{m}}(\\tau)$ on the original earnings scale, with pointwise credible bands.'>>=
 qte_effect_plot <- plot(qte_fit, type = "effect")
 qte_arms_plot <- plot(qte_fit, type = "arms")
 qte_effect_plot + qte_arms_plot + plot_layout(ncol = 2)
@@ -1924,7 +1921,7 @@ kableExtra::kbl(
   profile_t,
   format = "latex",
   booktabs = TRUE,
-  caption = "Representative Lalonde participant profiles used as new-data inputs for the conditional causal contrasts in Figure~\\ref{fig:cate_plot}. Columns (Profile~1--Profile~4) give the covariate values for one synthetic individual on the original data scale: \\code{age} (years), \\code{educ} (years of schooling), \\code{race}, \\code{married}, \\code{nodegree}, and prior annual earnings \\code{re74} and \\code{re75} (US dollars).",
+  caption = "Representative Lalonde participant profiles used as new-data inputs for the conditional causal contrasts reported in Figure~\\ref{fig:cate_plot} and in the printed CQTE summary below. Columns (Profile~1--Profile~4) give the covariate values for one synthetic individual on the original data scale: \\code{age} (years), \\code{educ} (years of schooling), \\code{race}, \\code{married}, \\code{nodegree}, and prior annual earnings \\code{re74} and \\code{re75} (US dollars).",
   row.names = TRUE
 ) |>
   kableExtra::kable_styling(
@@ -1941,7 +1938,6 @@ cate_fit <- cate(
   show_progress = FALSE
 )
 summary(cate_fit)
-# plot(cate_fit, type = "effect")  # show the CATE profile plot
 @
 
 The mean-based conditional average treatment effects are generally
@@ -1951,23 +1947,24 @@ zero. Thus, at the level of conditional means, the program does not
 appear to induce a strong and uniform shift in earnings across all
 participant types.
 
-<<cqte-call, echo=TRUE, message=FALSE, warning=FALSE, results='hide', eval=TRUE>>=
+<<cqte-call, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
 cqte_fit <- cqte(
   fit,
   probs = c(0.25, 0.50, 0.75, 0.90, 0.95),
   newdata = xnew,
   interval = "credible"
 )
-# cqte_fit$fit_df  # full CQTE summary table
+cqte_fit$fit_df  # full CQTE summary table
 @
 
 
-Figure~\ref{fig:cate_plot} places the mean-based CATE plot beside a
-compact CQTE table so the profile-specific mean and quantile contrasts
-can be read together. The table entries report posterior estimates with
-95\% credible intervals in brackets.
+Figure~\ref{fig:cate_plot} shows the mean-based CATE summaries across
+the four representative profiles. The full numerical CQTE summary is
+printed directly above from \code{cqte\_fit\$fit\_df}, so the posterior
+estimates and their 95\% credible intervals can be read directly from
+the console output rather than from a separate graphic.
 
-<<cate_plot, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=10.4, fig.height=4.1, out.width='0.88\\linewidth', fig.pos='!htbp', fig.cap='Conditional treatment-effect summaries for Lalonde 1978 earnings at the four representative covariate profiles (Profile~1--Profile~4) of Table~\\ref{tab:xnew-results}. Left panel: profile-specific conditional average treatment effects $\\mathrm{CATE}(x)=\\mu_1(x)-\\mu_0(x)$ with $95\\%$ HPD intervals, returned by \\texttt{cate(fit, newdata = xnew, interval = "hpd")}. Right panel: profile-specific conditional quantile treatment effects $\\mathrm{CQTE}(\\tau\\mid x)=Q_1(\\tau\\mid x)-Q_0(\\tau\\mid x)$ at $\\tau\\in\\{0.25,0.50,0.75,0.90,0.95\\}$, returned by \\texttt{cqte()}; each cell reports the posterior estimate with the $95\\%$ credible interval in brackets.'>>=
+<<cate_plot, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=6.2, fig.height=4.1, out.width='0.7\\linewidth', fig.pos='!htbp', fig.cap='Profile-specific conditional average treatment effects for Lalonde 1978 earnings at the four representative covariate profiles (Profile~1--Profile~4) of Table~\\ref{tab:xnew-results}, returned by \\code{cate(fit, newdata = xnew, interval = "hpd")}. Points denote posterior estimates of $\\mathrm{CATE}(x)=\\mu_1(x)-\\mu_0(x)$ and vertical bars give $95\\%$ HPD intervals.'>>=
 cate_plot_obj <- plot(cate_fit) +
   ggplot2::labs(title = "CATE by profile", x = NULL) +
   ggplot2::theme(
@@ -1977,65 +1974,7 @@ cate_plot_obj <- plot(cate_fit) +
     plot.margin = ggplot2::margin(5.5, 6, 5.5, 5.5)
   )
 
-cqte_tab <- as.data.frame(cqte_fit$fit_df)[, c("id", "index", "estimate", "lower", "upper")]
-profile_ids <- sort(unique(cqte_tab$id))
-prob_grid <- sort(unique(cqte_tab$index))
-
-cqte_display <- data.frame(
-  tau = formatC(prob_grid, format = "f", digits = 2),
-  check.names = FALSE
-)
-
-cqte_rows <- vector("list", length(profile_ids))
-
-for (pid in profile_ids) {
-  profile_slice <- cqte_tab[cqte_tab$id == pid, ]
-  profile_slice <- profile_slice[match(prob_grid, profile_slice$index), ]
-  cell_label <- sprintf(
-    "%.2f\n[%.2f, %.2f]",
-    profile_slice$estimate,
-    profile_slice$lower,
-    profile_slice$upper
-  )
-  cqte_display[[paste0("P", pid)]] <- cell_label
-  cqte_rows[[which(profile_ids == pid)]] <- data.frame(
-    profile = factor(
-      paste0("P", pid),
-      levels = paste0("P", profile_ids)
-    ),
-    tau = factor(
-      formatC(prob_grid, format = "f", digits = 2),
-      levels = rev(formatC(prob_grid, format = "f", digits = 2))
-    ),
-    label = cell_label
-  )
-}
-
-cqte_plot_df <- do.call(rbind, cqte_rows)
-
-cqte_plot_obj <- ggplot2::ggplot(
-  cqte_plot_df,
-  ggplot2::aes(x = profile, y = tau)
-) +
-  ggplot2::geom_tile(fill = "white", color = "grey80", linewidth = 0.35) +
-  ggplot2::geom_text(
-    ggplot2::aes(label = label),
-    size = 2.75,
-    lineheight = 0.9
-  ) +
-  ggplot2::scale_x_discrete(position = "top") +
-  ggplot2::labs(title = "CQTE with 95% credible intervals", x = NULL, y = NULL) +
-  ggplot2::theme_minimal(base_size = 9) +
-  ggplot2::theme(
-    panel.grid = ggplot2::element_blank(),
-    axis.text.x = ggplot2::element_text(size = 8.5, face = "bold", margin = ggplot2::margin(b = 4)),
-    axis.text.y = ggplot2::element_text(size = 8),
-    plot.title = ggplot2::element_text(size = 10, face = "bold"),
-    plot.margin = ggplot2::margin(5.5, 5.5, 5.5, 0)
-  )
-
-cate_plot_obj + cqte_plot_obj +
-  patchwork::plot_layout(widths = c(1, 1.45))
+cate_plot_obj
 @
 
 The CQTE estimates reveal heterogeneity across both covariate profiles and quantile levels. At low and median quantile levels, the estimated program effect is close to zero or negative. Uncertainty about treatment effects is high at the upper quantiles, as upper-quantile contrasts rely on fewer observations and are more sensitive to the spliced tail. The analysis provides no evidence of positive program effects; any such effects, if present, appear confined to specific covariate profiles at upper quantiles.
@@ -2093,6 +2032,7 @@ confounding.
 
 
 \bibliography{CausalMixGPD_JSS_refs}
+\clearpage
 
 \appendix
 \section{Customization of package and additional features}
@@ -2132,7 +2072,7 @@ This section gathers the arguments used after a model class has been chosen: sam
 \subsection{Workflow-specific extensions}
 \label{subsec:app-workflows}
 
-This section records controls specific to the clustering and causal workflows in Sections~\ref{subsec:cluster_extension}, \ref{subsec:overview-causal}, \ref{sec:app-clustering}, and \ref{sec:app-causal}. Representative outputs appear in Figures~\ref{fig:app_cluster_overlay}, \ref{fig:app_cluster_test_sizes}, \ref{fig:qte_plot}, and \ref{fig:cate_plot}, with the latter combining the CATE plot and CQTE table.
+This section records controls specific to the clustering and causal workflows in Sections~\ref{subsec:cluster_extension}, \ref{subsec:overview-causal}, \ref{sec:app-clustering}, and \ref{sec:app-causal}. Representative outputs appear in Figures~\ref{fig:app_cluster_overlay}, \ref{fig:app_cluster_test_sizes}, \ref{fig:qte_plot}, and \ref{fig:cate_plot}.
 
 \begin{itemize}
 \item \textbf{Causal estimands}: beyond \code{ate()}, \code{qte()}, \code{cate()}, and \code{cqte()}, the package provides \code{att()} for effects averaged over the treated covariate distribution, \code{qtt()} for quantile effects on the treated, and \code{ate\_rmean()} for restricted-mean contrasts. The \code{ate()} and \code{cate()} families also accept \code{type = "mean"} or \code{"rmean"} with a corresponding \code{cutoff}. All effect objects support \code{summary()}, \code{print()}, and \code{plot()} S3 functions. Causal plots route by arm and offer \code{type = "effect"}, \code{"arms"}, or \code{"both"}; QTE plots additionally use \code{facet\_by}; cluster plots provide PSM heatmaps plus label summaries via \code{type = "sizes"}, \code{"certainty"}, and \code{"summary"}. All plots return \pkg{ggplot2} objects and can be converted to \pkg{plotly}.

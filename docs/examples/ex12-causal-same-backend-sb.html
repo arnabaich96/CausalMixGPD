@@ -108,7 +108,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </head>
 
-<body class="nav-fixed fullcontent quarto-light">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -272,12 +272,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content column-page" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -286,7 +286,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<div class="quarto-title-meta">
+<div class="quarto-title-meta column-page">
 
     
   
@@ -354,8 +354,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>x_eval <span class="ot">&lt;-</span> X[<span class="dv">1</span><span class="sc">:</span><span class="dv">40</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>y_eval <span class="ot">&lt;-</span> y[<span class="dv">1</span><span class="sc">:</span><span class="dv">40</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>x_eval <span class="ot">&lt;-</span> X[<span class="fu">seq_len</span>(<span class="cf">if</span> (<span class="fu">isTRUE</span>(FAST)) <span class="dv">20</span>L <span class="cf">else</span> <span class="dv">40</span>L), , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>y_eval <span class="ot">&lt;-</span> y[<span class="fu">seq_len</span>(<span class="cf">if</span> (<span class="fu">isTRUE</span>(FAST)) <span class="dv">20</span>L <span class="cf">else</span> <span class="dv">40</span>L)]</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>u_threshold <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(stats<span class="sc">::</span><span class="fu">quantile</span>(y, <span class="fl">0.8</span>, <span class="at">names =</span> <span class="cn">FALSE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
@@ -366,7 +366,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>p_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_causal, <span class="fu">aes</span>(<span class="at">x =</span> x1, <span class="at">y =</span> y, <span class="at">color =</span> A)) <span class="sc">+</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Outcome vs X1 by Treatment"</span>, <span class="at">newdata =</span><span class="st">"X1"</span>, <span class="at">y =</span> <span class="st">"y"</span>, <span class="at">color =</span> <span class="st">"Treatment"</span>) <span class="sc">+</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Outcome vs X1 by Treatment"</span>, <span class="at">x =</span> <span class="st">"X1"</span>, <span class="at">y =</span> <span class="st">"y"</span>, <span class="at">color =</span> <span class="st">"Treatment"</span>) <span class="sc">+</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>p_scatter</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -387,16 +387,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>bundle_sb_bulk <span class="ot">&lt;-</span> <span class="fu">bundle</span>(</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> y,</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> A,</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"laplace"</span>,</span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">PS =</span> <span class="st">"logit"</span>,</span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">5</span>,</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">400</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">seed =</span> <span class="dv">1</span>),</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_ps =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">400</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> components_ex12,</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> bulk_mcmc_ex12,</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_ps =</span> mcmc_ps_bulk_ex12</span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>bundle_sb_bulk</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -407,7 +407,7 @@ PS model: Bayesian logit (A | X)
       Field                Treated                Control
     Backend Stick-Breaking Process Stick-Breaking Process
      Kernel                laplace                laplace
- Components                      5                      5
+ Components                      3                      3
    GPD tail                  FALSE                  FALSE
     Epsilon                  0.025                  0.025
 
@@ -425,7 +425,7 @@ PS model: Bayesian logit (A | X)
       Field                Treated                Control
     Backend Stick-Breaking Process Stick-Breaking Process
      Kernel                laplace                laplace
- Components                      5                      5
+ Components                      3                      3
    GPD tail                  FALSE                  FALSE
     Epsilon                  0.025                  0.025
 
@@ -437,30 +437,82 @@ n (control) = 232 | n (treated) = 268 </code></pre>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fit_sb_bulk <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ex12-causal-same-backend-sb-fit_sb_bulk"</span>,</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">quiet_mcmc</span>(<span class="fu">dpmix.causal</span>(bundle_sb_bulk))</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  tag_sb_bulk_ex12,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">quiet_mcmc</span>(<span class="fu">dpmix.causal</span>(bundle_sb_bulk, <span class="at">mcmc =</span> causal_run_mcmc_bulk))</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sb_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>-- PS fit --
-CausalMixGPD PS fit
+CausalMixGPD PS fit summary
 model: logit 
+n = 500 | predictors = 5
+Monitors: beta 
+
+Summary table
+ parameter   mean    sd q0.025 q0.500 q0.975
+   beta[1]  0.031 0.186 -0.234 -0.009  0.456
+   beta[2]  0.463  0.13  0.168  0.524  0.646
+   beta[3]   0.41 0.209  0.103  0.461   0.82
+   beta[4] -0.185 0.075 -0.281 -0.117 -0.116
+   beta[5]  0.235 0.305  -0.42  0.247   0.74
 
 -- Outcome fits --
 [control]
-MixGPD fit | backend: Stick-Breaking Process | kernel: Laplace Distribution | GPD tail: FALSE
-n = 232 | components = 5 | epsilon = 0.025
-MCMC: niter=400, nburnin=100, thin=2, nchains=1 
-Fit
-Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
+MixGPD summary | backend: Stick-Breaking Process | kernel: Laplace Distribution | GPD tail: FALSE | epsilon: 0.025
+n = 232 | components = 3
+Summary
+Initial components: 3 | Components after truncation: 3
+
+Summary table
+          parameter  mean    sd q0.025 q0.500 q0.975
+         weights[1] 0.377 0.018  0.346   0.37  0.405
+         weights[2] 0.332 0.023  0.298  0.328  0.358
+         weights[3] 0.291 0.017  0.272   0.29  0.326
+              alpha 1.233 0.723  0.491  0.986   3.16
+           scale[1] 0.805 0.101  0.648  0.804  1.061
+           scale[2] 0.783 0.119  0.596  0.777  1.082
+           scale[3] 0.748 0.121  0.521  0.727  1.022
+ beta_location[1,1]     0     0      0      0      0
+ beta_location[1,2]     0     0      0      0      0
+ beta_location[1,3]     0     0      0      0      0
+ beta_location[1,4]     0     0      0      0      0
+ beta_location[2,1]     0     0      0      0      0
+ beta_location[2,2]     0     0      0      0      0
+ beta_location[2,3]     0     0      0      0      0
+ beta_location[2,4]     0     0      0      0      0
+ beta_location[3,1]     0     0      0      0      0
+ beta_location[3,2]     0     0      0      0      0
+ beta_location[3,3]     0     0      0      0      0
+ beta_location[3,4]     0     0      0      0      0
 
 [treated]
-MixGPD fit | backend: Stick-Breaking Process | kernel: Laplace Distribution | GPD tail: FALSE
-n = 268 | components = 5 | epsilon = 0.025
-MCMC: niter=400, nburnin=100, thin=2, nchains=1 
-Fit
-Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</code></pre>
+MixGPD summary | backend: Stick-Breaking Process | kernel: Laplace Distribution | GPD tail: FALSE | epsilon: 0.025
+n = 268 | components = 3
+Summary
+Initial components: 3 | Components after truncation: 3
+
+Summary table
+          parameter  mean    sd q0.025 q0.500 q0.975
+         weights[1] 0.698 0.017  0.679  0.713  0.713
+         weights[2] 0.161 0.013  0.144  0.162  0.186
+         weights[3] 0.141 0.021  0.101  0.143   0.16
+              alpha 1.069 0.548   0.25  0.888  2.367
+           scale[1] 0.685 0.073  0.568  0.677  0.838
+           scale[2] 0.675 0.184  0.469  0.632  1.239
+           scale[3] 0.674 0.154  0.433  0.654   1.03
+ beta_location[1,1]     0     0      0      0      0
+ beta_location[1,2]     0     0      0      0      0
+ beta_location[1,3]     0     0      0      0      0
+ beta_location[1,4]     0     0      0      0      0
+ beta_location[2,1]     0     0      0      0      0
+ beta_location[2,2]     0     0      0      0      0
+ beta_location[2,3]     0     0      0      0      0
+ beta_location[2,4]     0     0      0      0      0
+ beta_location[3,1]     0     0      0      0      0
+ beta_location[3,2]     0     0      0      0      0
+ beta_location[3,3]     0     0      0      0      0
+ beta_location[3,4]     0     0      0      0      0</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
@@ -469,57 +521,53 @@ Use summary() for posterior summaries; plot() for diagnostics; predict() for pre
 <div class="cell-output cell-output-stdout">
 <pre><code>Posterior mean parameters (causal)
 
+[ps]
+Posterior mean parameters
+
+$beta
+[1]  0.03087  0.46270  0.40980 -0.18530  0.23550
+
 [treated]
 Posterior mean parameters
 
 $alpha
-[1] 1.144
+[1] 1.069
 
 $w
-[1] 0.68310 0.19320 0.08311
+[1] 0.6980 0.1607 0.1413
 
 $beta_location
-            x1       x2       x3       x4
-comp1 -0.12350 -0.40310  0.33820  0.60130
-comp2 -0.08678 -0.08826 -0.07812 -0.11450
-comp3  0.26420 -0.11220  0.40580  0.21780
-comp4  0.45720  0.25840 -0.21750 -0.09178
-comp5 -0.16490 -0.25120 -0.11670 -0.82810
-
-$beta_ps_location
-[1]  0.63510 -0.63370 -0.46560 -0.06594 -0.17260
+      PropScore x1 x2 x3 x4
+comp1         0  0  0  0  0
+comp2         0  0  0  0  0
+comp3         0  0  0  0  0
 
 $scale
-[1] 0.6871 0.8550 0.9257
+[1] 0.6849 0.6750 0.6736
 
 [control]
 Posterior mean parameters
 
 $alpha
-[1] 0.7957
+[1] 1.233
 
 $w
-[1] 0.5226 0.3367
+[1] 0.3765 0.3322 0.2913
 
 $beta_location
-             x1      x2       x3      x4
-comp1 -0.089930 0.12610  0.18330 -0.3270
-comp2 -0.236900 0.59730 -0.32870  0.7577
-comp3  0.231100 0.01530 -0.08302  0.1036
-comp4 -0.125300 0.16870  0.14260 -0.2728
-comp5  0.009335 0.05929 -0.06651  0.3740
-
-$beta_ps_location
-[1]  0.12290  0.17100  0.37940  0.23970 -0.02697
+      PropScore x1 x2 x3 x4
+comp1         0  0  0  0  0
+comp2         0  0  0  0  0
+comp3         0  0  0  0  0
 
 $scale
-[1] 0.8021 0.8941</code></pre>
+[1] 0.8050 0.7825 0.7482</code></pre>
 </div>
 </div>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_sb_bulk, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"traceplot"</span>, <span class="st">"autocorrelation"</span>, <span class="st">"running"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_sb_bulk, <span class="at">family =</span> plot_family_bulk_ex12)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -536,7 +584,9 @@ $scale
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-=== autocorrelation ===</code></pre>
+=== control ===
+
+=== traceplot ===</code></pre>
 </div>
 <div class="cell-output-display">
 <div>
@@ -545,59 +595,13 @@ $scale
 </figure>
 </div>
 </div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-=== running ===</code></pre>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex12-causal-same-backend-sb_files/figure-html/plot-fit-sb-bulk-3.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-=== control ===
-
-=== traceplot ===</code></pre>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex12-causal-same-backend-sb_files/figure-html/plot-fit-sb-bulk-4.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-=== autocorrelation ===</code></pre>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex12-causal-same-backend-sb_files/figure-html/plot-fit-sb-bulk-5.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-=== running ===</code></pre>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex12-causal-same-backend-sb_files/figure-html/plot-fit-sb-bulk-6.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
 </div>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>pred_mean_bulk <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_bulk, <span class="at">newdata =</span>x_eval, <span class="at">type =</span> <span class="st">"mean"</span>,</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>                          <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">100</span>)</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_mean_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>pred_mean_bulk <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_bulk, <span class="at">newdata =</span>x_eval, <span class="at">type =</span> <span class="st">"mean"</span>,</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>                          <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> nsim_mean_ex12, <span class="at">workers =</span> predict_workers_ex12)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_mean_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -617,9 +621,9 @@ $scale
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>pred_q_bulk <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_bulk, <span class="at">newdata =</span>x_eval, <span class="at">type =</span> <span class="st">"quantile"</span>,</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">p =</span> <span class="fl">0.5</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_q_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>pred_q_bulk <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_bulk, <span class="at">newdata =</span>x_eval, <span class="at">type =</span> <span class="st">"quantile"</span>,</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">p =</span> <span class="fl">0.5</span>, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">workers =</span> predict_workers_ex12)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_q_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -639,9 +643,9 @@ $scale
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>pred_d_bulk <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_bulk, <span class="at">newdata =</span>x_eval, <span class="at">y =</span> y_eval,</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">type =</span> <span class="st">"density"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_d_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>pred_d_bulk <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_bulk, <span class="at">newdata =</span>x_eval, <span class="at">y =</span> y_eval,</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">type =</span> <span class="st">"density"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">workers =</span> predict_workers_ex12)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_d_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -654,9 +658,9 @@ $scale
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>pred_surv_bulk <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_bulk, <span class="at">newdata =</span>x_eval, <span class="at">y =</span> y_eval,</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>                          <span class="at">type =</span> <span class="st">"survival"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_surv_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>pred_surv_bulk <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_bulk, <span class="at">newdata =</span>x_eval, <span class="at">y =</span> y_eval,</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>                          <span class="at">type =</span> <span class="st">"survival"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">workers =</span> predict_workers_ex12)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_surv_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -669,22 +673,22 @@ $scale
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>cate_bulk <span class="ot">&lt;-</span> <span class="fu">cate</span>(fit_sb_bulk, <span class="at">newdata =</span> x_eval,</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">100</span>)</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">format_cate_table</span>(cate_bulk))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>cate_bulk <span class="ot">&lt;-</span> <span class="fu">cate</span>(fit_sb_bulk, <span class="at">newdata =</span> x_eval,</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> nsim_mean_ex12)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">format_cate_table</span>(cate_bulk))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>  id index    estimate      lower     upper
-1  1     1  0.13578509 -0.2587258 0.5602435
-2  2     1  0.69103079 -0.2085511 1.5188383
-3  3     1 -0.34768781 -0.9466499 0.2203002
-4  4     1  0.06808218 -0.3028939 0.5511950
-5  5     1  0.10743302 -0.3773745 1.0114349
-6  6     1 -0.17183162 -0.6687555 0.2731705</code></pre>
+<pre><code>  id index estimate lower upper
+1  1     1        0     0     0
+2  2     1        0     0     0
+3  3     1        0     0     0
+4  4     1        0     0     0
+5  5     1        0     0     0
+6  6     1        0     0     0</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cate_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cate_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -697,22 +701,22 @@ $scale
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>cqte_bulk <span class="ot">&lt;-</span> <span class="fu">cqte</span>(fit_sb_bulk, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>),</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">newdata =</span> x_eval, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">format_cqte_table</span>(cqte_bulk))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>cqte_bulk <span class="ot">&lt;-</span> <span class="fu">cqte</span>(fit_sb_bulk, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>),</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">newdata =</span> x_eval, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">format_cqte_table</span>(cqte_bulk))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>  id index   estimate       lower     upper
-1  1     1  0.3286929 -0.01912106 0.7037141
-2  1     2  0.3467194  0.09763347 0.5553279
-3  1     3 -0.0464908 -0.24771668 0.1174706
-4  2     1  0.6793469 -0.01912106 1.4247009
-5  2     2  1.2000193  0.49071259 1.5729679
-6  2     3  0.7036268 -0.13301241 1.4915324</code></pre>
+<pre><code>  id index    estimate      lower     upper
+1  1     1  0.06878438 -0.0300103 0.1503468
+2  1     2         NaN         NA        NA
+3  1     3 -0.06878438 -0.1503468 0.0300103
+4  2     1  0.06878438 -0.0300103 0.1503468
+5  2     2         NaN         NA        NA
+6  2     3 -0.06878438 -0.1503468 0.0300103</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cqte_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cqte_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -729,31 +733,31 @@ $scale
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>param_specs_gpd <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">gpd =</span> <span class="fu">list</span>(</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">threshold =</span> <span class="fu">list</span>(</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">mode =</span> <span class="st">"dist"</span>,</span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">dist =</span> <span class="st">"lognormal"</span>,</span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">args =</span> <span class="fu">list</span>(<span class="at">meanlog =</span> <span class="fu">log</span>(<span class="fu">max</span>(u_threshold, .Machine<span class="sc">$</span>double.eps)), <span class="at">sdlog =</span> <span class="fl">0.25</span>)</span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>bundle_sb_gpd <span class="ot">&lt;-</span> <span class="fu">bundle</span>(</span>
-<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> y,</span>
-<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> A,</span>
-<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
-<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"laplace"</span>,</span>
-<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
-<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">PS =</span> <span class="st">"logit"</span>,</span>
-<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">5</span>,</span>
-<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">param_specs =</span> param_specs_gpd,</span>
-<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">400</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">seed =</span> <span class="dv">2</span>),</span>
-<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_ps =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">400</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">seed =</span> <span class="dv">2</span>)</span>
-<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a>bundle_sb_gpd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>param_specs_gpd <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">gpd =</span> <span class="fu">list</span>(</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">threshold =</span> <span class="fu">list</span>(</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">mode =</span> <span class="st">"dist"</span>,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">dist =</span> <span class="st">"lognormal"</span>,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">args =</span> <span class="fu">list</span>(<span class="at">meanlog =</span> <span class="fu">log</span>(<span class="fu">max</span>(u_threshold, .Machine<span class="sc">$</span>double.eps)), <span class="at">sdlog =</span> <span class="fl">0.25</span>)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>bundle_sb_gpd <span class="ot">&lt;-</span> <span class="fu">bundle</span>(</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> A,</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"laplace"</span>,</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">PS =</span> <span class="st">"logit"</span>,</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> components_ex12,</span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">param_specs =</span> param_specs_gpd,</span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> gpd_mcmc_ex12,</span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_ps =</span> mcmc_ps_gpd_ex12</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>bundle_sb_gpd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>CausalMixGPD causal bundle
@@ -761,7 +765,7 @@ PS model: Bayesian logit (A | X)
       Field                Treated                Control
     Backend Stick-Breaking Process Stick-Breaking Process
      Kernel                laplace                laplace
- Components                      5                      5
+ Components                      3                      3
    GPD tail                   TRUE                   TRUE
     Epsilon                  0.025                  0.025
 
@@ -770,7 +774,7 @@ n (control) = 232 | n (treated) = 268 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bundle_sb_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bundle_sb_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>CausalMixGPD causal bundle summary
@@ -779,7 +783,7 @@ PS model: Bayesian logit (A | X)
       Field                Treated                Control
     Backend Stick-Breaking Process Stick-Breaking Process
      Kernel                laplace                laplace
- Components                      5                      5
+ Components                      3                      3
    GPD tail                   TRUE                   TRUE
     Epsilon                  0.025                  0.025
 
@@ -790,102 +794,170 @@ n (control) = 232 | n (treated) = 268 </code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>fit_sb_gpd <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ex12-causal-same-backend-sb-fit_sb_gpd"</span>,</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">quiet_mcmc</span>(<span class="fu">dpmgpd.causal</span>(bundle_sb_gpd))</span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sb_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>fit_sb_gpd <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  tag_sb_gpd_ex12,</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">quiet_mcmc</span>(<span class="fu">dpmgpd.causal</span>(bundle_sb_gpd, <span class="at">mcmc =</span> causal_run_mcmc_gpd))</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sb_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>-- PS fit --
-CausalMixGPD PS fit
+CausalMixGPD PS fit summary
 model: logit 
+n = 500 | predictors = 5
+Monitors: beta 
+
+Summary table
+ parameter   mean    sd q0.025 q0.500 q0.975
+   beta[1]  0.021 0.082 -0.056 -0.005  0.144
+   beta[2]  0.458 0.082  0.324  0.451  0.607
+   beta[3]   0.27 0.197 -0.042  0.216  0.544
+   beta[4] -0.149 0.065 -0.303 -0.107  -0.07
+   beta[5]  0.277 0.149 -0.228  0.348   0.48
 
 -- Outcome fits --
 [control]
-MixGPD fit | backend: Stick-Breaking Process | kernel: Laplace Distribution | GPD tail: TRUE
-n = 232 | components = 5 | epsilon = 0.025
-MCMC: niter=400, nburnin=100, thin=2, nchains=1 
-Fit
-Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
+MixGPD summary | backend: Stick-Breaking Process | kernel: Laplace Distribution | GPD tail: TRUE | epsilon: 0.025
+n = 232 | components = 3
+Summary
+Initial components: 3 | Components after truncation: 3
+
+Summary table
+          parameter   mean    sd q0.025 q0.500 q0.975
+         weights[1]  0.665 0.002  0.662  0.666  0.666
+         weights[2]  0.281 0.013  0.264  0.288  0.302
+         weights[3]  0.054 0.015  0.035  0.046  0.074
+              alpha  1.094 0.551  0.475  1.027  2.832
+ beta_tail_scale[1]  0.545  0.26  0.116   0.56  0.996
+ beta_tail_scale[2]  0.078 0.321 -0.472   0.12  0.648
+ beta_tail_scale[3] -0.019 0.262  -0.44 -0.009  0.507
+ beta_tail_scale[4] -0.555 0.397 -1.214 -0.589   0.15
+         tail_shape  0.182 0.188 -0.286  0.176  0.414
+          threshold  2.427 0.088  2.151   2.46   2.46
+           scale[1]   1.43  0.15  1.186  1.443  1.719
+           scale[2]  1.502 0.247  1.123  1.466  1.958
+           scale[3]  1.889 0.989  0.644  1.646  4.361
+ beta_location[1,1]      0     0      0      0      0
+ beta_location[1,2]      0     0      0      0      0
+ beta_location[1,3]      0     0      0      0      0
+ beta_location[1,4]      0     0      0      0      0
+ beta_location[2,1]      0     0      0      0      0
+ beta_location[2,2]      0     0      0      0      0
+ beta_location[2,3]      0     0      0      0      0
+ beta_location[2,4]      0     0      0      0      0
+ beta_location[3,1]      0     0      0      0      0
+ beta_location[3,2]      0     0      0      0      0
+ beta_location[3,3]      0     0      0      0      0
+ beta_location[3,4]      0     0      0      0      0
 
 [treated]
-MixGPD fit | backend: Stick-Breaking Process | kernel: Laplace Distribution | GPD tail: TRUE
-n = 268 | components = 5 | epsilon = 0.025
-MCMC: niter=400, nburnin=100, thin=2, nchains=1 
-Fit
-Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</code></pre>
+MixGPD summary | backend: Stick-Breaking Process | kernel: Laplace Distribution | GPD tail: TRUE | epsilon: 0.025
+n = 268 | components = 3
+Summary
+Initial components: 3 | Components after truncation: 3
+
+Summary table
+          parameter   mean    sd q0.025 q0.500 q0.975
+         weights[1]  0.452 0.038  0.437  0.437  0.551
+         weights[2]  0.321 0.026  0.285   0.32  0.361
+         weights[3]  0.227 0.035  0.161  0.243  0.278
+              alpha  1.447 0.968  0.206  1.282  3.431
+ beta_tail_scale[1]  0.154 0.256 -0.278  0.118  0.734
+ beta_tail_scale[2]  0.063 0.369 -0.463  0.011   0.75
+ beta_tail_scale[3]  0.149 0.162 -0.143  0.152  0.478
+ beta_tail_scale[4]  0.038 0.536 -0.842 -0.018  1.333
+         tail_shape -0.144 0.269 -0.583 -0.209  0.226
+          threshold  2.306 1.025  1.069  2.001  4.037
+           scale[1]   1.68 0.253  1.339  1.645  2.287
+           scale[2]   1.73  0.29  1.242  1.708  2.319
+           scale[3]  1.585 0.511  1.062  1.398  3.161
+ beta_location[1,1]      0     0      0      0      0
+ beta_location[1,2]      0     0      0      0      0
+ beta_location[1,3]      0     0      0      0      0
+ beta_location[1,4]      0     0      0      0      0
+ beta_location[2,1]      0     0      0      0      0
+ beta_location[2,2]      0     0      0      0      0
+ beta_location[2,3]      0     0      0      0      0
+ beta_location[2,4]      0     0      0      0      0
+ beta_location[3,1]      0     0      0      0      0
+ beta_location[3,2]      0     0      0      0      0
+ beta_location[3,3]      0     0      0      0      0
+ beta_location[3,4]      0     0      0      0      0</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">params</span>(fit_sb_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">params</span>(fit_sb_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Posterior mean parameters (causal)
 
+[ps]
+Posterior mean parameters
+
+$beta
+[1]  0.02086  0.45850  0.27050 -0.14870  0.27740
+
 [treated]
 Posterior mean parameters
 
 $alpha
-[1] 1.395
+[1] 1.447
 
 $w
-[1] 0.6937 0.1478 0.0822
+[1] 0.4521 0.3205 0.2274
 
 $beta_location
-      x1 x2 x3 x4
-comp1  0  0  0  0
-comp2  0  0  0  0
-comp3  0  0  0  0
-comp4  0  0  0  0
-comp5  0  0  0  0
-
-$beta_ps_location
-[1] 0 0 0 0 0
+      PropScore x1 x2 x3 x4
+comp1         0  0  0  0  0
+comp2         0  0  0  0  0
+comp3         0  0  0  0  0
 
 $scale
-[1] 1.704 1.817 1.859
+[1] 1.680 1.730 1.585
+
+$threshold
+[1] 2.306
 
 $beta_tail_scale
-[1]  0.1057 -0.1531  0.1099 -0.1129
+            x1     x2    x3      x4
+overall 0.1536 0.0633 0.149 0.03797
 
 $tail_shape
-[1] -0.001169
+[1] -0.1438
 
 [control]
 Posterior mean parameters
 
 $alpha
-[1] 1.603
+[1] 1.094
 
 $w
-[1] 0.3831 0.2881 0.1827 0.1100
+[1] 0.66460 0.28140 0.05398
 
 $beta_location
-      x1 x2 x3 x4
-comp1  0  0  0  0
-comp2  0  0  0  0
-comp3  0  0  0  0
-comp4  0  0  0  0
-comp5  0  0  0  0
-
-$beta_ps_location
-[1] 0 0 0 0 0
+      PropScore x1 x2 x3 x4
+comp1         0  0  0  0  0
+comp2         0  0  0  0  0
+comp3         0  0  0  0  0
 
 $scale
-[1] 1.455 1.514 1.541 1.601
+[1] 1.430 1.502 1.889
+
+$threshold
+[1] 2.427
 
 $beta_tail_scale
-[1]  0.36520  0.21310  0.06244 -0.14320
+            x1     x2       x3      x4
+overall 0.5454 0.0782 -0.01914 -0.5554
 
 $tail_shape
-[1] -0.03103</code></pre>
+[1] 0.1823</code></pre>
 </div>
 </div>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_sb_gpd, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"density"</span>, <span class="st">"geweke"</span>, <span class="st">"caterpillar"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_sb_gpd, <span class="at">family =</span> plot_family_gpd_ex12)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -902,7 +974,9 @@ $tail_shape
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-=== geweke ===</code></pre>
+=== control ===
+
+=== density ===</code></pre>
 </div>
 <div class="cell-output-display">
 <div>
@@ -911,59 +985,13 @@ $tail_shape
 </figure>
 </div>
 </div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-=== caterpillar ===</code></pre>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex12-causal-same-backend-sb_files/figure-html/plot-fit-sb-gpd-3.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-=== control ===
-
-=== density ===</code></pre>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex12-causal-same-backend-sb_files/figure-html/plot-fit-sb-gpd-4.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-=== geweke ===</code></pre>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex12-causal-same-backend-sb_files/figure-html/plot-fit-sb-gpd-5.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-=== caterpillar ===</code></pre>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex12-causal-same-backend-sb_files/figure-html/plot-fit-sb-gpd-6.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
 </div>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>pred_mean_gpd <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_gpd, <span class="at">newdata =</span>x_eval, <span class="at">type =</span> <span class="st">"mean"</span>,</span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">100</span>)</span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_mean_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>pred_mean_gpd <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_gpd, <span class="at">newdata =</span>x_eval, <span class="at">type =</span> <span class="st">"mean"</span>,</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> nsim_mean_ex12, <span class="at">workers =</span> predict_workers_ex12)</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_mean_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -983,9 +1011,9 @@ $tail_shape
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>pred_q_gpd <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_gpd, <span class="at">newdata =</span>x_eval, <span class="at">type =</span> <span class="st">"quantile"</span>,</span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">p =</span> <span class="fl">0.5</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_q_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>pred_q_gpd <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_gpd, <span class="at">newdata =</span>x_eval, <span class="at">type =</span> <span class="st">"quantile"</span>,</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">p =</span> <span class="fl">0.5</span>, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">workers =</span> predict_workers_ex12)</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_q_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -1005,9 +1033,9 @@ $tail_shape
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>pred_d_gpd <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_gpd, <span class="at">newdata =</span>x_eval, <span class="at">y =</span> y_eval,</span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">type =</span> <span class="st">"density"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_d_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>pred_d_gpd <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_gpd, <span class="at">newdata =</span>x_eval, <span class="at">y =</span> y_eval,</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">type =</span> <span class="st">"density"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">workers =</span> predict_workers_ex12)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_d_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -1020,9 +1048,9 @@ $tail_shape
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>pred_surv_gpd <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_gpd, <span class="at">newdata =</span>x_eval, <span class="at">y =</span> y_eval,</span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">type =</span> <span class="st">"survival"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_surv_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>pred_surv_gpd <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_gpd, <span class="at">newdata =</span>x_eval, <span class="at">y =</span> y_eval,</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">type =</span> <span class="st">"survival"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">workers =</span> predict_workers_ex12)</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_surv_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -1035,8 +1063,8 @@ $tail_shape
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>ate_gpd <span class="ot">&lt;-</span> <span class="fu">ate</span>(fit_sb_gpd, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">100</span>)</span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(ate_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>ate_gpd <span class="ot">&lt;-</span> <span class="fu">ate</span>(fit_sb_gpd, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> nsim_mean_ex12)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(ate_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -1056,8 +1084,8 @@ $tail_shape
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>qte_gpd <span class="ot">&lt;-</span> <span class="fu">qte</span>(fit_sb_gpd, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>), <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(qte_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>qte_gpd <span class="ot">&lt;-</span> <span class="fu">qte</span>(fit_sb_gpd, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>), <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(qte_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>

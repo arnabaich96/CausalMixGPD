@@ -132,10 +132,11 @@ outside compiled NIMBLE code.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The wrappers preserve the same parameterizations as the uppercase scalar functions, but accept
 vector inputs for <code>x</code>, <code>q</code>, or <code>p</code> and allow <code>n &gt; 1</code> for random generation.</p>
-<p>Each lowercase helper is a vectorized R wrapper around the corresponding uppercase scalar
-routine documented in this file. The wrapper keeps the same parameterization and simply applies
-the scalar kernel repeatedly over the supplied evaluation points or simulation index. These
-helpers are therefore appropriate for interactive analysis, testing, and examples, whereas the
+<p>Each lowercase helper is a vectorized R wrapper around the corresponding
+uppercase scalar routine documented in this file. The wrapper keeps the same
+parameterization and applies the scalar kernel repeatedly over the supplied
+evaluation points or simulation index. These helpers are therefore
+appropriate for interactive analysis, testing, and examples, whereas the
 uppercase functions are the building blocks used inside NIMBLE model code.</p>
 <p>The wrappers do not change the underlying theory. For example, <code>qgpd()</code> still uses the
 closed-form GPD inverse, <code>qinvgauss()</code> still performs numerical inversion of the inverse
@@ -187,25 +188,25 @@ transformation. Random-generation wrappers call the corresponding scalar RNG rep
 <span class="r-in"><span><span class="fu">qgpd</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span>, threshold <span class="op">=</span> <span class="fl">1</span>, scale <span class="op">=</span> <span class="fl">0.8</span>, shape <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.594793 3.339573</span>
 <span class="r-in"><span><span class="fu">rgpd</span><span class="op">(</span><span class="fl">5</span>, threshold <span class="op">=</span> <span class="fl">1</span>, scale <span class="op">=</span> <span class="fl">0.8</span>, shape <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.457890 1.989540 1.608985 1.964277 1.616777</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.806328 1.139196 1.005946 1.535402 1.590719</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Inverse Gaussian</span></span></span>
 <span class="r-in"><span><span class="fu">dinvgauss</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, mean <span class="op">=</span> <span class="fl">2</span>, shape <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4774864 0.3153916 0.1393911</span>
 <span class="r-in"><span><span class="fu">rinvgauss</span><span class="op">(</span><span class="fl">5</span>, mean <span class="op">=</span> <span class="fl">2</span>, shape <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.673805 7.611777 2.000607 2.288698 2.224759</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.8343140 0.9820764 1.4904694 1.7140430 0.6166925</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Amoroso</span></span></span>
 <span class="r-in"><span><span class="fu">damoroso</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, loc <span class="op">=</span> <span class="fl">0</span>, scale <span class="op">=</span> <span class="fl">1.5</span>, shape1 <span class="op">=</span> <span class="fl">2</span>, shape2 <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2452362 0.2915082</span>
 <span class="r-in"><span><span class="fu">ramoroso</span><span class="op">(</span><span class="fl">5</span>, loc <span class="op">=</span> <span class="fl">0</span>, scale <span class="op">=</span> <span class="fl">1.5</span>, shape1 <span class="op">=</span> <span class="fl">2</span>, shape2 <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.2921093 1.4464358 1.9674029 3.5421019 0.9699588</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.3408347 1.2625576 6.5519920 3.3756510 0.6419267</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Cauchy</span></span></span>
 <span class="r-in"><span><span class="fu">dcauchy_vec</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, location <span class="op">=</span> <span class="fl">0</span>, scale <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1591549 0.3183099 0.1591549</span>
 <span class="r-in"><span><span class="fu">rcauchy_vec</span><span class="op">(</span><span class="fl">5</span>, location <span class="op">=</span> <span class="fl">0</span>, scale <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -1.4257585 -1.7587124  0.5629465  2.0670801  4.2562905</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]   0.09520131   0.70668559   0.67298800 -10.15960801  -1.16666825</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -218,7 +219,7 @@ transformation. Random-generation wrappers call the corresponding scalar RNG rep
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

@@ -104,10 +104,11 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>These are vectorized R wrappers around the scalar Cauchy-mixture routines. They retain the same
-location-scale parameterization and the same inverse-CDF logic for simulation and quantiles. The
-lowercase functions do not alter the heavy-tail theory of the underlying Cauchy components; they
-simply make the scalar routines convenient to use on vectors in R.</p>
+    <p>These are vectorized R wrappers around the scalar Cauchy-mixture routines.
+They retain the same location-scale parameterization and the same inverse-CDF
+logic for simulation and quantiles. The lowercase functions do not alter the
+heavy-tail theory of the underlying Cauchy components; they apply the scalar
+routines elementwise to vector inputs in R.</p>
     </div>
     <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>
@@ -139,7 +140,7 @@ simply make the scalar routines convenient to use on vectors in R.</p>
 <span class="r-in"><span><span class="fu">dcauchymix</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">2</span><span class="op">)</span>, w <span class="op">=</span> <span class="va">w</span>, location <span class="op">=</span> <span class="va">loc</span>, scale <span class="op">=</span> <span class="va">scl</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.12145467 0.18780283 0.05289561</span>
 <span class="r-in"><span><span class="fu">rcauchymix</span><span class="op">(</span><span class="fl">5</span>, w <span class="op">=</span> <span class="va">w</span>, location <span class="op">=</span> <span class="va">loc</span>, scale <span class="op">=</span> <span class="va">scl</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.35693348 -0.07215709 -4.37432663 -4.86462883 -3.45710687</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  0.2741499 -1.6557906 -0.9004822  0.2034606 -0.2070826</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -152,7 +153,7 @@ simply make the scalar routines convenient to use on vectors in R.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

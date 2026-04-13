@@ -58,30 +58,28 @@
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>The clustering interface in <code>CausalMixGPD</code> uses the same
-Bayesian nonparametric mixture machinery as the density and causal
-workflows, but the inferential focus changes. Instead of treating the
-fitted distribution only as a prediction engine, the clustering workflow
-treats the latent partition induced by the mixture model as a primary
-object of interest. The output is therefore organized around
-label-invariant partition summaries such as the posterior similarity
-matrix (PSM), representative cluster labels, cluster sizes, and
-membership scores <span class="citation">(<a href="#ref-Binder1978">Binder 1978</a>; <a href="#ref-Dahl2006">Dahl
+<p>The clustering workflow within <code>CausalMixGPD</code> relies on
+Bayesian nonparametric mixture modeling similarly to the density
+estimation and causal workflows. However, the goal of inference shifts
+from predicting future responses based on the fitted model to inferring
+the underlying latent partition created by the mixing process. Thus, the
+outputs include the posterior similarity matrix (PSM), the cluster
+labels for some representative observations, cluster sizes, and cluster
+memberships scores <span class="citation">(<a href="#ref-Binder1978">Binder 1978</a>; <a href="#ref-Dahl2006">Dahl
 2006</a>)</span>.</p>
-<p>This clustering functionality is important because Dirichlet process
-mixtures do more than estimate smooth densities. Their latent allocation
-variables induce random partitions, so they can be used for subgroup
-discovery while still allowing flexible within-cluster outcome models.
-The software article presents clustering as one of the three main
-capabilities of the package, alongside one-arm modeling and causal
-inference.</p>
-<p>This vignette gives a complete introduction to the clustering
-workflow. We first define the latent-partition notation and the three
-forms of predictor dependence supported by the package. We then fit a
-clustering model to a bundled dataset, extract label-invariant
-summaries, and predict cluster labels for new observations. We close
-with a reference section describing the main clustering-specific
-customization options.</p>
+<p>This aspect of <code>CausalMixGPD</code>’s functionality becomes
+crucial due to its capacity to discover subgroups using the latent
+random partition introduced by the Dirichlet process mixture and build
+flexible outcome models in each found cluster. Clustering is mentioned
+as one of the three core features of the package along with one-arm
+modeling and causal inference in the software article.</p>
+<p>This vignette provides an overview of the clustering workflow of the
+package. First, we introduce the latent-partition notation and the types
+of predictor dependency that the package allows. Next, we run a
+clustering procedure on a built-in dataset, summarize the resulting
+random partition in terms of label-invariant objects, and predict
+cluster labels for some new observations. Finally, we provide a list of
+customizable elements specific to clustering.</p>
 </div>
 <div class="section level2">
 <h2 id="notation-and-short-theory-background">Notation and short theory background<a class="anchor" aria-label="anchor" href="#notation-and-short-theory-background"></a>
@@ -237,6 +235,14 @@ graphics.</li>
 <span>  thin <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  nchains <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">2026</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co"># Used when regenerating clustering vignette artifacts (tools/.Rscripts/build_vignette_fits.R).</span></span>
+<span><span class="va">mcmc_clust</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  niter <span class="op">=</span> <span class="fl">1200</span>,</span>
+<span>  nburnin <span class="op">=</span> <span class="fl">300</span>,</span>
+<span>  thin <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  nchains <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  seed <span class="op">=</span> <span class="fl">2029</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -249,44 +255,31 @@ contains a real-valued response and three predictors.</p>
 <span><span class="va">dat_cl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  y <span class="op">=</span> <span class="va">nc_realX100_p3_k2</span><span class="op">$</span><span class="va">y</span>,</span>
 <span>  <span class="va">nc_realX100_p3_k2</span><span class="op">$</span><span class="va">X</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">dat_cl</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 'data.frame':    100 obs. of  4 variables:</span></span>
-<span><span class="co">#&gt;  $ y : num  -3.0407 0.5019 -0.0738 1.3292 -1.3555 ...</span></span>
-<span><span class="co">#&gt;  $ x1: num  0.497 -1.494 -0.555 -0.215 -1.2 ...</span></span>
-<span><span class="co">#&gt;  $ x2: num  -0.8024 0.236 0.0475 0.8879 -0.9009 ...</span></span>
-<span><span class="co">#&gt;  $ x3: num  1.666 -1.227 0.554 1.05 -0.44 ...</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">dat_cl</span><span class="op">)</span></span>
-<span><span class="co">#&gt;        y                 x1                 x2                 x3         </span></span>
-<span><span class="co">#&gt;  Min.   :-3.0407   Min.   :-2.77986   Min.   :-0.97590   Min.   :-2.5106  </span></span>
-<span><span class="co">#&gt;  1st Qu.:-0.8364   1st Qu.:-0.55528   1st Qu.:-0.50593   1st Qu.:-0.6084  </span></span>
-<span><span class="co">#&gt;  Median : 0.2194   Median : 0.04472   Median : 0.07785   Median : 0.2405  </span></span>
-<span><span class="co">#&gt;  Mean   : 0.4271   Mean   : 0.03418   Mean   :-0.03291   Mean   : 0.1370  </span></span>
-<span><span class="co">#&gt;  3rd Qu.: 1.4260   3rd Qu.: 0.59791   3rd Qu.: 0.44391   3rd Qu.: 0.8039  </span></span>
-<span><span class="co">#&gt;  Max.   : 3.8331   Max.   : 2.68653   Max.   : 0.99555   Max.   : 2.9609</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 <p>For illustration, we form a simple train/test split so that we can
-show both training-cluster summaries and out-of-sample label
-prediction.</p>
+show both training-cluster summaries and out-of-sample label prediction.
+The chunk below shows the sampling code used for the shipped artifacts;
+the rendered row counts come from
+<code>inst/extdata/clustering_outputs.rds</code> in a hidden chunk.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">clust_out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu">.pkg_extdata</span><span class="op">(</span><span class="st">"clustering_outputs.rds"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">train_dat</span> <span class="op">&lt;-</span> <span class="va">clust_out</span><span class="op">$</span><span class="va">train_dat</span></span>
-<span><span class="va">test_dat</span> <span class="op">&lt;-</span> <span class="va">clust_out</span><span class="op">$</span><span class="va">test_dat</span></span>
-<span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
+<span><span class="va">idx_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">dat_cl</span><span class="op">)</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">80</span><span class="op">)</span></span>
+<span><span class="va">train_dat</span> <span class="op">&lt;-</span> <span class="va">dat_cl</span><span class="op">[</span><span class="va">idx_train</span>, <span class="op">]</span></span>
+<span><span class="va">test_dat</span> <span class="op">&lt;-</span> <span class="va">dat_cl</span><span class="op">[</span><span class="op">-</span><span class="va">idx_train</span>, <span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">train_dat</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 80</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">test_dat</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 20</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">test_dat</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; [1] 80</span></span>
+<span><span class="co">#&gt; [1] 20</span></span></code></pre>
 <p>A quick visualization of the response helps motivate the use of a
 flexible mixture model.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">train_dat</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes_eval.html" class="external-link">after_stat</a></span><span class="op">(</span><span class="va">density</span><span class="op">)</span><span class="op">)</span>, bins <span class="op">=</span> <span class="fl">25</span>,</span>
 <span>                 fill <span class="op">=</span> <span class="st">"grey85"</span>, colour <span class="op">=</span> <span class="st">"grey35"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_density.html" class="external-link">geom_density</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"y"</span>, y <span class="op">=</span> <span class="st">"Density"</span>, title <span class="op">=</span> <span class="st">"Training-sample response distribution"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cmgpd_clustering_files/figure-html/exploratory-plots-1.png" class="r-plt" alt="" width="85%" style="display: block; margin: auto;"></p>
+<p><img src="cmgpd_clustering_files/figure-html/exploratory-plots-1.png" alt="" width="85%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
 <h2 id="fitting-a-clustering-model">Fitting a clustering model<a class="anchor" aria-label="anchor" href="#fitting-a-clustering-model"></a>
@@ -294,8 +287,15 @@ flexible mixture model.</p>
 <p>The bulk-only clustering wrapper is <code><a href="../reference/dpmix.cluster.html">dpmix.cluster()</a></code>. It
 uses the same general mixture machinery as the one-arm interface, but
 returns a clustering-oriented fitted object.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fit_cluster</span> <span class="op">&lt;-</span> <span class="va">clust_out</span><span class="op">$</span><span class="va">fit_cluster</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_cluster</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dpmix.cluster.html">dpmix.cluster</a></span><span class="op">(</span></span>
+<span>  formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">+</span> <span class="va">x3</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">train_dat</span>,</span>
+<span>  kernel <span class="op">=</span> <span class="st">"laplace"</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"both"</span>,</span>
+<span>  components <span class="op">=</span> <span class="fl">8</span>,</span>
+<span>  mcmc <span class="op">=</span> <span class="va">mcmc_clust</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>The choice <code>type = "both"</code> requests dependence in both the
 mixing weights and the component-specific parameters. In practice, this
 is the most flexible clustering specification because it allows both
@@ -306,16 +306,16 @@ covariates.</p>
 <h2 id="posterior-similarity-matrix">Posterior similarity matrix<a class="anchor" aria-label="anchor" href="#posterior-similarity-matrix"></a>
 </h2>
 <p>The first label-invariant summary is the PSM.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">z_train_psm</span> <span class="op">&lt;-</span> <span class="va">clust_out</span><span class="op">$</span><span class="va">psm_obj</span></span>
-<span><span class="va">z_train_psm</span></span>
-<span><span class="co">#&gt; Cluster PSM</span></span>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">z_train_psm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_cluster</span>, type <span class="op">=</span> <span class="st">"psm"</span><span class="op">)</span></span>
+<span><span class="va">z_train_psm</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; Cluster PSM</span></span>
 <span><span class="co">#&gt; n         : 80 </span></span>
 <span><span class="co">#&gt; components: 8 </span></span>
-<span><span class="co">#&gt; draw_index: 124</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<span><span class="co">#&gt; draw_index: 124</span></span></code></pre>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">z_train_psm</span>, type <span class="op">=</span> <span class="st">"summary"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cmgpd_clustering_files/figure-html/psm-plot-1.png" class="r-plt" alt="" width="85%" style="display: block; margin: auto;"></p>
+<p><img src="cmgpd_clustering_files/figure-html/psm-plot-1.png" alt="" width="85%" style="display: block; margin: auto;"></p>
 <p>The block structure in the PSM is the main diagnostic for cluster
 separation. Darker within-block regions indicate pairs of observations
 that co-cluster consistently across posterior draws, while diffuse or
@@ -326,16 +326,16 @@ weak block boundaries indicate uncertainty about the partition.</p>
 </h2>
 <p>The next step is to extract representative cluster labels for the
 training sample.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">z_train_lab</span> <span class="op">&lt;-</span> <span class="va">clust_out</span><span class="op">$</span><span class="va">train_lab</span></span>
-<span><span class="va">z_train_lab</span></span>
-<span><span class="co">#&gt; Cluster labels (train)</span></span>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">z_train_lab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_cluster</span>, type <span class="op">=</span> <span class="st">"label"</span>, return_scores <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">z_train_lab</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; Cluster labels (train)</span></span>
 <span><span class="co">#&gt; n         : 80 </span></span>
 <span><span class="co">#&gt; components: 8 </span></span>
-<span><span class="co">#&gt; sizes     : 1:17, 3:15, 2:14, 5:11, 7:11, 6:7, 4:3, 8:2</span></span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<span><span class="co">#&gt; sizes     : 1:17, 3:15, 2:14, 5:11, 7:11, 6:7, 4:3, 8:2</span></span></code></pre>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">z_train_lab</span>, type <span class="op">=</span> <span class="st">"summary"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cmgpd_clustering_files/figure-html/label-plot-train-1.png" class="r-plt" alt="" width="85%" style="display: block; margin: auto;"></p>
+<p><img src="cmgpd_clustering_files/figure-html/label-plot-train-1.png" alt="" width="85%" style="display: block; margin: auto;"></p>
 <p>The representative partition provides a single interpretable
 clustering summary on the response scale. It is convenient for
 reporting, but it should be read together with the PSM because the
@@ -347,26 +347,28 @@ structure.</p>
 </h2>
 <p>A distinctive feature of the package is that it also supports cluster
 prediction for new observations.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">z_test</span> <span class="op">&lt;-</span> <span class="va">clust_out</span><span class="op">$</span><span class="va">test_lab</span></span>
-<span><span class="va">z_test</span></span>
-<span><span class="co">#&gt; Cluster labels (newdata)</span></span>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">z_test</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_cluster</span>, newdata <span class="op">=</span> <span class="va">test_dat</span>, type <span class="op">=</span> <span class="st">"label"</span>, return_scores <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">z_test</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; Cluster labels (newdata)</span></span>
 <span><span class="co">#&gt; n         : 20 </span></span>
 <span><span class="co">#&gt; components: 8 </span></span>
-<span><span class="co">#&gt; sizes     : 3:8, 2:7, 1:5</span></span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">clust_out</span><span class="op">$</span><span class="va">cluster_profiles</span></span>
-<span><span class="co">#&gt;   cluster n    y_mean     y_sd    x1_mean     x1_sd      x2_mean     x2_sd</span></span>
+<span><span class="co">#&gt; sizes     : 3:8, 2:7, 1:5</span></span></code></pre>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_cluster</span>, newdata <span class="op">=</span> <span class="va">test_dat</span>, type <span class="op">=</span> <span class="st">"label"</span>, return_scores <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="op">)</span><span class="op">$</span><span class="va">cluster_profiles</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt;   cluster n    y_mean     y_sd    x1_mean     x1_sd      x2_mean     x2_sd</span></span>
 <span><span class="co">#&gt; 1      C3 8 0.3647947 1.788025  0.7937694 0.3171469  0.138712164 0.4022500</span></span>
 <span><span class="co">#&gt; 2      C2 7 0.5136280 1.420225 -0.5704476 0.4665936 -0.103106058 0.5569255</span></span>
 <span><span class="co">#&gt; 3      C1 5 1.7266609 1.766122 -0.4420492 0.8613412  0.006034279 0.6154273</span></span>
 <span><span class="co">#&gt;      x3_mean     x3_sd certainty_mean certainty_sd</span></span>
 <span><span class="co">#&gt; 1  0.6107905 1.2048713      0.2412648   0.02468364</span></span>
 <span><span class="co">#&gt; 2 -1.3820866 0.5893378      0.2418536   0.02644034</span></span>
-<span><span class="co">#&gt; 3  0.6799718 0.7494218      0.3146114   0.09348034</span></span></code></pre></div>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<span><span class="co">#&gt; 3  0.6799718 0.7494218      0.3146114   0.09348034</span></span></code></pre>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">z_test</span>, type <span class="op">=</span> <span class="st">"sizes"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cmgpd_clustering_files/figure-html/sizes-plot-test-1.png" class="r-plt" alt="" width="85%" style="display: block; margin: auto;"></p>
+<p><img src="cmgpd_clustering_files/figure-html/sizes-plot-test-1.png" alt="" width="85%" style="display: block; margin: auto;"></p>
 <p>This prediction step maps new observations into the space of the
 representative training clusters. That is useful in applications where
 the discovered subgroup structure needs to be carried forward to new
@@ -441,9 +443,9 @@ label-summary graphics such as cluster sizes and certainty.</p>
 <div class="section level2">
 <h2 id="session-information">Session information<a class="anchor" aria-label="anchor" href="#session-information"></a>
 </h2>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; R version 4.5.2 (2025-10-31 ucrt)</span></span>
+<span><span class="co">#&gt; R version 4.5.3 (2026-03-11 ucrt)</span></span>
 <span><span class="co">#&gt; Platform: x86_64-w64-mingw32/x64</span></span>
 <span><span class="co">#&gt; Running under: Windows 11 x64 (build 26200)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -464,27 +466,26 @@ label-summary graphics such as cluster sizes and certainty.</p>
 <span><span class="co">#&gt; [1] stats     graphics  grDevices datasets  utils     methods   base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt; [1] ggplot2_4.0.2      CausalMixGPD_0.5.0 nimble_1.4.1      </span></span>
+<span><span class="co">#&gt; [1] ggplot2_4.0.2      CausalMixGPD_0.5.0 nimble_1.4.0      </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;  [1] gtable_0.3.6        jsonlite_2.0.0      dplyr_1.2.0        </span></span>
-<span><span class="co">#&gt;  [4] compiler_4.5.2      renv_1.1.7          tidyselect_1.2.1   </span></span>
-<span><span class="co">#&gt;  [7] parallel_4.5.2      jquerylib_0.1.4     systemfonts_1.3.2  </span></span>
-<span><span class="co">#&gt; [10] scales_1.4.0        textshaping_1.0.5   yaml_2.3.12        </span></span>
+<span><span class="co">#&gt;  [4] compiler_4.5.3      renv_1.1.7          tidyselect_1.2.1   </span></span>
+<span><span class="co">#&gt;  [7] parallel_4.5.3      jquerylib_0.1.4     systemfonts_1.3.1  </span></span>
+<span><span class="co">#&gt; [10] scales_1.4.0        textshaping_1.0.4   yaml_2.3.12        </span></span>
 <span><span class="co">#&gt; [13] fastmap_1.2.0       lattice_0.22-9      coda_0.19-4.1      </span></span>
 <span><span class="co">#&gt; [16] R6_2.6.1            labeling_0.4.3      generics_0.1.4     </span></span>
-<span><span class="co">#&gt; [19] igraph_2.2.2        knitr_1.51          htmlwidgets_1.6.4  </span></span>
-<span><span class="co">#&gt; [22] tibble_3.3.1        desc_1.4.3          pillar_1.11.1      </span></span>
+<span><span class="co">#&gt; [19] igraph_2.2.1        knitr_1.51          htmlwidgets_1.6.4  </span></span>
+<span><span class="co">#&gt; [22] tibble_3.3.0        desc_1.4.3          pillar_1.11.1      </span></span>
 <span><span class="co">#&gt; [25] bslib_0.10.0        RColorBrewer_1.1-3  rlang_1.1.7        </span></span>
-<span><span class="co">#&gt; [28] cachem_1.1.0        xfun_0.57           S7_0.2.1           </span></span>
-<span><span class="co">#&gt; [31] fs_2.0.1            sass_0.4.10         otel_0.2.0         </span></span>
-<span><span class="co">#&gt; [34] viridisLite_0.4.3   cli_3.6.5           withr_3.0.2        </span></span>
-<span><span class="co">#&gt; [37] pkgdown_2.2.0       magrittr_2.0.4      digest_0.6.39      </span></span>
-<span><span class="co">#&gt; [40] grid_4.5.2          lifecycle_1.0.5     vctrs_0.7.2        </span></span>
-<span><span class="co">#&gt; [43] evaluate_1.0.5      pracma_2.4.6        glue_1.8.0         </span></span>
-<span><span class="co">#&gt; [46] farver_2.1.2        numDeriv_2016.8-1.1 ragg_1.5.0         </span></span>
-<span><span class="co">#&gt; [49] rmarkdown_2.31      tools_4.5.2         pkgconfig_2.0.3    </span></span>
-<span><span class="co">#&gt; [52] htmltools_0.5.9</span></span></code></pre></div>
+<span><span class="co">#&gt; [28] cachem_1.1.0        xfun_0.56           S7_0.2.1           </span></span>
+<span><span class="co">#&gt; [31] fs_1.6.6            sass_0.4.10         viridisLite_0.4.3  </span></span>
+<span><span class="co">#&gt; [34] cli_3.6.5           withr_3.0.2         pkgdown_2.1.3      </span></span>
+<span><span class="co">#&gt; [37] magrittr_2.0.4      digest_0.6.39       grid_4.5.3         </span></span>
+<span><span class="co">#&gt; [40] lifecycle_1.0.5     vctrs_0.7.1         evaluate_1.0.5     </span></span>
+<span><span class="co">#&gt; [43] pracma_2.4.6        glue_1.8.0          farver_2.1.2       </span></span>
+<span><span class="co">#&gt; [46] numDeriv_2016.8-1.1 ragg_1.5.0          rmarkdown_2.30     </span></span>
+<span><span class="co">#&gt; [49] tools_4.5.3         pkgconfig_2.0.3     htmltools_0.5.9</span></span></code></pre></div>
 <div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-Binder1978" class="csl-entry">
 Binder, David A. 1978. <span>“<span>B</span>ayesian Cluster
@@ -508,7 +509,7 @@ University Press.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>

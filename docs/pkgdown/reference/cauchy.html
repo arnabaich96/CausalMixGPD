@@ -105,9 +105,9 @@ where <code>location = ell</code> and <code>scale = s &gt; 0</code>.</p>
 For vectorized R usage, use <code><a href="base_lowercase.html">base_lowercase()</a></code>.</p>
 <p>The Cauchy law is a stable heavy-tailed distribution with undefined mean and variance. That is
 why the package allows the Cauchy kernel only as a bulk distribution and deliberately does not
-pair it with GPD tails in the kernel registry. For predictive summaries, ordinary means are not
-available under Cauchy kernels; tail-robust summaries such as medians, quantiles, survival
-curves, and restricted means remain well defined.</p>
+pair it with GPD tails in the kernel registry. For predictive summaries,
+ordinary means are not available under Cauchy kernels; medians, quantiles,
+survival curves, and restricted means remain well defined.</p>
 <p>The distribution function is
 $$
 F(x) = \frac{1}{2} + \frac{1}{\pi}\arctan\left(\frac{x-\ell}{s}\right),
@@ -147,8 +147,8 @@ $$</p>
 <span class="r-in"><span><span class="fu">qCauchy</span><span class="op">(</span><span class="fl">0.95</span>, <span class="va">location</span>, <span class="va">scale</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 9.470627</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rCauchy</span><span class="op">(</span><span class="fl">1</span>, <span class="va">location</span>, <span class="va">scale</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]   0.5499148  -2.4904496   5.1293918 -12.6901149   0.4540105  -1.6280435</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]   4.9474819   2.3452264   1.0885857  -1.8131847</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  1.136833615  9.204051106 -2.358070842 -1.849573362  0.953006225</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] -0.005439956  0.715536658  0.826377778 -4.820583192  1.654735475</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -161,7 +161,7 @@ $$</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>
