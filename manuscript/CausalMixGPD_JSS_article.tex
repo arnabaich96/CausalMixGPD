@@ -95,7 +95,7 @@
 \Abstract{
 Heavy-tailed outcomes arise frequently in settings where rare extreme
 events drive risk, cost, or policy decisions.  Parametric models often
-provide adequate descriptions of the distributional center but can
+provide adequate descriptions of the location but can
 mischaracterize tail behavior, whereas fully nonparametric
 approaches lack principled mechanisms for tail extrapolation.  This
 article introduces \pkg{CausalMixGPD}, an \textsf{R} package for
@@ -112,7 +112,7 @@ other tail-sensitive functionals.  The same modeling framework
 additionally supports predictor-dependent clustering under multiple
 kernel families.  Taken together, \pkg{CausalMixGPD} furnishes a
 practical and extensible workflow for heavy-tailed density estimation,
-model-based clustering, and distributional causal reporting.
+model-based clustering, and quantile and tail causal reporting.
 }
 
 \Keywords{Bayesian nonparametrics; Dirichlet Process Mixture; Generalized Pareto Distribution; Extreme Value Theory; Cluster Analysis; Causal Inference; \textsf{R}; \pkg{nimble}}
@@ -131,7 +131,7 @@ model-based clustering, and distributional causal reporting.
 \label{sec:intro}
 
 Causal inference is conventionally summarized through average treatment
-effects, yet many substantive applications demand distributional
+effects, yet many substantive applications demand full-distribution
 comparisons between treatment regimes.  In clinical trials, for
 instance, investigators may wish to characterize how a treatment alters
 outcomes across the entire outcome scale, including effects among
@@ -150,7 +150,7 @@ such as
 and
 \href{https://cran.r-project.org/package=BCEE}{\textsf{BCEE}}
 \citep{bcf_pkg,bartCause_pkg,BCEE_pkg}.  While these tools are
-effective for mean and heterogeneous effect estimation, distributional
+effective for mean and heterogeneous effect estimation, quantile and tail
 reporting poses additional challenges: quantiles estimated
 independently can cross, and tail-focused contrasts require the full
 outcome distribution rather than a collection of marginal summaries.
@@ -241,13 +241,13 @@ three simultaneous capabilities:
 
   \item[(ii)] \textbf{Predictor-dependent clustering:} A dedicated
   clustering framework that models different covariate dependence
-  structure of latent allocation and report label-invariant summaries via
+  structure of latent allocation and reports label-invariant summaries via
   posterior similarity matrices and Dahl representative partitions
   \citep{Binder1978,Dahl2006}.
 
   \item[(iii)] \textbf{Causal estimation via posterior functionals:}
   Treatment-specific outcome distributions are modeled directly via
-  conditional desnity estimation, so that average, restricted-mean,
+  conditional density estimation, so that average, restricted-mean,
   and quantile treatment effects are computed from the fitted distributions in
   both randomized and observational studies, with optional propensity-score
   augmentation in the latter.
@@ -423,7 +423,7 @@ stick-breaking and CRP representations are widely employed for
 posterior simulation in DPM models
 \citep{EscobarWest1995,Neal2000}.  Because DPMs operate without
 prespecifying the number of mixture components and can capture complex
-distributional features such as multimodality, skewness, and
+density features such as multimodality, skewness, and
 heteroscedasticity through appropriate kernel choices, they constitute
 a natural model for the bulk of the conditional distribution where data
 are abundant and complex structure may be present.
@@ -530,7 +530,7 @@ the package whenever the mean exists.
 
 The modeling scheme within the Bayesian nonparametric framework starts with representing the set $\{f(\,\cdot\mid x): x\in\mathcal{X}\}$ using predictor-indexed random probability measures. Within the Dependent Dirichlet Process setting of \citet{MacEachern1999,MacEachern2000}, one assumes a collection $\{G_x: x\in\mathcal{X}\}$ of random mixing measures whose dependence allows borrowing of information in $f(\,\cdot\mid x)$.
 
-In general terms, the model takes form as
+In general terms, the model takes the form
 \begin{equation*}
 f(y\mid x) \;=\; \int k\!\left(y\mid x,\theta\right)\, dG_x(\theta),
 \end{equation*}
@@ -545,7 +545,7 @@ Clustering is thus encoded in the induced partition $\Pi=\{z_1,\ldots,z_n\}$'s p
 \begin{equation*}
 f(y\mid x) \;=\; \sum_{j=1}^{\infty} w_j(x)\, k\!\left(y\mid \theta_j\right).
 \end{equation*}
-One possible way to implement it is to use predictor-dependent stick-breaking \citep{MacEachern2000,Quintana2022}. In particular, stick lengths become regression functions of predictors, with logistic sticks corresponding to logistic regressions mapping to weights \citep{Ren2011}. One could think of such models as practical examples of the DDP framework, in which dependence is introduced through smooth weight variation.
+One implementation uses predictor-dependent stick-breaking \citep{MacEachern2000,Quintana2022}. In particular, stick lengths become regression functions of predictors, with logistic sticks corresponding to logistic regressions mapping to weights \citep{Ren2011}. These models are instances of the DDP framework, in which dependence is introduced through smooth weight variation.
 
 \item \textbf{Parameter dependence only:} Here, dependence arises through predictor-modulated component parameters, while weights remain constant,
 \begin{equation*}
@@ -704,7 +704,7 @@ respective covariate distributions,
 \mu_a^{\mathrm{t}}=\mathrm{E}\bigl\{\mu_a(X)\mid A=1\bigr\}.
 \end{equation*}
 
-The identification of such variables is dependent upon the design of the study. For randomized experiments, randomness and positivity result in exchangeability between treatment assignment and potential outcomes \citep{ImbensRubin2015}. For observational studies, the conditions for identification include the following conditions \citep{RosenbaumRubin1983,ImbensRubin2015}.
+The identification of such estimands depends on the study design. For randomized experiments, randomness and positivity result in exchangeability between treatment assignment and potential outcomes \citep{ImbensRubin2015}. For observational studies, the conditions for identification include the following conditions \citep{RosenbaumRubin1983,ImbensRubin2015}.
 
 \begin{itemize}
 \item \textbf{Stable Unit Treatment Value Assumption (SUTVA):} there
@@ -723,7 +723,7 @@ strictly positive probability of receiving either treatment,
 \end{equation*}
 for all covariate values of interest.
 \end{itemize}
-Under such circumstances, the treatment-specific conditional
+Under these conditions, the treatment-specific conditional
 distributions can be inferred based on the observations as follows:
 \begin{equation*}
 F_a(y\mid x)=\Pr\;(Y\le y\mid A=a,X=x),\qquad a\in\{0,1\}.
@@ -737,7 +737,7 @@ covariates:
 \begin{equation*}
 \rho(x)=\Pr\;(A=1\mid X=x).
 \end{equation*}
-An important characteristic of the true propensity score is that
+A key property of the propensity score is that
 conditioning on it balances the covariates in both treatment groups.
 Following a two-step procedure, the package first obtains an estimate
 of $\rho(x)$ using the data $(A,X)$ alone and then adds the estimated
@@ -811,7 +811,7 @@ fitted to an outcome conditional on covariates. The causal extension augments th
 framework with arm-specific outcome models and an optional propensity
 score augmentation for observational studies.
 Simulated data sets bundled with the package are used throughout to
-demonstrate the principal components; these are accessible via
+illustrate the main features; these are accessible via
 \code{data()}.
 
 \subsection{Spliced Regression model, Likelihood, and Covariate Dependence}
@@ -1154,7 +1154,7 @@ uncertainty bounds. The below code snippet shows the use of
 Quantified conditional causal effects based on user-provided
 covariate profiles can be evaluated by the generic
 \code{predict()} function, which returns the selected summary of the
-output distribution depending on the value of the \code{type}
+posterior predictive outcome distribution depending on the value of the \code{type}
 parameter; the examples below produce survival probabilities at a
 grid of user-defined covariate values covering the empirical quartiles
 of the training variables.
@@ -1179,11 +1179,11 @@ Appendix~\ref{subsec:app-workflows}.
 \section{Data Analysis~I: Clustering}
 \label{sec:app-clustering}
 
-In this section, the procedure is explained for conducting clustering in the context of a conditional mixture model for a bulk-only setting. The goal is to discover clusters amongst the observational units through the use of the fitted mixture model, while simultaneously accounting for uncertainty in the structure of such clusters in a label invariant way. While previously we focused on illustrating how prediction can be conducted through predictive densities in these models, here our interest lies in partition summaries and predicting cluster memberships in out-of-sample data. Important results include the posterior similarity matrix (PSM), a summary of partitions, and cluster memberships of out-of-sample data.
+This section demonstrates clustering under a bulk-only conditional mixture model. The goal is to discover latent subgroups among the observational units using the fitted mixture model, while accounting for partition uncertainty in a label-invariant manner. Unlike the density prediction focus of Section~\ref{sec:overview}, here the interest lies in partition summaries and cluster membership for out-of-sample data. Key outputs include the posterior similarity matrix (PSM), a representative partition, and cluster assignments for held-out observations.
 
 \subsection{Data and preprocessing}
 
-The Boston data set is used in this analysis, where each observation corresponds to a census tract. The response variable used is medv, representing median home prices in each area. Predictors used include the lstat, rm, and nox variables, which represent the level of neighborhood disadvantage, the size of the houses, and pollution levels, respectively. This combination of predictors represents a sensible choice for discovering representative clusters. We are interested in uncovering representative clusters from amongst the data, and predicting which latent clusters held-out census tracts belong to using out-of-sample prediction. A 80\%/20\% train-test split was conducted.
+The Boston data set is used in this analysis, where each observation corresponds to a census tract. The response variable used is medv, representing median home prices in each area. Predictors used include the lstat, rm, and nox variables, which represent the level of neighborhood disadvantage, the size of the houses, and pollution levels, respectively. This combination of predictors constitutes a well-motivated choice for discovering representative clusters. We are interested in uncovering representative clusters from amongst the data, and predicting which latent clusters held-out census tracts belong to using out-of-sample prediction. An 80\%/20\% train-test split was conducted.
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1204,7 +1204,7 @@ The Boston data set is used in this analysis, where each observation corresponds
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-In Figure~\ref{fig:app_cluster_response_panels}, we show the descriptive analyses of the Boston housing price data as represented by the median home value (\code{medv}). The variability in the response variable is quite large, and there seems to be an elongated tail toward higher values. The implication of these observations is that there would be a more accurate model of structure when using a flexible mixture approach, rather than a simple regression.
+In Figure~\ref{fig:app_cluster_response_panels}, we show the descriptive analyses of the Boston housing price data as represented by the median home value (\code{medv}). The variability in the response is substantial, and the distribution exhibits a pronounced upper tail. A flexible mixture model is therefore better suited than a simple regression to capture this structure.
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
@@ -1222,7 +1222,7 @@ In Figure~\ref{fig:app_cluster_response_panels}, we show the descriptive analyse
 
 A bulk only conditional mixture model is applied to the \code{medv}
 dataset with three covariates. When \code{type = "weights"},
-covariates determine the weights of the mixture while the parameters of the components are common across all covariates. This method is helpful for clustering where the occurrence rate of hidden clusters may differ between neighborhoods.
+covariates determine the weights of the mixture while the parameters of the components are common across all covariates. This method is helpful for clustering where the prevalence of latent clusters may differ between neighborhoods.
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1237,8 +1237,8 @@ covariates determine the weights of the mixture while the parameters of the comp
 Since mixture components cannot be identified up to permutation,
 clusters in the training data are represented using the posterior
 similarity matrix and sample training labels. The posterior similarity
-matrix gives the main label-invariant uncertainty summary via its
-storage of posterior co-clustering probabilities.
+matrix gives the main label-invariant uncertainty summary by
+recording posterior co-clustering probabilities.
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1267,7 +1267,7 @@ storage of posterior co-clustering probabilities.
 As seen from Figure~\ref{fig:app_cluster_psm_plot-code}, the PSM
 reveals clear block structure along the diagonal, implying that the
 model can detect multiple sets of tracts whose co-clustering
-possibility is relatively high. While there are clear separations,
+probability is relatively high. While there are clear separations,
 there are still some uncertainties for those tracts on the edge of
 two or more neighboring groups, which reflects reasonable posterior
 uncertainty in a non-experimental housing dataset, since features of
@@ -1366,23 +1366,23 @@ package \code{plot()} method applied to the test labels object.
 
 The expected characteristics of the clusters' profiles are consistent with the interpretation of the representative partition. Cluster C5 contains the wealthiest tracts defined by a high mean house value, low average \code{lstat}, large mean number of rooms, and relatively low pollution. Cluster C1 represents the poorest neighborhoods with a low average house value, significant disadvantages in terms of neighborhood quality, low mean number of rooms, and a high level of pollution. Clusters C2 and C4 represent intermediate cases which show that multiple clusters were detected within the housing market rather than a bimodal distribution with poor and wealthy neighborhoods at its ends.
 
-Predictably, the vast majority of held-out tracts are classified into middle-value clusters (C4 and C2) and there is no tendency for some tract assignments to the cluster representing the low end. This makes sense for the Boston data and confirms that the predictions are not overly affected by the presence of the outliers in the dataset. More significantly, tract assignments in the test set validate the sensible interpretation of the training set partition: tracts that belong to more expensive clusters are characterized by less neighborhood disadvantage, larger homes, and a cleaner environment; while tracts associated with poorer clusters possess the opposite characteristics.
+As expected, the vast majority of held-out tracts are classified into middle-value clusters (C4 and C2) with no tendency toward the low-end cluster. This is consistent with the Boston data, confirming that predictions are not unduly influenced by the outliers in the dataset. Tract assignments in the test set confirm the interpretation of the training-set partition: tracts belonging to more expensive clusters exhibit less neighborhood disadvantage, larger homes, and lower pollution, while tracts in poorer clusters exhibit the opposite characteristics.
 
-This case study provides a perfect illustration of our workflow where the inference was provided in terms of a representative partition and cluster descriptions while the predictive method assigned new observations into those clusters using the probabilistic criteria for membership into the same latent class in the posterior predictive distribution. Representative clusters become even more helpful in this setting because they provide information about the link between clustering uncertainty and the distribution of the response and covariates. In this example, the latent clusters are consistent with the social and environmental gradient quite well which means that the nonparametric mixture model can capture stable patterns despite the heterogeneity of the response distribution. We are moving on to causal comparisons (Section \ref{sec:app-causal}) at this point.
+This case study illustrates the workflow in which inference is summarized through a representative partition and cluster descriptions, and new observations are assigned to those clusters based on posterior predictive membership probabilities. The representative clusters also quantify the relationship between partition uncertainty and the marginal distributions of the response and covariates. The latent clusters align with the socioeconomic and environmental gradient, confirming that the nonparametric mixture recovers stable structure despite heterogeneity in the response. Causal comparisons are taken up in Section~\ref{sec:app-causal}.
 
 
 \section{Data Analysis~II: Causal Inference}
 \label{sec:app-causal}
 
-In this case study, the estimands corresponding to the two-arm spliced distributional regression are described. In contrast to the partition estimation considered in Section \ref{sec:app-clustering}, here, interest lies in mean and quantile differences in terms of both unconditional and conditional causal estimands.
+This section describes the estimands from the two-arm spliced density regression. In contrast to the partition estimation of Section~\ref{sec:app-clustering}, the focus here is on mean and quantile differences for both unconditional and conditional causal estimands.
 
 Data and estimands
 
-In order to demonstrate the estimation of unconditional and conditional causal estimands using the proposed approach, the \code{lalonde} dataset from the \pkg{MatchIt} \textsf{R} package is used for benchmarking purposes. Here, the outcome is the 1978 annual income level measured by \code{re78} (\$), and the treatment indicator equals to the indicator for program participation (variable \code{treat}). The set of covariates includes age, years of schooling, race, marriage status, college degree status, together with previous earning variables: \code{re74} and \code{re75}. It should be emphasized that earnings typically possess considerable skewness, cluster around zero values and have a strong upper tail, which gives motivation for the consideration of distributional summaries instead of mean only.
+To estimate unconditional and conditional causal estimands using the proposed approach, the \code{lalonde} dataset from the \pkg{MatchIt} \textsf{R} package is used for benchmarking. The outcome is the 1978 annual income level measured by \code{re78} (\$), and the treatment indicator corresponds to program participation (variable \code{treat}). Covariates include age, years of schooling, race, marriage status, college degree status, and prior earnings \code{re74} and \code{re75}. Earnings typically exhibit considerable skewness, concentrate near zero, and have a pronounced upper tail, motivating the use of quantile and tail summaries rather than the mean alone.
 
-Estimation of the four causal estimands described in Table \ref{tab:causal-estimands-main} is performed based on Section \ref{subsec:causal}. Standardized versions of causal estimands (ATE, QTE) are averaged across the empirical distribution of \(\{\boldsymbol{x}_i\}_{i=1}^n\), while conditional versions (CATE, CQTE) are estimated for certain individuals.
+The four estimands in Table~\ref{tab:causal-estimands-main} are computed following Section~\ref{subsec:causal}. Standardized estimands (ATE, QTE) are averaged across the empirical distribution of \(\{\boldsymbol{x}_i\}_{i=1}^n\), while conditional estimands (CATE, CQTE) are evaluated at selected covariate profiles.
 
-At first, the required data are loaded, and the design matrix is built for further estimation of causal estimands.
+The data are first loaded and the design matrix constructed.
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1455,15 +1455,14 @@ The bulk kernel $k(\cdot)$ represents a Dirichlet process mixture
 regression with a Chinese restaurant process backbone, while the tail
 density $g(\cdot)$ follows the GPD distribution with positive scale
 $\sigma_a>0$ and tail index $\xi_a$. In our model, the GPD tail index
-$\xi_a$ regulates extremal weight (e.g., if $\xi_a>0$, it indicates a
-heavier tail). Our model mitigates estimation instabilities for extreme
+$\xi_a$ regulates tail heaviness (e.g., if $\xi_a>0$, it indicates a
+heavier tail). Our model mitigates poor finite-sample precision for extreme
 quantiles through nonparametric bulk and EVT-consistent tail modeling.
 
 Here, a two-sample mixture is fitted with the gamma bulk kernel and the
-same MCMC configuration across the analysis. The aim of this analysis is
-not to make any final conclusions but to highlight how the package
-provides standardized and conditional Lalonde earnings contrasts under
-the spliced DPM-GPD framework.
+same MCMC configuration throughout. The aim is not to draw definitive
+conclusions but to demonstrate how the package produces standardized and
+conditional earnings contrasts under the spliced DPM-GPD framework.
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1478,13 +1477,11 @@ the spliced DPM-GPD framework.
 
 \subsection{Posterior summaries}
 
-Before reporting treatment contrasts, it is useful to view the fitted
-causal object as defining two arm-specific outcome distributions from
-which all reported summaries are derived. The value of the framework is
-therefore not limited to a single regression coefficient or scalar
-contrast; instead, mean, quantile, and tail-sensitive causal estimands
-are all obtained as coherent functionals of the same fitted posterior
-distribution.
+The fitted causal object defines two arm-specific outcome distributions
+from which all reported summaries are derived. The framework is therefore
+not limited to a single regression coefficient or scalar contrast; mean,
+quantile, and tail-sensitive causal estimands are all coherent functionals
+of the same fitted posterior distribution.
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1528,8 +1525,8 @@ The posterior ATE estimate is negative on the scaled earnings scale,
 but the corresponding interval includes zero. Thus, after averaging
 over the empirical covariate distribution, the analysis does not
 provide strong evidence of a uniform overall mean effect of the
-training program. This is important because it shows that mean-based
-summaries alone do not yield a decisive conclusion in this application.
+training program. Mean-based summaries alone are therefore insufficient
+to characterize the program effect in this application.
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1561,11 +1558,11 @@ treated-versus-control quantile curves with uncertainty intervals.
 
 \end{knitrout}
 
-Nevertheless, when considering the comparison between the quantiles for the two distributions, it can be noted that the QTEs at the specified quantiles are still negative, which implies that the treatment distribution stands below the control one along the considered parts of the marginal distribution. At the same time, the consideration of the quantile curves of both distributions shows that their deviations cannot be explained just by an average shift but also reflect the heterogeneity of their distribution.
+The QTEs remain negative at the specified quantile levels, indicating that the treatment distribution lies below the control at those points of the marginal distribution. The marginal quantile curves for both arms show that the deviations are not reducible to a location shift but reflect heterogeneity across the outcome distribution.
 
 \subsection{Conditional estimands for representative profiles}
 
-In order to show the heterogeneity of the treatment effect, the conditional estimand is calculated for four covariate profiles representing the whole set of the values of the covariates. The covariate values in the profiles are presented on the actual data scale thanks to the use of sample quantiles for continuous variables and the values observed for categorical covariates. The initial values of the profiles are centered and scaled according to the values of the training set.
+To characterize heterogeneity in the treatment effect, conditional estimands are computed at four representative covariate profiles spanning the observed covariate range. Profile values are expressed on the original data scale, using empirical quantiles for continuous variables and observed levels for categorical variables. Continuous predictors are standardized using training-set means and standard deviations before being passed to the model.
 
 
 
@@ -1638,24 +1635,24 @@ can be read together. The table entries report posterior estimates with
 
 \end{knitrout}
 
-CQTE analysis implies heterogeneity of treatment effects by both profiles and quantile level. On several occasions, the effect of the program for low- and median-quantile contrasts appears to be close to zero or even negative. At the same time, uncertainty about treatment effects is high at the upper quantiles, which is not surprising since upper-quantile contrasts include very few observations and thus are more sensitive to the spliced tail. Overall, the analysis reveals no evidence of any positive effects of the program but only suggests that, if any positive effects occur, they can be profile-specific.
+The CQTE estimates reveal heterogeneity across both covariate profiles and quantile levels. At low and median quantile levels, the estimated program effect is close to zero or negative. Uncertainty about treatment effects is high at the upper quantiles, as upper-quantile contrasts rely on fewer observations and are more sensitive to the spliced tail. The analysis provides no evidence of positive program effects; any such effects, if present, appear confined to specific covariate profiles at upper quantiles.
 
 \subsection{Results and interpretation}
 
-Two main questions that have to be answered in the interpretation of the results concern the general effects of the program (the question of interest here) on the earnings distribution, as well as the differences between effects for different profiles of participants. In this regard, the answer to the first question does not provide anything significant. The average treatment effect is close to zero, and the estimated QTE are negative at lower and mid-quantiles. On the other hand, the second question is answered in somewhat mixed manner – treatment effects are profile-specific, and some CQTE at upper quantiles show a positive effect which seems to be true only for some particular subpopulations.
+Two questions bear on the interpretation: the overall program effect on earnings, and heterogeneity of effects across participant profiles. The first yields no statistically compelling evidence — the average treatment effect is close to zero and the estimated QTE are negative at lower and mid-quantiles. The second yields equivocal findings: treatment effects are profile-specific, and some CQTE at upper quantiles show a positive effect confined to particular subpopulations.
 
-In general, this analysis emphasizes the importance of using distributional analysis in contexts of heavy-tailed data. A simple analysis that concerns only the mean will provide little evidence of a program effect. Meanwhile, QTE summary allows us to observe the heterogeneity of treatment effects.
+This analysis underscores the value of quantile-based methods for heavy-tailed outcomes. A mean-only analysis provides little evidence of a program effect; the QTE, by contrast, reveals heterogeneity in the treatment effect across the outcome distribution.
 
 \section{Discussion}
 \label{sec:discussion}
 
 \pkg{CausalMixGPD} integrates flexible bulk density estimation,
 optional EVT-based tail extrapolation, predictor-dependent clustering,
-and distributional causal inference within a single coherent workflow.
+and quantile and density-level causal inference within a single coherent workflow.
 The same fitted model supports posterior summaries for densities,
 survival curves, analytical means (when they exist), restricted means,
 quantiles, and treatment contrasts, thereby obviating the fragmented
-analysis pipelines often required when heavy tails and distributional
+analysis pipelines often required when heavy tails and density-level
 effects are both of concern.
 
 The package is considerably broader than the spliced examples
@@ -1701,7 +1698,7 @@ confounding.
 \section{Customization of Package and Additional Features}
 \label{sec:appendix-features}
 
-This appendix details the customizable features of the package which provides additional flexiblity to the analysis framework. The objective is to provide a concise guide on customizing the package in terms of model fitting process, manipulating posterior results, customization in specific application case, and other useful functions of \pkg{CausalMixGPD}.
+This appendix details the customizable features of \pkg{CausalMixGPD}. It covers argument-level customization for model fitting, posterior manipulation, and workflow-specific extensions.
 
 \subsection{Model fitting options and prior specifications}
 \label{subsec:app-modeling}
@@ -1753,8 +1750,8 @@ The last appendix section includes a selection of helper functions and
 resources that accompany the main modeling process.
 
 \begin{itemize}
-\item \textbf{Distributional utilities} (\label{subsec:app-distutils}): the package providess the complete \textsf{R}-style \code{d}/\code{p}/\code{q}/\code{r} functions for GPD, Inverse Gaussian, Amoroso Distribution with  every supported kernel mixture, and every spliced kernel mixture and GPD distribution. A typical examples include \code{dgpd()}, \code{dgammamix()}, and \code{dgammamixgpd} which are density functions of
-the GPD, gamma mixture, and spliced gamma mixture with GPD tail, respectively that can be used directly in modeling and posterior manipulation in \pkg{Nimble}. They are particularly useful for prior checking, generating simulations, benchmarking, and other purposes requiring distributional manipulations.
+\item \textbf{Density and quantile utilities} (\label{subsec:app-distutils}): the package provides the complete \textsf{R}-style \code{d}/\code{p}/\code{q}/\code{r} functions for GPD, Inverse Gaussian, Amoroso Distribution with  every supported kernel mixture, and every spliced kernel mixture and GPD distribution. Typical examples include \code{dgpd()}, \code{dgammamix()}, and \code{dgammamixgpd} which are density functions of
+the GPD, gamma mixture, and spliced gamma mixture with GPD tail, respectively that can be used directly in modeling and posterior manipulation in \pkg{Nimble}. They are particularly useful for prior checking, generating simulations, benchmarking, and other purposes requiring density and quantile manipulations.
 
 \item \textbf{Simulators and bundled datasets} (\label{subsec:app-simulation}): functions \code{sim\_bulk\_tail()}, \code{sim\_causal\_qte()}, and \code{sim\_survival\_tail()} provide data generation for reproducible benchmarks for bulk and tail and causal analyses; random number generation seeds are supplied by the \code{seed} argument. The package comes bundled with twelve datasets with unconditional/conditional/causal, positive/real-line, and tail/no-tail designs, each featuring outcomes, covariates, treatment indicators where relevant, metadata, and the true values of interest.
 \item \textbf{Computational considerations} (\label{subsec:app-computation}): large-scale analyses allow the use of \code{parallel\_chains} with \code{workers}, \code{parallel\_arms} for causal fits, \code{chunk\_size} for predicting in parallel chunks, and \code{ndraws\_pred} for sampling from the posterior predictive distribution of parameters. The \code{show\_progress} and \code{quiet} arguments can be used to control progress reporting and compiler verbosity, respectively, while \code{timing = TRUE} saves time spent on each fit for benchmarking purposes.
