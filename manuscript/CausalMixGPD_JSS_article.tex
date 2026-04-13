@@ -29,6 +29,13 @@
 \usepackage{xurl}
 \graphicspath{{./}{manuscript/}{assets/}{figure/}}
 
+%% ---- Reduce vertical whitespace around floats (no content change) ----
+\setlength{\floatsep}{6pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{8pt plus 2pt minus 4pt}
+\setlength{\intextsep}{6pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{4pt plus 2pt minus 2pt}
+\setlength{\belowcaptionskip}{0pt}
+
 %% ---- JSS metadata ----
 \author{Arnab Aich\\Florida State University}
 \title{\pkg{CausalMixGPD}: An \proglang{R} Package for Bayesian Nonparametric Conditional Density Modeling in Causal Inference and Clustering with a Heavy-Tail Extension}
@@ -1195,7 +1202,7 @@ Figure~\ref{fig:app_cluster_response_panels} summarizes the distribution of the 
 \begin{Schunk}
 \begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.84\linewidth]{figure/app_cluster_response_panels-1} 
+{\centering \includegraphics[width=0.82\linewidth]{figure/app_cluster_response_panels-1} 
 
 }
 
@@ -1233,14 +1240,13 @@ recording posterior co-clustering probabilities.
 R> z_train_psm <- predict(fit_clust, type = "psm")
 \end{Sinput}
 \end{Schunk}
-
 \begin{Schunk}
 \begin{Sinput}
 R> plot(z_train_psm, type = "summary")
 \end{Sinput}
 \begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.85\linewidth]{figure/app_cluster_psm_plot-code-1} 
+{\centering \includegraphics[width=0.80\linewidth]{figure/app_cluster_psm_plot-code-1} 
 
 }
 
@@ -1262,7 +1268,6 @@ neighborhoods tend to change gradually rather than abruptly.
 R> z_train_lab <- predict(fit_clust, type = "label")
 \end{Sinput}
 \end{Schunk}
-
 Figure~\ref{fig:app_cluster_overlay} shows the representative training
 cluster summary produced by the package \code{plot()} method applied
 to the training labels object.
@@ -1273,7 +1278,7 @@ R> plot(z_train_lab, type = "summary")
 \end{Sinput}
 \begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.85\linewidth]{figure/app_cluster_overlay-1} 
+{\centering \includegraphics[width=0.80\linewidth]{figure/app_cluster_overlay-1} 
 
 }
 
@@ -1327,14 +1332,13 @@ R> summary(z_test)$cluster_profiles
 4 0.5772723 0.6538571 0.09705227
 \end{Soutput}
 \end{Schunk}
-
 \begin{Schunk}
 \begin{Sinput}
 R> plot(z_test, type = "sizes")
 \end{Sinput}
 \begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.8\linewidth]{figure/app_cluster_test_sizes-1} 
+{\centering \includegraphics[width=0.75\linewidth]{figure/app_cluster_test_sizes-1} 
 
 }
 
@@ -1476,8 +1480,8 @@ of the same fitted posterior distribution.
 
 \begin{Schunk}
 \begin{Soutput}
-   total    ps    con    trt parallel_arms
-1 321.36 17.04 200.05 104.23         FALSE
+   total   ps    con    trt parallel_arms
+1 321.83 17.4 197.87 106.49         FALSE
 \end{Soutput}
 \end{Schunk}
 

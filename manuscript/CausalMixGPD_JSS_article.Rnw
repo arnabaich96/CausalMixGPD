@@ -14,6 +14,13 @@
 \usepackage{xurl}
 \graphicspath{{./}{manuscript/}{assets/}{figure/}}
 
+%% ---- Reduce vertical whitespace around floats (no content change) ----
+\setlength{\floatsep}{6pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{8pt plus 2pt minus 4pt}
+\setlength{\intextsep}{6pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{4pt plus 2pt minus 2pt}
+\setlength{\belowcaptionskip}{0pt}
+
 %% ---- JSS metadata ----
 \author{Arnab Aich\\Florida State University}
 \title{\pkg{CausalMixGPD}: An \proglang{R} Package for Bayesian Nonparametric Conditional Density Modeling in Causal Inference and Clustering with a Heavy-Tail Extension}
@@ -65,143 +72,74 @@ reporting within a common interface.
 \begin{document}
 
 <<setup, include=FALSE, eval=TRUE>>=
-
 manuscript_dir <- local({
-  input_dir <- tryCatch(
-    knitr::current_input(dir = TRUE),
-    error = function(e) ""
-  )
-  candidates <- unique(c(
-    if (nzchar(input_dir)) input_dir,
-    "manuscript",
-    file.path("vignettes", "manuscript"),
-    "."
-  ))
-  for (candidate in candidates) {
-    if (!nzchar(candidate)) {
-      next
+    input_dir <- tryCatch(knitr::current_input(dir = TRUE), error = function(e) "")
+    candidates <- unique(c(if (nzchar(input_dir)) input_dir, "manuscript", file.path("vignettes", 
+        "manuscript"), "."))
+    for (candidate in candidates) {
+        if (!nzchar(candidate)) {
+            next
+        }
+        if (file.exists(file.path(candidate, "CausalMixGPD_JSS_article.Rnw")) && 
+            dir.exists(file.path(candidate, "assets"))) {
+            return(normalizePath(candidate, winslash = "/", mustWork = TRUE))
+        }
     }
-    if (file.exists(file.path(candidate, "CausalMixGPD_JSS_article.Rnw")) &&
-        dir.exists(file.path(candidate, "assets"))) {
-      return(normalizePath(candidate, winslash = "/", mustWork = TRUE))
-    }
-  }
-  stop("Could not locate the manuscript directory from the current working directory.", call. = FALSE)
+    stop("Could not locate the manuscript directory from the current working directory.", 
+        call. = FALSE)
 })
-
 pkg_root <- local({
-  current <- manuscript_dir
-  repeat {
-    desc <- file.path(current, "DESCRIPTION")
-    if (file.exists(desc)) {
-      first_line <- tryCatch(readLines(desc, n = 1L, warn = FALSE), error = function(e) "")
-      if (length(first_line) && grepl("^Package", first_line[[1]])) {
-        return(normalizePath(current, winslash = "/", mustWork = TRUE))
-      }
+    current <- manuscript_dir
+    repeat {
+        desc <- file.path(current, "DESCRIPTION")
+        if (file.exists(desc)) {
+            first_line <- tryCatch(readLines(desc, n = 1L, warn = FALSE), error = function(e) "")
+            if (length(first_line) && grepl("^Package", first_line[[1]])) {
+                return(normalizePath(current, winslash = "/", mustWork = TRUE))
+            }
+        }
+        parent <- dirname(current)
+        if (identical(parent, current)) {
+            break
+        }
+        current <- parent
     }
-    parent <- dirname(current)
-    if (identical(parent, current)) {
-      break
-    }
-    current <- parent
-  }
-  stop("Could not locate the package root containing DESCRIPTION.", call. = FALSE)
+    stop("Could not locate the package root containing DESCRIPTION.", call. = FALSE)
 })
-
 if (requireNamespace("pkgload", quietly = TRUE)) {
-  pkgload::load_all(pkg_root, quiet = TRUE, export_all = FALSE)
+    pkgload::load_all(pkg_root, quiet = TRUE, export_all = FALSE)
 } else if (!requireNamespace("CausalMixGPD", quietly = TRUE)) {
-  stop("Install 'CausalMixGPD' or 'pkgload' before knitting the manuscript.", call. = FALSE)
+    stop("Install 'CausalMixGPD' or 'pkgload' before knitting the manuscript.", 
+        call. = FALSE)
 }
-
 library("CausalMixGPD")
 library("ggplot2")
 library("patchwork")
-
 knitr::render_sweave()
-knitr::opts_knit$set(
-  root.dir = manuscript_dir
-)
+knitr::opts_knit$set(root.dir = manuscript_dir)
 cmgpd_fig_width <- 7
 cmgpd_fig_height <- 4
-cmgpd_cache_path <- paste0(
-  normalizePath(file.path(manuscript_dir, "knitr-cache"), winslash = "/", mustWork = FALSE),
-  "/"
-)
+cmgpd_cache_path <- paste0(normalizePath(file.path(manuscript_dir, "knitr-cache"), 
+    winslash = "/", mustWork = FALSE), "/")
 if (!dir.exists(cmgpd_cache_path)) {
-  dir.create(cmgpd_cache_path, recursive = TRUE, showWarnings = FALSE)
+    dir.create(cmgpd_cache_path, recursive = TRUE, showWarnings = FALSE)
 }
-knitr::opts_chunk$set(
-  fig.width = cmgpd_fig_width,
-  fig.height = cmgpd_fig_height,
-  fig.align = "center",
-  fig.pos = "!htbp",
-  tidy = FALSE,
-  echo = TRUE,
-  eval = FALSE,
-  message = FALSE,
-  warning = FALSE,
-  error = FALSE,
-  tidy.opts = list(width.cutoff = 60),
-  autodep = TRUE,
-  cache = TRUE,
-  cache.path = cmgpd_cache_path
-)
-options(
-  prompt = "R> ",
-  continue = "+  ",
-  width = 65,
-  useFancyQuotes = FALSE,
-  knitr.graphics.rel_path = FALSE
-)
-
-cmgpd_pal <- c(
-  navy = "#183A5A",
-  teal = "#2B6F77",
-  copper = "#B16A3A",
-  gold = "#C59B4D",
-  sage = "#5F7F68",
-  rose = "#A64B5A",
-  slate = "#5C6773",
-  mist = "#D7E3ED"
-)
-
+knitr::opts_chunk$set(fig.width = cmgpd_fig_width, fig.height = cmgpd_fig_height, 
+    fig.align = "center", fig.pos = "!htbp", tidy = FALSE, echo = TRUE, eval = FALSE, 
+    message = FALSE, warning = FALSE, error = FALSE, tidy.opts = list(width.cutoff = 72), 
+    autodep = TRUE, cache = TRUE, cache.path = cmgpd_cache_path)
+options(prompt = "R> ", continue = "+  ", width = 65, useFancyQuotes = FALSE, knitr.graphics.rel_path = FALSE)
+cmgpd_pal <- c(navy = "#183A5A", teal = "#2B6F77", copper = "#B16A3A", gold = "#C59B4D", 
+    sage = "#5F7F68", rose = "#A64B5A", slate = "#5C6773", mist = "#D7E3ED")
 cmgpd_theme <- function(base_size = 14) {
-  ggplot2::theme_minimal(base_size = base_size, base_family = "serif") +
-    ggplot2::theme(
-      plot.title = ggplot2::element_text(
-        face = "bold",
-        colour = cmgpd_pal[["navy"]]
-      ),
-      plot.subtitle = ggplot2::element_text(
-        colour = cmgpd_pal[["slate"]]
-      ),
-      axis.title = ggplot2::element_text(
-        colour = cmgpd_pal[["navy"]]
-      ),
-      axis.text = ggplot2::element_text(
-        colour = cmgpd_pal[["slate"]]
-      ),
-      legend.title = ggplot2::element_text(
-        face = "bold",
-        colour = cmgpd_pal[["navy"]]
-      ),
-      legend.text = ggplot2::element_text(
-        colour = cmgpd_pal[["slate"]]
-      ),
-      legend.position = "top",
-      panel.grid.minor = ggplot2::element_blank(),
-      panel.grid.major.x = ggplot2::element_blank()
-    )
+    ggplot2::theme_minimal(base_size = base_size, base_family = "serif") + ggplot2::theme(plot.title = ggplot2::element_text(face = "bold", 
+        colour = cmgpd_pal[["navy"]]), plot.subtitle = ggplot2::element_text(colour = cmgpd_pal[["slate"]]), 
+        axis.title = ggplot2::element_text(colour = cmgpd_pal[["navy"]]), axis.text = ggplot2::element_text(colour = cmgpd_pal[["slate"]]), 
+        legend.title = ggplot2::element_text(face = "bold", colour = cmgpd_pal[["navy"]]), 
+        legend.text = ggplot2::element_text(colour = cmgpd_pal[["slate"]]), legend.position = "top", 
+        panel.grid.minor = ggplot2::element_blank(), panel.grid.major.x = ggplot2::element_blank())
 }
-
-mcmc_fixed <- list(
-  niter = 2000,
-  nburnin = 500,
-  thin = 1,
-  nchains = 1,
-  seed = 2026
-)
+mcmc_fixed <- list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 2026)
 @
 
 \section{Introduction}
@@ -416,59 +354,25 @@ u(x)+\dfrac{\sigma(x)}{\xi}\Bigl((1-\tau)^{-\xi}-1\Bigr), & \xi\neq 0,
 \end{equation*}
 
 <<gpdDensityFigure-build, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, include=FALSE>>=
-
-u <- 2.0
+u <- 2
 y <- seq(u, u + 5, length.out = 500)
 sigma <- 1.2
-xi_vals <- c(-0.5, 0.0, 0.5)
+xi_vals <- c(-0.5, 0, 0.5)
 xi_legend_levels <- sprintf("xi==%.2f", xi_vals)
-
-gpd_df <- do.call(
-  rbind,
-  lapply(xi_vals, function(xi) {
-    data.frame(
-      y = y,
-      density = dgpd(y, threshold = u, scale = sigma, shape = xi),
-      xi = factor(sprintf("xi==%.2f", xi), levels = xi_legend_levels)
-    )
-  })
-)
+gpd_df <- do.call(rbind, lapply(xi_vals, function(xi) {
+    data.frame(y = y, density = dgpd(y, threshold = u, scale = sigma, shape = xi), 
+        xi = factor(sprintf("xi==%.2f", xi), levels = xi_legend_levels))
+}))
 gpd_df <- gpd_df[is.finite(gpd_df$density), , drop = FALSE]
-
-gpd_density_plot <- ggplot(gpd_df, aes(x = y, y = density, color = xi)) +
-  geom_line(linewidth = 0.9) +
-  geom_vline(
-    xintercept = u,
-    linetype = "dashed",
-    linewidth = 0.7,
-    color = cmgpd_pal[["slate"]]
-  ) +
-  annotate(
-    "text",
-    x = u + 0.05,
-    y = 0.2,
-    label = "threshold",
-    hjust = 0,
-    vjust = 1.5,
-    size = 4.1,
-    color = cmgpd_pal[["slate"]]
-  ) +
-  scale_color_manual(
-    values = c(cmgpd_pal[["sage"]], cmgpd_pal[["navy"]], cmgpd_pal[["copper"]]),
-    labels = scales::label_parse()
-  ) +
-  labs(
-    title = "Generalized Pareto tail density by shape parameter",
-    x = "Outcome y",
-    y = "Density",
-    color = NULL
-  ) +
-  cmgpd_theme(base_size = 14) +
-  theme(
-    legend.text = element_text(size = 13),
-    legend.key.width = grid::unit(1.1, "cm"),
-    legend.key.height = grid::unit(0.6, "cm")
-  )
+gpd_density_plot <- ggplot(gpd_df, aes(x = y, y = density, color = xi)) + geom_line(linewidth = 0.9) + 
+    geom_vline(xintercept = u, linetype = "dashed", linewidth = 0.7, color = cmgpd_pal[["slate"]]) + 
+    annotate("text", x = u + 0.05, y = 0.2, label = "threshold", hjust = 0, vjust = 1.5, 
+        size = 4.1, color = cmgpd_pal[["slate"]]) + scale_color_manual(values = c(cmgpd_pal[["sage"]], 
+    cmgpd_pal[["navy"]], cmgpd_pal[["copper"]]), labels = scales::label_parse()) + 
+    labs(title = "Generalized Pareto tail density by shape parameter", x = "Outcome y", 
+        y = "Density", color = NULL) + cmgpd_theme(base_size = 14) + theme(legend.text = element_text(size = 13), 
+    legend.key.width = grid::unit(1.1, "cm"), legend.key.height = grid::unit(0.6, 
+        "cm"))
 @
 
 <<gpdDensityFigure-plot, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=7.0, fig.height=4.0, out.width='0.76\\linewidth', fig.pos='!htbp', fig.cap='Generalized Pareto distribution (GPD) density above a fixed threshold $u=2$ with scale $\\sigma=1.2$ and three values of the shape parameter, $\\xi\\in\\{-0.5,\\,0,\\,0.5\\}$. The dashed vertical line marks the threshold $u$.'>>=
@@ -602,99 +506,32 @@ quantile.
 
 <<splicedDensityFigure-build, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, include=FALSE>>=
 y <- seq(0, 30, length.out = 900)
-
-f_single <- dgammamix(
-  y,
-  w = c(1),
-  shape = c(6),
-  scale = c(1)
-)
-
+f_single <- dgammamix(y, w = c(1), shape = c(6), scale = c(1))
 w_bulk <- c(0.6, 0.4)
 shape_mix <- c(12, 16)
 scale_mix <- c(0.3, 0.8)
-f_bulk_mix <- dgammamix(
-  y,
-  w = w_bulk,
-  shape = shape_mix,
-  scale = scale_mix
-)
-
-u80 <- qgammamix(
-  0.80,
-  w = w_bulk,
-  shape = shape_mix,
-  scale = scale_mix
-)
-
-tail_scale <- 2.0
+f_bulk_mix <- dgammamix(y, w = w_bulk, shape = shape_mix, scale = scale_mix)
+u80 <- qgammamix(0.8, w = w_bulk, shape = shape_mix, scale = scale_mix)
+tail_scale <- 2
 tail_shape <- 0.25
-f_mix_gpd <- dgammamixgpd(
-  y,
-  w = w_bulk,
-  shape = shape_mix,
-  scale = scale_mix,
-  threshold = u80,
-  tail_scale = tail_scale,
-  tail_shape = tail_shape
-)
-
-spliced_df <- rbind(
-  data.frame(y = y, density = f_single, component = "Gamma"),
-  data.frame(y = y, density = f_bulk_mix, component = "Gamma mix"),
-  data.frame(y = y, density = f_mix_gpd, component = "Gamma mix + GPD")
-)
-spliced_df$component <- factor(
-  spliced_df$component,
-  levels = c(
-    "Gamma",
-    "Gamma mix",
-    "Gamma mix + GPD"
-  )
-)
-
+f_mix_gpd <- dgammamixgpd(y, w = w_bulk, shape = shape_mix, scale = scale_mix, 
+    threshold = u80, tail_scale = tail_scale, tail_shape = tail_shape)
+spliced_df <- rbind(data.frame(y = y, density = f_single, component = "Gamma"), 
+    data.frame(y = y, density = f_bulk_mix, component = "Gamma mix"), data.frame(y = y, 
+        density = f_mix_gpd, component = "Gamma mix + GPD"))
+spliced_df$component <- factor(spliced_df$component, levels = c("Gamma", "Gamma mix", 
+    "Gamma mix + GPD"))
 ylab <- 0.92 * max(spliced_df$density, na.rm = TRUE)
-
-spliced_density_plot <- ggplot(spliced_df, aes(x = y, y = density, color = component, linetype = component)) +
-  geom_line(linewidth = 0.95) +
-  geom_vline(
-    xintercept = u80,
-    linetype = "solid",
-    linewidth = 0.7,
-    color = cmgpd_pal[["gold"]]
-  ) +
-  annotate(
-    "text",
-    x = u80 + 0.13,
-    y = ylab,
-    label = "Threshold",
-    hjust = 0,
-    size = 5,
-    fontface = "bold",
-    color = cmgpd_pal[["slate"]]
-  ) +
-  scale_color_manual(values = c(
-    "Gamma" = cmgpd_pal[["sage"]],
-    "Gamma mix" = cmgpd_pal[["navy"]],
-    "Gamma mix + GPD" = cmgpd_pal[["gold"]]
-  )) +
-  scale_linetype_manual(values = c(
-    "Gamma" = "solid",
-    "Gamma mix" = "longdash",
-    "Gamma mix + GPD" = "dotdash"
-  )) +
-  labs(
-    title = "Density comparison",
-    x = "Outcome y",
-    y = "Density",
-    color = NULL,
-    linetype = NULL
-  ) +
-  cmgpd_theme(base_size = 14) +
-  theme(
-    legend.box = "vertical",
-    legend.spacing.y = grid::unit(0.05, "cm")
-  )
+spliced_density_plot <- ggplot(spliced_df, aes(x = y, y = density, color = component, 
+    linetype = component)) + geom_line(linewidth = 0.95) + geom_vline(xintercept = u80, 
+    linetype = "solid", linewidth = 0.7, color = cmgpd_pal[["gold"]]) + annotate("text", 
+    x = u80 + 0.13, y = ylab, label = "Threshold", hjust = 0, size = 5, fontface = "bold", 
+    color = cmgpd_pal[["slate"]]) + scale_color_manual(values = c(Gamma = cmgpd_pal[["sage"]], 
+    `Gamma mix` = cmgpd_pal[["navy"]], `Gamma mix + GPD` = cmgpd_pal[["gold"]])) + 
+    scale_linetype_manual(values = c(Gamma = "solid", `Gamma mix` = "longdash", 
+        `Gamma mix + GPD` = "dotdash")) + labs(title = "Density comparison", x = "Outcome y", 
+    y = "Density", color = NULL, linetype = NULL) + cmgpd_theme(base_size = 14) + 
+    theme(legend.box = "vertical", legend.spacing.y = grid::unit(0.05, "cm"))
 @
 
 <<splicedDensityFigure-plot, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=7.0, fig.height=4.0, out.width='0.76\\linewidth', fig.pos='!htbp', fig.cap='Three density curves on the same axes: a single-component gamma density (solid), a two-component gamma mixture density (long-dash), and a spliced gamma-mixture-plus-GPD density (dot-dash) with GPD tail scale $2.0$ and shape $0.25$. The vertical line marks the splice threshold, set at the 80th percentile of the two-component gamma bulk mixture.'>>=
@@ -962,71 +799,40 @@ treatment-specific distributions. Figure~\ref{fig:causalEstimandFigure-plot} dep
 
 <<causalEstimandFigure-build, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, include=FALSE>>=
 y_seq <- seq(0, 40, length.out = 1000)
-
-w0 <- c(0.55, 0.45); shape0 <- c(9, 16); scale0 <- c(0.42, 0.52)
+w0 <- c(0.55, 0.45)
+shape0 <- c(9, 16)
+scale0 <- c(0.42, 0.52)
 thr0 <- qgammamix(0.85, w = w0, shape = shape0, scale = scale0)
-f0_vals <- dgammamixgpd(
-  y_seq, w = w0, shape = shape0, scale = scale0,
-  threshold = thr0, tail_scale = 1.4, tail_shape = 0.18
-)
-
-w1 <- c(0.45, 0.55); shape1 <- c(11, 20); scale1 <- c(0.52, 0.72)
+f0_vals <- dgammamixgpd(y_seq, w = w0, shape = shape0, scale = scale0, threshold = thr0, 
+    tail_scale = 1.4, tail_shape = 0.18)
+w1 <- c(0.45, 0.55)
+shape1 <- c(11, 20)
+scale1 <- c(0.52, 0.72)
 thr1 <- qgammamix(0.85, w = w1, shape = shape1, scale = scale1)
-f1_vals <- dgammamixgpd(
-  y_seq, w = w1, shape = shape1, scale = scale1,
-  threshold = thr1, tail_scale = 2.0, tail_shape = 0.28
-)
-
+f1_vals <- dgammamixgpd(y_seq, w = w1, shape = shape1, scale = scale1, threshold = thr1, 
+    tail_scale = 2, tail_shape = 0.28)
 dy <- diff(y_seq[1:2])
 F0 <- pmin(cumsum(f0_vals) * dy, 1)
 F1 <- pmin(cumsum(f1_vals) * dy, 1)
-tau_q <- 0.90
+tau_q <- 0.9
 q0_90 <- y_seq[which.min(abs(F0 - tau_q))]
 q1_90 <- y_seq[which.min(abs(F1 - tau_q))]
-
-arm_df <- rbind(
-  data.frame(y = y_seq, density = f0_vals, arm = "Control (a = 0)"),
-  data.frame(y = y_seq, density = f1_vals, arm = "Treated (a = 1)")
-)
+arm_df <- rbind(data.frame(y = y_seq, density = f0_vals, arm = "Control (a = 0)"), 
+    data.frame(y = y_seq, density = f1_vals, arm = "Treated (a = 1)"))
 arm_df$arm <- factor(arm_df$arm, levels = c("Control (a = 0)", "Treated (a = 1)"))
-
 ymax_annot <- 0.88 * max(arm_df$density, na.rm = TRUE)
-
-causal_estimand_plot <- ggplot(arm_df, aes(x = y, y = density, color = arm, linetype = arm)) +
-  geom_line(linewidth = 0.95) +
-  geom_vline(
-    xintercept = q0_90, linetype = "dotted", linewidth = 0.7,
-    color = cmgpd_pal[["teal"]]
-  ) +
-  geom_vline(
-    xintercept = q1_90, linetype = "dotted", linewidth = 0.7,
-    color = cmgpd_pal[["copper"]]
-  ) +
-  annotate(
-    "segment",
-    x = q0_90, xend = q1_90,
-    y = ymax_annot, yend = ymax_annot,
-    arrow = grid::arrow(ends = "both", length = grid::unit(0.18, "cm"), type = "closed"),
-    color = cmgpd_pal[["slate"]], linewidth = 0.7
-  ) +
-  annotate(
-    "text",
-    x = (q0_90 + q1_90) / 2, y = ymax_annot,
-    label = sprintf("CQTE(0.9~'|'~x) == %.1f", q1_90 - q0_90),
-    parse = TRUE, vjust = -0.5, size = 3.8, color = cmgpd_pal[["slate"]]
-  ) +
-  scale_color_manual(
-    values = c(cmgpd_pal[["teal"]], cmgpd_pal[["copper"]])
-  ) +
-  scale_linetype_manual(values = c("solid", "longdash")) +
-  labs(
-    title = "Treatment-specific conditional densities and QTE",
-    x = "Outcome y",
-    y = "Density",
-    color = NULL,
-    linetype = NULL
-  ) +
-  cmgpd_theme(base_size = 14)
+causal_estimand_plot <- ggplot(arm_df, aes(x = y, y = density, color = arm, linetype = arm)) + 
+    geom_line(linewidth = 0.95) + geom_vline(xintercept = q0_90, linetype = "dotted", 
+    linewidth = 0.7, color = cmgpd_pal[["teal"]]) + geom_vline(xintercept = q1_90, 
+    linetype = "dotted", linewidth = 0.7, color = cmgpd_pal[["copper"]]) + annotate("segment", 
+    x = q0_90, xend = q1_90, y = ymax_annot, yend = ymax_annot, arrow = grid::arrow(ends = "both", 
+        length = grid::unit(0.18, "cm"), type = "closed"), color = cmgpd_pal[["slate"]], 
+    linewidth = 0.7) + annotate("text", x = (q0_90 + q1_90)/2, y = ymax_annot, 
+    label = sprintf("CQTE(0.9~'|'~x) == %.1f", q1_90 - q0_90), parse = TRUE, vjust = -0.5, 
+    size = 3.8, color = cmgpd_pal[["slate"]]) + scale_color_manual(values = c(cmgpd_pal[["teal"]], 
+    cmgpd_pal[["copper"]])) + scale_linetype_manual(values = c("solid", "longdash")) + 
+    labs(title = "Treatment-specific conditional densities and QTE", x = "Outcome y", 
+        y = "Density", color = NULL, linetype = NULL) + cmgpd_theme(base_size = 14)
 @
 
 <<causalEstimandFigure-plot, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=7.0, fig.height=4.0, out.width='0.76\\linewidth', fig.pos='!htbp', fig.cap='Two arm-specific conditional outcome densities $f_a(y\\mid x)$, $a\\in\\{0,1\\}$, at a representative covariate profile $x$ under a spliced gamma-mixture-plus-GPD model: control arm ($a=0$, solid) and treated arm ($a=1$, long-dash). Dotted vertical lines mark the 90th conditional quantiles $Q_0(0.9\\mid x)$ and $Q_1(0.9\\mid x)$, and the double-headed arrow connects them, labelled with the conditional quantile treatment effect $\\mathrm{CQTE}(0.9\\mid x)=Q_1(0.9\\mid x)-Q_0(0.9\\mid x)$.'>>=
@@ -1123,7 +929,7 @@ section use the MCMC sampling options shown below;
 longer sampling and multiple chains are encouraged in applied settings.
 
 <<overview-mcmc-settings, echo=TRUE, eval=TRUE>>=
-data.frame(mcmc_fixed,row.names = NULL)
+data.frame(mcmc_fixed, row.names = NULL)
 @
 
 The single-arm splicing approach can be performed by passing a
@@ -1137,11 +943,8 @@ argument selects the bulk mixture kernel, \code{components}
 controls the number of components, and \code{mcmc} sets sampling
 
 <<overview-fit-model1, echo=TRUE, eval=FALSE>>=
-fit <- dpmgpd(
-  formula = y ~ x1 + x2 + x3,
-  data = dat,
-  mcmc = mcmc_fixed
-)
+fit <- dpmgpd(formula = y ~ x1 + x2 + x3, data = dat, backend = "crp", kernel = "gamma", 
+    mcmc = mcmc_fixed)
 @
 
 Given the spliced density in~\eqref{eq:splice_pdf}, the likelihood is given by
@@ -1174,11 +977,8 @@ mixture over the bulk alone.  A convenience interface to this bulk-only
 model is provided by the \code{dpmix()} wrapper.
 
 <<overview-fit-model2, echo=TRUE, eval=FALSE>>=
-fit <- dpmix(
-  formula = y ~ x1 + x2 + x3,
-  data = dat,
-  mcmc = mcmc_fixed
-)
+fit <- dpmix(formula = y ~ x1 + x2 + x3, data = dat, backend = "crp", kernel = "gamma", 
+    mcmc = mcmc_fixed)
 @
 
 Prior distributions for $\Theta$ and $\Phi$ can be specified by the
@@ -1204,11 +1004,7 @@ posterior summaries, \code{plot()} for standard MCMC diagnostics, and
 <<overview-fit-diagnostics, echo=TRUE, eval=FALSE>>=
 summary(fit)  # posterior summaries for parameters and functionals
 params(fit)   # extract MCMC samples for parameters and functionals
-plot(
-  fit,
-  family = "traceplot",
-  params = "alpha"
-)  # traceplot for concentration parameter
+plot(fit, family = "traceplot", params = "alpha")  # traceplot for concentration parameter
 plot(fit, family = "auto")  # automatic selection of diagnostic plots
 @
 
@@ -1244,14 +1040,8 @@ Predictions at new covariate values are obtained by calling
 same structure as the training data.
 
 <<overview-predict-quantile-prep, echo=TRUE, eval=FALSE>>=
-x_new <- as.data.frame(
-  lapply(
-    dat[, c("x1", "x2", "x3")],
-    quantile,
-    probs = c(0.25, 0.50, 0.75),
-    na.rm = TRUE
-  )
-)
+x_new <- as.data.frame(lapply(dat[, c("x1", "x2", "x3")], quantile, probs = c(0.25, 
+    0.5, 0.75), na.rm = TRUE))
 y_grid <- seq(0, 10, length.out = 200)
 @
 
@@ -1275,20 +1065,8 @@ definitions discussed previously, whereas Section~\ref{subsec:app-fitting} summa
 interval, and diagnostic interfaces.
 
 <<overview-predict-quantile, echo=TRUE, eval=FALSE>>=
-predict(
-  fit,
-  newdata = x_new,
-  y = y_grid,
-  type = "survival",
-  level = 0.95
-)
-predict(
-  fit,
-  newdata = x_new,
-  type = "quantile",
-  index = c(0.5, 0.99),
-  interval = "credible"
-)
+predict(fit, newdata = x_new, y = y_grid, type = "survival", level = 0.95)
+predict(fit, newdata = x_new, type = "quantile", index = c(0.5, 0.99), interval = "credible")
 @
 
 
@@ -1298,25 +1076,16 @@ predict(
 
 <<cluster_example_data, echo=TRUE, eval=FALSE>>=
 data("nc_realX100_p3_k2", package = "CausalMixGPD")
-dat_cl <- data.frame(
-  y = nc_realX100_p3_k2$y[1:100],
-  nc_realX100_p3_k2$X[1:100, ]
-)
+dat_cl <- data.frame(y = nc_realX100_p3_k2$y, nc_realX100_p3_k2$X)
 @
 Under the clustering approach, the fitted mixture is regarded as a latent partition, and the output is cluster summaries.  For a mixture model without the optional GPD tail, the function \code{dpmix.cluster()} is called to perform clustering; otherwise, \code{dpmgpd.cluster()} is used, with predictor dependence introduced via weights, mixture parameters, or both.  Since labels assigned to components are arbitrary, the primary results include label-free summaries of the fitted mixture, namely the posterior similarity matrix (PSM), the representative partition, the number of clusters, and the cluster assignment scores
 \citep{Binder1978,Dahl2006}.  The same prediction interface \code{predict()} can produce cluster labels for training observations or assign clusters to new observations.
 
-The code block below demonstrates how to fit a clustering model with covariates affecting mixture parameters, by setting \code{type = "param"}.
+The code block below demonstrates how to fit a clustering model with covariates affecting both mixture weights and component parameters, by setting \code{type = "both"}.
 
 <<cluster_example_fit, echo=TRUE, eval=FALSE>>=
-fit_cluster <- dpmix.cluster(
-  y ~ x1 + x2 + x3,
-  data = dat_cl[1:100, ],
-  kernel = "laplace",
-  type = "both",
-  components = 10,
-  mcmc = mcmc_fixed
-)
+fit_cluster <- dpmix.cluster(y ~ x1 + x2 + x3, data = dat_cl[1:90, ], kernel = "laplace", 
+    type = "both", components = 10, mcmc = mcmc_fixed)
 @
 
 The function \code{predict()} accepts two types of predictions: posterior similarity matrix or cluster labels, determined by the \code{type} argument.
@@ -1328,11 +1097,7 @@ predict(fit_cluster, type = "psm")
 Cluster labels of new observations, along with corresponding assignment scores, are calculated as follows.
 
 <<cluster_label_new, eval=FALSE>>=
-predict(
-  fit_cluster,
-  newdata = dat_cl[101:110, ],
-  type = "label"
-)
+predict(fit_cluster, newdata = dat_cl[91:100, ], type = "label")
 @
 
 In Section~\ref{subsec:clustering-theory}, we mentioned that the software supports three types of dependence and evaluates clustering performance based on PSM summaries and representative partitions.
@@ -1375,7 +1140,7 @@ variable, and covariates.
 <<overview-causal-data, echo=FALSE, eval=FALSE>>=
 data("causal_pos500_p3_k2", package = "CausalMixGPD")
 causal_dat <- causal_pos500_p3_k2
-causal_df  <- data.frame(y = causal_dat$y, A = causal_dat$A, causal_dat$X)
+causal_df <- data.frame(y = causal_dat$y, A = causal_dat$A, causal_dat$X)
 @
 
 The invocation of \code{dpmgpd.causal()} trains spliced mixture
@@ -1386,19 +1151,9 @@ parameters controlling the PS model (\code{PS}, \code{ps\_scale},
 outcome and PS components (\code{mcmc\_outcome}, \code{mcmc\_ps}).
 
 <<overview-causal-fit-model, echo=TRUE, eval=FALSE>>=
-causal_fit <- dpmgpd.causal(
-  formula = y ~ x1 + x2 + x3,
-  data = causal_df,
-  treat = "A",
-  backend = "crp",
-  kernel = "laplace",
-  components = 5,
-  PS = "logit",
-  ps_scale = "logit",
-  ps_summary = "mean",
-  mcmc_outcome = mcmc_fixed,
-  mcmc_ps = mcmc_fixed
-)
+causal_fit <- dpmgpd.causal(formula = y ~ x1 + x2 + x3, data = causal_df, treat = "A", 
+    backend = "crp", kernel = "laplace", components = 5, PS = "logit", ps_scale = "logit", 
+    ps_summary = "mean", mcmc_outcome = mcmc_fixed, mcmc_ps = mcmc_fixed)
 @
 
 Estimated population-averaged quantities are computed using the
@@ -1412,13 +1167,9 @@ uncertainty bounds. The below code snippet shows the use of
 \code{qtt()} to compute treated population effects.
 
 <<overview-causal-effects, echo=TRUE, eval=FALSE>>=
-qtt <- qtt(
-  causal_fit,
-  probs = c(0.50, 0.90, 0.95),
-  interval = "credible"
-)
-summary(qtt)
-plot(qtt, type = "effect")
+qtt_fit <- qtt(causal_fit, probs = c(0.5, 0.9, 0.95), interval = "credible")
+summary(qtt_fit)
+plot(qtt_fit, type = "effect")
 @
 
 Quantified conditional causal effects based on user-provided
@@ -1430,17 +1181,12 @@ grid of user-defined covariate values covering the empirical quartiles
 of the training variables.
 
 <<overview-causal-predict-contrast-prep, echo=FALSE, eval=FALSE>>=
-causal_xgrid <- expand.grid(lapply(causal_df[c("x1", "x2", "x3")],
-  quantile, probs = c(0.25, 0.50, 0.75)))
+causal_xgrid <- expand.grid(lapply(causal_df[c("x1", "x2", "x3")], quantile, probs = c(0.25, 
+    0.5, 0.75)))
 @
 
 <<overview-causal-predict-contrast, echo=TRUE, eval=FALSE>>=
-predict(
-  causal_fit,
-  newdata = causal_xgrid,
-  type = "survival",
-  y = rep(4, nrow(causal_xgrid))
-)
+predict(causal_fit, newdata = causal_xgrid, type = "survival", y = rep(4, nrow(causal_xgrid)))
 @
 The corresponding bulk-only version is \code{dpmix.causal()},
 where the causal estimand and prediction remain unchanged without
@@ -1462,66 +1208,26 @@ The Boston data set is used in this analysis, where each observation corresponds
 <<app_cluster_data, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
 library("CausalMixGPD")
 library("MASS")
-
 set.seed(123)
 data("Boston", package = "MASS")
-
 dat <- Boston
 dat <- subset(dat, select = c(medv, lstat, rm, nox))
-
 n <- nrow(dat)
-idx_train <- sample(
-  seq_len(n),
-  size = floor(0.80 * n),
-  replace = FALSE
-)
+idx_train <- sample(seq_len(n), size = floor(0.8 * n), replace = FALSE)
 train_dat <- dat[idx_train, ]
-test_dat  <- dat[-idx_train, ]
+test_dat <- dat[-idx_train, ]
 @
 Figure~\ref{fig:app_cluster_response_panels} summarizes the distribution of the Boston housing response, median home value (\code{medv}). The variability in the response is substantial, and the distribution exhibits a pronounced upper tail. These features motivate a flexible distributional model rather than relying only on a simple mean-regression specification.
 
-<<app_cluster_response_panels, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=10, fig.height=4.8, out.width='0.84\\linewidth', fig.pos='!htbp', fig.cap='Full-sample distribution of median house values (\\code{medv}, in thousands of US dollars) for the $506$ census tracts in the \\code{MASS::Boston} data set. Left panel: boxplot with upper outliers highlighted. Right panel: density-scaled histogram on the same variable.'>>=
-app_cluster_plot_df <- data.frame(
-  medv = dat$medv,
-  sample = "All tracts"
-)
-
-app_cluster_box_plot <- ggplot(
-  app_cluster_plot_df,
-  aes(x = sample, y = medv)
-) +
-  geom_boxplot(
-    width = 0.45,
-    fill = cmgpd_pal[["mist"]],
-    colour = cmgpd_pal[["navy"]],
-    outlier.colour = cmgpd_pal[["rose"]],
-    outlier.alpha = 0.85
-  ) +
-  labs(
-    title = "House prices: boxplot",
-    x = NULL,
-    y = "medv"
-  ) +
-  cmgpd_theme(base_size = 12) +
-  theme(legend.position = "none")
-
-app_cluster_hist_plot <- ggplot(
-  app_cluster_plot_df,
-  aes(x = medv, y = after_stat(density))
-) +
-  geom_histogram(
-    bins = 30,
-    fill = cmgpd_pal[["mist"]],
-    colour = "white",
-    linewidth = 0.25
-  ) +
-  labs(
-    title = "House prices: histogram",
-    x = "medv",
-    y = "Density"
-  ) +
-  cmgpd_theme(base_size = 12)
-
+<<app_cluster_response_panels, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=10, fig.height=3.8, out.width='0.82\\linewidth', fig.pos='!htbp', fig.cap='Full-sample distribution of median house values (\\code{medv}, in thousands of US dollars) for the $506$ census tracts in the \\code{MASS::Boston} data set. Left panel: boxplot with upper outliers highlighted. Right panel: density-scaled histogram on the same variable.'>>=
+app_cluster_plot_df <- data.frame(medv = dat$medv, sample = "All tracts")
+app_cluster_box_plot <- ggplot(app_cluster_plot_df, aes(x = sample, y = medv)) + 
+    geom_boxplot(width = 0.45, fill = cmgpd_pal[["mist"]], colour = cmgpd_pal[["navy"]], 
+        outlier.colour = cmgpd_pal[["rose"]], outlier.alpha = 0.85) + labs(title = "House prices: boxplot", 
+    x = NULL, y = "medv") + cmgpd_theme(base_size = 12) + theme(legend.position = "none")
+app_cluster_hist_plot <- ggplot(app_cluster_plot_df, aes(x = medv, y = after_stat(density))) + 
+    geom_histogram(bins = 30, fill = cmgpd_pal[["mist"]], colour = "white", linewidth = 0.25) + 
+    labs(title = "House prices: histogram", x = "medv", y = "Density") + cmgpd_theme(base_size = 12)
 app_cluster_box_plot + app_cluster_hist_plot + plot_layout(ncol = 2)
 @
 
@@ -1532,14 +1238,8 @@ dataset with three covariates. When \code{type = "weights"},
 covariates determine the weights of the mixture while the parameters of the components are common across all covariates. This method is helpful for clustering where the prevalence of latent clusters may differ between neighborhoods.
 
 <<app_cluster_fit-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
-fit_clust <- dpmix.cluster(
-  formula = medv ~ lstat + rm + nox,
-  data = train_dat,
-  kernel = "normal",
-  type = "weights",
-  components = 10,
-  mcmc = mcmc_fixed
-)
+fit_clust <- dpmix.cluster(formula = medv ~ lstat + rm + nox, data = train_dat, 
+    kernel = "normal", type = "weights", components = 10, mcmc = mcmc_fixed)
 @
 
 Since mixture components cannot be identified up to permutation,
@@ -1551,8 +1251,7 @@ recording posterior co-clustering probabilities.
 <<app_cluster_psm-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
 z_train_psm <- predict(fit_clust, type = "psm")
 @
-
-<<app_cluster_psm_plot-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=8, fig.height=5.5, out.width='0.85\\linewidth', fig.pos='!htbp', fig.cap='Posterior similarity matrix (PSM) summary for the Boston training sample, returned by \\code{plot(predict(fit\\_clust, type = "psm"), type = "summary")}. Each cell $(i,\\ell)$ encodes the posterior co-clustering probability $\\Pr(z_i=z_\\ell\\mid\\text{data})$, with rows and columns ordered to expose block structure. Darker shading corresponds to higher co-clustering probability.'>>=
+<<app_cluster_psm_plot-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=8, fig.height=4.5, out.width='0.80\\linewidth', fig.pos='!htbp', fig.cap='Posterior similarity matrix (PSM) summary for the Boston training sample, returned by \\code{plot(predict(fit\\_clust, type = "psm"), type = "summary")}. Each cell $(i,\\ell)$ encodes the posterior co-clustering probability $\\Pr(z_i=z_\\ell\\mid\\text{data})$, with rows and columns ordered to expose block structure. Darker shading corresponds to higher co-clustering probability.'>>=
 plot(z_train_psm, type = "summary")
 @
 
@@ -1568,12 +1267,11 @@ neighborhoods tend to change gradually rather than abruptly.
 <<app_cluster_label-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
 z_train_lab <- predict(fit_clust, type = "label")
 @
-
 Figure~\ref{fig:app_cluster_overlay} shows the representative training
 cluster summary produced by the package \code{plot()} method applied
 to the training labels object.
 
-<<app_cluster_overlay, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=8, fig.height=5.5, out.width='0.85\\linewidth', fig.pos='!htbp', fig.cap='Representative training-cluster summary for the Boston \\code{medv} analysis, returned by the \\code{plot()} method applied to the labels object from \\code{predict(fit\\_clust, type = "label")}. Training observations are shown on the response scale and coloured by their assigned cluster in the representative partition.'>>=
+<<app_cluster_overlay, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=8, fig.height=4.5, out.width='0.80\\linewidth', fig.pos='!htbp', fig.cap='Representative training-cluster summary for the Boston \\code{medv} analysis, returned by the \\code{plot()} method applied to the labels object from \\code{predict(fit\\_clust, type = "label")}. Training observations are shown on the response scale and coloured by their assigned cluster in the representative partition.'>>=
 plot(z_train_lab, type = "summary")
 @
 
@@ -1593,11 +1291,7 @@ representative training clusters, obtained by aggregating posterior
 predictive co-clustering evidence at the cluster level.
 
 <<app_cluster_predict_new-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
-z_test <- predict(
-  fit_clust,
-  newdata = test_dat,
-  type = "label"
-)
+z_test <- predict(fit_clust, newdata = test_dat, type = "label")
 @
 
 Figure~\ref{fig:app_cluster_test_sizes} displays the distribution of
@@ -1607,8 +1301,7 @@ package \code{plot()} method applied to the test labels object.
 <<app_cluster_test_profiles, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
 summary(z_test)$cluster_profiles
 @
-
-<<app_cluster_test_sizes, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=7, fig.height=4, out.width='0.8\\linewidth', fig.pos='!htbp', fig.cap='Bar plot of predicted cluster assignments for the held-out Boston test sample (the $20\\%$ of \\code{medv} observations excluded from training), returned by \\code{plot(predict(fit\\_clust, newdata = test\\_dat, type = "label"), type = "sizes")}. Each bar corresponds to one representative training cluster from Figure~\\ref{fig:app_cluster_overlay}; bar heights give the number of test tracts assigned to that cluster.'>>=
+<<app_cluster_test_sizes, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=7, fig.height=3.5, out.width='0.75\\linewidth', fig.pos='!htbp', fig.cap='Bar plot of predicted cluster assignments for the held-out Boston test sample (the $20\\%$ of \\code{medv} observations excluded from training), returned by \\code{plot(predict(fit\\_clust, newdata = test\\_dat, type = "label"), type = "sizes")}. Each bar corresponds to one representative training cluster from Figure~\\ref{fig:app_cluster_overlay}; bar heights give the number of test tracts assigned to that cluster.'>>=
 plot(z_test, type = "sizes")
 @
 
@@ -1635,43 +1328,33 @@ The data are first loaded and the design matrix constructed.
 <<causal-data-setup, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
 data("lalonde", package = "MatchIt")
 app_lalonde_covars <- within(lalonde, {
-  race <- factor(race, levels = c("white", "black", "hispan"))
-  married <- factor(
-    married,
-    levels = c(0, 1),
-    labels = c("no", "yes")
-  )
-  nodegree <- factor(
-    nodegree,
-    levels = c(0, 1),
-    labels = c("no", "yes")
-  )
+    race <- factor(race, levels = c("white", "black", "hispan"))
+    married <- factor(married, levels = c(0, 1), labels = c("no", "yes"))
+    nodegree <- factor(nodegree, levels = c(0, 1), labels = c("no", "yes"))
 })
 app_lalonde_scale_vars <- c("age", "educ", "re74", "re75")
 app_lalonde_scale_center <- vapply(
-  app_lalonde_scale_vars,
-  function(v) mean(app_lalonde_covars[[v]], na.rm = TRUE),
-  numeric(1)
+    app_lalonde_scale_vars,
+    function(v) mean(app_lalonde_covars[[v]], na.rm = TRUE),
+    numeric(1)
 )
 app_lalonde_scale_scale <- vapply(
-  app_lalonde_scale_vars,
-  function(v) stats::sd(app_lalonde_covars[[v]], na.rm = TRUE),
-  numeric(1)
+    app_lalonde_scale_vars,
+    function(v) stats::sd(app_lalonde_covars[[v]], na.rm = TRUE),
+    numeric(1)
 )
 for (v in app_lalonde_scale_vars) {
-  app_lalonde_covars[[paste0(v, "_z")]] <-
-    (app_lalonde_covars[[v]] - app_lalonde_scale_center[[v]]) /
-    app_lalonde_scale_scale[[v]]
+    app_lalonde_covars[[paste0(v, "_z")]] <-
+        (app_lalonde_covars[[v]] - app_lalonde_scale_center[[v]]) /
+        app_lalonde_scale_scale[[v]]
 }
-app_lalonde_x_formula <- ~ age_z + educ_z + race +
-  married + nodegree + re74_z + re75_z
-app_lalonde_y <- (app_lalonde_covars$re78 + 0.5) / 1000
+app_lalonde_x_formula <- ~age_z + educ_z + race + married + nodegree + re74_z + 
+    re75_z
+app_lalonde_y <- (app_lalonde_covars$re78 + 0.5)/1000
 app_lalonde_A <- as.integer(app_lalonde_covars$treat)
-app_lalonde_taus <- c(0.25, 0.50, 0.75, 0.90, 0.95)
-app_lalonde_X <- stats::model.matrix(
-  app_lalonde_x_formula,
-  data = app_lalonde_covars
-)[, -1, drop = FALSE]
+app_lalonde_taus <- c(0.25, 0.5, 0.75, 0.9, 0.95)
+app_lalonde_X <- stats::model.matrix(app_lalonde_x_formula, data = app_lalonde_covars)[, 
+    -1, drop = FALSE]
 @
 
 Figure~\ref{fig:app_lalonde_response_panels} provides full-sample
@@ -1683,63 +1366,21 @@ These features motivate modeling the full treatment-specific outcome
 distributions directly rather than relying solely on average effects.
 
 <<app_lalonde_response_panels, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=10, fig.height=4.8, out.width='0.84\\linewidth', fig.pos='!htbp', fig.cap='Full-sample distribution of 1978 annual earnings (\\code{re78}, in US dollars) from the \\code{MatchIt::lalonde} data set, stratified by treatment arm. Left panel: arm-specific boxplots with upper outliers highlighted. Right panel: overlaid density-scaled histograms for the control and treated arms.'>>=
-app_lalonde_plot_df <- data.frame(
-  re78 = app_lalonde_covars$re78,
-  treat_label = factor(
-    app_lalonde_covars$treat,
-    levels = c(0, 1),
-    labels = c("Control", "Treated")
-  )
-)
-
-app_lalonde_box_plot <- ggplot(
-  app_lalonde_plot_df,
-  aes(x = treat_label, y = re78, fill = treat_label)
-) +
-  geom_boxplot(
-    width = 0.55,
-    colour = cmgpd_pal[["navy"]],
-    outlier.colour = cmgpd_pal[["rose"]],
-    outlier.alpha = 0.85
-  ) +
-  scale_fill_manual(values = c(cmgpd_pal[["mist"]], cmgpd_pal[["copper"]])) +
-  labs(
-    title = "Boxplot of 1978 earnings",
-    x = NULL,
-    y = "re78 (USD)",
-    fill = NULL
-  ) +
-  cmgpd_theme(base_size = 12) +
-  theme(legend.position = "bottom")
-
-app_lalonde_hist_plot <- ggplot(
-  app_lalonde_plot_df,
-  aes(
-    x = re78,
-    y = after_stat(density),
-    fill = treat_label,
-    colour = treat_label
-  )
-) +
-  geom_histogram(
-    bins = 35,
-    position = "identity",
-    linewidth = 0.2,
-    alpha = 0.45
-  ) +
-  scale_colour_manual(values = c(cmgpd_pal[["teal"]], cmgpd_pal[["rose"]])) +
-  scale_fill_manual(values = c(cmgpd_pal[["mist"]], cmgpd_pal[["copper"]])) +
-  labs(
-    title = "Histogram of 1978 earnings",
-    x = "re78 (USD)",
-    y = "Density"
-  ) +
-  cmgpd_theme(base_size = 12) +
-  theme(legend.position = "none")
-
-app_lalonde_box_plot + app_lalonde_hist_plot +
-  plot_layout(ncol = 2, guides = "collect") &
-  theme(legend.position = "bottom")
+app_lalonde_plot_df <- data.frame(re78 = app_lalonde_covars$re78, treat_label = factor(app_lalonde_covars$treat, 
+    levels = c(0, 1), labels = c("Control", "Treated")))
+app_lalonde_box_plot <- ggplot(app_lalonde_plot_df, aes(x = treat_label, y = re78, 
+    fill = treat_label)) + geom_boxplot(width = 0.55, colour = cmgpd_pal[["navy"]], 
+    outlier.colour = cmgpd_pal[["rose"]], outlier.alpha = 0.85) + scale_fill_manual(values = c(cmgpd_pal[["mist"]], 
+    cmgpd_pal[["copper"]])) + labs(title = "Boxplot of 1978 earnings", x = NULL, 
+    y = "re78 (USD)", fill = NULL) + cmgpd_theme(base_size = 12) + theme(legend.position = "bottom")
+app_lalonde_hist_plot <- ggplot(app_lalonde_plot_df, aes(x = re78, y = after_stat(density), 
+    fill = treat_label, colour = treat_label)) + geom_histogram(bins = 35, position = "identity", 
+    linewidth = 0.2, alpha = 0.45) + scale_colour_manual(values = c(cmgpd_pal[["teal"]], 
+    cmgpd_pal[["rose"]])) + scale_fill_manual(values = c(cmgpd_pal[["mist"]], cmgpd_pal[["copper"]])) + 
+    labs(title = "Histogram of 1978 earnings", x = "re78 (USD)", y = "Density") + 
+    cmgpd_theme(base_size = 12) + theme(legend.position = "none")
+app_lalonde_box_plot + app_lalonde_hist_plot + plot_layout(ncol = 2, guides = "collect") & 
+    theme(legend.position = "bottom")
 @
 
 \subsection{Model and fit}
@@ -1768,16 +1409,8 @@ conclusions but to demonstrate how the package produces standardized and
 conditional earnings contrasts under the spliced DPM-GPD framework.
 
 <<fit-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
-fit <- dpmgpd.causal(
-  y = app_lalonde_y,
-  X = app_lalonde_X,
-  treat = app_lalonde_A,
-  backend = "crp",
-  kernel = "gamma",
-  components = 10,
-  mcmc = mcmc_fixed
-)
-
+fit <- dpmgpd.causal(y = app_lalonde_y, X = app_lalonde_X, treat = app_lalonde_A, 
+    backend = "crp", kernel = "gamma", components = 10, mcmc = mcmc_fixed)
 @
 
 
@@ -1811,11 +1444,7 @@ training program. Mean-based summaries alone are therefore insufficient
 to characterize the program effect in this application.
 
 <<qte-call, echo=TRUE, message=FALSE, warning=FALSE, results='hide', eval=TRUE>>=
-qte_fit <- qte(
-  fit,
-  probs = c(0.25, 0.50, 0.75),
-  interval = "credible"
-)
+qte_fit <- qte(fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 @
 
 Figure~\ref{fig:qte_plot} displays two standardized QTE views side by
@@ -1835,108 +1464,52 @@ The QTEs remain negative at the specified quantile levels, indicating that the t
 To characterize heterogeneity in the treatment effect, conditional estimands are computed at four representative covariate profiles spanning the observed covariate range. Profile values are expressed on the original data scale, using empirical quantiles for continuous variables and observed levels for categorical variables. Continuous predictors are standardized using training-set means and standard deviations before being passed to the model.
 
 <<xnew-code, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE>>=
-numeric_quantile <- function(x, prob = 0.50) {
-  as.numeric(stats::quantile(x, probs = prob, na.rm = TRUE, names = FALSE))
+numeric_quantile <- function(x, prob = 0.5) {
+    as.numeric(stats::quantile(x, probs = prob, na.rm = TRUE, names = FALSE))
 }
-
-profile_raw <- data.frame(
-  profile = c("Profile 1", "Profile 2", "Profile 3", "Profile 4"),
-  age = c(
-    numeric_quantile(app_lalonde_covars$age, 0.25),
-    numeric_quantile(app_lalonde_covars$age, 0.50),
-    numeric_quantile(app_lalonde_covars$age, 0.75),
-    numeric_quantile(app_lalonde_covars$age, 0.90)
-  ),
-  educ = c(
-    numeric_quantile(app_lalonde_covars$educ, 0.25),
-    numeric_quantile(app_lalonde_covars$educ, 0.50),
-    numeric_quantile(app_lalonde_covars$educ, 0.75),
-    numeric_quantile(app_lalonde_covars$educ, 0.90)
-  ),
-  race = factor(
-    c("black", "hispan", "white", "black"),
-    levels = levels(app_lalonde_covars$race)
-  ),
-  married = factor(
-    c("no", "no", "yes", "yes"),
-    levels = levels(app_lalonde_covars$married)
-  ),
-  nodegree = factor(
-    c("yes", "no", "no", "yes"),
-    levels = levels(app_lalonde_covars$nodegree)
-  ),
-  re74 = c(
-    numeric_quantile(app_lalonde_covars$re74, 0.20),
-    numeric_quantile(app_lalonde_covars$re74, 0.40),
-    numeric_quantile(app_lalonde_covars$re74, 0.60),
-    numeric_quantile(app_lalonde_covars$re74, 0.80)
-  ),
-  re75 = c(
-    numeric_quantile(app_lalonde_covars$re75, 0.20),
-    numeric_quantile(app_lalonde_covars$re75, 0.40),
-    numeric_quantile(app_lalonde_covars$re75, 0.60),
-    numeric_quantile(app_lalonde_covars$re75, 0.80)
-  ),
-  row.names = c("p1", "p2", "p3", "p4"),
-  check.names = FALSE
-)
-
+profile_raw <- data.frame(profile = c("Profile 1", "Profile 2", "Profile 3", "Profile 4"), 
+    age = c(numeric_quantile(app_lalonde_covars$age, 0.25), numeric_quantile(app_lalonde_covars$age, 
+        0.5), numeric_quantile(app_lalonde_covars$age, 0.75), numeric_quantile(app_lalonde_covars$age, 
+        0.9)), educ = c(numeric_quantile(app_lalonde_covars$educ, 0.25), numeric_quantile(app_lalonde_covars$educ, 
+        0.5), numeric_quantile(app_lalonde_covars$educ, 0.75), numeric_quantile(app_lalonde_covars$educ, 
+        0.9)), race = factor(c("black", "hispan", "white", "black"), levels = levels(app_lalonde_covars$race)), 
+    married = factor(c("no", "no", "yes", "yes"), levels = levels(app_lalonde_covars$married)), 
+    nodegree = factor(c("yes", "no", "no", "yes"), levels = levels(app_lalonde_covars$nodegree)), 
+    re74 = c(numeric_quantile(app_lalonde_covars$re74, 0.2), numeric_quantile(app_lalonde_covars$re74, 
+        0.4), numeric_quantile(app_lalonde_covars$re74, 0.6), numeric_quantile(app_lalonde_covars$re74, 
+        0.8)), re75 = c(numeric_quantile(app_lalonde_covars$re75, 0.2), numeric_quantile(app_lalonde_covars$re75, 
+        0.4), numeric_quantile(app_lalonde_covars$re75, 0.6), numeric_quantile(app_lalonde_covars$re75, 
+        0.8)), row.names = c("p1", "p2", "p3", "p4"), check.names = FALSE)
 profile_model <- within(profile_raw, {
-  age_z <- (age - app_lalonde_scale_center[["age"]]) /
-    app_lalonde_scale_scale[["age"]]
-  educ_z <- (educ - app_lalonde_scale_center[["educ"]]) /
-    app_lalonde_scale_scale[["educ"]]
-  re74_z <- (re74 - app_lalonde_scale_center[["re74"]]) /
-    app_lalonde_scale_scale[["re74"]]
-  re75_z <- (re75 - app_lalonde_scale_center[["re75"]]) /
-    app_lalonde_scale_scale[["re75"]]
+    age_z <- (age - app_lalonde_scale_center[["age"]])/app_lalonde_scale_scale[["age"]]
+    educ_z <- (educ - app_lalonde_scale_center[["educ"]])/app_lalonde_scale_scale[["educ"]]
+    re74_z <- (re74 - app_lalonde_scale_center[["re74"]])/app_lalonde_scale_scale[["re74"]]
+    re75_z <- (re75 - app_lalonde_scale_center[["re75"]])/app_lalonde_scale_scale[["re75"]]
 })
-
-xnew <- stats::model.matrix(
-  app_lalonde_x_formula,
-  data = profile_model
-)[, -1, drop = FALSE]
+xnew <- stats::model.matrix(app_lalonde_x_formula, data = profile_model)[, -1, 
+    drop = FALSE]
 xnew <- xnew[, colnames(app_lalonde_X), drop = FALSE]
 rownames(xnew) <- profile_raw$profile
-
-
-
-
-profile_display <- profile_raw[
-  ,
-  c("profile", "age", "educ", "race", "married", "nodegree", "re74", "re75"),
-  drop = FALSE
-]
+profile_display <- profile_raw[, c("profile", "age", "educ", "race", "married", 
+    "nodegree", "re74", "re75"), drop = FALSE]
 rownames(profile_display) <- NULL
 @
 
 <<xnew-results, echo=FALSE, eval=TRUE, results='asis'>>=
-profile_t <- as.data.frame(t(profile_display[, -which(names(profile_display) == "profile")]))
+profile_t <- as.data.frame(t(profile_display[, -which(names(profile_display) == 
+    "profile")]))
 colnames(profile_t) <- profile_display$profile
 profile_t[] <- lapply(profile_t, function(x) {
-  num <- suppressWarnings(as.numeric(as.character(x)))
-  ifelse(!is.na(num), formatC(round(num, 4), format = "f", digits = 4), as.character(x))
+    num <- suppressWarnings(as.numeric(as.character(x)))
+    ifelse(!is.na(num), formatC(round(num, 4), format = "f", digits = 4), as.character(x))
 })
-kableExtra::kbl(
-  profile_t,
-  format = "latex",
-  booktabs = TRUE,
-  caption = "Representative Lalonde participant profiles used as new-data inputs for the conditional causal contrasts reported in Figure~\\ref{fig:cate_plot} and in the printed CQTE summary below. Columns (Profile~1--Profile~4) give the covariate values for one synthetic individual on the original data scale: \\code{age} (years), \\code{educ} (years of schooling), \\code{race}, \\code{married}, \\code{nodegree}, and prior annual earnings \\code{re74} and \\code{re75} (US dollars).",
-  row.names = TRUE
-) |>
-  kableExtra::kable_styling(
-    latex_options = c("scale_down"),
-    font_size = 8
-  )
+kableExtra::kable_styling(kableExtra::kbl(profile_t, format = "latex", booktabs = TRUE, 
+    caption = "Representative Lalonde participant profiles used as new-data inputs for the conditional causal contrasts reported in Figure~\\ref{fig:cate_plot} and in the printed CQTE summary below. Columns (Profile~1--Profile~4) give the covariate values for one synthetic individual on the original data scale: \\code{age} (years), \\code{educ} (years of schooling), \\code{race}, \\code{married}, \\code{nodegree}, and prior annual earnings \\code{re74} and \\code{re75} (US dollars).", 
+    row.names = TRUE), latex_options = c("scale_down"), font_size = 8)
 @
 
 <<cate-call, echo=TRUE, message=FALSE, warning=FALSE, results='hide', eval=TRUE>>=
-cate_fit <- cate(
-  fit,
-  newdata = xnew,
-  interval = "hpd",
-  show_progress = FALSE
-)
+cate_fit <- cate(fit, newdata = xnew, interval = "hpd", show_progress = FALSE)
 summary(cate_fit)
 @
 
@@ -1948,12 +1521,7 @@ appear to induce a strong and uniform shift in earnings across all
 participant types.
 
 <<cqte-call, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
-cqte_fit <- cqte(
-  fit,
-  probs = c(0.25, 0.50, 0.75, 0.90, 0.95),
-  newdata = xnew,
-  interval = "credible"
-)
+cqte_fit <- cqte(fit, probs = c(0.25, 0.5, 0.75, 0.9, 0.95), newdata = xnew, interval = "credible")
 cqte_fit$fit_df  # full CQTE summary table
 @
 
@@ -1965,15 +1533,10 @@ estimates and their 95\% credible intervals can be read directly from
 the console output rather than from a separate graphic.
 
 <<cate_plot, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=6.2, fig.height=4.1, out.width='0.7\\linewidth', fig.pos='!htbp', fig.cap='Profile-specific conditional average treatment effects for Lalonde 1978 earnings at the four representative covariate profiles (Profile~1--Profile~4) of Table~\\ref{tab:xnew-results}, returned by \\code{cate(fit, newdata = xnew, interval = "hpd")}. Points denote posterior estimates of $\\mathrm{CATE}(x)=\\mu_1(x)-\\mu_0(x)$ and vertical bars give $95\\%$ HPD intervals.'>>=
-cate_plot_obj <- plot(cate_fit) +
-  ggplot2::labs(title = "CATE by profile", x = NULL) +
-  ggplot2::theme(
-    plot.title = ggplot2::element_text(size = 10.5, face = "bold"),
-    axis.title.y = ggplot2::element_text(size = 9.5),
-    axis.text = ggplot2::element_text(size = 8.5),
-    plot.margin = ggplot2::margin(5.5, 6, 5.5, 5.5)
-  )
-
+cate_plot_obj <- plot(cate_fit) + ggplot2::labs(title = "CATE by profile", x = NULL) + 
+    ggplot2::theme(plot.title = ggplot2::element_text(size = 10.5, face = "bold"), 
+        axis.title.y = ggplot2::element_text(size = 9.5), axis.text = ggplot2::element_text(size = 8.5), 
+        plot.margin = ggplot2::margin(5.5, 6, 5.5, 5.5))
 cate_plot_obj
 @
 

@@ -1,0 +1,104 @@
+REPLICATION SCRIPTS — CausalMixGPD JSS Article
+===============================================
+
+Four R scripts reproduce the outputs of CausalMixGPD_JSS_article.Rnw.
+Each script corresponds to one manuscript section and can be run independently,
+or all four can be run in sequence via run_all.R.
+
+
+FILES
+-----
+
+run_all.R
+  Sources all four scripts in order. Saves each script's R environment
+  to cache/<script>.rds and wall-clock times (minutes) to timing.csv.
+
+run_all.sh  (Linux/macOS)
+  Make executable once: chmod +x run_all.sh
+  Run: ./run_all.sh
+  Note: if you see "$'\r': command not found", the file has Windows
+  line endings. Fix with: sed -i 's/\r//' run_all.sh
+
+run_all.bat  (Windows)
+  Double-click, or from cmd: run_all.bat
+  The window stays open after completion so any errors are visible.
+
+Rscripts/overview_cluster.R
+  Package overview — clustering API (dpmgpd, dpmix, dpmix.cluster).
+  Outputs: MCMC settings table, dpmgpd and dpmix fits on nc_posX100_p3_k2,
+  diagnostics, in-sample and out-of-sample predictions, clustering fit on
+  nc_realX100_p3_k2 (rows 1:90), PSM, and cluster labels for rows 91:100.
+
+Rscripts/overview_causal.R
+  Package overview — causal inference API (dpmgpd.causal, qtt, predict).
+  Outputs: MCMC settings table, causal fit on causal_pos500_p3_k2, QTT
+  estimates and plot, conditional survival predictions on a covariate grid.
+
+Rscripts/data_analysis_cluster.R
+  Data analysis I — Boston housing clustering (MASS::Boston).
+  Outputs: medv distribution figure, PSM heatmap, cluster overlay plot,
+  test-set label assignments, covariate profile table, cluster size chart.
+
+Rscripts/data_analysis_causal.R
+  Data analysis II — Lalonde (1978) job-training causal inference.
+  Outputs: re78 distribution figure, MCMC timing, ATE/QTE/CATE/CQTE
+  estimates and plots, profile table (raw LaTeX outside knitr).
+
+cache/
+  Created by run_all.R. Contains one .rds per script holding all R objects
+  produced by that script (recoverable via readRDS()).
+
+timing.csv
+  Created by run_all.R. Columns: script, time_min.
+
+
+DEPENDENCIES
+------------
+
+  install.packages(c("CausalMixGPD", "MASS", "MatchIt",
+                     "ggplot2", "patchwork", "kableExtra"))
+
+nimble (>= 1.4.0) loads automatically via CausalMixGPD.
+Rtools is required on Windows for C++ compilation.
+
+
+RUNTIME
+-------
+
+overview_cluster.R       — ~5–15 min
+overview_causal.R        — ~5–10 min
+data_analysis_cluster.R  — ~5–15 min
+data_analysis_causal.R   — ~10–30 min
+
+MCMC settings: niter=2000, nburnin=500, nchains=1, seed=2026 (matches Rnw).
+
+
+REPRODUCIBILITY
+---------------
+
+All scripts use seed=2026 (NIMBLE) and set.seed(123) where a random split
+is needed, matching the Rnw setup chunk. Minor numerical differences across
+platforms are possible due to C++ floating-point behaviour in NIMBLE.
+
+
+HOW TO RUN
+----------
+
+Linux/macOS:
+  chmod +x run_all.sh
+  ./run_all.sh
+
+Windows:
+  run_all.bat
+
+From R:
+  setwd(".../manuscript/replication")
+  source("run_all.R")
+
+Individual scripts (any platform):
+  Rscript Rscripts/overview_cluster.R
+  Rscript Rscripts/overview_causal.R
+  Rscript Rscripts/data_analysis_cluster.R
+  Rscript Rscripts/data_analysis_causal.R
+
+Scripts are independent; order matters only within run_all.R.
