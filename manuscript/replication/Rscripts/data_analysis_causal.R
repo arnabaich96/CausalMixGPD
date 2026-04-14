@@ -3,11 +3,10 @@
 # Causal inference data analysis section of CausalMixGPD_JSS_article.Rnw
 # (Section: Data analysis II — causal inference)
 #
-# Reproduces all eval=TRUE chunk outputs from the Rnw in sequence.
 # Data: Lalonde (1978) job-training experiment from the MatchIt package.
 # =============================================================================
 
-# MCMC settings — match the Rnw setup chunk exactly for reproducibility.
+# MCMC settings
 mcmc_fixed <- list(
   niter   = 2000,
   nburnin = 500,
@@ -21,8 +20,6 @@ library(ggplot2)
 library(patchwork)
 library(future)
 library(future.apply)
-# Colour palette and ggplot2 theme — defined in the Rnw setup chunk.
-# Copied here so standalone figures match the manuscript.
 cmgpd_pal <- c(
   navy   = "#183A5A",
   teal   = "#2B6F77",
@@ -49,11 +46,8 @@ cmgpd_theme <- function(base_size = 14) {
     )
 }
 
-# =============================================================================
-# chunk: causal-data-setup
 # Load Lalonde data; relevel factors; z-score continuous covariates.
 # Outcome: re78 shifted by +0.5 and divided by 1000 (strict positivity for Gamma kernel).
-# =============================================================================
 data("lalonde", package = "MatchIt")
 
 # Relevel categorical covariates — white / no / no are the reference levels
@@ -96,10 +90,7 @@ app_lalonde_X <- stats::model.matrix(
   data = app_lalonde_covars
 )[, -1, drop = FALSE]
 
-# =============================================================================
-# chunk: app_lalonde_response_panels (echo=FALSE)
 # Arm-specific boxplot and overlaid histogram of 1978 earnings (re78).
-# =============================================================================
 app_lalonde_plot_df <- data.frame(
   re78        = app_lalonde_covars$re78,
   treat_label = factor(
@@ -154,7 +145,6 @@ app_lalonde_box_plot + app_lalonde_hist_plot +
   theme(legend.position = "bottom")
 
 # =============================================================================
-# chunk: fit-code
 # Fit arm-specific DP mixture + GPD tail models via dpmgpd.causal().
 # backend = "crp": Chinese Restaurant Process weight representation.
 # kernel  = "gamma": positive-support bulk component (required for re78 > 0).
@@ -172,43 +162,30 @@ fit <- dpmgpd.causal(
 )
 
 # =============================================================================
-# chunk: posterior-code (echo=FALSE)
 # Wall-clock timing for each stage: ps / control arm / treated arm.
 # =============================================================================
 data.frame(fit$timing)
 
-# =============================================================================
-# chunk: ate-code
 # Average Treatment Effect: ATE = E[Y(1)] - E[Y(0)], 95% HPD interval.
-# =============================================================================
 ate_fit <- ate(fit, interval = "hpd", level = 0.95)
 summary(ate_fit)
 
-# =============================================================================
-# chunk: qte-call (results='hide')
 # Marginal Quantile Treatment Effects at tau = 0.25, 0.50, 0.75.
 # QTE(tau) = Q_1^m(tau) - Q_0^m(tau), marginalised over the covariate distribution.
-# =============================================================================
 qte_fit <- qte(
   fit,
   probs    = c(0.25, 0.50, 0.75),
   interval = "credible"
 )
 
-# =============================================================================
-# chunk: qte_plot
 # Left: QTE curve with pointwise 95% credible band.
 # Right: arm-specific marginal quantile curves Q_1(tau) and Q_0(tau).
-# =============================================================================
 qte_effect_plot <- plot(qte_fit, type = "effect")
 qte_arms_plot   <- plot(qte_fit, type = "arms")
 qte_effect_plot + qte_arms_plot + patchwork::plot_layout(ncol = 2)
 
-# =============================================================================
-# chunk: xnew-code (echo=FALSE)
 # Four synthetic participant profiles spanning quantiles of the continuous
 # covariates; used as new data for profile-specific causal contrasts.
-# =============================================================================
 numeric_quantile <- function(x, prob = 0.50) {
   as.numeric(stats::quantile(x, probs = prob, na.rm = TRUE, names = FALSE))
 }
@@ -274,37 +251,17 @@ profile_display <- profile_raw[
 ]
 rownames(profile_display) <- NULL
 
-# =============================================================================
-# chunk: xnew-results (echo=FALSE, results='asis')
-# Profile table in LaTeX format. Outside knitr, prints raw LaTeX to the console.
-# =============================================================================
+# Print the profile table directly.
 profile_t <- as.data.frame(t(profile_display[, -which(names(profile_display) == "profile")]))
 colnames(profile_t) <- profile_display$profile
 profile_t[] <- lapply(profile_t, function(x) {
   num <- suppressWarnings(as.numeric(as.character(x)))
   ifelse(!is.na(num), formatC(round(num, 4), format = "f", digits = 4), as.character(x))
 })
-kableExtra::kbl(
-  profile_t,
-  format    = "latex",
-  booktabs  = TRUE,
-  caption   = paste0(
-    "Representative Lalonde participant profiles used as new-data inputs for ",
-    "the conditional causal contrasts. Columns (Profile 1--Profile 4) give the ",
-    "covariate values on the original data scale."
-  ),
-  row.names = TRUE
-) |>
-  kableExtra::kable_styling(
-    latex_options = c("scale_down"),
-    font_size     = 8
-  )
+print(profile_t)
 
-# =============================================================================
-# chunk: cate-call (results='hide')
 # Conditional Average Treatment Effect at each of the four profiles.
 # CATE(x) = E[Y(1) | X=x] - E[Y(0) | X=x], 95% HPD interval.
-# =============================================================================
 cate_fit <- cate(
   fit,
   newdata       = xnew,
@@ -313,11 +270,8 @@ cate_fit <- cate(
 )
 summary(cate_fit)
 
-# =============================================================================
-# chunk: cqte-call
 # Conditional Quantile Treatment Effects at five tau levels and four profiles.
 # CQTE(tau, x) = Q_1(tau | x) - Q_0(tau | x).
-# =============================================================================
 cqte_fit <- cqte(
   fit,
   probs    = c(0.25, 0.50, 0.75, 0.90, 0.95),
@@ -326,10 +280,7 @@ cqte_fit <- cqte(
 )
 cqte_fit$fit_df
 
-# =============================================================================
-# chunk: cate_plot (echo=FALSE)
 # Profile-specific CATE point estimates with 95% HPD bars.
-# =============================================================================
 cate_plot_obj <- plot(cate_fit) +
   ggplot2::labs(title = "CATE by profile", x = NULL) +
   ggplot2::theme(

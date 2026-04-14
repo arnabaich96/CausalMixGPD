@@ -2,8 +2,6 @@
 # data_analysis_cluster.R
 # Clustering data analysis section of CausalMixGPD_JSS_article.Rnw
 # (Section: Data analysis I — clustering)
-#
-# Reproduces all eval=TRUE chunk outputs from the Rnw in sequence.
 # Data: Boston housing (MASS), outcome = medv, predictors = lstat, rm, nox.
 # =============================================================================
 
@@ -50,10 +48,7 @@ cmgpd_theme <- function(base_size = 14) {
     )
 }
 
-# =============================================================================
-# chunk: app_cluster_data
 # Load Boston, keep the four variables used in the model, and split 80/20.
-# =============================================================================
 set.seed(123)
 data("Boston", package = "MASS")
 
@@ -64,10 +59,7 @@ idx_train <- sample(seq_len(n), size = floor(0.80 * n), replace = FALSE)
 train_dat <- dat[idx_train, ]
 test_dat  <- dat[-idx_train, ]
 
-# =============================================================================
-# chunk: app_cluster_response_panels (echo=FALSE)
 # Boxplot and histogram of medv across all 506 tracts.
-# =============================================================================
 app_cluster_plot_df <- data.frame(
   medv   = dat$medv,
   sample = "All tracts"
@@ -103,10 +95,7 @@ app_cluster_hist_plot <- ggplot(
 
 app_cluster_box_plot + app_cluster_hist_plot + plot_layout(ncol = 2)
 
-# =============================================================================
-# chunk: app_cluster_fit-code
 # DP mixture model with Normal bulk kernel; covariates enter mixture weights only.
-# =============================================================================
 fit_clust <- dpmix.cluster(
   formula    = medv ~ lstat + rm + nox,
   data       = train_dat,
@@ -116,49 +105,28 @@ fit_clust <- dpmix.cluster(
   mcmc       = mcmc_fixed
 )
 
-# =============================================================================
-# chunk: app_cluster_psm-code
 # Posterior similarity matrix for the training sample.
 # PSM[i,j] = posterior probability that observations i and j share a cluster.
-# =============================================================================
 z_train_psm <- predict(fit_clust, type = "psm")
 
-# =============================================================================
-# chunk: app_cluster_psm_plot-code
 # Heatmap of the PSM with observations reordered to reveal block structure.
-# =============================================================================
 plot(z_train_psm, type = "summary")
 
-# =============================================================================
-# chunk: app_cluster_label-code
 # Hard cluster labels via the medoid of the posterior partition distribution.
-# =============================================================================
 z_train_lab <- predict(fit_clust, type = "label")
 
-# =============================================================================
-# chunk: app_cluster_overlay
 # Training observations coloured by cluster label.
-# =============================================================================
 plot(z_train_lab, type = "summary")
 
-# =============================================================================
-# chunk: app_cluster_predict_new-code
 # Assign test observations to the nearest training cluster.
-# =============================================================================
 z_test <- predict(
   fit_clust,
   newdata = test_dat,
   type    = "label"
 )
 
-# =============================================================================
-# chunk: app_cluster_test_profiles
 # Per-cluster covariate profile table for the test observations.
-# =============================================================================
 summary(z_test)$cluster_profiles
 
-# =============================================================================
-# chunk: app_cluster_test_sizes
 # Bar chart of test-observation counts per predicted cluster.
-# =============================================================================
 plot(z_test, type = "sizes")

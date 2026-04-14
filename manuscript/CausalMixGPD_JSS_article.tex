@@ -1073,9 +1073,9 @@ outcome and PS components (\code{mcmc\_outcome}, \code{mcmc\_ps}).
 \begin{Schunk}
 \begin{Sinput}
 R> causal_fit <- dpmgpd.causal(formula = y ~ x1 + x2 + x3, data = causal_df,
-+                treat = "A",  backend = "crp", kernel = "laplace", components = 5,
-+                       PS = "logit", ps_scale = "logit", ps_summary = "mean",
-+                          mcmc_outcome = mcmc_fixed, mcmc_ps = mcmc_fixed)
++                treat = "A",  backend = "crp", kernel = "laplace",
++                components = 5, PS = "logit", ps_scale = "logit",
++                mcmc_outcome = mcmc_fixed, mcmc_ps = mcmc_fixed)
 \end{Sinput}
 \end{Schunk}
 
@@ -1165,9 +1165,10 @@ covariates determine the weights of the mixture while the parameters of the comp
 
 \begin{Schunk}
 \begin{Sinput}
-R> fit_clust <- dpmix.cluster(formula = medv ~ lstat + rm + nox, data = train_dat,
-+                             kernel = "normal", type = "weights", components = 10,
-+                               mcmc = mcmc_fixed)
+R> fit_clust <- dpmix.cluster(formula = medv ~ lstat + rm + nox,
++                             data = train_dat, kernel = "normal",
++                             type = "weights", components = 10,
++                             mcmc = mcmc_fixed)
 \end{Sinput}
 \end{Schunk}
 
@@ -1386,8 +1387,8 @@ conditional earnings contrasts under the spliced DPM-GPD framework.
 \begin{Schunk}
 \begin{Sinput}
 R> fit <- dpmgpd.causal(y = app_lalonde_y, X = app_lalonde_X,
-+                       treat = app_lalonde_A,  backend = "crp",  kernel = "gamma",
-+                       components = 10,  mcmc = mcmc_fixed)
++                       treat = app_lalonde_A,  backend = "crp",
++                       kernel = "gamma", components = 10,  mcmc = mcmc_fixed)
 \end{Sinput}
 \end{Schunk}
 
@@ -1404,7 +1405,7 @@ of the same fitted posterior distribution.
 \begin{Schunk}
 \begin{Soutput}
    total    ps    con    trt parallel_arms
-1 381.47 36.25 233.41 111.75         FALSE
+1 417.19 13.95 213.39 189.82         FALSE
 \end{Soutput}
 \end{Schunk}
 
@@ -1516,8 +1517,8 @@ participant types.
 
 \begin{Schunk}
 \begin{Sinput}
-R> cqte_fit <- cqte(fit, probs = c(0.25, 0.5, 0.75, 0.9, 0.95), newdata = xnew,
-+                   interval = "credible")
+R> cqte_fit <- cqte(fit, probs = c(0.25, 0.5, 0.75, 0.9, 0.95),
++                   newdata = xnew, interval = "credible")
 R> cqte_fit$fit_df  # full CQTE summary table
 \end{Sinput}
 \begin{Soutput}

@@ -1,4 +1,0 @@
-*.sh   text eol=lf
-*.bat  text eol=crlf
-*.R    text eol=lf
-*.txt  text eol=lf

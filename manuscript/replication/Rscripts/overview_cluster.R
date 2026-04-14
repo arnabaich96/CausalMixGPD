@@ -15,8 +15,6 @@ mcmc_fixed <- list(
   seed    = 2026
 )
 
-data.frame(mcmc_fixed, row.names = NULL)
-
 # =============================================================================
 # Data
 # nc_posX100_p3_k2: n=100, p=3 covariates, K=2 true components,

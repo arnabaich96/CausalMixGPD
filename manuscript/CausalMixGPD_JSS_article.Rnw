@@ -1164,9 +1164,9 @@ outcome and PS components (\code{mcmc\_outcome}, \code{mcmc\_ps}).
 
 <<overview-causal-fit-model, echo=TRUE, eval=FALSE>>=
 causal_fit <- dpmgpd.causal(formula = y ~ x1 + x2 + x3, data = causal_df,
-              treat = "A",  backend = "crp", kernel = "laplace", components = 5,
-                     PS = "logit", ps_scale = "logit", ps_summary = "mean",
-                        mcmc_outcome = mcmc_fixed, mcmc_ps = mcmc_fixed)
+              treat = "A",  backend = "crp", kernel = "laplace",
+              components = 5, PS = "logit", ps_scale = "logit",
+              mcmc_outcome = mcmc_fixed, mcmc_ps = mcmc_fixed)
 @
 
 Estimated population-averaged quantities are computed using the
@@ -1195,10 +1195,11 @@ of the training variables.
 
 <<overview-causal-predict-contrast-prep, echo=FALSE, eval=FALSE>>=
 causal_xgrid <- expand.grid(lapply(causal_df[c("x1", "x2", "x3")],
-    quantile, probs = c(0.25, 0.5, 0.75), na.rm = TRUE))
+                quantile, probs = c(0.25, 0.5, 0.75), na.rm = TRUE))
 causal_xgrid <- as.matrix(causal_xgrid)
 storage.mode(causal_xgrid) <- "double"
-causal_xgrid <- causal_xgrid[, colnames(causal_fit$bundle$data$X), drop = FALSE]
+causal_xgrid <- causal_xgrid[, colnames(causal_fit$bundle$data$X)
+                             , drop = FALSE]
 @
 
 <<overview-causal-predict-contrast, echo=TRUE, eval=FALSE>>=
@@ -1255,9 +1256,10 @@ dataset with three covariates. When \code{type = "weights"},
 covariates determine the weights of the mixture while the parameters of the components are common across all covariates. This method is helpful for clustering where the prevalence of latent clusters may differ between neighborhoods.
 
 <<app_cluster_fit-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
-fit_clust <- dpmix.cluster(formula = medv ~ lstat + rm + nox, data = train_dat,
-                           kernel = "normal", type = "weights", components = 10,
-                             mcmc = mcmc_fixed)
+fit_clust <- dpmix.cluster(formula = medv ~ lstat + rm + nox,
+                           data = train_dat, kernel = "normal",
+                           type = "weights", components = 10,
+                           mcmc = mcmc_fixed)
 @
 
 Since mixture components cannot be identified up to permutation,
@@ -1429,8 +1431,8 @@ conditional earnings contrasts under the spliced DPM-GPD framework.
 
 <<fit-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
 fit <- dpmgpd.causal(y = app_lalonde_y, X = app_lalonde_X,
-                     treat = app_lalonde_A,  backend = "crp",  kernel = "gamma",
-                     components = 10,  mcmc = mcmc_fixed)
+                     treat = app_lalonde_A,  backend = "crp",
+                     kernel = "gamma", components = 10,  mcmc = mcmc_fixed)
 @
 
 
@@ -1541,8 +1543,8 @@ appear to induce a strong and uniform shift in earnings across all
 participant types.
 
 <<cqte-call, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
-cqte_fit <- cqte(fit, probs = c(0.25, 0.5, 0.75, 0.9, 0.95), newdata = xnew,
-                 interval = "credible")
+cqte_fit <- cqte(fit, probs = c(0.25, 0.5, 0.75, 0.9, 0.95),
+                 newdata = xnew, interval = "credible")
 cqte_fit$fit_df  # full CQTE summary table
 @
 
