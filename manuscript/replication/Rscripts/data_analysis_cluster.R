@@ -1,6 +1,5 @@
 # =============================================================================
 # data_analysis_cluster.R
-# Clustering data analysis section of CausalMixGPD_JSS_article.Rnw
 # (Section: Data analysis I — clustering)
 # Data: Boston housing (MASS), outcome = medv, predictors = lstat, rm, nox.
 # =============================================================================

@@ -1,6 +1,5 @@
 # =============================================================================
 # data_analysis_causal.R
-# Causal inference data analysis section of CausalMixGPD_JSS_article.Rnw
 # (Section: Data analysis II — causal inference)
 #
 # Data: Lalonde (1978) job-training experiment from the MatchIt package.

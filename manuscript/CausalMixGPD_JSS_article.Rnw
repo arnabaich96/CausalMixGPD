@@ -20,15 +20,46 @@
 \usepackage{bbm}
 \usepackage{array}
 \usepackage{booktabs}
+\usepackage{enumitem}
 \usepackage{xurl}
 \graphicspath{{./}{manuscript/}{assets/}{figure/}}
 
-%% ---- Reduce vertical whitespace around floats (no content change) ----
-\setlength{\floatsep}{6pt plus 2pt minus 2pt}
-\setlength{\textfloatsep}{8pt plus 2pt minus 4pt}
-\setlength{\intextsep}{6pt plus 2pt minus 2pt}
-\setlength{\abovecaptionskip}{4pt plus 2pt minus 2pt}
+%% ---- Compact layout tuning within the JSS style ----
+\setlength{\parskip}{0.15ex plus 0.05ex minus 0.05ex}
+\addtolength{\textheight}{1.2\baselineskip}
+\setlength{\abovedisplayskip}{7pt plus 2pt minus 4pt}
+\setlength{\belowdisplayskip}{7pt plus 2pt minus 4pt}
+\setlength{\abovedisplayshortskip}{5pt plus 2pt minus 2pt}
+\setlength{\belowdisplayshortskip}{5pt plus 2pt minus 2pt}
+\setlength{\floatsep}{4pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{6pt plus 2pt minus 3pt}
+\setlength{\intextsep}{4pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{3pt plus 1pt minus 1pt}
 \setlength{\belowcaptionskip}{0pt}
+\setlength{\preXLskip}{1.1\baselineskip plus 0.2ex minus 0ex}
+\setlength{\preMskip}{0.55\baselineskip plus 0.1ex minus 0ex}
+\setlength{\preSskip}{0.45\baselineskip plus 0.1ex minus 0ex}
+\setlength{\postMskip}{0.2\baselineskip plus 0ex minus 0.1ex}
+\setlength{\postSskip}{0.1\baselineskip plus 0ex minus 0.1ex}
+\setlist[itemize]{nosep, topsep=2pt, parsep=0pt, partopsep=0pt}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{5}
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\floatpagefraction}{0.8}
+\RecustomVerbatimEnvironment{Sinput}{Verbatim}{fontsize=\scriptsize, fontshape=sl}
+\RecustomVerbatimEnvironment{Soutput}{Verbatim}{fontsize=\scriptsize}
+\RecustomVerbatimEnvironment{Scode}{Verbatim}{fontsize=\scriptsize, fontshape=sl}
+\renewenvironment{Schunk}{\vspace{0pt}}{\vspace{-0.1\baselineskip}}
+\makeatletter
+\patchcmd{\@maketitle}{\vskip 1in}{\vskip 0.55in}{}{}
+\patchcmd{\@maketitle}{\vskip 0.2in plus 1fil minus 0.1in}{\vskip 0.12in plus 0.5fil minus 0.05in}{}{}
+\patchcmd{\@maketitle}{\vskip 0.3in minus 0.1in}{\vskip 0.18in minus 0.05in}{}{}
+\patchcmd{\@maketitle}{\vskip 0.1in minus 0.05in}{\vskip 0.06in minus 0.03in}{}{}
+\patchcmd{\@maketitle}{\vskip 0.2in minus 0.1in}{\vskip 0.1in minus 0.05in}{}{}
+\makeatother
 
 %% ---- JSS metadata ----
 \author{Arnab Aich\\Florida State University}
