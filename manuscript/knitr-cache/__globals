@@ -21,7 +21,7 @@ overview-causal-fit-model	mcmc_fixed
 overview-causal-effects	
 overview-causal-predict-contrast-prep	
 overview-causal-predict-contrast	
-app_cluster_data	Boston
+app_cluster_data	Boston	cmgpd_seed
 app_cluster_response_panels	cmgpd_pal	cmgpd_theme	dat
 app_cluster_fit-code	mcmc_fixed	train_dat
 app_cluster_psm-code	fit_clust

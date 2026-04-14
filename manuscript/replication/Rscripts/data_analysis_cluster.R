@@ -5,13 +5,14 @@
 # =============================================================================
 
 # MCMC settings — match the Rnw setup chunk exactly for reproducibility.
-# seed: NIMBLE RNG seed; set.seed(123) below controls the train/test split.
+# A single shared seed controls both the NIMBLE RNG and the train/test split.
+cmgpd_seed <- 2026
 mcmc_fixed <- list(
   niter   = 2000,
   nburnin = 500,
   thin    = 1,
   nchains = 1,
-  seed    = 2026
+  seed    = cmgpd_seed
 )
 
 library(CausalMixGPD)
@@ -48,10 +49,10 @@ cmgpd_theme <- function(base_size = 14) {
 }
 
 # Load Boston, keep the four variables used in the model, and split 80/20.
-set.seed(123)
+set.seed(cmgpd_seed)
 data("Boston", package = "MASS")
 
-dat <- subset(Boston, select = c(medv, lstat, rm, nox))
+dat <- Boston
 
 n         <- nrow(dat)
 idx_train <- sample(seq_len(n), size = floor(0.80 * n), replace = FALSE)
@@ -96,7 +97,7 @@ app_cluster_box_plot + app_cluster_hist_plot + plot_layout(ncol = 2)
 
 # DP mixture model with Normal bulk kernel; covariates enter mixture weights only.
 fit_clust <- dpmix.cluster(
-  formula    = medv ~ lstat + rm + nox,
+  formula    = medv ~ .,
   data       = train_dat,
   kernel     = "normal",
   type       = "weights",

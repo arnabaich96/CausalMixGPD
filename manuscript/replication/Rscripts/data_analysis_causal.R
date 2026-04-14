@@ -6,12 +6,13 @@
 # =============================================================================
 
 # MCMC settings
+cmgpd_seed <- 2026
 mcmc_fixed <- list(
   niter   = 2000,
   nburnin = 500,
   thin    = 1,
   nchains = 1,
-  seed    = 2026
+  seed    = cmgpd_seed
 )
 
 library(CausalMixGPD)

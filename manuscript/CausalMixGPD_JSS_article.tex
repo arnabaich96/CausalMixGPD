@@ -35,6 +35,7 @@
 \usepackage{bbm}
 \usepackage{array}
 \usepackage{booktabs}
+\usepackage{caption}
 \usepackage{enumitem}
 \usepackage{xurl}
 \graphicspath{{./}{manuscript/}{assets/}{figure/}}
@@ -51,6 +52,7 @@
 \setlength{\intextsep}{4pt plus 2pt minus 2pt}
 \setlength{\abovecaptionskip}{3pt plus 1pt minus 1pt}
 \setlength{\belowcaptionskip}{0pt}
+\captionsetup{font=footnotesize, labelfont=bf}
 \setlength{\preXLskip}{1.1\baselineskip plus 0.2ex minus 0ex}
 \setlength{\preMskip}{0.55\baselineskip plus 0.1ex minus 0ex}
 \setlength{\preSskip}{0.45\baselineskip plus 0.1ex minus 0ex}
@@ -64,9 +66,9 @@
 \renewcommand{\bottomfraction}{0.85}
 \renewcommand{\textfraction}{0.08}
 \renewcommand{\floatpagefraction}{0.8}
-\RecustomVerbatimEnvironment{Sinput}{Verbatim}{fontsize=\scriptsize, fontshape=sl}
-\RecustomVerbatimEnvironment{Soutput}{Verbatim}{fontsize=\scriptsize}
-\RecustomVerbatimEnvironment{Scode}{Verbatim}{fontsize=\scriptsize, fontshape=sl}
+\RecustomVerbatimEnvironment{Sinput}{Verbatim}{fontsize=\small, fontshape=sl}
+\RecustomVerbatimEnvironment{Soutput}{Verbatim}{fontsize=\small}
+\RecustomVerbatimEnvironment{Scode}{Verbatim}{fontsize=\small, fontshape=sl}
 \renewenvironment{Schunk}{\vspace{0pt}}{\vspace{-0.1\baselineskip}}
 \makeatletter
 \patchcmd{\@maketitle}{\vskip 1in}{\vskip 0.55in}{}{}
@@ -77,24 +79,26 @@
 \makeatother
 
 %% ---- JSS metadata ----
-\author{Arnab Aich\\Florida State University}
+\author{Arnab Aich\\Florida State University \And Indrabati Bhattacharya\\Florida State University}
 \title{\pkg{CausalMixGPD}: An \proglang{R} Package for Bayesian Nonparametric Conditional Density Modeling in Causal Inference and Clustering with a Heavy-Tail Extension}
 \Plainauthor{Arnab Aich}
 \Plaintitle{CausalMixGPD: An R Package for Bayesian Nonparametric Conditional Density Modeling in Causal Inference and Clustering with a Heavy-Tail Extension}
 \Shorttitle{\pkg{CausalMixGPD}}
-\Volume{000}
-\Issue{00}
-\Year{2026}
-\Month{April}
-\Submitdate{2026-04-13}
-\Acceptdate{}
-\DOI{10.18637/jss.v000.i00}
 \Address{
-  Arnab Aich\\
-  Florida State University\\
-  Tallahassee, Florida, USA\\
-  E-mail: \email{aaich@fsu.edu}\\
-  URL: \url{https://arnabaich96.github.io/CausalMixGPD/}
+Arnab Aich\\
+Department of Statistics\\
+Florida State University\\
+Tallahassee, FL, USA\\
+E-mail: \href{mailto:aaich@fsu.edu}{aaich@fsu.edu}\\
+ORCID: \href{https://orcid.org/0009-0005-7801-6701}{0009-0005-7801-6701}
+
+\vspace{0.2cm}
+Indrabati Bhattacharya\\
+Department of Statistics\\
+Florida State University\\
+Tallahassee, FL, USA\\
+E-mail: \href{mailto:ib22g@fsu.edu}{ib22g@fsu.edu}\\
+ORCID: \href{https://orcid.org/0009-0005-7801-6701}{0009-0005-7801-6701}
 }
 
 \Abstract{
@@ -111,7 +115,7 @@ package accommodates both unconditional and covariate-dependent mixture
 specifications, performs posterior computation via Markov chain Monte
 Carlo (MCMC) through \pkg{nimble}, and supports arm-specific outcome models
 for causal inference.  Posterior predictive summaries are provided for
-densities, quantiles, means, survival curves, and causal contrasts,
+densities, quantiles, means, survival summaries, and causal contrasts,
 with particular emphasis on extreme quantiles and other
 tail-sensitive functionals.  The same framework also supports
 predictor-dependent clustering under multiple kernel families.
@@ -156,7 +160,7 @@ reporting poses additional challenges: quantiles estimated
 independently can cross, and tail-focused contrasts require the full
 outcome distribution rather than a collection of marginal summaries.
 \pkg{CausalMixGPD} addresses these challenges by modeling outcome
-densities directly and deriving quantiles, means, survival curves, and
+densities directly and deriving quantiles, means, survival summaries, and
 tail summaries from a single posterior predictive object.
 
 Dirichlet process mixtures (DPM) offer a versatile nonparametric
@@ -345,7 +349,7 @@ u(x)+\dfrac{\sigma(x)}{\xi}\Bigl((1-\tau)^{-\xi}-1\Bigr), & \xi\neq 0,
 \begin{Schunk}
 \begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.76\linewidth]{figure/gpdDensityFigure-plot-1} 
+{\centering \includegraphics[width=0.80\linewidth]{figure/gpdDensityFigure-plot-1} 
 
 }
 
@@ -483,7 +487,7 @@ quantile.
 \begin{Schunk}
 \begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.76\linewidth]{figure/splicedDensityFigure-plot-1} 
+{\centering \includegraphics[width=0.80\linewidth]{figure/splicedDensityFigure-plot-1} 
 
 }
 
@@ -755,7 +759,7 @@ treatment-specific distributions. Figure~\ref{fig:causalEstimandFigure-plot} dep
 \begin{Schunk}
 \begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.76\linewidth]{figure/causalEstimandFigure-plot-1} 
+{\centering \includegraphics[width=0.80\linewidth]{figure/causalEstimandFigure-plot-1} 
 
 }
 
@@ -1165,10 +1169,9 @@ The Boston data set is used in this analysis, where each observation corresponds
 \begin{Sinput}
 R> library("CausalMixGPD")
 R> library("MASS")
-R> set.seed(123)
+R> set.seed(cmgpd_seed)
 R> data("Boston", package = "MASS")
 R> dat <- Boston
-R> dat <- subset(dat, select = c(medv, lstat, rm, nox))
 R> n <- nrow(dat)
 R> idx_train <- sample(seq_len(n), size = floor(0.8 * n))
 R> train_dat <- dat[idx_train, ]
@@ -1180,7 +1183,7 @@ Figure~\ref{fig:app_cluster_response_panels} summarizes the distribution of the 
 \begin{Schunk}
 \begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.82\linewidth]{figure/app_cluster_response_panels-1} 
+{\centering \includegraphics[width=0.86\linewidth]{figure/app_cluster_response_panels-1} 
 
 }
 
@@ -1196,7 +1199,7 @@ covariates determine the weights of the mixture while the parameters of the comp
 
 \begin{Schunk}
 \begin{Sinput}
-R> fit_clust <- dpmix.cluster(formula = medv ~ lstat + rm + nox,
+R> fit_clust <- dpmix.cluster(formula = medv ~ lstat + rm + nox + crim + indus,
 +                             data = train_dat, kernel = "normal",
 +                             type = "weights", components = 10,
 +                             mcmc = mcmc_fixed)
@@ -1220,7 +1223,7 @@ R> plot(z_train_psm, type = "summary")
 \end{Sinput}
 \begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.80\linewidth]{figure/app_cluster_psm_plot-code-1} 
+{\centering \includegraphics[width=0.84\linewidth]{figure/app_cluster_psm_plot-code-1} 
 
 }
 
@@ -1252,7 +1255,7 @@ R> plot(z_train_lab, type = "summary")
 \end{Sinput}
 \begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.80\linewidth]{figure/app_cluster_overlay-1} 
+{\centering \includegraphics[width=0.84\linewidth]{figure/app_cluster_overlay-1} 
 
 }
 
@@ -1291,15 +1294,17 @@ R> summary(z_test)$cluster_profiles
 \end{Sinput}
 \begin{Soutput}
   cluster  n medv_mean  medv_sd lstat_mean lstat_sd  rm_mean
-1      C4 53  21.57736 6.867192  13.415660 5.602698 6.225340
-2      C2 24  18.69583 5.343951  14.474583 7.229240 5.976583
-3      C5 18  35.15556 9.010988   5.679444 1.503887 7.260167
-4      C1  7  11.72857 2.293261  24.204286 6.162083 5.763571
-      rm_sd  nox_mean     nox_sd
-1 0.6417186 0.5775660 0.11813723
-2 0.4887950 0.5618333 0.12035912
-3 0.6143898 0.4957222 0.09672649
-4 0.5772723 0.6538571 0.09705227
+1      C4 61  20.34918 7.996325   13.71049 5.648352 6.291541
+2      C1 39  23.16667 8.511118   11.43846 7.812358 6.200205
+3      C2  2  50.00000 0.000000    6.30500 3.641600 6.279000
+      rm_sd  nox_mean     nox_sd crim_mean   crim_sd indus_mean
+1 0.7214253 0.5836066 0.10996185  5.886307 14.626399   13.16393
+2 0.8654261 0.5474359 0.11791451  2.487308  4.878368   10.64513
+3 0.5713423 0.6495000 0.02616295  6.968615  1.836547   18.10000
+  indus_sd
+1 7.024370
+2 6.141682
+3 0.000000
 \end{Soutput}
 \end{Schunk}
 \begin{Schunk}
@@ -1308,7 +1313,7 @@ R> plot(z_test, type = "sizes")
 \end{Sinput}
 \begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.75\linewidth]{figure/app_cluster_test_sizes-1} 
+{\centering \includegraphics[width=0.80\linewidth]{figure/app_cluster_test_sizes-1} 
 
 }
 
@@ -1382,7 +1387,7 @@ distributions directly rather than relying solely on average effects.
 \begin{Schunk}
 \begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.84\linewidth]{figure/app_lalonde_response_panels-1} 
+{\centering \includegraphics[width=0.88\linewidth]{figure/app_lalonde_response_panels-1} 
 
 }
 
@@ -1481,8 +1486,9 @@ R> qte_fit <- qte(fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 \end{Schunk}
 
 Figure~\ref{fig:qte_plot} displays two standardized QTE views side by
-side from the spliced causal model: the effect curve and the
-treated-versus-control quantile curves with uncertainty intervals.
+side from the spliced causal model: the estimated QTE profile across the
+evaluated quantiles and the treated-versus-control quantile summaries
+with uncertainty intervals.
 
 \begin{Schunk}
 \begin{Sinput}
@@ -1492,7 +1498,7 @@ R> qte_effect_plot + qte_arms_plot + plot_layout(ncol = 2)
 \end{Sinput}
 \begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.84\linewidth]{figure/qte_plot-1} 
+{\centering \includegraphics[width=0.88\linewidth]{figure/qte_plot-1} 
 
 }
 
@@ -1500,7 +1506,7 @@ R> qte_effect_plot + qte_arms_plot + plot_layout(ncol = 2)
 \end{figure}
 \end{Schunk}
 
-The QTEs remain negative at the specified quantile levels, indicating that the treatment distribution lies below the control at those points of the marginal distribution. The marginal quantile curves for both arms show that the deviations are not reducible to a location shift but reflect heterogeneity across the outcome distribution.
+The QTEs remain negative at the specified quantile levels, indicating that the treatment distribution lies below the control at those points of the marginal distribution. The estimated marginal quantiles for both arms show that the deviations are not reducible to a location shift but reflect heterogeneity across the outcome distribution.
 
 \subsection{Conditional estimands for representative profiles}
 
@@ -1587,7 +1593,7 @@ the console output rather than from a separate graphic.
 \begin{Schunk}
 \begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.7\linewidth]{figure/cate_plot-1} 
+{\centering \includegraphics[width=0.76\linewidth]{figure/cate_plot-1} 
 
 }
 
@@ -1610,7 +1616,7 @@ This analysis underscores the value of quantile-based methods for heavy-tailed o
 optional EVT-based tail extrapolation, predictor-dependent clustering,
 and quantile- and density-level causal inference within one package.
 The same fitted model supports posterior summaries for densities,
-survival curves, analytical means (when they exist), restricted means,
+survival summaries, analytical means (when they exist), restricted means,
 quantiles, and treatment contrasts. This is useful in settings where
 heavy tails and density-level effects are both of concern.
 
@@ -1650,9 +1656,15 @@ confounding.
 
 
 \bibliography{CausalMixGPD_JSS_refs}
+
 \clearpage
 
 \appendix
+\begingroup
+\setlength{\parskip}{0.3ex plus 0.05ex minus 0.05ex}
+\setlength{\preMskip}{0.75\baselineskip plus 0.15ex minus 0ex}
+\setlength{\postSskip}{0.18\baselineskip plus 0ex minus 0.05ex}
+\setlist[itemize]{topsep=4pt, itemsep=3pt, parsep=1pt, partopsep=0pt}
 \section{Customization of package and additional features}
 \label{sec:appendix-features}
 
@@ -1714,4 +1726,5 @@ the GPD, gamma mixture, and spliced gamma mixture with GPD tail, respectively, t
 \item \textbf{Computational considerations}: large-scale analyses can use \code{parallel\_chains} with \code{workers}, \code{parallel\_arms} for causal fits, \code{chunk\_size} for prediction in parallel chunks, and \code{ndraws\_pred} for sampling from posterior predictive parameter distributions. The \code{show\_progress} and \code{quiet} arguments control progress reporting and compiler verbosity, while \code{timing = TRUE} records runtime summaries.
 \end{itemize}
 
+\endgroup
 \end{document}

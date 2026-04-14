@@ -5,6 +5,7 @@
 # =============================================================================
 
 library(CausalMixGPD)
+cmgpd_seed <- 2026
 
 # MCMC settings used for both the outcome models and the PS model.
 mcmc_fixed <- list(
@@ -12,7 +13,7 @@ mcmc_fixed <- list(
   nburnin = 500,
   thin    = 1,
   nchains = 1,
-  seed    = 2026
+  seed    = cmgpd_seed
 )
 
 data.frame(mcmc_fixed, row.names = NULL)
