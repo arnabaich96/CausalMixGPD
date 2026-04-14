@@ -2,7 +2,7 @@ Version: 1.0
 
 RestoreWorkspace: No
 SaveWorkspace: No
-AlwaysSaveHistory: Default
+AlwaysSaveHistory: No
 
 EnableCodeIndexing: Yes
 UseSpacesForTab: Yes
@@ -19,5 +19,18 @@ BuildType: Package
 PackageUseDevtools: Yes
 PackageCheckArgs: --as-cran
 PackageRoxygenize: rd,collate,namespace
+
+QuitChildProcessesOnExit: Yes
+DisableExecuteRprofile: Yes
+
+MarkdownWrap: Column
+MarkdownWrapAtColumn: 72
+MarkdownCanonical: No
+
+PythonType: system
+PythonVersion: 3.14.3
+PythonPath: C:/Users/arnab/AppData/Local/Python/bin/python.exe
+
+SpellingDictionary: en_US
 
 PackageBuildVignettes: Yes

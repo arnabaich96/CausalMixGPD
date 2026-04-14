@@ -83,7 +83,7 @@ Department of Statistics\\
 Florida State University\\
 Tallahassee, FL, USA\\
 E-mail: \href{mailto:ib22g@fsu.edu}{ib22g@fsu.edu}\\
-ORCID: \href{https://orcid.org/0009-0005-7801-6701}{0009-0005-7801-6701}
+ORCID: \href{https://orcid.org/0000-0003-4567-0027}{0000-0003-4567-0027}
 }
 
 \Abstract{
@@ -117,7 +117,10 @@ reporting within a common interface.
 
 <<setup, include=FALSE, eval=TRUE>>=
 manuscript_dir <- local({
-    input_dir <- tryCatch(knitr::current_input(dir = TRUE), error = function(e) "")
+    input_dir <- tryCatch({
+        res <- knitr::current_input(dir = TRUE)
+        if (is.null(res)) "" else res
+    }, error = function(e) "")
     candidates <- unique(c(if (nzchar(input_dir)) input_dir, "manuscript", file.path("vignettes",
         "manuscript"), "."))
     for (candidate in candidates) {
@@ -244,7 +247,7 @@ Because DP mixtures induce random partitions through latent allocation
 variables, they naturally support model-based subgroup discovery in
 addition to density estimation.  Bayesian cluster analysis is typically
 reported through label-invariant summaries such as pairwise
-co-clustering probabilities \citep{Binder1978} and representative
+clustering probabilities \citep{Binder1978} and representative
 partitions selected via Dahl's least-squares criterion
 \citep{Dahl2006}.  In regression settings, clustering itself can depend
 on predictors: dependent Dirichlet process constructions allow
@@ -328,10 +331,11 @@ concludes with a discussion of limitations and future directions.
 \section{Background and preliminaries}
 \label{sec:prelim}
 
-Let the observation-covariate vector be denoted by
+Let the observation and covariate vectors be denoted by
 \begin{equation*}
-(Y,X) \in \mathbb{R}\times \mathbb{R}^p.
+(Y,X) \in \mathbb{R}\times \mathbb{R}^p,
 \end{equation*}
+where $Y$ is a univariate continuous outcome and $X$ is a vector of $p$ covariates.
 Then the conditional cumulative distribution function (CDF) and probability density function (PDF), for some covariate $x$, are defined as:
 \begin{equation*}
 F(y\mid x)=\Pr\;(Y\le y\mid X=x),
@@ -629,7 +633,7 @@ where $k(\cdot\mid x,\theta)$ denotes a kernel, and $G_x$ is a predictor depende
 \begin{equation*}
 y_i \mid z_i,\{\theta_j\},x_i \sim k\!\left(\,\cdot \mid x_i,\theta_{z_i}\right).
 \end{equation*}
-Clustering is thus encoded in the induced partition $\Pi=\{z_1,\ldots,z_n\}$'s posterior distribution and is characterized by label-invariant co-clustering statistics \citep{Binder1978,Dahl2006}. The clustering capabilities of \pkg{CausalMixGPD} incorporate three types of dependence in predictors, each corresponding to specific mixing measure constructions $G_x$.
+Clustering is thus encoded in the induced partition $\Pi=\{z_1,\ldots,z_n\}$'s posterior distribution and is characterized by label-invariant clustering statistics \citep{Binder1978,Dahl2006}. The clustering capabilities of \pkg{CausalMixGPD} incorporate three types of dependence in predictors, each corresponding to specific mixing measure constructions $G_x$.
 
 \begin{itemize}
 \item \textbf{Weight dependence only:} Dependence enters through predictor-modulated mixture weights, whereas component parameters are shared across predictors,
@@ -656,9 +660,8 @@ probabilities and component-specific conditional structure vary with
 predictors \citep{Quintana2022}.
 \end{itemize}
 
-\paragraph{Posterior inference and prediction for cluster allocation.}
-
-Let \(D_n=\{(y_i,x_i)\}_{i=1}^n\) denote the observed data and let
+For Posterior inference and prediction of cluster allocation,
+let \(D_n=\{(y_i,x_i)\}_{i=1}^n\) denote the observed data and let
 \(z_i \in \{1,\dots,J\}\) be the latent component label under a finite truncation of
 the mixture model. At MCMC iteration \(m\), let
 \(\Theta^{(m)}=\{\theta_j^{(m)}\}_{j=1}^J\) denote the component-specific parameters
@@ -667,9 +670,8 @@ conditional density is
 \[
 f^{(m)}(y \mid x)=\sum_{j=1}^J w_j^{(m)}(x)\,k(y \mid x,\theta_j^{(m)}),
 \]
-with \(w_j^{(m)}(x)\equiv w_j^{(m)}\) in the predictor-independent case.
-
-For each unit \(i\), the conditional posterior probability of allocation to component
+with \(w_j^{(m)}(x)\equiv w_j^{(m)}\) in the predictor-independent case.For
+each unit \(i\), the conditional posterior probability of allocation to component
 \(j\) at draw \(m\) is
 \[
 p_{ij}^{(m)}
@@ -681,7 +683,7 @@ w_j^{(m)}(x_i)\,k(y_i \mid x_i,\theta_j^{(m)})
 w_\ell^{(m)}(x_i)\,k(y_i \mid x_i,\theta_\ell^{(m)})
 },
 \]
-and we estimate it by Monte Carlo averaging,
+and we estimate it by averaging over MCMC draws as
 \[
 \widehat p_{ij}=\frac{1}{M}\sum_{m=1}^M p_{ij}^{(m)}.
 \]
@@ -1300,18 +1302,18 @@ Since mixture components cannot be identified up to permutation,
 clusters in the training data are represented using the posterior
 similarity matrix and sample training labels. The posterior similarity
 matrix gives the main label-invariant uncertainty summary by
-recording posterior co-clustering probabilities.
+recording posterior clustering probabilities.
 
 <<app_cluster_psm-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
 z_train_psm <- predict(fit_clust, type = "psm")
 @
-<<app_cluster_psm_plot-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=8, fig.height=4.5, out.width='0.84\\linewidth', fig.pos='!htbp', fig.cap='Posterior similarity matrix (PSM) summary for the Boston training sample, returned by \\code{plot(predict(fit\\_clust, type = "psm"), type = "summary")}. Each cell $(i,\\ell)$ encodes the posterior co-clustering probability $\\Pr(z_i=z_\\ell\\mid\\text{data})$, with rows and columns ordered to expose block structure. Darker shading corresponds to higher co-clustering probability.'>>=
+<<app_cluster_psm_plot-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=8, fig.height=4.5, out.width='0.84\\linewidth', fig.pos='!htbp', fig.cap='Posterior similarity matrix (PSM) summary for the Boston training sample, returned by \\code{plot(predict(fit\\_clust, type = "psm"), type = "summary")}. Each cell $(i,\\ell)$ encodes the posterior clustering probability $\\Pr(z_i=z_\\ell\\mid\\text{data})$, with rows and columns ordered to expose block structure. Darker shading corresponds to higher clustering probability.'>>=
 plot(z_train_psm, type = "summary")
 @
 
 As seen from Figure~\ref{fig:app_cluster_psm_plot-code}, the PSM
 reveals clear block structure along the diagonal, implying that the
-model can detect multiple sets of tracts whose co-clustering
+model can detect multiple sets of tracts whose clustering
 probability is relatively high. While there are clear separations,
 there are still some uncertainties for those tracts on the edge of
 two or more neighboring groups, which reflects reasonable posterior
@@ -1329,7 +1331,7 @@ to the training labels object.
 plot(z_train_lab, type = "summary")
 @
 
-The representative partition translates the posterior co-clustering
+The representative partition translates the posterior clustering
 structure into an interpretable summary on the response scale. The
 inferred groups separate tracts primarily by housing-value level, but
 they also reflect broader differences in neighborhood composition and
@@ -1342,7 +1344,7 @@ summary of heterogeneity in the Boston housing data.
 Cluster assignment for new observations is performed through the same
 prediction interface. The output is a label in the space of the
 representative training clusters, obtained by aggregating posterior
-predictive co-clustering evidence at the cluster level.
+predictive clustering evidence at the cluster level.
 
 <<app_cluster_predict_new-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
 z_test <- predict(fit_clust, newdata = test_dat, type = "label")
@@ -1362,7 +1364,7 @@ summary(z_test)$cluster_profiles
 plot(z_test, type = "sizes")
 @
 
-The obtained profiles for the clusters correspond to our expectations concerning the representative partition. Cluster C1 includes tracts with higher average house values, many rooms, greater amount of zoning, and lower level of pollution. On the contrary, cluster C3 represents the poorer area with smaller number of rooms, low house value, high rate of crime and industrialization, and highest level of average pollution. Cluster C2 represents an area in between and demonstrates that the housing market does not depend solely on the dichotomy 'rich / poor'. For test data, in turn, clusters characterized by larger value of average house price have less neighborhood disadvantage, more spacious houses and less pollution; poorer clusters represent the opposite pattern.
+The obtained profiles for the clusters correspond to our expectations concerning the representative partition. Cluster C1 includes tracts with higher average house values (\code{medv}), more rooms (\code{rm}), greater residential zoning (\code{zn}), and lower pollution (\code{nox}). On the contrary, cluster C3 represents the poorer area with fewer rooms (\code{rm}), low house value (\code{medv}), high rate of crime (\code{crim}) and industrialization (\code{indus}), and the highest level of average pollution (\code{nox}). Cluster C2 represents an area in between. For test data, clusters characterized by larger average house prices (\code{medv}) have fewer neighborhood disadvantages such as lower crime per capita (\code{crim}), more spacious houses (\code{rm}), and less pollution (\code{nox}); poorer clusters represent the opposite pattern.
 
 The presented case study demonstrates the usage of a representative partition and its cluster description as well as how we assign posterior predictive membership probabilities for a new observation. The use of representative clusters makes the connection between partition uncertainty and distribution of the response given covariates clearer.
 
@@ -1592,7 +1594,7 @@ cqte_fit$fit_df  # full CQTE summary table
 
 
 
-The CQTE estimates reveal heterogeneity across all covariate profiles and quantile levels. At low and median quantile levels, the estimated program effect is negative or close to zero, with the median CQTE significantly below zero for Profiles~1 and~2. Uncertainty increases sharply at the upper quantiles, especially for Profile~4, because upper-quantile contrasts rely on fewer observations and are more sensitive to the spliced tail. Overall, the CQTE table provides no clear evidence of positive program effects: upper-tail intervals sometimes extend into positive values, but the corresponding point estimates remain nonpositive.
+The CQTE estimates reveal heterogeneity across all covariate profiles and quantile levels. At low and median quantile levels, the estimated program effect is negative or close to zero, with the median CQTE significantly below zero for Profiles~1 and~2. Uncertainty increases sharply at the upper quantiles, especially for Profile~4, because upper-quantile contrasts rely on fewer observations and are more sensitive to the spliced tail. Overall, the CQTE table provides no clear evidence of positive program effects: upper-tail intervals sometimes extend into positive values, but the corresponding point estimates remain negative.
 
 \subsection{Results and interpretation}
 
