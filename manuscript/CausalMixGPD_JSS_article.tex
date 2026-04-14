@@ -141,7 +141,7 @@ comparisons between treatment regimes.  In clinical trials, for
 instance, investigators may wish to characterize how a treatment alters
 outcomes across the entire outcome scale, including effects among
 individuals in the upper tail where events are rare but consequences
-can be severe.  This shift from mean-based to distribution-based causal
+can be severe.  This shift from  to distribution-based causal
 questions ties the credibility of causal analyses directly to the
 quality of the underlying outcome distribution estimates under
 competing treatment assignments.
@@ -1199,10 +1199,9 @@ covariates determine the weights of the mixture while the parameters of the comp
 
 \begin{Schunk}
 \begin{Sinput}
-R> fit_clust <- dpmix.cluster(formula = medv ~ lstat + rm + nox + crim + indus,
-+                             data = train_dat, kernel = "normal",
-+                             type = "weights", components = 10,
-+                             mcmc = mcmc_fixed)
+R> fit_clust <- dpmix.cluster(formula = medv ~ ., data = train_dat,
++                             kernel = "normal", type = "weights",
++                             components = 10, mcmc = mcmc_fixed)
 \end{Sinput}
 \end{Schunk}
 
@@ -1287,24 +1286,35 @@ R> z_test <- predict(fit_clust, newdata = test_dat, type = "label")
 Figure~\ref{fig:app_cluster_test_sizes} displays the distribution of
 predicted cluster assignments across the test sample, produced by the
 package \code{plot()} method applied to the test labels object.
+The printed summary below gives the median response and covariate
+profiles for each predicted cluster in the test set, returned by
+\code{summary(predict(fit\_clust, newdata = test\_dat, type = "label"))\$cluster\_profiles}.
 
 \begin{Schunk}
 \begin{Sinput}
 R> summary(z_test)$cluster_profiles
 \end{Sinput}
 \begin{Soutput}
-  cluster  n medv_mean  medv_sd lstat_mean lstat_sd  rm_mean
-1      C4 61  20.34918 7.996325   13.71049 5.648352 6.291541
-2      C1 39  23.16667 8.511118   11.43846 7.812358 6.200205
-3      C2  2  50.00000 0.000000    6.30500 3.641600 6.279000
-      rm_sd  nox_mean     nox_sd crim_mean   crim_sd indus_mean
-1 0.7214253 0.5836066 0.10996185  5.886307 14.626399   13.16393
-2 0.8654261 0.5474359 0.11791451  2.487308  4.878368   10.64513
-3 0.5713423 0.6495000 0.02616295  6.968615  1.836547   18.10000
-  indus_sd
-1 7.024370
-2 6.141682
-3 0.000000
+  cluster  n medv_mean  medv_sd  crim_mean   crim_sd   zn_mean
+1      C2 46  20.87174 3.133309  0.7925048  1.725793  2.902174
+2      C3 30  15.36000 7.796666 13.5420153 18.960580  2.666667
+3      C1 26  31.68846 9.695497  1.0496638  1.752975 22.615385
+      zn_sd indus_mean indus_sd  chas_mean   chas_sd  nox_mean
+1  7.856787  11.349783 6.077225 0.06521739 0.2496374 0.5286957
+2 14.605935  18.046333 2.961173 0.03333333 0.1825742 0.6751667
+3 27.368708   7.341538 6.405760 0.07692308 0.2717465 0.5259231
+      nox_sd  rm_mean     rm_sd age_mean   age_sd dis_mean
+1 0.08399335 6.061370 0.3964721 67.79565 28.14555 3.868787
+2 0.07969212 6.010900 0.6312801 89.93000 15.24594 2.206400
+3 0.11591063 6.884615 1.0538402 58.46923 28.94230 4.199923
+    dis_sd  rad_mean   rad_sd tax_mean    tax_sd ptratio_mean
+1 1.630337  5.065217 4.291605 319.1087  97.58921     18.43261
+2 1.418189 20.600000 7.753086 622.6333 100.56272     19.99000
+3 2.196438  8.076923 8.153149 382.9615 150.14885     16.91154
+  ptratio_sd black_mean  black_sd lstat_mean lstat_sd
+1   1.937244   380.0700  34.36248  11.606522 3.770490
+2   1.264461   277.3020 156.42949  19.653000 6.326669
+3   2.701307   387.8165  12.37760   6.598462 2.676518
 \end{Soutput}
 \end{Schunk}
 \begin{Schunk}
@@ -1321,23 +1331,20 @@ R> plot(z_test, type = "sizes")
 \end{figure}
 \end{Schunk}
 
-The expected characteristics of the clusters' profiles are consistent with the interpretation of the representative partition. Cluster C5 contains the wealthiest tracts defined by a high mean house value, low average \code{lstat}, large mean number of rooms, and relatively low pollution. Cluster C1 represents the poorest neighborhoods with a low average house value, significant disadvantages in terms of neighborhood quality, low mean number of rooms, and a high level of pollution. Clusters C2 and C4 represent intermediate cases which show that multiple clusters were detected within the housing market rather than a bimodal distribution with poor and wealthy neighborhoods at its ends.
+The obtained profiles for the clusters correspond to our expectations concerning the representative partition. Cluster C1 includes tracts with higher average house values, many rooms, greater amount of zoning, and lower level of pollution. On the contrary, cluster C3 represents the poorer area with smaller number of rooms, low house value, high rate of crime and industrialization, and highest level of average pollution. Cluster C2 represents an area in between and demonstrates that the housing market does not depend solely on the dichotomy 'rich / poor'. For test data, in turn, clusters characterized by larger value of average house price have less neighborhood disadvantage, more spacious houses and less pollution; poorer clusters represent the opposite pattern.
 
-As expected, the vast majority of held-out tracts are classified into middle-value clusters (C4 and C2) with no tendency toward the low-end cluster. This is consistent with the Boston data, confirming that predictions are not unduly influenced by the outliers in the dataset. Tract assignments in the test set confirm the interpretation of the training-set partition: tracts belonging to more expensive clusters exhibit less neighborhood disadvantage, larger homes, and lower pollution, while tracts in poorer clusters exhibit the opposite characteristics.
-
-This case study illustrates the workflow in which inference is summarized through a representative partition and cluster descriptions, and new observations are assigned to those clusters based on posterior predictive membership probabilities. The representative clusters also quantify the relationship between partition uncertainty and the marginal distributions of the response and covariates. The latent clusters align with the socioeconomic and environmental gradient, confirming that the nonparametric mixture recovers stable structure despite heterogeneity in the response. Causal comparisons are taken up in Section~\ref{sec:app-causal}.
-
+The presented case study demonstrates the usage of a representative partition and its cluster description as well as how we assign posterior predictive membership probabilities for a new observation. The use of representative clusters makes the connection between partition uncertainty and distribution of the response given covariates clearer.
 
 \section{Data analysis~II: causal inference}
 \label{sec:app-causal}
 
 This section describes the estimands from the two-arm spliced density regression. In contrast to the partition estimation of Section~\ref{sec:app-clustering}, the focus here is on mean and quantile differences for both unconditional and conditional causal estimands.
 
-Data and estimands
+\subsection{Data and estimands}
 
 To estimate unconditional and conditional causal estimands using the proposed approach, the \code{lalonde} dataset from the \pkg{MatchIt} \proglang{R} package is used for benchmarking. The outcome is the 1978 annual income level measured by \code{re78} (\$), and the treatment indicator corresponds to program participation (variable \code{treat}). Covariates include age, years of schooling, race, marriage status, college degree status, and prior earnings \code{re74} and \code{re75}. Earnings typically exhibit considerable skewness, concentrate near zero, and have a pronounced upper tail, motivating the use of quantile and tail summaries rather than the mean alone.
 
-The four estimands in Table~\ref{tab:causal-estimands-main} are computed following Section~\ref{subsec:causal}. Standardized estimands (ATE, QTE) are averaged across the empirical distribution of \(\{\boldsymbol{x}_i\}_{i=1}^n\), while conditional estimands (CATE, CQTE) are evaluated at selected covariate profiles.
+The six estimands in Table~\ref{tab:causal-estimands-main} are computed following Section~\ref{subsec:causal}. Standardized estimands (ATE, QTE) are averaged across the empirical distribution of \(\{\boldsymbol{x}_i\}_{i=1}^n\), while conditional estimands (CATE, CQTE) are evaluated at selected covariate profiles.
 
 The data are first loaded and the design matrix constructed.
 
@@ -1437,6 +1444,8 @@ from which all reported summaries are derived. The framework is therefore
 not limited to a single regression coefficient or scalar contrast; mean,
 quantile, and tail-sensitive causal estimands are all coherent functionals
 of the same fitted posterior distribution.
+The printed output below reports wall-clock MCMC run times for each
+arm returned by \code{fit\$timing}.
 
 \begin{Schunk}
 \begin{Soutput}
@@ -1476,8 +1485,7 @@ The posterior ATE estimate is negative on the scaled earnings scale,
 but the corresponding interval includes zero. Thus, after averaging
 over the empirical covariate distribution, the analysis does not
 provide strong evidence of a uniform overall mean effect of the
-training program. Mean-based summaries alone are therefore insufficient
-to characterize the program effect in this application.
+training program.
 
 \begin{Schunk}
 \begin{Sinput}
@@ -1486,7 +1494,7 @@ R> qte_fit <- qte(fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 \end{Schunk}
 
 Figure~\ref{fig:qte_plot} displays two standardized QTE views side by
-side from the spliced causal model: the estimated QTE profile across the
+side from the causal model: the estimated QTE profile across the
 evaluated quantiles and the treated-versus-control quantile summaries
 with uncertainty intervals.
 
@@ -1506,7 +1514,8 @@ R> qte_effect_plot + qte_arms_plot + plot_layout(ncol = 2)
 \end{figure}
 \end{Schunk}
 
-The QTEs remain negative at the specified quantile levels, indicating that the treatment distribution lies below the control at those points of the marginal distribution. The estimated marginal quantiles for both arms show that the deviations are not reducible to a location shift but reflect heterogeneity across the outcome distribution.
+Estimates of QTEs are all negative for the quantiles analyzed. However, the confidence interval for the median QTE and the for the 3rd quartile do not contain zero, indicating that the training program have a negative impact on high earners.
+
 
 \subsection{Conditional estimands for representative profiles}
 
@@ -1543,15 +1552,42 @@ re75 & 0.0000 & 16.4710 & 1389.6486 & 4201.8870\\
 R> cate_fit <- cate(fit, newdata = xnew, interval = "hpd")
 R> summary(cate_fit)
 \end{Sinput}
+\begin{Soutput}
+CATE Summary
+================================================== 
+Prediction points: 4
+Conditional: YES | PS used: YES
+Interval: hpd
+
+Model specification:
+  Backend (trt/con): crp / crp
+  Kernel (trt/con): gamma / gamma
+  GPD tail (trt/con): YES / YES
+
+CATE estimates:
+   profile estimate   lower upper
+ Profile 1   -1.978  -5.481 1.448
+ Profile 2   -2.685  -7.837 1.612
+ Profile 3   -1.744  -7.203 3.256
+ Profile 4   -7.725 -31.332 15.31
+\end{Soutput}
 \end{Schunk}
 
-The mean-based conditional average treatment effects are generally
-modest and uncertain. Although some profiles show positive point
-estimates, the corresponding intervals are broad and typically overlap
-zero. Thus, at the level of conditional means, the program does not
-appear to induce a strong and uniform shift in earnings across all
-participant types.
+Figure~\ref{fig:cate_plot} shows the  CATE summaries across
+the four representative profiles.
+\begin{Schunk}
+\begin{figure}[!htbp]
 
+{\centering \includegraphics[width=0.76\linewidth]{figure/cate_plot-1} 
+
+}
+
+\caption{Profile-specific conditional average treatment effects for Lalonde 1978 earnings at the four representative covariate profiles (Profile~1--Profile~4) of Table~\ref{tab:xnew-results}, returned by \code{cate(fit, newdata = xnew, interval = "hpd")}. Points denote posterior estimates of $\mathrm{CATE}(x)=\mu_1(x)-\mu_0(x)$ and vertical bars give $95\%$ HPD intervals.}\label{fig:cate_plot}
+\end{figure}
+\end{Schunk}
+
+
+None of the four profiles show a statistically significant  CATE, as all 95\% HPD intervals include zero. However, the point estimates suggest that the program may have a negative effect on earnings for Profiles~4, while the effects for Profiles~1, 2 and~4 are closer to zero.
 \begin{Schunk}
 \begin{Sinput}
 R> cqte_fit <- cqte(fit, probs = c(0.25, 0.5, 0.75, 0.9, 0.95),
@@ -1584,28 +1620,12 @@ R> cqte_fit$fit_df  # full CQTE summary table
 \end{Schunk}
 
 
-Figure~\ref{fig:cate_plot} shows the mean-based CATE summaries across
-the four representative profiles. The full numerical CQTE summary is
-printed directly above from \code{cqte\_fit\$fit\_df}, so the posterior
-estimates and their 95\% credible intervals can be read directly from
-the console output rather than from a separate graphic.
 
-\begin{Schunk}
-\begin{figure}[!htbp]
-
-{\centering \includegraphics[width=0.76\linewidth]{figure/cate_plot-1} 
-
-}
-
-\caption{Profile-specific conditional average treatment effects for Lalonde 1978 earnings at the four representative covariate profiles (Profile~1--Profile~4) of Table~\ref{tab:xnew-results}, returned by \code{cate(fit, newdata = xnew, interval = "hpd")}. Points denote posterior estimates of $\mathrm{CATE}(x)=\mu_1(x)-\mu_0(x)$ and vertical bars give $95\%$ HPD intervals.}\label{fig:cate_plot}
-\end{figure}
-\end{Schunk}
-
-The CQTE estimates reveal heterogeneity across both covariate profiles and quantile levels. At low and median quantile levels, the estimated program effect is close to zero or negative. Uncertainty about treatment effects is high at the upper quantiles, as upper-quantile contrasts rely on fewer observations and are more sensitive to the spliced tail. The analysis provides no evidence of positive program effects; any such effects, if present, appear confined to specific covariate profiles at upper quantiles.
+The CQTE estimates reveal heterogeneity across all covariate profiles and quantile levels. At low and median quantile levels, the estimated program effect is negative or close to zero, with the median CQTE significantly below zero for Profiles~1 and~2. Uncertainty increases sharply at the upper quantiles, especially for Profile~4, because upper-quantile contrasts rely on fewer observations and are more sensitive to the spliced tail. Overall, the CQTE table provides no clear evidence of positive program effects: upper-tail intervals sometimes extend into positive values, but the corresponding point estimates remain nonpositive.
 
 \subsection{Results and interpretation}
 
-Two questions bear on the interpretation: the overall program effect on earnings, and heterogeneity of effects across participant profiles. The first yields no statistically compelling evidence — the average treatment effect is close to zero and the estimated QTE are negative at lower and mid-quantiles. The second yields equivocal findings: treatment effects are profile-specific, and some CQTE at upper quantiles show a positive effect confined to particular subpopulations.
+Two questions bear on the interpretation: the overall program effect on earnings, and heterogeneity of effects across participant profiles. The first yields no statistically compelling evidence: the average treatment effect is close to zero and the estimated QTE are negative at lower and mid-quantiles. The second indicates heterogeneity in magnitude and uncertainty across profiles, but not a clear reversal in sign: CQTE point estimates remain nonpositive across the reported quantiles, while upper-tail intervals widen substantially for some profiles.
 
 This analysis underscores the value of quantile-based methods for heavy-tailed outcomes. A mean-only analysis provides little evidence of a program effect; the QTE, by contrast, reveals heterogeneity in the treatment effect across the outcome distribution.
 
