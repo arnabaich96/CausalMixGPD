@@ -5046,19 +5046,53 @@ test_that("wrapper helpers normalize treatment and formula inputs", {
 })
 
 test_that("mcmc override helpers split runner controls and update bundles", {
-  parsed <- .normalize_mcmc_inputs(list(niter = 50, nburn = 10, show_progress = FALSE, timing = TRUE))
+  parsed <- .normalize_mcmc_inputs(
+    list(
+      niter = 50,
+      nburn = 10,
+      show_progress = FALSE,
+      timing = TRUE,
+      mcmc_outcome = list(seed = 9),
+      mcmc_ps = list(niter = 20)
+    )
+  )
   expect_equal(parsed$overrides$niter, 50)
   expect_equal(parsed$overrides$nburnin, 10)
   expect_false("nburn" %in% names(parsed$overrides))
   expect_false(parsed$runner$show_progress)
   expect_true(parsed$runner$timing)
+  expect_equal(parsed$outcome_overrides$seed, 9)
+  expect_equal(parsed$ps_overrides$niter, 20)
   expect_error(.normalize_mcmc_inputs(list(10)), "must be named")
   expect_error(.normalize_mcmc_inputs(list(foo = 1)), "Unknown mcmc argument")
+  expect_error(.normalize_mcmc_inputs(list(mcmc_ps = 1)), "must be a named list")
 
   bundle_obj <- structure(list(mcmc = list(niter = 20, nburnin = 5)), class = "causalmixgpd_bundle")
   updated <- .apply_mcmc_overrides(bundle_obj, list(niter = 100, seed = 9))
   expect_equal(updated$mcmc$niter, 100)
   expect_equal(updated$mcmc$seed, 9)
+
+  causal_bundle_obj <- structure(
+    list(
+      outcome = list(
+        con = list(mcmc = list(niter = 20, nburnin = 5)),
+        trt = list(mcmc = list(niter = 20, nburnin = 5))
+      ),
+      design = structure(list(mcmc = list(niter = 12, nburnin = 3)), class = "causalmixgpd_ps_bundle")
+    ),
+    class = "causalmixgpd_causal_bundle"
+  )
+  updated_causal <- .apply_mcmc_overrides(
+    causal_bundle_obj,
+    list(niter = 100),
+    outcome_overrides = list(seed = 7),
+    ps_overrides = list(niter = 30, seed = 11)
+  )
+  expect_equal(updated_causal$outcome$con$mcmc$niter, 100)
+  expect_equal(updated_causal$outcome$trt$mcmc$seed, 7)
+  expect_equal(updated_causal$design$mcmc$niter, 30)
+  expect_equal(updated_causal$design$mcmc$seed, 11)
+  expect_error(.apply_mcmc_overrides(bundle_obj, list(niter = 10), ps_overrides = list(niter = 5)), "only for causal bundles")
 })
 
 test_that("build-run helpers validate inputs and expose structural metadata", {
@@ -5726,6 +5760,20 @@ test_that("causal validation and bundle helpers cover conditional and input bran
   )
   expect_false(cb_no_x$meta$ps$enabled)
 
+  cb_default_components <- build_causal_bundle(
+    y = c(y, y),
+    X = rbind(x, x),
+    A = rep(A, 2L),
+    backend = "sb",
+    kernel = "normal",
+    PS = FALSE,
+    mcmc_outcome = mcmc_fast(seed = 7L)
+  )
+  expect_equal(cb_default_components$meta$components$con, 10L)
+  expect_equal(cb_default_components$meta$components$trt, 10L)
+  expect_equal(cb_default_components$outcome$con$spec$meta$components, 10L)
+  expect_equal(cb_default_components$outcome$trt$spec$meta$components, 10L)
+
   expect_error(build_causal_bundle(y = numeric(0), X = x, A = A, backend = "sb", kernel = "normal", components = 3), "non-empty numeric vector")
   expect_error(build_causal_bundle(y = y, X = x[1:3, , drop = FALSE], A = A, backend = "sb", kernel = "normal", components = 3), "same number of rows")
   expect_error(build_causal_bundle(y = y, X = x, A = c(0L, 1L, 2L, 1L), backend = "sb", kernel = "normal", components = 3), "binary")
@@ -5898,9 +5946,13 @@ test_that("cluster handcrafted fit covers newdata label prediction helpers", {
 })
 
 test_that("causal wrapper functions cover marginal branches with mocked outcome fits", {
+  predict_rows <- list()
   testthat::local_mocked_bindings(
     predict = function(object, ...) {
       if (inherits(object, "fake_mixfit")) {
+        call_args <- list(...)
+        x_arg <- call_args$newdata %||% call_args$x %||% NULL
+        predict_rows[[length(predict_rows) + 1L]] <<- if (is.null(x_arg)) NA_integer_ else nrow(as.matrix(x_arg))
         return(predict.fake_mixfit(object, ...))
       }
       stats::predict(object, ...)
@@ -5921,6 +5973,8 @@ test_that("causal wrapper functions cover marginal branches with mocked outcome 
   qtt_out <- qtt(fit_cond, probs = c(0.25, 0.75), interval = "hpd", show_progress = FALSE)
   expect_s3_class(qtt_out, "causalmixgpd_qte")
   expect_equal(qtt_out$type, "qtt")
+  expect_equal(predict_rows[[length(predict_rows) - 1L]], 2L)
+  expect_equal(predict_rows[[length(predict_rows)]], 2L)
 
   ate_out <- ate(fit_cond, type = "mean", nsim_mean = 10L, show_progress = FALSE)
   att_out <- att(fit_cond, type = "rmean", cutoff = 3, nsim_mean = 10L, show_progress = FALSE)
@@ -5931,6 +5985,8 @@ test_that("causal wrapper functions cover marginal branches with mocked outcome 
   expect_equal(att_out$nsim_mean, 10L)
   expect_s3_class(ate_out$fit_df, "data.frame")
   expect_s3_class(att_out$fit_df, "data.frame")
+  expect_equal(predict_rows[[length(predict_rows) - 1L]], 2L)
+  expect_equal(predict_rows[[length(predict_rows)]], 2L)
   expect_false(any(grepl("Posterior mean draws", utils::capture.output(print(ate_out)))))
   expect_true(any(grepl("Posterior mean draws", utils::capture.output(print(att_out)))))
 
@@ -6032,6 +6088,8 @@ test_that("run_mcmc_causal orchestration covers PS, fallback, and validation bra
   expect_equal(fit_ps$ps_hat, rep(0.4, 4))
   expect_equal(fit_ps$bundle$outcome$con$data$ps, c(0.4, 0.4))
   expect_null(fit_no_ps$ps_fit)
+  expect_identical(fit_ps$bundle$outcome$con$code, bundle_ps$outcome$con$code)
+  expect_identical(fit_ps$bundle$outcome$trt$code, bundle_ps$outcome$trt$code)
   expect_error(run_mcmc_causal(bundle_ps, z_update_every = 0L, show_progress = FALSE, quiet = TRUE), ">= 1")
 })
 
@@ -6248,6 +6306,48 @@ test_that("causal prediction wrapper covers quantile, density, survival, prob, a
   )
 })
 
+test_that("causal survival prediction collapses duplicated long-form arm output by id and y", {
+  testthat::local_mocked_bindings(
+    predict = function(object, ...) {
+      if (inherits(object, "fake_mixfit")) {
+        args <- list(...)
+        id_vals <- args$id
+        y_vals <- as.numeric(args$y)
+        newdata <- args$newdata
+        type <- match.arg(args$type, c("density", "survival"))
+        arm_shift <- if (identical(object$arm, "trt")) 1 else 0
+        if (is.null(id_vals)) {
+          id_vals <- seq_len(nrow(as.matrix(newdata)))
+        }
+        fit <- do.call(rbind, lapply(seq_along(id_vals), function(i) {
+          data.frame(
+            id = rep(id_vals[i], length(y_vals)),
+            y = y_vals,
+            survival = arm_shift + 0.1 * i,
+            lower = arm_shift + 0.1 * i - 0.01,
+            upper = arm_shift + 0.1 * i + 0.01
+          )
+        }))
+        return(list(fit = fit))
+      }
+      stats::predict(object, ...)
+    },
+    .package = "CausalMixGPD"
+  )
+
+  fit_ps <- .make_fake_causal_fit(has_X = TRUE, ps_enabled = FALSE)
+  x_new <- cbind(x1 = c(0, 1), x2 = c(1, 2))
+  y_new <- c(0.1, 0.2)
+  surv <- predict(fit_ps, newdata = x_new, y = y_new, id = c(10L, 20L), type = "survival", show_progress = FALSE)
+
+  expect_s3_class(surv, "causalmixgpd_causal_predict")
+  expect_equal(nrow(surv), 2L)
+  expect_equal(surv$id, c(10L, 20L))
+  expect_equal(surv$y, y_new)
+  expect_equal(surv$trt_estimate, c(1.1, 1.2))
+  expect_equal(surv$con_estimate, c(0.1, 0.2))
+})
+
 test_that("causal prediction sample branch exposes long-form data frames", {
   testthat::local_mocked_bindings(
     .extract_draws_matrix = function(object, ...) matrix(1:6, nrow = 3L),
@@ -6280,5 +6380,3 @@ test_that("causal prediction sample branch exposes long-form data frames", {
 })
 
 # ===== END unit/test-causal-and-cluster-helper-coverage.R =====
-
-

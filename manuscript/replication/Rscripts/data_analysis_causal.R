@@ -19,7 +19,8 @@ mcmc_fixed <- list(
 library(CausalMixGPD)
 library(ggplot2)
 library(patchwork)
-
+library(future)
+library(future.apply)
 # Colour palette and ggplot2 theme — defined in the Rnw setup chunk.
 # Copied here so standalone figures match the manuscript.
 cmgpd_pal <- c(

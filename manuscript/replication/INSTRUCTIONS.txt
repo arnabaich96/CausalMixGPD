@@ -22,6 +22,11 @@ run_all.sh  (Linux/macOS)
 run_all.bat  (Windows)
   Double-click, or from cmd: run_all.bat
   The window stays open after completion so any errors are visible.
+  For unattended/background runs: set CMGPD_NO_PAUSE=1 && run_all.bat
+
+run_all.ps1  (Windows PowerShell)
+  Background-friendly launcher with no final pause.
+  Run: powershell -ExecutionPolicy Bypass -File .\run_all.ps1
 
 Rscripts/overview_cluster.R
   Package overview — clustering API (dpmgpd, dpmix, dpmix.cluster).
@@ -90,6 +95,10 @@ Linux/macOS:
 
 Windows:
   run_all.bat
+  For background runs:
+  powershell -ExecutionPolicy Bypass -File .\run_all.ps1
+  or
+  set CMGPD_NO_PAUSE=1 && run_all.bat
 
 From R:
   setwd(".../manuscript/replication")

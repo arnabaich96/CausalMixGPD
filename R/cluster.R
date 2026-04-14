@@ -287,7 +287,7 @@ build_cluster_bundle <- function(formula,
                                  default = "weights",
                                  link = NULL,
                                  priors = NULL,
-                                 components = NULL,
+                                 components = 10L,
                                  mcmc = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
                                  param_specs = NULL,
                                  epsilon = 0.025,
@@ -306,15 +306,7 @@ build_cluster_bundle <- function(formula,
   )
 
   if (components_missing) {
-    components <- max(20L, min(50L, length(parsed$y)))
-    warning(
-      sprintf(
-        "No 'components' provided for type='%s'; using default components=%d.",
-        type,
-        components
-      ),
-      call. = FALSE
-    )
+    components <- 10L
   }
   components <- as.integer(components)
   if (!is.finite(components) || components < 2L) {

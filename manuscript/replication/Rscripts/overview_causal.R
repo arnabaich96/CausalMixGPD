@@ -68,16 +68,22 @@ plot(qtt_fit, type = "effect")
 # Out-of-sample conditional survival prediction.
 # causal_xgrid: all predictor-quartile combinations (3^3 = 27 rows).
 # predict() with type = "survival": P(Y(a) > y | X = x) for each row.
+# Align columns to training design matrix; optional id avoids length mismatch.
 # =============================================================================
 causal_xgrid <- expand.grid(lapply(
   causal_df[c("x1", "x2", "x3")],
   quantile,
-  probs = c(0.25, 0.50, 0.75)
+  probs = c(0.25, 0.50, 0.75),
+  na.rm = TRUE
 ))
+causal_xgrid <- as.matrix(causal_xgrid)
+causal_xgrid <- causal_xgrid[, colnames(causal_fit$bundle$data$X), drop = FALSE]
 
-predict(
-  causal_fit,
-  newdata = causal_xgrid,
-  type    = "survival",
-  y       = rep(4, nrow(causal_xgrid))
-)
+predict(causal_fit,
+           newdata = causal_xgrid,
+           type    = "survival",
+             y       = rep(4,length=nrow(causal_xgrid)))
+
+
+
+

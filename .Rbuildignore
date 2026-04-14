@@ -75,6 +75,7 @@
 ^codecov\.exe\.SHA256SUM$
 ^codecov\.exe\.SHA256SUM\.sig$
 ^DPmixGpd\.tex$
+^Sweave\.sty$
 ^REPO_BLUEPRINT\.md$
 ^fix_exports\.R$
 ^temp$

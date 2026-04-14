@@ -130,10 +130,10 @@ build_causal_bundle <- function(
     backend = c("sb", "crp", "spliced"),
     kernel,
     GPD = FALSE,
-    components = NULL,
+    components = 10L,
     param_specs = NULL,
     mcmc_outcome = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
-    mcmc_ps = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
+    mcmc_ps = list(niter = 1000, nburnin = 250, thin = 1, nchains = 1, seed = 1),
     epsilon = 0.025,
     alpha_random = TRUE,
     ps_prior = list(mean = 0, sd = 2),
@@ -184,17 +184,6 @@ build_causal_bundle <- function(
   if (length(A) != length(y)) stop("A must have the same length as y.", call. = FALSE)
   if (anyNA(A) || !all(A %in% c(0L, 1L))) stop("A must be binary (0/1) with no NA.", call. = FALSE)
 
-  if (is.null(components)) components <- length(y)
-  components <- .arm_value(components, "components")
-  components$trt <- as.integer(components$trt)
-  components$con <- as.integer(components$con)
-  if (!is.finite(components$trt) || components$trt < 2L) {
-    stop("components (treated) must be an integer >= 2.", call. = FALSE)
-  }
-  if (!is.finite(components$con) || components$con < 2L) {
-    stop("components (control) must be an integer >= 2.", call. = FALSE)
-  }
-
   # Validate and normalize PS parameter (disable PS when X is missing/empty)
   ps_model_type <- FALSE
   ps_choices <- c("logit", "probit", "naive")
@@ -212,6 +201,19 @@ build_causal_bundle <- function(
   idx_trt <- which(A == 1L)
   if (!length(idx_con) || !length(idx_trt)) {
     stop("Both treatment arms must have at least one observation.", call. = FALSE)
+  }
+
+  if (is.null(components)) {
+    components <- 10L
+  }
+  components <- .arm_value(components, "components")
+  components$trt <- as.integer(components$trt)
+  components$con <- as.integer(components$con)
+  if (!is.finite(components$trt) || components$trt < 2L) {
+    stop("components (treated) must be an integer >= 2.", call. = FALSE)
+  }
+  if (!is.finite(components$con) || components$con < 2L) {
+    stop("components (control) must be an integer >= 2.", call. = FALSE)
   }
 
   # Only build PS bundle if PS model is specified (not FALSE)
@@ -512,6 +514,37 @@ build_causal_bundle <- function(
   fit
 }
 
+.ensure_causal_outcome_bundle_runtime_fields <- function(bundle, monitor_policy = NULL) {
+  stopifnot(inherits(bundle, "causalmixgpd_bundle"))
+
+  if (is.null(bundle$code)) {
+    bundle$code <- .wrap_nimble_code(build_code_from_spec(bundle$spec))
+  }
+  if (is.null(bundle$constants)) {
+    bundle$constants <- build_constants_from_spec(bundle$spec)
+  }
+  if (is.null(bundle$dimensions)) {
+    bundle$dimensions <- build_dimensions_from_spec(bundle$spec)
+  }
+  if (is.null(bundle$monitors) || !length(bundle$monitors)) {
+    pol <- bundle$monitor_policy %||% monitor_policy %||% list()
+    bundle$monitors <- build_monitors_from_spec(
+      bundle$spec,
+      monitor_v = isTRUE(pol$monitor_v),
+      monitor_latent = isTRUE(pol$monitor_latent)
+    )
+  }
+  if (is.null(bundle$inits)) {
+    bundle$inits <- build_inits_from_spec(
+      bundle$spec,
+      y = bundle$data$y,
+      X = bundle$data$X %||% NULL
+    )
+  }
+
+  bundle
+}
+
 #' Run posterior sampling for a causal bundle
 #'
 #' \code{run_mcmc_causal()} executes the PS block (when enabled) and the two
@@ -619,19 +652,12 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
     .cmgpd_progress_step(progress_ctx, "Skipping propensity score block")
   }
 
-  .cmgpd_progress_step(progress_ctx, "Rebuilding outcome-arm code/monitors")
-  # Regenerate code/constants/monitors (with or without PS)
+  .cmgpd_progress_step(progress_ctx, "Validating outcome-arm bundles")
   for (arm in c("con", "trt")) {
-    b <- bundle$outcome[[arm]]
-    b$code <- build_code_from_spec(b$spec)
-    b$constants <- build_constants_from_spec(b$spec)
-    pol <- b$monitor_policy %||% bundle$meta$monitor_policy %||% list()
-    b$monitors <- build_monitors_from_spec(
-      b$spec,
-      monitor_v = isTRUE(pol$monitor_v),
-      monitor_latent = isTRUE(pol$monitor_latent)
+    bundle$outcome[[arm]] <- .ensure_causal_outcome_bundle_runtime_fields(
+      bundle$outcome[[arm]],
+      monitor_policy = bundle$meta$monitor_policy %||% list()
     )
-    bundle$outcome[[arm]] <- b
   }
   parallel_arms <- isTRUE(parallel_arms)
   workers <- as.integer(workers %||% 2L)
@@ -1260,6 +1286,22 @@ cate <- function(fit,
   idx
 }
 
+.causal_training_x_subset <- function(fit, subset = c("all", "treated")) {
+  subset <- match.arg(subset)
+  x_pred <- fit$bundle$data$X %||% NULL
+  if (is.null(x_pred)) return(NULL)
+  x_pred <- as.matrix(x_pred)
+  if (subset == "all") return(x_pred)
+
+  idx <- as.integer(fit$bundle$index$trt %||% integer(0))
+  idx <- idx[is.finite(idx) & idx >= 1L & idx <= nrow(x_pred)]
+  idx <- unique(idx)
+  if (!length(idx)) {
+    stop("No treated rows available for treated-only causal summaries.", call. = FALSE)
+  }
+  x_pred[idx, , drop = FALSE]
+}
+
 .causal_profile_labels <- function(x_pred, newdata = NULL) {
   if (is.null(newdata) || is.null(x_pred)) return(NULL)
   n_pred <- nrow(as.matrix(x_pred))
@@ -1561,7 +1603,7 @@ qte <- function(fit,
   interval <- iv$interval
   level <- iv$level
 
-  x_pred <- fit$bundle$data$X %||% NULL
+  x_pred <- .causal_training_x_subset(fit, subset = "all")
   n_pred <- if (!is.null(x_pred)) nrow(as.matrix(x_pred)) else 1L
 
   ps_meta <- fit$bundle$meta$ps %||% list()
@@ -1641,7 +1683,7 @@ qte <- function(fit,
       GPD = meta$GPD
     )
   )
-  idx <- .causal_effect_subset_index(fit = fit, n_pred = cq$n_pred %||% 1L, subset = "all")
+  idx <- seq_len(cq$n_pred %||% 1L)
   .cmgpd_progress_step(progress_ctx, "Aggregating QTE estimates")
   .causal_aggregate_qte(cq, idx = idx, effect_type = "qte")
 }
@@ -1696,7 +1738,7 @@ qtt <- function(fit,
   interval <- iv$interval
   level <- iv$level
 
-  x_pred <- fit$bundle$data$X %||% NULL
+  x_pred <- .causal_training_x_subset(fit, subset = "treated")
   n_pred <- if (!is.null(x_pred)) nrow(as.matrix(x_pred)) else 1L
 
   ps_meta <- fit$bundle$meta$ps %||% list()
@@ -1776,7 +1818,7 @@ qtt <- function(fit,
       GPD = meta$GPD
     )
   )
-  idx <- .causal_effect_subset_index(fit = fit, n_pred = cq$n_pred %||% 1L, subset = "treated")
+  idx <- seq_len(cq$n_pred %||% 1L)
   .cmgpd_progress_step(progress_ctx, "Aggregating QTT estimates")
   .causal_aggregate_qte(cq, idx = idx, effect_type = "qtt")
 }
@@ -1860,7 +1902,7 @@ ate <- function(fit,
   interval <- iv$interval
   level <- iv$level
 
-  x_pred <- fit$bundle$data$X %||% NULL
+  x_pred <- .causal_training_x_subset(fit, subset = "all")
   n_pred <- if (!is.null(x_pred)) nrow(as.matrix(x_pred)) else 1L
 
   ps_meta <- fit$bundle$meta$ps %||% list()
@@ -1945,7 +1987,7 @@ ate <- function(fit,
       GPD = meta$GPD
     )
   )
-  idx <- .causal_effect_subset_index(fit = fit, n_pred = ca$n_pred %||% 1L, subset = "all")
+  idx <- seq_len(ca$n_pred %||% 1L)
   .cmgpd_progress_step(progress_ctx, "Aggregating ATE estimates")
   .causal_aggregate_ate(ca, idx = idx, effect_type = "ate")
 }
@@ -1999,7 +2041,7 @@ att <- function(fit,
   interval <- iv$interval
   level <- iv$level
 
-  x_pred <- fit$bundle$data$X %||% NULL
+  x_pred <- .causal_training_x_subset(fit, subset = "treated")
   n_pred <- if (!is.null(x_pred)) nrow(as.matrix(x_pred)) else 1L
 
   ps_meta <- fit$bundle$meta$ps %||% list()
@@ -2084,7 +2126,7 @@ att <- function(fit,
       GPD = meta$GPD
     )
   )
-  idx <- .causal_effect_subset_index(fit = fit, n_pred = ca$n_pred %||% 1L, subset = "treated")
+  idx <- seq_len(ca$n_pred %||% 1L)
   .cmgpd_progress_step(progress_ctx, "Aggregating ATT estimates")
   .causal_aggregate_ate(ca, idx = idx, effect_type = "att")
 }
@@ -2396,41 +2438,106 @@ predict.causalmixgpd_causal_fit <- function(object,
     list(estimate = est, lower = lower, upper = upper)
   }
 
+  .extract_curve_stats <- function(pr, n_pred, id_vals, y_vec, value_name) {
+    fit <- pr$fit
+    if (!is.data.frame(fit)) {
+      return(.extract_stats(pr, n_pred))
+    }
+
+    fit_df <- fit
+    val_col <- if (value_name %in% names(fit_df)) {
+      value_name
+    } else if ("estimate" %in% names(fit_df)) {
+      "estimate"
+    } else {
+      NULL
+    }
+    if (is.null(val_col)) {
+      stop("Unexpected format from underlying predict() for causal curve prediction.", call. = FALSE)
+    }
+
+    if (!("id" %in% names(fit_df))) {
+      if (nrow(fit_df) != n_pred) {
+        stop("Unexpected prediction length in causal predict.", call. = FALSE)
+      }
+      fit_df$id <- id_vals
+    }
+
+    if ("y" %in% names(fit_df)) {
+      pick_idx <- vapply(seq_along(id_vals), function(i) {
+        rows_i <- which(fit_df$id == id_vals[i])
+        if (!length(rows_i)) return(NA_integer_)
+
+        y_i <- suppressWarnings(as.numeric(fit_df$y[rows_i]))
+        if (!is.finite(y_vec[i])) return(rows_i[1])
+
+        dist_i <- abs(y_i - y_vec[i])
+        dist_i[!is.finite(dist_i)] <- Inf
+        if (all(!is.finite(dist_i))) return(NA_integer_)
+
+        rows_i[which.min(dist_i)]
+      }, integer(1))
+      fit_df <- fit_df[pick_idx[is.finite(pick_idx)], , drop = FALSE]
+    } else {
+      if (nrow(fit_df) != n_pred) {
+        stop("Unexpected prediction length in causal predict.", call. = FALSE)
+      }
+      fit_df$y <- y_vec[match(fit_df$id, id_vals)]
+    }
+
+    fit_df <- unique(fit_df[, unique(c("id", "y", val_col, "lower", "upper")), drop = FALSE])
+    fit_df <- fit_df[order(match(fit_df$id, id_vals)), , drop = FALSE]
+    fit_df <- fit_df[!duplicated(fit_df$id), , drop = FALSE]
+
+    if (nrow(fit_df) != n_pred) {
+      stop("Unexpected prediction length in causal predict.", call. = FALSE)
+    }
+
+    est <- as.numeric(fit_df[[val_col]])
+    lower <- if ("lower" %in% names(fit_df)) as.numeric(fit_df$lower) else rep(NA_real_, n_pred)
+    upper <- if ("upper" %in% names(fit_df)) as.numeric(fit_df$upper) else rep(NA_real_, n_pred)
+    list(estimate = est, lower = lower, upper = upper)
+  }
+
   if (type %in% c("density", "survival", "prob")) {
     .cmgpd_progress_step(progress_ctx, "Predicting treated and control arms")
     pred_type <- if (type == "density") "density" else "survival"
     x_pred <- if (!is.null(x_mat)) x_mat else if (has_X) X_train else NULL
     y_vec <- y
+    id_arg <- if (!is.null(x_pred)) id_vals else NULL
 
-    .predict_pairwise <- function(fit, ps_vec) {
-      est <- lower <- upper <- numeric(n_pred)
-      for (i in seq_len(n_pred)) {
-        xi <- if (!is.null(x_pred)) x_pred[i, , drop = FALSE] else NULL
-        psi <- if (!is.null(ps_vec)) ps_vec[i] else NULL
-        pr <- predict(
-          fit,
-          newdata = xi,
-          y = y_vec[i],
-          ps = psi,
-          id = if (!is.null(xi)) id_vals[i] else NULL,
-          type = pred_type,
-          interval = if (compute_interval) interval else NULL,
-          probs = probs,
-          store_draws = FALSE,
-          show_progress = FALSE,
-          ncores = 1L,
-          ...
-        )
-        stats <- .extract_stats(pr, 1L)
-        est[i] <- stats$estimate[1]
-        lower[i] <- stats$lower[1]
-        upper[i] <- stats$upper[1]
-      }
-      list(estimate = est, lower = lower, upper = upper)
-    }
+    pr_trt <- predict(
+      object$outcome_fit$trt,
+      newdata = x_pred,
+      y = y_vec,
+      ps = ps_trt,
+      id = id_arg,
+      type = pred_type,
+      interval = if (compute_interval) interval else NULL,
+      probs = probs,
+      store_draws = FALSE,
+      show_progress = FALSE,
+      ncores = ncores_pred,
+      ...
+    )
+    pr_con <- predict(
+      object$outcome_fit$con,
+      newdata = x_pred,
+      y = y_vec,
+      ps = ps_con,
+      id = id_arg,
+      type = pred_type,
+      interval = if (compute_interval) interval else NULL,
+      probs = probs,
+      store_draws = FALSE,
+      show_progress = FALSE,
+      ncores = ncores_pred,
+      ...
+    )
 
-    trt_stats <- .predict_pairwise(object$outcome_fit$trt, ps_trt)
-    con_stats <- .predict_pairwise(object$outcome_fit$con, ps_con)
+    curve_value_name <- if (pred_type == "density") "density" else "survival"
+    trt_stats <- .extract_curve_stats(pr_trt, n_pred, id_vals = id_vals, y_vec = y_vec, value_name = curve_value_name)
+    con_stats <- .extract_curve_stats(pr_con, n_pred, id_vals = id_vals, y_vec = y_vec, value_name = curve_value_name)
 
     if (type == "prob") {
       trt_stats <- list(
@@ -2516,7 +2623,7 @@ predict.causalmixgpd_causal_fit <- function(object,
       store_draws = store_draws,
       nsim_mean = nsim_mean,
       show_progress = FALSE,
-      ncores = ncores,
+      ncores = ncores_pred,
       ...
     )
   }
@@ -2557,7 +2664,7 @@ predict.causalmixgpd_causal_fit <- function(object,
       store_draws = store_draws,
       nsim_mean = nsim_mean,
       show_progress = FALSE,
-      ncores = ncores,
+      ncores = ncores_pred,
       ...
     )
   }

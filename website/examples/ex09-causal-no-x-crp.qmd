@@ -43,8 +43,7 @@ library(CausalMixGPD)
 source("_legacy-setup.R")
 max_workers <- min(max_workers, CMGPD_MAX_WORKERS)
 causal_run_mcmc <- list(show_progress = FALSE, parallel_arms = TRUE, workers = max_workers, timing = TRUE)
-# CRP + GPD in this no-X example can stall under arm-parallel execution on some Windows setups.
-causal_run_mcmc_gpd <- list(show_progress = FALSE, parallel_arms = FALSE, workers = 1L, timing = TRUE)
+causal_run_mcmc_gpd <- list(show_progress = FALSE, parallel_arms = TRUE, workers = max_workers, timing = TRUE)
 components_ex09 <- if (isTRUE(FAST)) 2L else 6L
 bulk_mcmc_ex09 <- if (isTRUE(FAST)) {
   list(niter = 80, nburnin = 20, nchains = 1, thin = 1, seed = 1)
@@ -56,7 +55,7 @@ gpd_mcmc_ex09 <- if (isTRUE(FAST)) {
 } else {
   list(niter = 300, nburnin = 80, nchains = 1, thin = 1, seed = 2)
 }
-predict_workers_ex09 <- if (isTRUE(FAST)) 1L else max_workers
+predict_workers_ex09 <- max_workers
 nsim_mean_ex09 <- if (isTRUE(FAST)) 50L else 150L
 tag_crp_bulk <- if (isTRUE(FAST)) "ex09-causal-no-x-crp-fit_crp_bulk_fast" else "ex09-causal-no-x-crp-fit_crp_bulk"
 tag_crp_gpd <- if (isTRUE(FAST)) "ex09-causal-no-x-crp-fit_crp_gpd_fast" else "ex09-causal-no-x-crp-fit_crp_gpd"

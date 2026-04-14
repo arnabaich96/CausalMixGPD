@@ -398,6 +398,24 @@ print.causalmixgpd_causal_fit <- function(x, ...) {
       (meta$kernel %||% list())$con %||% "?", "\n")
   cat("GPD tail (treated/control):", ifelse(isTRUE((meta$GPD %||% list())$trt), "TRUE", "FALSE"),
       "/", ifelse(isTRUE((meta$GPD %||% list())$con), "TRUE", "FALSE"), "\n")
+
+  timing <- x$timing %||% list()
+  timing_vals <- suppressWarnings(as.numeric(c(
+    total = timing$total %||% NA_real_,
+    ps = timing$ps %||% NA_real_,
+    control = timing$con %||% NA_real_,
+    treated = timing$trt %||% NA_real_
+  )))
+  if (any(is.finite(timing_vals))) {
+    cat(
+      "Timing (sec): total =", fmt3(timing_vals["total"]),
+      "| PS =", fmt3(timing_vals["ps"]),
+      "| control =", fmt3(timing_vals["control"]),
+      "| treated =", fmt3(timing_vals["treated"]),
+      if (isTRUE(timing$parallel_arms)) "| parallel_arms = TRUE" else "",
+      "\n"
+    )
+  }
   invisible(x)
 }
 
@@ -446,7 +464,8 @@ summary.causalmixgpd_causal_fit <- function(object, pars = NULL, ps_pars = NULL,
       control = summary(object$outcome_fit$con, pars = pars, probs = probs),
       treated = summary(object$outcome_fit$trt, pars = pars, probs = probs)
     ),
-    probs = probs
+    probs = probs,
+    timing = object$timing %||% list()
   )
   class(out) <- "summary.causalmixgpd_causal_fit"
   out
@@ -561,6 +580,23 @@ summary.causalmixgpd_causal_fit <- function(object, pars = NULL, ps_pars = NULL,
 #' @export
 print.summary.causalmixgpd_causal_fit <- function(x, digits = 3, max_rows = 60, ...) {
   stopifnot(inherits(x, "summary.causalmixgpd_causal_fit"))
+  timing <- x$timing %||% list()
+  timing_vals <- suppressWarnings(as.numeric(c(
+    total = timing$total %||% NA_real_,
+    ps = timing$ps %||% NA_real_,
+    control = timing$con %||% NA_real_,
+    treated = timing$trt %||% NA_real_
+  )))
+  if (any(is.finite(timing_vals))) {
+    cat(
+      "Timing (sec): total =", fmt3(timing_vals["total"]),
+      "| PS =", fmt3(timing_vals["ps"]),
+      "| control =", fmt3(timing_vals["control"]),
+      "| treated =", fmt3(timing_vals["treated"]),
+      if (isTRUE(timing$parallel_arms)) "| parallel_arms = TRUE" else "",
+      "\n\n"
+    )
+  }
   if (!is.null(x$ps)) {
     cat("-- PS fit --\n")
     print(x$ps, digits = digits, max_rows = max_rows)

@@ -45,8 +45,8 @@ max_workers <- min(max_workers, CMGPD_MAX_WORKERS)
 causal_run_mcmc_bulk <- list(show_progress = FALSE, parallel_arms = TRUE, workers = max_workers, timing = TRUE)
 causal_run_mcmc_gpd <- list(
   show_progress = FALSE,
-  parallel_arms = if (isTRUE(FAST)) FALSE else TRUE,
-  workers = if (isTRUE(FAST)) 1L else max_workers,
+  parallel_arms = TRUE,
+  workers = max_workers,
   timing = TRUE
 )
 components_ex12 <- if (isTRUE(FAST)) 3L else 5L
@@ -62,7 +62,7 @@ gpd_mcmc_ex12 <- if (isTRUE(FAST)) {
 }
 mcmc_ps_bulk_ex12 <- bulk_mcmc_ex12
 mcmc_ps_gpd_ex12 <- gpd_mcmc_ex12
-predict_workers_ex12 <- if (isTRUE(FAST)) 1L else max_workers
+predict_workers_ex12 <- max_workers
 nsim_mean_ex12 <- if (isTRUE(FAST)) 50L else 100L
 plot_family_bulk_ex12 <- if (isTRUE(FAST)) "traceplot" else c("traceplot", "autocorrelation", "running")
 plot_family_gpd_ex12 <- if (isTRUE(FAST)) "density" else c("density", "geweke", "caterpillar")

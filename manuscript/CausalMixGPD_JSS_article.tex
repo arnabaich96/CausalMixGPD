@@ -1,5 +1,12 @@
 %\VignetteEncoding{UTF-8}
-%\SweaveOpts{concordance=TRUE}
+% Concordance (.Rnw line numbers vs woven .tex) is required for PDF<->source sync:
+%   - Sweave: \SweaveOpts{concordance=TRUE} in the preamble; or
+%   - knitr: knitr::opts_knit$set(concordance = TRUE) in a setup chunk (this file).
+% pdflatex SyncTeX alone maps the PDF to the intermediate .tex. To map the PDF to
+% this .Rnw in the viewer, install patchDVI and either build with
+%   patchDVI::knitPDF("CausalMixGPD_JSS_article.Rnw")
+% (from directory manuscript/) or, after knit2pdf, run
+%   patchDVI::patchSynctex("CausalMixGPD_JSS_article")
 \makeatletter
 \def\input@path{{./}{assets/}{manuscript/}{manuscript/assets/}}
 \makeatother
@@ -19,6 +26,8 @@
 \usepackage{Sweave}
 
 
+% pdfLaTeX SyncTeX (forward/inverse search with the PDF); keep this in the .Rnw preamble.
+\synctex=1
 
 %% ---- Packages ----
 \usepackage[utf8]{inputenc}
@@ -245,7 +254,7 @@ and the conditional quantile function is given by
 Q(\tau\mid x)=\inf\Bigl\{y\in\mathbb{R}:\,F(y\mid x)\ge \tau\Bigr\},
 \qquad 0<\tau<1.
 \end{equation*}
-In \pkg{CausalMixGPD}, $f(\cdot|x)$ is regarded as the inferential target.
+In \pkg{CausalMixGPD}, the conditional density $f(\cdot|x)$ is regarded as the inferential target.
 The central part of the distribution is assumed to be nonparametric, while
 the upper tail may be parametrized using a generalized Pareto model, when
 extrapolation to extremes is necessary.
@@ -816,7 +825,7 @@ longer sampling and multiple chains are encouraged in applied settings.
 
 \begin{Schunk}
 \begin{Sinput}
-R> data.frame(mcmc_fixed,row.names = NULL)
+R> data.frame(mcmc_fixed, row.names = NULL)
 \end{Sinput}
 \begin{Soutput}
   niter nburnin thin nchains seed
@@ -836,11 +845,8 @@ controls the number of components, and \code{mcmc} sets sampling
 
 \begin{Schunk}
 \begin{Sinput}
-R> fit <- dpmgpd(
-+    formula = y ~ x1 + x2 + x3,
-+    data = dat,
-+    mcmc = mcmc_fixed
-+  )
+R> fit <- dpmgpd(formula = y ~ x1 + x2 + x3, data = dat, backend = "crp",
++                kernel = "gamma", mcmc = mcmc_fixed)
 \end{Sinput}
 \end{Schunk}
 
@@ -875,11 +881,8 @@ model is provided by the \code{dpmix()} wrapper.
 
 \begin{Schunk}
 \begin{Sinput}
-R> fit <- dpmix(
-+    formula = y ~ x1 + x2 + x3,
-+    data = dat,
-+    mcmc = mcmc_fixed
-+  )
+R> fit <- dpmix(formula = y ~ x1 + x2 + x3, data = dat, backend = "crp",
++                  kernel = "gamma",  mcmc = mcmc_fixed)
 \end{Sinput}
 \end{Schunk}
 
@@ -907,11 +910,8 @@ posterior summaries, \code{plot()} for standard MCMC diagnostics, and
 \begin{Sinput}
 R> summary(fit)  # posterior summaries for parameters and functionals
 R> params(fit)   # extract MCMC samples for parameters and functionals
-R> plot(
-+    fit,
-+    family = "traceplot",
-+    params = "alpha"
-+  )  # traceplot for concentration parameter
+R> plot(fit,  family = "traceplot",  params = "alpha")
+R> # traceplot for concentration parameter
 R> plot(fit, family = "auto")  # automatic selection of diagnostic plots
 \end{Sinput}
 \end{Schunk}
@@ -951,14 +951,8 @@ same structure as the training data.
 
 \begin{Schunk}
 \begin{Sinput}
-R> x_new <- as.data.frame(
-+    lapply(
-+      dat[, c("x1", "x2", "x3")],
-+      quantile,
-+      probs = c(0.25, 0.50, 0.75),
-+      na.rm = TRUE
-+    )
-+  )
+R> x_new <- as.data.frame(lapply(dat[, c("x1", "x2", "x3")], quantile,
++                  probs = c(0.25, 0.5, 0.75), na.rm = TRUE))
 R> y_grid <- seq(0, 10, length.out = 200)
 \end{Sinput}
 \end{Schunk}
@@ -984,20 +978,9 @@ interval, and diagnostic interfaces.
 
 \begin{Schunk}
 \begin{Sinput}
-R> predict(
-+    fit,
-+    newdata = x_new,
-+    y = y_grid,
-+    type = "survival",
-+    level = 0.95
-+  )
-R> predict(
-+    fit,
-+    newdata = x_new,
-+    type = "quantile",
-+    index = c(0.5, 0.99),
-+    interval = "credible"
-+  )
+R> predict(fit, newdata = x_new, y = y_grid, type = "survival", level = 0.95)
+R> predict(fit, newdata = x_new, type = "quantile", index = c(0.5, 0.99),
++                             interval = "credible")
 \end{Sinput}
 \end{Schunk}
 
@@ -1009,27 +992,19 @@ R> predict(
 \begin{Schunk}
 \begin{Sinput}
 R> data("nc_realX100_p3_k2", package = "CausalMixGPD")
-R> dat_cl <- data.frame(
-+    y = nc_realX100_p3_k2$y[1:100],
-+    nc_realX100_p3_k2$X[1:100, ]
-+  )
+R> dat_cl <- data.frame(y = nc_realX100_p3_k2$y, nc_realX100_p3_k2$X)
 \end{Sinput}
 \end{Schunk}
 Under the clustering approach, the fitted mixture is regarded as a latent partition, and the output is cluster summaries.  For a mixture model without the optional GPD tail, the function \code{dpmix.cluster()} is called to perform clustering; otherwise, \code{dpmgpd.cluster()} is used, with predictor dependence introduced via weights, mixture parameters, or both.  Since labels assigned to components are arbitrary, the primary results include label-free summaries of the fitted mixture, namely the posterior similarity matrix (PSM), the representative partition, the number of clusters, and the cluster assignment scores
 \citep{Binder1978,Dahl2006}.  The same prediction interface \code{predict()} can produce cluster labels for training observations or assign clusters to new observations.
 
-The code block below demonstrates how to fit a clustering model with covariates affecting mixture parameters, by setting \code{type = "param"}.
+The code block below demonstrates how to fit a clustering model with covariates affecting both mixture weights and component parameters, by setting \code{type = "both"}.
 
 \begin{Schunk}
 \begin{Sinput}
-R> fit_cluster <- dpmix.cluster(
-+    y ~ x1 + x2 + x3,
-+    data = dat_cl[1:100, ],
-+    kernel = "laplace",
-+    type = "both",
-+    components = 10,
-+    mcmc = mcmc_fixed
-+  )
+R> fit_cluster <- dpmix.cluster(y ~ x1 + x2 + x3, data = dat_cl[1:90, ],
++                          kernel = "laplace", type = "both",
++                           components = 10,  mcmc = mcmc_fixed)
 \end{Sinput}
 \end{Schunk}
 
@@ -1045,11 +1020,7 @@ Cluster labels of new observations, along with corresponding assignment scores, 
 
 \begin{Schunk}
 \begin{Sinput}
-R> predict(
-+    fit_cluster,
-+    newdata = dat_cl[101:110, ],
-+    type = "label"
-+  )
+R> predict(fit_cluster, newdata = dat_cl[91:100, ], type = "label")
 \end{Sinput}
 \end{Schunk}
 
@@ -1101,19 +1072,10 @@ outcome and PS components (\code{mcmc\_outcome}, \code{mcmc\_ps}).
 
 \begin{Schunk}
 \begin{Sinput}
-R> causal_fit <- dpmgpd.causal(
-+    formula = y ~ x1 + x2 + x3,
-+    data = causal_df,
-+    treat = "A",
-+    backend = "crp",
-+    kernel = "laplace",
-+    components = 5,
-+    PS = "logit",
-+    ps_scale = "logit",
-+    ps_summary = "mean",
-+    mcmc_outcome = mcmc_fixed,
-+    mcmc_ps = mcmc_fixed
-+  )
+R> causal_fit <- dpmgpd.causal(formula = y ~ x1 + x2 + x3, data = causal_df,
++                treat = "A",  backend = "crp", kernel = "laplace", components = 5,
++                       PS = "logit", ps_scale = "logit", ps_summary = "mean",
++                          mcmc_outcome = mcmc_fixed, mcmc_ps = mcmc_fixed)
 \end{Sinput}
 \end{Schunk}
 
@@ -1129,13 +1091,9 @@ uncertainty bounds. The below code snippet shows the use of
 
 \begin{Schunk}
 \begin{Sinput}
-R> qtt <- qtt(
-+    causal_fit,
-+    probs = c(0.50, 0.90, 0.95),
-+    interval = "credible"
-+  )
-R> summary(qtt)
-R> plot(qtt, type = "effect")
+R> qtt_fit <- qtt(causal_fit, probs = c(0.5, 0.9, 0.95), interval = "credible")
+R> summary(qtt_fit)
+R> plot(qtt_fit, type = "effect")
 \end{Sinput}
 \end{Schunk}
 
@@ -1151,12 +1109,8 @@ of the training variables.
 
 \begin{Schunk}
 \begin{Sinput}
-R> predict(
-+    causal_fit,
-+    newdata = causal_xgrid,
-+    type = "survival",
-+    y = rep(4, nrow(causal_xgrid))
-+  )
+R> predict(causal_fit, newdata = causal_xgrid,  type = "survival",
++          y = rep(4, nrow(causal_xgrid)), id = seq_len(nrow(causal_xgrid)))
 \end{Sinput}
 \end{Schunk}
 The corresponding bulk-only version is \code{dpmix.causal()},
@@ -1180,21 +1134,14 @@ The Boston data set is used in this analysis, where each observation corresponds
 \begin{Sinput}
 R> library("CausalMixGPD")
 R> library("MASS")
-R> 
 R> set.seed(123)
 R> data("Boston", package = "MASS")
-R> 
 R> dat <- Boston
 R> dat <- subset(dat, select = c(medv, lstat, rm, nox))
-R> 
 R> n <- nrow(dat)
-R> idx_train <- sample(
-+    seq_len(n),
-+    size = floor(0.80 * n),
-+    replace = FALSE
-+  )
+R> idx_train <- sample(seq_len(n), size = floor(0.8 * n))
 R> train_dat <- dat[idx_train, ]
-R> test_dat  <- dat[-idx_train, ]
+R> test_dat <- dat[-idx_train, ]
 \end{Sinput}
 \end{Schunk}
 Figure~\ref{fig:app_cluster_response_panels} summarizes the distribution of the Boston housing response, median home value (\code{medv}). The variability in the response is substantial, and the distribution exhibits a pronounced upper tail. These features motivate a flexible distributional model rather than relying only on a simple mean-regression specification.
@@ -1218,14 +1165,9 @@ covariates determine the weights of the mixture while the parameters of the comp
 
 \begin{Schunk}
 \begin{Sinput}
-R> fit_clust <- dpmix.cluster(
-+    formula = medv ~ lstat + rm + nox,
-+    data = train_dat,
-+    kernel = "normal",
-+    type = "weights",
-+    components = 10,
-+    mcmc = mcmc_fixed
-+  )
+R> fit_clust <- dpmix.cluster(formula = medv ~ lstat + rm + nox, data = train_dat,
++                             kernel = "normal", type = "weights", components = 10,
++                               mcmc = mcmc_fixed)
 \end{Sinput}
 \end{Schunk}
 
@@ -1303,11 +1245,7 @@ predictive co-clustering evidence at the cluster level.
 
 \begin{Schunk}
 \begin{Sinput}
-R> z_test <- predict(
-+    fit_clust,
-+    newdata = test_dat,
-+    type = "label"
-+  )
+R> z_test <- predict(fit_clust, newdata = test_dat, type = "label")
 \end{Sinput}
 \end{Schunk}
 
@@ -1370,43 +1308,34 @@ The data are first loaded and the design matrix constructed.
 \begin{Sinput}
 R> data("lalonde", package = "MatchIt")
 R> app_lalonde_covars <- within(lalonde, {
-+    race <- factor(race, levels = c("white", "black", "hispan"))
-+    married <- factor(
-+      married,
-+      levels = c(0, 1),
-+      labels = c("no", "yes")
-+    )
-+    nodegree <- factor(
-+      nodegree,
-+      levels = c(0, 1),
-+      labels = c("no", "yes")
-+    )
++      race <- factor(race, levels = c("white", "black", "hispan"))
++      married <- factor(married, levels = c(0, 1), labels = c("no", "yes"))
++      nodegree <- factor(nodegree, levels = c(0, 1), labels = c("no", "yes"))
 +  })
 R> app_lalonde_scale_vars <- c("age", "educ", "re74", "re75")
 R> app_lalonde_scale_center <- vapply(
-+    app_lalonde_scale_vars,
-+    function(v) mean(app_lalonde_covars[[v]], na.rm = TRUE),
-+    numeric(1)
++      app_lalonde_scale_vars,
++      function(v) mean(app_lalonde_covars[[v]], na.rm = TRUE),
++      numeric(1)
 +  )
 R> app_lalonde_scale_scale <- vapply(
-+    app_lalonde_scale_vars,
-+    function(v) stats::sd(app_lalonde_covars[[v]], na.rm = TRUE),
-+    numeric(1)
++      app_lalonde_scale_vars,
++      function(v) stats::sd(app_lalonde_covars[[v]], na.rm = TRUE),
++      numeric(1)
 +  )
 R> for (v in app_lalonde_scale_vars) {
-+    app_lalonde_covars[[paste0(v, "_z")]] <-
-+      (app_lalonde_covars[[v]] - app_lalonde_scale_center[[v]]) /
-+      app_lalonde_scale_scale[[v]]
++      app_lalonde_covars[[paste0(v, "_z")]] <-
++          (app_lalonde_covars[[v]] - app_lalonde_scale_center[[v]]) /
++          app_lalonde_scale_scale[[v]]
 +  }
-R> app_lalonde_x_formula <- ~ age_z + educ_z + race +
-+    married + nodegree + re74_z + re75_z
-R> app_lalonde_y <- (app_lalonde_covars$re78 + 0.5) / 1000
+R> app_lalonde_x_formula <- ~age_z + educ_z + race + married + nodegree + re74_z +
++      re75_z
+R> app_lalonde_y <- (app_lalonde_covars$re78 + 0.5)/1000
 R> app_lalonde_A <- as.integer(app_lalonde_covars$treat)
-R> app_lalonde_taus <- c(0.25, 0.50, 0.75, 0.90, 0.95)
+R> app_lalonde_taus <- c(0.25, 0.5, 0.75, 0.9, 0.95)
 R> app_lalonde_X <- stats::model.matrix(
-+    app_lalonde_x_formula,
-+    data = app_lalonde_covars
-+  )[, -1, drop = FALSE]
++      app_lalonde_x_formula,
++      data = app_lalonde_covars)[, -1, drop = FALSE]
 \end{Sinput}
 \end{Schunk}
 
@@ -1456,15 +1385,9 @@ conditional earnings contrasts under the spliced DPM-GPD framework.
 
 \begin{Schunk}
 \begin{Sinput}
-R> fit <- dpmgpd.causal(
-+    y = app_lalonde_y,
-+    X = app_lalonde_X,
-+    treat = app_lalonde_A,
-+    backend = "crp",
-+    kernel = "gamma",
-+    components = 10,
-+    mcmc = mcmc_fixed
-+  )
+R> fit <- dpmgpd.causal(y = app_lalonde_y, X = app_lalonde_X,
++                       treat = app_lalonde_A,  backend = "crp",  kernel = "gamma",
++                       components = 10,  mcmc = mcmc_fixed)
 \end{Sinput}
 \end{Schunk}
 
@@ -1480,8 +1403,8 @@ of the same fitted posterior distribution.
 
 \begin{Schunk}
 \begin{Soutput}
-   total   ps    con    trt parallel_arms
-1 321.83 17.4 197.87 106.49         FALSE
+   total    ps    con    trt parallel_arms
+1 381.47 36.25 233.41 111.75         FALSE
 \end{Soutput}
 \end{Schunk}
 
@@ -1508,7 +1431,7 @@ Model specification:
 
 ATE estimates:
  estimate  lower upper
-   -0.766 -2.992 1.358
+   -2.543 -5.341 0.396
 \end{Soutput}
 \end{Schunk}
 
@@ -1521,11 +1444,7 @@ to characterize the program effect in this application.
 
 \begin{Schunk}
 \begin{Sinput}
-R> qte_fit <- qte(
-+    fit,
-+    probs = c(0.25, 0.50, 0.75),
-+    interval = "credible"
-+  )
+R> qte_fit <- qte(fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 \end{Sinput}
 \end{Schunk}
 
@@ -1583,12 +1502,7 @@ re75 & 0.0000 & 16.4710 & 1389.6486 & 4201.8870\\
 
 \begin{Schunk}
 \begin{Sinput}
-R> cate_fit <- cate(
-+    fit,
-+    newdata = xnew,
-+    interval = "hpd",
-+    show_progress = FALSE
-+  )
+R> cate_fit <- cate(fit, newdata = xnew, interval = "hpd")
 R> summary(cate_fit)
 \end{Sinput}
 \end{Schunk}
@@ -1602,36 +1516,32 @@ participant types.
 
 \begin{Schunk}
 \begin{Sinput}
-R> cqte_fit <- cqte(
-+    fit,
-+    probs = c(0.25, 0.50, 0.75, 0.90, 0.95),
-+    newdata = xnew,
-+    interval = "credible"
-+  )
+R> cqte_fit <- cqte(fit, probs = c(0.25, 0.5, 0.75, 0.9, 0.95), newdata = xnew,
++                   interval = "credible")
 R> cqte_fit$fit_df  # full CQTE summary table
 \end{Sinput}
 \begin{Soutput}
-     profile id index    estimate         lower      upper
-1  Profile 1  1  0.25  2.07314473 -7.644469e-04   3.554308
-2  Profile 1  1  0.50  1.66548655 -2.234230e+00   4.119757
-3  Profile 1  1  0.75  0.43710198 -3.869286e+00   5.378528
-4  Profile 1  1  0.90  0.20927988 -6.232878e+00   7.180367
-5  Profile 1  1  0.95  0.79149391 -8.455637e+00  10.882957
-6  Profile 2  2  0.25  0.25788438 -4.340239e+00   3.389946
-7  Profile 2  2  0.50 -2.02127859 -5.521803e+00   2.215205
-8  Profile 2  2  0.75 -2.06752879 -6.009978e+00   2.046779
-9  Profile 2  2  0.90 -1.24048189 -6.925895e+00   5.971996
-10 Profile 2  2  0.95 -0.30713316 -8.226382e+00  11.013868
-11 Profile 3  3  0.25  0.07699548 -4.603993e+00   3.415089
-12 Profile 3  3  0.50 -1.60554446 -5.377466e+00   1.235151
-13 Profile 3  3  0.75 -1.02999807 -5.944406e+00   3.151299
-14 Profile 3  3  0.90  0.50187049 -5.673430e+00   7.958286
-15 Profile 3  3  0.95  2.31029317 -6.625305e+00  14.025795
-16 Profile 4  4  0.25  2.15129556 -6.433314e-04   3.657018
-17 Profile 4  4  0.50  3.04752224 -4.196059e+00  13.283650
-18 Profile 4  4  0.75  4.82343415 -1.498407e+01  32.879227
-19 Profile 4  4  0.90  8.70867146 -3.039221e+01  65.453298
-20 Profile 4  4  0.95 14.81976656 -4.144709e+01 104.808546
+     profile id index      estimate       lower      upper
+1  Profile 1  1  0.25  -2.521841198   -7.744296  4.0271372
+2  Profile 1  1  0.50  -3.717253897   -7.385001 -0.6244419
+3  Profile 1  1  0.75  -3.036742586   -7.347654  1.4575352
+4  Profile 1  1  0.90  -1.616077528   -7.876948  5.9154540
+5  Profile 1  1  0.95  -0.002597363   -8.645220 10.5596639
+6  Profile 2  2  0.25  -1.388753348   -8.374172  3.5607329
+7  Profile 2  2  0.50  -4.461346476   -9.850380 -0.1311481
+8  Profile 2  2  0.75  -4.406719223  -10.769044  0.5638009
+9  Profile 2  2  0.90  -3.966523104  -11.325236  3.6031938
+10 Profile 2  2  0.95  -3.546162922  -13.181625  6.9877301
+11 Profile 3  3  0.25  -1.400116612   -6.699770  2.7939363
+12 Profile 3  3  0.50  -1.800035981   -7.721600  3.5216058
+13 Profile 3  3  0.75  -2.604699710   -8.484734  4.2098620
+14 Profile 3  3  0.90  -2.871274028   -8.828207  4.2015030
+15 Profile 3  3  0.95  -2.528672343  -10.414719  8.3735820
+16 Profile 4  4  0.25  -2.553434640   -9.052905  4.3991099
+17 Profile 4  4  0.50  -5.901260763  -17.654505  6.3991686
+18 Profile 4  4  0.75 -11.486181749  -45.838709 20.1632763
+19 Profile 4  4  0.90 -19.094601788  -86.637680 42.1730175
+20 Profile 4  4  0.95 -24.260813769 -119.477696 64.8149038
 \end{Soutput}
 \end{Schunk}
 

@@ -56,7 +56,7 @@ bulk_mcmc_ex13_b <- if (isTRUE(FAST)) {
 }
 mcmc_ps_ex13 <- bulk_mcmc_ex13
 mcmc_ps_ex13_b <- bulk_mcmc_ex13_b
-predict_workers_ex13 <- if (isTRUE(FAST)) 1L else max_workers
+predict_workers_ex13 <- max_workers
 nsim_mean_ex13 <- if (isTRUE(FAST)) 50L else 100L
 rmean_cutoff_ex13 <- 10
 plot_family_sb_crp_ex13 <- if (isTRUE(FAST)) "traceplot" else c("traceplot", "autocorrelation", "running")

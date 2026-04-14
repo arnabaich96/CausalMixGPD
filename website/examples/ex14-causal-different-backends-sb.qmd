@@ -44,8 +44,8 @@ source("_legacy-setup.R")
 max_workers <- min(max_workers, CMGPD_MAX_WORKERS)
 causal_run_mcmc <- list(
   show_progress = FALSE,
-  parallel_arms = if (isTRUE(FAST)) FALSE else TRUE,
-  workers = if (isTRUE(FAST)) 1L else max_workers,
+  parallel_arms = TRUE,
+  workers = max_workers,
   timing = TRUE
 )
 components_ex14 <- if (isTRUE(FAST)) c(3L, 3L) else c(5L, 5L)
@@ -61,7 +61,7 @@ gpd_mcmc_ex14_b <- if (isTRUE(FAST)) {
 }
 mcmc_ps_ex14 <- gpd_mcmc_ex14
 mcmc_ps_ex14_b <- gpd_mcmc_ex14_b
-predict_workers_ex14 <- if (isTRUE(FAST)) 1L else max_workers
+predict_workers_ex14 <- max_workers
 nsim_mean_ex14 <- if (isTRUE(FAST)) 50L else 100L
 plot_family_sb_crp_ex14 <- if (isTRUE(FAST)) "traceplot" else c("traceplot", "autocorrelation", "running")
 plot_family_crp_sb_ex14 <- if (isTRUE(FAST)) "density" else c("density", "geweke", "caterpillar")

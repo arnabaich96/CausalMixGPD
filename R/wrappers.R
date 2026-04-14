@@ -209,7 +209,14 @@
 }
 
 .normalize_mcmc_inputs <- function(args) {
-  if (!length(args)) return(list(overrides = list(), runner = list()))
+  if (!length(args)) {
+    return(list(
+      overrides = list(),
+      runner = list(),
+      outcome_overrides = list(),
+      ps_overrides = list()
+    ))
+  }
   nm <- names(args)
   if (is.null(nm)) nm <- rep("", length(args))
   if (any(!nzchar(nm))) stop("All mcmc arguments must be named.", call. = FALSE)
@@ -219,6 +226,29 @@
     "parallel_chains", "parallel_arms", "workers", "timing", "z_update_every"
   )
   runner_names <- c("show_progress", "quiet", "parallel_chains", "parallel_arms", "workers", "timing")
+
+  normalize_override_list <- function(x, label) {
+    if (is.null(x)) return(list())
+    if (!is.list(x)) stop(sprintf("'%s' must be a named list.", label), call. = FALSE)
+    x_names <- names(x)
+    if (is.null(x_names)) x_names <- rep("", length(x))
+    if (any(!nzchar(x_names))) stop(sprintf("All entries in '%s' must be named.", label), call. = FALSE)
+    unknown_x <- x_names[!(x_names %in% override_names)]
+    if (length(unknown_x)) {
+      stop(sprintf("Unknown %s argument(s): %s", label, paste(unique(unknown_x), collapse = ", ")), call. = FALSE)
+    }
+    if (!is.null(x$nburn) && is.null(x$nburnin)) {
+      x$nburnin <- x$nburn
+    }
+    x$nburn <- NULL
+    x
+  }
+
+  outcome_overrides <- normalize_override_list(args$mcmc_outcome %||% NULL, "mcmc_outcome")
+  ps_overrides <- normalize_override_list(args$mcmc_ps %||% NULL, "mcmc_ps")
+  args$mcmc_outcome <- NULL
+  args$mcmc_ps <- NULL
+  nm <- names(args)
 
   override_idx <- nm %in% override_names
   runner_idx <- nm %in% runner_names
@@ -236,25 +266,32 @@
 
   list(
     overrides = overrides,
-    runner = args[runner_idx]
+    runner = args[runner_idx],
+    outcome_overrides = outcome_overrides,
+    ps_overrides = ps_overrides
   )
 }
 
-.apply_mcmc_overrides <- function(b, overrides) {
-  if (!length(overrides)) return(b)
-
-  merge_one <- function(x) utils::modifyList(x %||% list(), overrides)
+.apply_mcmc_overrides <- function(b, overrides, outcome_overrides = list(), ps_overrides = list()) {
+  if (!length(overrides) && !length(outcome_overrides) && !length(ps_overrides)) return(b)
 
   if (.is_causal_bundle(b)) {
-    b$outcome$con$mcmc <- merge_one(b$outcome$con$mcmc)
-    b$outcome$trt$mcmc <- merge_one(b$outcome$trt$mcmc)
-    if (inherits(b$design, "causalmixgpd_ps_bundle")) {
-      b$design$mcmc <- merge_one(b$design$mcmc)
+    outcome_merged <- utils::modifyList(overrides %||% list(), outcome_overrides %||% list())
+    if (length(overrides) || length(outcome_overrides)) {
+      b$outcome$con$mcmc <- utils::modifyList(b$outcome$con$mcmc %||% list(), outcome_merged)
+      b$outcome$trt$mcmc <- utils::modifyList(b$outcome$trt$mcmc %||% list(), outcome_merged)
+    }
+    if (length(ps_overrides) && inherits(b$design, "causalmixgpd_ps_bundle")) {
+      b$design$mcmc <- utils::modifyList(b$design$mcmc %||% list(), ps_overrides)
     }
     return(b)
   }
 
-  b$mcmc <- merge_one(b$mcmc)
+  if (length(outcome_overrides) || length(ps_overrides)) {
+    stop("mcmc_outcome/mcmc_ps overrides are available only for causal bundles.", call. = FALSE)
+  }
+
+  b$mcmc <- utils::modifyList(b$mcmc %||% list(), overrides %||% list())
   b
 }
 
@@ -267,6 +304,7 @@
   c(
     "niter", "nburn", "nburnin", "thin", "nchains", "seed", "waic",
     "parallel_chains", "parallel_arms", "workers", "timing", "z_update_every",
+    "mcmc_outcome", "mcmc_ps",
     "show_progress", "quiet"
   )
 }
@@ -287,10 +325,13 @@
 
   inline_vals <- lapply(dots_list[inline_idx], eval, envir = eval_env)
   parsed <- .normalize_mcmc_inputs(inline_vals)
-  merged <- utils::modifyList(
-    mcmc %||% list(),
-    c(parsed$overrides, parsed$runner)
-  )
+  merged <- utils::modifyList(mcmc %||% list(), c(parsed$overrides, parsed$runner))
+  if (length(parsed$outcome_overrides)) {
+    merged$mcmc_outcome <- utils::modifyList(merged$mcmc_outcome %||% list(), parsed$outcome_overrides)
+  }
+  if (length(parsed$ps_overrides)) {
+    merged$mcmc_ps <- utils::modifyList(merged$mcmc_ps %||% list(), parsed$ps_overrides)
+  }
 
   list(mcmc = merged, names = dot_names[inline_idx])
 }
@@ -437,9 +478,17 @@ mcmc <- function(b, ...) {
   if (!.is_bundle(b)) stop("'b' must be a causalmixgpd bundle object.", call. = FALSE)
 
   parsed <- .normalize_mcmc_inputs(list(...))
-  b <- .apply_mcmc_overrides(b, parsed$overrides)
+  b <- .apply_mcmc_overrides(
+    b,
+    parsed$overrides,
+    outcome_overrides = parsed$outcome_overrides,
+    ps_overrides = parsed$ps_overrides
+  )
 
   if (.is_causal_bundle(b)) {
+    # For causal workflows, parallel_chains is an arm-level MCMC override
+    # consumed by run_mcmc_bundle_manual() inside run_mcmc_causal().
+    parsed$runner$parallel_chains <- NULL
     allowed <- c("show_progress", "quiet", "parallel_arms", "workers", "timing")
     bad <- setdiff(names(parsed$runner), allowed)
     if (length(bad)) {

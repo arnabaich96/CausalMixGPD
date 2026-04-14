@@ -11,7 +11,7 @@ build_nimble_bundle(
   backend = c("sb", "crp", "spliced"),
   kernel,
   GPD = FALSE,
-  components = NULL,
+  components = 10L,
   param_specs = NULL,
   mcmc = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
   epsilon = 0.025,

@@ -52,8 +52,8 @@ max_workers <- min(max_workers, CMGPD_MAX_WORKERS)
 causal_run_mcmc_bulk <- list(show_progress = FALSE, parallel_arms = TRUE, workers = max_workers, timing = TRUE)
 causal_run_mcmc_gpd <- list(
   show_progress = FALSE,
-  parallel_arms = if (isTRUE(FAST)) FALSE else TRUE,
-  workers = if (isTRUE(FAST)) 1L else max_workers,
+  parallel_arms = TRUE,
+  workers = max_workers,
   timing = TRUE
 )
 components_ex10 <- if (isTRUE(FAST)) 3L else 6L
@@ -67,7 +67,7 @@ bulk_mcmc_ex10 <- if (isTRUE(FAST)) {
 } else {
   list(niter = 300, nburnin = 80, nchains = 1, thin = 1, seed = 4)
 }
-predict_workers_ex10 <- if (isTRUE(FAST)) 1L else max_workers
+predict_workers_ex10 <- max_workers
 nsim_mean_ex10 <- if (isTRUE(FAST)) 50L else 150L
 tag_crp_gpd_ex10 <- if (isTRUE(FAST)) "ex10-causal-x-no-ps-sb-fit_crp_gpd_fast" else "ex10-causal-x-no-ps-sb-fit_crp_gpd"
 tag_sb_bulk_ex10 <- if (isTRUE(FAST)) "ex10-causal-x-no-ps-sb-fit_sb_bulk_fast" else "ex10-causal-x-no-ps-sb-fit_sb_bulk"

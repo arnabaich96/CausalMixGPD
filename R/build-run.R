@@ -91,7 +91,7 @@ build_nimble_bundle <- function(
     backend = c("sb", "crp", "spliced"),
     kernel,
     GPD = FALSE,
-    components = NULL,
+    components = 10L,
     param_specs = NULL,
     mcmc = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
     epsilon = 0.025,
@@ -123,7 +123,7 @@ build_nimble_bundle <- function(
   }
 
   # Single truncation parameter for both backends
-  if (is.null(components)) components <- length(y)
+  if (is.null(components)) components <- 10L
   if (length(components) != 1L) {
     stop("components must be a single integer >= 2.", call. = FALSE)
   }

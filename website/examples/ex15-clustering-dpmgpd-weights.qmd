@@ -17,13 +17,21 @@ knitr::opts_chunk$set(
 set.seed(1)
 
 FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
-mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
-mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_chains = TRUE, workers = 2, z_update_every = 2)
+max_workers <- local({
+  n_phys <- suppressWarnings(tryCatch(parallel::detectCores(logical = FALSE), error = function(e) NA_integer_))
+  n_log <- suppressWarnings(tryCatch(parallel::detectCores(logical = TRUE), error = function(e) NA_integer_))
+  n <- if (is.finite(n_phys) && !is.na(n_phys) && n_phys >= 1L) n_phys else n_log
+  if (!is.finite(n) || is.na(n) || n < 1L) n <- 1L
+  as.integer(min(10L, n))
+})
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = max_workers)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_chains = TRUE, workers = max_workers, z_update_every = 2)
 
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
 library(CausalMixGPD)
 source("_legacy-setup.R")
+max_workers <- min(max_workers, CMGPD_MAX_WORKERS)
 ```
 
 > **Website workflow note.**
@@ -204,7 +212,6 @@ plot(fit_cluster_gpd, which = "sizes", top_n = 5)
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
 
 
 
