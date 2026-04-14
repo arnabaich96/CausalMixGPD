@@ -1,6 +1,6 @@
 Package: CausalMixGPD
 Type: Package
-Title: Dirichlet Process Mixtures with Generalized Pareto Tail
+Title:  An R Package for Bayesian Nonparametric Conditional Density Modeling in Causal Inference and Clustering with a Heavy-Tail Extension
 Version: 0.6.0
 Author: Arnab Aich [aut, cre]
 Maintainer: Arnab Aich <aaich@fsu.edu>
@@ -34,5 +34,5 @@ VignetteBuilder: knitr
 RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE, roclets = c("rd", "namespace","collate"))
 Config/testthat/edition: 3
-URL: https://arnabaich96.github.io/CausalMixGPD/, https://arnabaich96.github.io/CausalMixGPD/pkgdown/
+URL: https://arnabaich96.github.io/CausalMixGPD/pkgdown/
 BugReports: https://arnabaich96.github.io/CausalMixGPD/

@@ -1,12 +1,14 @@
-# CausalMixGPD Replication
+# CausalMixGPD Manuscript Guide
 
-This folder contains standalone replication scripts for `CausalMixGPD`, an R package for Bayesian analysis of heavy-tailed outcomes using Dirichlet process mixture models for the body of the distribution with optional generalized Pareto tails. The package supports unconditional and covariate-modulated mixtures, uses `nimble` for MCMC estimation, and extends to mixtures of different treatment-arm outcomes for causal inference. Posterior summaries include densities, quantiles, expected values, survival functions, and causal effects, with emphasis on tail-sensitive functionals and extreme quantiles.
+This directory contains the scripts used to replicate CausalMixGPD manuscript, which is an R package for performing Bayesian modeling of heavy-tailed data. In the model implemented in the package, the core component follows a Dirichlet process mixture, optionally paired with generalized Pareto tails. Unconditional mixtures, conditional mixtures based on covariates, nimble MCMC sampling, and pooling data across treatment arms for causal inference can be included within the package. As output, posterior estimates of probability density functions, quantiles, means, survival functions, and causal effects are generated with a particular emphasis on tail-based statistics and extreme quantiles.
+
+The additional clustering extension allows for supervised clustering with predictor-dependent mixture weights. Since only one API is provided for making predictions and conducting causal inference, the weights for the predictive and causal components must be the same.
 
 ## Package Metadata
 
-- Title: Dirichlet Process Mixtures with Generalized Pareto Tail
+- Title: An R Package for Bayesian Nonparametric Conditional Density Modeling in Causal Inference and Clustering with a Heavy-Tail Extension
 - Version: 0.6.0
-- Author/Maintainer: Arnab Aich (<aaich@fsu.edu>)
+- Author/Maintainer: Arnab Aich
 - License: GPL-3
 - Depends: R (>= 4.0.0), `nimble`
 
@@ -23,46 +25,19 @@ This folder contains standalone replication scripts for `CausalMixGPD`, an R pac
 Install the packages needed to run the standalone scripts:
 
 ```r
-install.packages(c(
-  "CausalMixGPD",
-  "MASS",
-  "MatchIt",
-  "ggplot2",
-  "patchwork"
-))
+install.packages(c("CausalMixGPD","MASS","MatchIt","ggplot2","patchwork"))
 ```
 
 `nimble` loads through `CausalMixGPD`. Windows users may need Rtools for compilation.
 
-## Run
 
-Run any script from this folder with `Rscript`:
-
-```sh
-Rscript Rscripts/overview_onearm.R
-Rscript Rscripts/overview_clustering.R
-Rscript Rscripts/overview_causal.R
-Rscript Rscripts/data_analysis_cluster.R
-Rscript Rscripts/data_analysis_causal.R
-```
-
-## Links
+## Useful Links
 
 - GitHub repository: https://github.com/arnabaich96/CausalMixGPD
 - Package website: https://arnabaich96.github.io/CausalMixGPD/
 - Function reference: https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/index.html
-- Articles index: https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/index.html
-- JSS article page: https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/CausalMixGPD_JSS_article.html
 
-## Replication Script Mappings
-
-- `Rscripts/overview_onearm.R`: https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/cmgpd_one_arm.html
-- `Rscripts/overview_clustering.R`: https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/cmgpd_clustering.html
-- `Rscripts/overview_causal.R`: https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/cmgpd_causal.html
-- `Rscripts/data_analysis_cluster.R`: https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/CausalMixGPD_JSS_article.html
-- `Rscripts/data_analysis_causal.R`: https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/CausalMixGPD_JSS_article.html
-
-## Dependency Links
+## Dependencies
 
 - `nimble`: https://cran.r-project.org/package=nimble
 - `MASS`: https://cran.r-project.org/package=MASS
