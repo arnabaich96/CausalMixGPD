@@ -62,7 +62,16 @@ uses the estimated propensity score when available or a simple index order.
 This keeps the comparison aligned with how the effect object was standardized.
 }
 \examples{
-\dontrun{
+\donttest{
+N <- 25
+X <- data.frame(x1 = stats::rnorm(N))
+A <- stats::rbinom(N, 1, 0.5)
+y <- abs(stats::rnorm(N)) + 0.1
+X_new <- X[1:5, , drop = FALSE]
+mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
+                         components = 3, mcmc_outcome = mcmc_small, mcmc_ps = mcmc_small)
+fit <- run_mcmc_causal(cb, show_progress = FALSE)
 ate_result <- cate(fit, newdata = X_new, interval = "credible")
 plot(ate_result)  # CATE default: effect plot
 plot(ate_result, type = "effect")  # single ATE plot

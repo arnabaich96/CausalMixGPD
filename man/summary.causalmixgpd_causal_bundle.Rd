@@ -35,7 +35,11 @@ information. Posterior treatment-effect summaries become available after
 \code{\link{qte}}.
 }
 \examples{
-\dontrun{
+\donttest{
+N <- 25
+X <- data.frame(x1 = stats::rnorm(N))
+A <- stats::rbinom(N, 1, 0.5)
+y <- abs(stats::rnorm(N)) + 0.1
 cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 summary(cb)
 }

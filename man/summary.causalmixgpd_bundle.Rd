@@ -31,10 +31,10 @@ This is the recommended checkpoint after \code{\link{build_nimble_bundle}}
 and before \code{\link{run_mcmc_bundle_manual}}.
 }
 \examples{
-\dontrun{
-y <- abs(stats::rnorm(50)) + 0.1
+\donttest{
+y <- abs(stats::rnorm(25)) + 0.1
 bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
-                             GPD = FALSE, components = 6)
+                             GPD = FALSE, components = 3)
 summary(bundle)
 }
 }

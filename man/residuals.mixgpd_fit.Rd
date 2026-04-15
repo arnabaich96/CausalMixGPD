@@ -56,12 +56,12 @@ This method is not available for unconditional models because no training
 design matrix is stored for observation-specific fitted values.
 }
 \examples{
-\dontrun{
-y <- abs(stats::rnorm(50)) + 0.1
-X <- data.frame(x1 = stats::rnorm(50), x2 = stats::runif(50))
+\donttest{
+y <- abs(stats::rnorm(25)) + 0.1
+X <- data.frame(x1 = stats::rnorm(25), x2 = stats::runif(25))
 bundle <- build_nimble_bundle(y = y, X = X, backend = "sb", kernel = "lognormal",
-                             GPD = FALSE, components = 4,
-                             mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+                             GPD = FALSE, components = 3,
+                             mcmc = list(niter = 100, nburnin = 50, thin = 1, nchains = 1))
 fit <- run_mcmc_bundle_manual(bundle)
 pit_plugin <- residuals(fit, type = "pit", pit = "plugin")
 pit_bayes_mean <- residuals(fit, type = "pit", pit = "bayes_mean", pit_seed = 1L)

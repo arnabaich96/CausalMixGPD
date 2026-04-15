@@ -52,16 +52,16 @@ latent cluster labels monitored, the \code{z_update_every} argument controls how
 frequently those latent indicators are refreshed during sampling.
 }
 \examples{
-\dontrun{
+\donttest{
 library(nimble)
-y <- abs(rnorm(40)) + 0.1
+y <- abs(rnorm(25)) + 0.1
 bundle <- build_nimble_bundle(
   y = y,
   backend = "sb",
   kernel = "normal",
   GPD = FALSE,
   components = 3,
-  mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+  mcmc = list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
 )
 fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
 fit

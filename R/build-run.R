@@ -71,15 +71,15 @@
 #'   \code{\link{predict.mixgpd_fit}}, \code{\link{kernel_support_table}},
 #'   \code{\link{get_kernel_registry}}.
 #' @examples
-#' \dontrun{
-#' y <- abs(rnorm(60)) + 0.1
+#' \donttest{
+#' y <- abs(rnorm(25)) + 0.1
 #' bundle <- build_nimble_bundle(
 #'   y = y,
 #'   backend = "sb",
 #'   kernel = "normal",
 #'   GPD = FALSE,
-#'   components = 4,
-#'   mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+#'   components = 3,
+#'   mcmc = list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
 #' )
 #' bundle
 #' }
@@ -2471,16 +2471,16 @@ build_prior_table_from_spec <- function(spec) {
 #' @seealso \code{\link{build_nimble_bundle}}, \code{\link{mcmc}},
 #'   \code{\link{summary.mixgpd_fit}}, \code{\link{predict.mixgpd_fit}}.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(nimble)
-#' y <- abs(rnorm(40)) + 0.1
+#' y <- abs(rnorm(25)) + 0.1
 #' bundle <- build_nimble_bundle(
 #'   y = y,
 #'   backend = "sb",
 #'   kernel = "normal",
 #'   GPD = FALSE,
 #'   components = 3,
-#'   mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+#'   mcmc = list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
 #' )
 #' fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
 #' fit

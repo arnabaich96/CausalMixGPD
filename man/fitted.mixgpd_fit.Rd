@@ -54,13 +54,13 @@ The method returns posterior predictive fitted values on the observed design
 matrix. It is available only when the fitted model stored covariates.
 }
 \examples{
-\dontrun{
+\donttest{
 # Conditional model (with covariates X)
-y <- abs(stats::rnorm(50)) + 0.1
-X <- data.frame(x1 = stats::rnorm(50), x2 = stats::runif(50))
+y <- abs(stats::rnorm(25)) + 0.1
+X <- data.frame(x1 = stats::rnorm(25), x2 = stats::runif(25))
 bundle <- build_nimble_bundle(y = y, X = X, backend = "sb", kernel = "normal",
-                             GPD = TRUE, components = 6,
-                             mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+                             GPD = TRUE, components = 3,
+                             mcmc = list(niter = 100, nburnin = 50, thin = 1, nchains = 1))
 fit <- run_mcmc_bundle_manual(bundle)
 fitted(fit)
 fitted(fit, level = 0.90)

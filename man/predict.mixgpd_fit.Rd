@@ -145,11 +145,11 @@ mean is undefined and the function errors with a message directing you to
 \code{type = "rmean"} or other summaries that remain well defined.
 }
 \examples{
-\dontrun{
-y <- abs(stats::rnorm(50)) + 0.1
+\donttest{
+y <- abs(stats::rnorm(25)) + 0.1
 bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
-                             GPD = TRUE, components = 6,
-                             mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+                             GPD = TRUE, components = 3,
+                             mcmc = list(niter = 100, nburnin = 50, thin = 1, nchains = 1))
 fit <- run_mcmc_bundle_manual(bundle)
 pr <- predict(fit, type = "quantile", p = c(0.5, 0.9))
 pr_surv <- predict(fit, y = sort(y), type = "survival")

@@ -31,11 +31,11 @@ The print method reports only the model identity and basic metadata. Use
 predictive functionals, and \code{plot()} for chain diagnostics.
 }
 \examples{
-\dontrun{
-y <- abs(stats::rnorm(50)) + 0.1
+\donttest{
+y <- abs(stats::rnorm(25)) + 0.1
 bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
-                             GPD = TRUE, components = 6,
-                             mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+                             GPD = TRUE, components = 3,
+                             mcmc = list(niter = 100, nburnin = 50, thin = 1, nchains = 1))
 fit <- run_mcmc_bundle_manual(bundle)
 print(fit)
 }

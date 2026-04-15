@@ -37,8 +37,14 @@ a full diagnostic report. Use \code{summary()} for tabular summaries and \code{p
 for graphical inspection of the same treatment-effect object.
 }
 \examples{
-\dontrun{
-cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
+\donttest{
+N <- 25
+X <- data.frame(x1 = stats::rnorm(N))
+A <- stats::rbinom(N, 1, 0.5)
+y <- abs(stats::rnorm(N)) + 0.1
+mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
+                         components = 3, mcmc_outcome = mcmc_small, mcmc_ps = mcmc_small)
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
 a <- ate(fit, interval = "credible")
 print(a)

@@ -29,10 +29,10 @@
 #' @seealso \code{\link{summary.causalmixgpd_bundle}}, \code{\link{mcmc}},
 #'   \code{\link{run_mcmc_bundle_manual}}.
 #' @examples
-#' \dontrun{
-#' y <- abs(stats::rnorm(50)) + 0.1
+#' \donttest{
+#' y <- abs(stats::rnorm(25)) + 0.1
 #' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
-#'                              GPD = FALSE, components = 6)
+#'                              GPD = FALSE, components = 3)
 #' print(bundle)
 #' print(bundle, code = TRUE, max_code_lines = 30)
 #' }
@@ -152,7 +152,11 @@ print.causalmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ..
 #' @seealso \code{\link{summary.causalmixgpd_causal_bundle}},
 #'   \code{\link{run_mcmc_causal}}, \code{\link{ate}}, \code{\link{qte}}.
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' N <- 25
+#' X <- data.frame(x1 = stats::rnorm(N))
+#' A <- stats::rbinom(N, 1, 0.5)
+#' y <- abs(stats::rnorm(N)) + 0.1
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 #' print(cb)
 #' }
@@ -273,7 +277,11 @@ print.causalmixgpd_causal_bundle <- function(x, code = FALSE, max_code_lines = 2
 #' @seealso \code{\link{print.causalmixgpd_causal_bundle}},
 #'   \code{\link{run_mcmc_causal}}.
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' N <- 25
+#' X <- data.frame(x1 = stats::rnorm(N))
+#' A <- stats::rbinom(N, 1, 0.5)
+#' y <- abs(stats::rnorm(N)) + 0.1
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 #' summary(cb)
 #' }
@@ -835,10 +843,10 @@ plot.causalmixgpd_causal_fit <- function(x, arm = "both", ...) {
 #' @seealso \code{\link{build_nimble_bundle}}, \code{\link{print.causalmixgpd_bundle}},
 #'   \code{\link{run_mcmc_bundle_manual}}.
 #' @examples
-#' \dontrun{
-#' y <- abs(stats::rnorm(50)) + 0.1
+#' \donttest{
+#' y <- abs(stats::rnorm(25)) + 0.1
 #' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
-#'                              GPD = FALSE, components = 6)
+#'                              GPD = FALSE, components = 3)
 #' summary(bundle)
 #' }
 #' @export
@@ -948,11 +956,11 @@ summary.causalmixgpd_bundle <- function(object, ...) {
 #' @seealso \code{\link{summary.mixgpd_fit}}, \code{\link{params}},
 #'   \code{\link{predict.mixgpd_fit}}.
 #' @examples
-#' \dontrun{
-#' y <- abs(stats::rnorm(50)) + 0.1
+#' \donttest{
+#' y <- abs(stats::rnorm(25)) + 0.1
 #' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
-#'                              GPD = TRUE, components = 6,
-#'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+#'                              GPD = TRUE, components = 3,
+#'                              mcmc = list(niter = 100, nburnin = 50, thin = 1, nchains = 1))
 #' fit <- run_mcmc_bundle_manual(bundle)
 #' print(fit)
 #' }
@@ -990,11 +998,11 @@ print.mixgpd_fit <- function(x, ...) {
 #' @seealso \code{\link{summary.mixgpd_fit}}, \code{\link{predict.mixgpd_fit}},
 #'   \code{\link{ess_summary}}.
 #' @examples
-#' \dontrun{
-#' y <- abs(stats::rnorm(50)) + 0.1
+#' \donttest{
+#' y <- abs(stats::rnorm(25)) + 0.1
 #' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
-#'                              GPD = TRUE, components = 6,
-#'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+#'                              GPD = TRUE, components = 3,
+#'                              mcmc = list(niter = 100, nburnin = 50, thin = 1, nchains = 1))
 #' fit <- run_mcmc_bundle_manual(bundle)
 #' params(fit)
 #' p <- params(fit)
@@ -1380,11 +1388,11 @@ print.mixgpd_params_pair <- function(x, digits = 4, ...) {
 #' @seealso \code{\link{print.mixgpd_fit}}, \code{\link{params}},
 #'   \code{\link{predict.mixgpd_fit}}, \code{\link{ess_summary}}.
 #' @examples
-#' \dontrun{
-#' y <- abs(stats::rnorm(50)) + 0.1
+#' \donttest{
+#' y <- abs(stats::rnorm(25)) + 0.1
 #' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
-#'                              GPD = TRUE, components = 6,
-#'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+#'                              GPD = TRUE, components = 3,
+#'                              mcmc = list(niter = 100, nburnin = 50, thin = 1, nchains = 1))
 #' fit <- run_mcmc_bundle_manual(bundle)
 #' summary(fit, pars = c("alpha", "threshold"))
 #' }
@@ -1437,11 +1445,11 @@ summary.mixgpd_fit <- function(object, pars = NULL, probs = c(0.025, 0.5, 0.975)
 #' @param ... Unused.
 #' @return \code{x} invisibly.
 #' @examples
-#' \dontrun{
-#' y <- abs(stats::rnorm(50)) + 0.1
+#' \donttest{
+#' y <- abs(stats::rnorm(25)) + 0.1
 #' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
-#'                              GPD = TRUE, components = 6,
-#'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+#'                              GPD = TRUE, components = 3,
+#'                              mcmc = list(niter = 100, nburnin = 50, thin = 1, nchains = 1))
 #' fit <- run_mcmc_bundle_manual(bundle)
 #' summary(fit)
 #' }
@@ -1771,11 +1779,11 @@ summary.mixgpd_ess_summary <- function(object, ...) {
 #' @param ... Passed through to the underlying ggmcmc plotting functions when applicable.
 #' @return Invisibly returns a named list of ggplot objects.
 #' @examples
-#' \dontrun{
-#' y <- abs(stats::rnorm(50)) + 0.1
+#' \donttest{
+#' y <- abs(stats::rnorm(25)) + 0.1
 #' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
-#'                              GPD = TRUE, components = 6,
-#'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+#'                              GPD = TRUE, components = 3,
+#'                              mcmc = list(niter = 100, nburnin = 50, thin = 1, nchains = 1))
 #' fit <- run_mcmc_bundle_manual(bundle)
 #' plot(fit, family = c("traceplot", "density"))
 #' }
@@ -2066,11 +2074,11 @@ plot.mixgpd_fit <- function(x,
 #' @seealso \code{\link{summary.mixgpd_fit}}, \code{\link{fitted.mixgpd_fit}},
 #'   \code{\link{residuals.mixgpd_fit}}, \code{\link{predict.causalmixgpd_causal_fit}}.
 #' @examples
-#' \dontrun{
-#' y <- abs(stats::rnorm(50)) + 0.1
+#' \donttest{
+#' y <- abs(stats::rnorm(25)) + 0.1
 #' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
-#'                              GPD = TRUE, components = 6,
-#'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+#'                              GPD = TRUE, components = 3,
+#'                              mcmc = list(niter = 100, nburnin = 50, thin = 1, nchains = 1))
 #' fit <- run_mcmc_bundle_manual(bundle)
 #' pr <- predict(fit, type = "quantile", p = c(0.5, 0.9))
 #' pr_surv <- predict(fit, y = sort(y), type = "survival")
@@ -2108,6 +2116,14 @@ predict.mixgpd_fit <- function(object,
                                ...) {
   .validate_fit(object)
   dots <- list(...)
+
+  if ("x" %in% names(dots)) {
+    if (!is.null(newdata)) {
+      stop("Provide only one of 'newdata' or legacy 'x'.", call. = FALSE)
+    }
+    newdata <- dots$x
+    dots$x <- NULL
+  }
 
   type <- match.arg(type)
 
@@ -2214,13 +2230,13 @@ predict.mixgpd_fit <- function(object,
 #' @seealso \code{\link{predict.mixgpd_fit}}, \code{\link{residuals.mixgpd_fit}},
 #'   \code{\link{plot.mixgpd_fitted}}.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Conditional model (with covariates X)
-#' y <- abs(stats::rnorm(50)) + 0.1
-#' X <- data.frame(x1 = stats::rnorm(50), x2 = stats::runif(50))
+#' y <- abs(stats::rnorm(25)) + 0.1
+#' X <- data.frame(x1 = stats::rnorm(25), x2 = stats::runif(25))
 #' bundle <- build_nimble_bundle(y = y, X = X, backend = "sb", kernel = "normal",
-#'                              GPD = TRUE, components = 6,
-#'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+#'                              GPD = TRUE, components = 3,
+#'                              mcmc = list(niter = 100, nburnin = 50, thin = 1, nchains = 1))
 #' fit <- run_mcmc_bundle_manual(bundle)
 #' fitted(fit)
 #' fitted(fit, level = 0.90)
@@ -2329,12 +2345,12 @@ fitted.mixgpd_fit <- function(object, type = c("mean", "median", "quantile"),
 #' @param pit_seed Optional integer seed for reproducible \code{bayes_draw} sampling.
 #' @param ... Unused.
 #' @examples
-#' \dontrun{
-#' y <- abs(stats::rnorm(50)) + 0.1
-#' X <- data.frame(x1 = stats::rnorm(50), x2 = stats::runif(50))
+#' \donttest{
+#' y <- abs(stats::rnorm(25)) + 0.1
+#' X <- data.frame(x1 = stats::rnorm(25), x2 = stats::runif(25))
 #' bundle <- build_nimble_bundle(y = y, X = X, backend = "sb", kernel = "lognormal",
-#'                              GPD = FALSE, components = 4,
-#'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+#'                              GPD = FALSE, components = 3,
+#'                              mcmc = list(niter = 100, nburnin = 50, thin = 1, nchains = 1))
 #' fit <- run_mcmc_bundle_manual(bundle)
 #' pit_plugin <- residuals(fit, type = "pit", pit = "plugin")
 #' pit_bayes_mean <- residuals(fit, type = "pit", pit = "bayes_mean", pit_seed = 1L)
@@ -2375,7 +2391,7 @@ residuals.mixgpd_fit <- function(object,
   # -----------------------------
   if (pit == "plugin") {
     pr_surv <- predict(object,
-                       x = X,
+                       newdata = X,
                        y = y,
                        type = "survival",
                        interval = NULL,
@@ -2927,11 +2943,11 @@ residuals.mixgpd_fit <- function(object,
 #' @param ... Additional arguments passed to ggplot2 functions.
 #' @return Invisibly returns the ggplot object.
 #' @examples
-#' \dontrun{
-#' y <- abs(stats::rnorm(50)) + 0.1
+#' \donttest{
+#' y <- abs(stats::rnorm(25)) + 0.1
 #' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
-#'                              GPD = TRUE, components = 6,
-#'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+#'                              GPD = TRUE, components = 3,
+#'                              mcmc = list(niter = 100, nburnin = 50, thin = 1, nchains = 1))
 #' fit <- run_mcmc_bundle_manual(bundle)
 #'
 #' # Quantile prediction with plot
@@ -3283,8 +3299,14 @@ plot.causalmixgpd_causal_predict <- function(x, y = NULL, ...) {
 #'   \code{\link{plot.causalmixgpd_qte}}, \code{\link{qte}},
 #'   \code{\link{cqte}}.
 #' @examples
-#' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
+#' \donttest{
+#' N <- 25
+#' X <- data.frame(x1 = stats::rnorm(N))
+#' A <- stats::rbinom(N, 1, 0.5)
+#' y <- abs(stats::rnorm(N)) + 0.1
+#' mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
+#'                          components = 3, mcmc_outcome = mcmc_small, mcmc_ps = mcmc_small)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' q <- qte(fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 #' print(q)
@@ -3416,8 +3438,14 @@ print.causalmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
 #'   \code{\link{plot.causalmixgpd_ate}}, \code{\link{ate}},
 #'   \code{\link{cate}}.
 #' @examples
-#' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
+#' \donttest{
+#' N <- 25
+#' X <- data.frame(x1 = stats::rnorm(N))
+#' A <- stats::rbinom(N, 1, 0.5)
+#' y <- abs(stats::rnorm(N)) + 0.1
+#' mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
+#'                          components = 3, mcmc_outcome = mcmc_small, mcmc_ps = mcmc_small)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' a <- ate(fit, interval = "credible")
 #' print(a)
@@ -3606,8 +3634,14 @@ print.causalmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
 #'   \code{\link{plot.causalmixgpd_qte}}, \code{\link{qte}},
 #'   \code{\link{cqte}}.
 #' @examples
-#' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
+#' \donttest{
+#' N <- 25
+#' X <- data.frame(x1 = stats::rnorm(N))
+#' A <- stats::rbinom(N, 1, 0.5)
+#' y <- abs(stats::rnorm(N)) + 0.1
+#' mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
+#'                          components = 3, mcmc_outcome = mcmc_small, mcmc_ps = mcmc_small)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' q <- qte(fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 #' summary(q)
@@ -3976,8 +4010,14 @@ print.summary.causalmixgpd_qte <- function(x, digits = 3, ...) {
 #'   \code{\link{plot.causalmixgpd_ate}}, \code{\link{ate}},
 #'   \code{\link{cate}}.
 #' @examples
-#' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
+#' \donttest{
+#' N <- 25
+#' X <- data.frame(x1 = stats::rnorm(N))
+#' A <- stats::rbinom(N, 1, 0.5)
+#' y <- abs(stats::rnorm(N)) + 0.1
+#' mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
+#'                          components = 3, mcmc_outcome = mcmc_small, mcmc_ps = mcmc_small)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' a <- ate(fit, interval = "credible")
 #' summary(a)
@@ -4221,7 +4261,16 @@ print.summary.causalmixgpd_ate <- function(x, digits = 3, ...) {
 #' @seealso \code{\link{qte}}, \code{\link{cqte}},
 #'   \code{\link{summary.causalmixgpd_qte}}.
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' N <- 25
+#' X <- data.frame(x1 = stats::rnorm(N))
+#' A <- stats::rbinom(N, 1, 0.5)
+#' y <- abs(stats::rnorm(N)) + 0.1
+#' X_new <- X[1:5, , drop = FALSE]
+#' mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
+#'                          components = 3, mcmc_outcome = mcmc_small, mcmc_ps = mcmc_small)
+#' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' qte_result <- cqte(fit, probs = c(0.1, 0.5, 0.9), newdata = X_new)
 #' plot(qte_result)  # CQTE default: effect plot (faceted by id when needed)
 #' plot(qte_result, type = "effect")  # single QTE plot
@@ -4393,7 +4442,7 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
 
     if (single_profile_curve) {
       p <- ggplot2::ggplot(df_tc, ggplot2::aes(x = x_plot, y = estimate, color = group, fill = group, text = hover)) +
-        ggplot2::geom_line(linewidth = 0.8) +
+        ggplot2::geom_line(ggplot2::aes(group = group), linewidth = 0.8) +
         ggplot2::geom_point(size = point_size_large) +
         ggplot2::scale_color_manual(values = pal[1:2]) +
         ggplot2::scale_fill_manual(values = pal[1:2]) +
@@ -4428,7 +4477,7 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
     }
 
     p <- ggplot2::ggplot(df_tc, ggplot2::aes(x = x_plot, y = estimate, color = group, fill = group, text = hover)) +
-      ggplot2::geom_line(linewidth = 0.8) +
+      ggplot2::geom_line(ggplot2::aes(group = group), linewidth = 0.8) +
       ggplot2::geom_point(size = point_size_regular) +
       ggplot2::scale_color_manual(values = pal[1:2]) +
       ggplot2::scale_fill_manual(values = pal[1:2]) +
@@ -4524,7 +4573,7 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
 
     if (single_profile_curve) {
       p <- ggplot2::ggplot(df_te, ggplot2::aes(x = x_plot, y = estimate, text = hover)) +
-        ggplot2::geom_line(color = pal[7], linewidth = 0.8) +
+        ggplot2::geom_line(ggplot2::aes(group = 1), color = pal[7], linewidth = 0.8) +
         ggplot2::geom_point(color = pal[7], size = point_size_large) +
         ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
         .plot_theme() +
@@ -4553,7 +4602,7 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
     }
 
     p <- ggplot2::ggplot(df_te, ggplot2::aes(x = x_plot, y = estimate, text = hover)) +
-      ggplot2::geom_line(color = pal[7], linewidth = 0.8) +
+      ggplot2::geom_line(ggplot2::aes(group = 1), color = pal[7], linewidth = 0.8) +
       ggplot2::geom_point(color = pal[7], size = point_size_regular) +
       ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
       .plot_theme() +
@@ -4647,7 +4696,16 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
 #' @seealso \code{\link{ate}}, \code{\link{cate}},
 #'   \code{\link{summary.causalmixgpd_ate}}.
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' N <- 25
+#' X <- data.frame(x1 = stats::rnorm(N))
+#' A <- stats::rbinom(N, 1, 0.5)
+#' y <- abs(stats::rnorm(N)) + 0.1
+#' X_new <- X[1:5, , drop = FALSE]
+#' mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
+#'                          components = 3, mcmc_outcome = mcmc_small, mcmc_ps = mcmc_small)
+#' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' ate_result <- cate(fit, newdata = X_new, interval = "credible")
 #' plot(ate_result)  # CATE default: effect plot
 #' plot(ate_result, type = "effect")  # single ATE plot
@@ -4824,7 +4882,7 @@ plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"
     }
 
     p <- ggplot2::ggplot(df_tc, ggplot2::aes(x = x_plot, y = estimate, color = group, fill = group, text = hover)) +
-      ggplot2::geom_line(linewidth = 0.8) +
+      ggplot2::geom_line(ggplot2::aes(group = group), linewidth = 0.8) +
       ggplot2::geom_point(size = point_size_regular) +
       ggplot2::scale_color_manual(values = pal[1:2]) +
       ggplot2::scale_fill_manual(values = pal[1:2]) +
@@ -4875,7 +4933,7 @@ plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"
     }
 
     p <- ggplot2::ggplot(df_te, ggplot2::aes(x = x_plot, y = estimate, text = hover)) +
-      ggplot2::geom_line(color = pal[7], linewidth = 0.8) +
+      ggplot2::geom_line(ggplot2::aes(group = 1), color = pal[7], linewidth = 0.8) +
       ggplot2::geom_point(color = pal[7], size = point_size_regular) +
       ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
       .plot_theme() +

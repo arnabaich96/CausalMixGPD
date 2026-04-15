@@ -104,9 +104,9 @@
 #'   \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
 #'   \code{\link{qte}}, \code{\link{cate}}, \code{\link{cqte}}.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' set.seed(1)
-#' N <- 100
+#' N <- 25
 #' X <- cbind(x1 = rnorm(N), x2 = runif(N))
 #' A <- rbinom(N, 1, plogis(0.3 + 0.5 * X[, 1]))
 #' y <- rexp(N) + 0.1
@@ -118,7 +118,7 @@
 #'   backend = "sb",
 #'   kernel = "gamma",
 #'   GPD = TRUE,
-#'   components = 10,
+#'   components = 3,
 #'   PS = "probit"
 #' )
 #' }
@@ -572,8 +572,14 @@ build_causal_bundle <- function(
 #'   \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
 #'   \code{\link{qte}}.
 #' @examples
-#' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
+#' \donttest{
+#' N <- 25
+#' X <- data.frame(x1 = stats::rnorm(N))
+#' A <- stats::rbinom(N, 1, 0.5)
+#' y <- abs(stats::rnorm(N)) + 0.1
+#' mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
+#'                          mcmc_outcome = mcmc_small, mcmc_ps = mcmc_small)
 #' fit <- run_mcmc_causal(cb)
 #' }
 #' @export
@@ -833,10 +839,16 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
 #' @seealso \code{\link{qte}}, \code{\link{qtt}}, \code{\link{cate}},
 #'   \code{\link{predict.causalmixgpd_causal_fit}}.
 #' @examples
-#' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
+#' \donttest{
+#' N <- 25
+#' X <- data.frame(x1 = stats::rnorm(N))
+#' A <- stats::rbinom(N, 1, 0.5)
+#' y <- abs(stats::rnorm(N)) + 0.1
+#' mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
+#'                          components = 3, mcmc_outcome = mcmc_small, mcmc_ps = mcmc_small)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
-#' cqte(fit, probs = c(0.5, 0.9), newdata = X[1:5, ])
+#' cqte(fit, probs = c(0.5, 0.9), newdata = X[1:5, , drop = FALSE])
 #' cqte(fit, probs = c(0.5, 0.9), interval = "credible", level = 0.90)  # 90% CI
 #' cqte(fit, probs = c(0.5, 0.9), interval = "hpd")  # HPD intervals
 #' cqte(fit, probs = c(0.5, 0.9), interval = NULL)   # No intervals
@@ -1080,10 +1092,16 @@ cqte <- function(fit,
 #' @seealso \code{\link{ate}}, \code{\link{att}}, \code{\link{cqte}},
 #'   \code{\link{ate_rmean}}, \code{\link{predict.causalmixgpd_causal_fit}}.
 #' @examples
-#' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
+#' \donttest{
+#' N <- 25
+#' X <- data.frame(x1 = stats::rnorm(N))
+#' A <- stats::rbinom(N, 1, 0.5)
+#' y <- abs(stats::rnorm(N)) + 0.1
+#' mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
+#'                          components = 3, mcmc_outcome = mcmc_small, mcmc_ps = mcmc_small)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
-#' cate(fit, newdata = X[1:5, ])
+#' cate(fit, newdata = X[1:5, , drop = FALSE])
 #' cate(fit, interval = "credible", level = 0.90)  # 90% CI
 #' cate(fit, interval = "hpd")  # HPD intervals
 #' cate(fit, interval = NULL)   # No intervals
@@ -1570,8 +1588,14 @@ cate <- function(fit,
 #' @seealso \code{\link{qtt}}, \code{\link{cqte}}, \code{\link{ate}},
 #'   \code{\link{predict.causalmixgpd_causal_fit}}.
 #' @examples
-#' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
+#' \donttest{
+#' N <- 25
+#' X <- data.frame(x1 = stats::rnorm(N))
+#' A <- stats::rbinom(N, 1, 0.5)
+#' y <- abs(stats::rnorm(N)) + 0.1
+#' mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
+#'                          components = 3, mcmc_outcome = mcmc_small, mcmc_ps = mcmc_small)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' qte(fit, probs = c(0.5, 0.9))
 #' }
@@ -1705,8 +1729,14 @@ qte <- function(fit,
 #'   \code{$fit_df} data frame for direct extraction.
 #' @seealso \code{\link{qte}}, \code{\link{cqte}}, \code{\link{att}}.
 #' @examples
-#' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
+#' \donttest{
+#' N <- 25
+#' X <- data.frame(x1 = stats::rnorm(N))
+#' A <- stats::rbinom(N, 1, 0.5)
+#' y <- abs(stats::rnorm(N)) + 0.1
+#' mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
+#'                          components = 3, mcmc_outcome = mcmc_small, mcmc_ps = mcmc_small)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' qtt(fit, probs = c(0.5, 0.9))
 #' }
@@ -1870,8 +1900,14 @@ qtt <- function(fit,
 #' @seealso \code{\link{att}}, \code{\link{cate}}, \code{\link{qte}},
 #'   \code{\link{ate_rmean}}, \code{\link{predict.causalmixgpd_causal_fit}}.
 #' @examples
-#' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
+#' \donttest{
+#' N <- 25
+#' X <- data.frame(x1 = stats::rnorm(N))
+#' A <- stats::rbinom(N, 1, 0.5)
+#' y <- abs(stats::rnorm(N)) + 0.1
+#' mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
+#'                          components = 3, mcmc_outcome = mcmc_small, mcmc_ps = mcmc_small)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' ate(fit, interval = "credible", level = 0.90, nsim_mean = 100)
 #' }
@@ -2009,8 +2045,14 @@ ate <- function(fit,
 #'   \code{$fit_df} data frame for direct extraction.
 #' @seealso \code{\link{ate}}, \code{\link{qtt}}, \code{\link{cate}}.
 #' @examples
-#' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
+#' \donttest{
+#' N <- 25
+#' X <- data.frame(x1 = stats::rnorm(N))
+#' A <- stats::rbinom(N, 1, 0.5)
+#' y <- abs(stats::rnorm(N)) + 0.1
+#' mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
+#'                          components = 3, mcmc_outcome = mcmc_small, mcmc_ps = mcmc_small)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' att(fit, interval = "credible", nsim_mean = 100)
 #' }
@@ -2150,9 +2192,15 @@ att <- function(fit,
 #'   extraction.
 #' @seealso \code{\link{ate}}, \code{\link{cate}}, \code{\link{predict.mixgpd_fit}}.
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' N <- 25
+#' X <- data.frame(x1 = stats::rnorm(N))
+#' A <- stats::rbinom(N, 1, 0.5)
+#' y <- abs(stats::rnorm(N)) + 0.1
+#' mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
-#'                          GPD = TRUE, components = 6)
+#'                          GPD = TRUE, components = 3,
+#'                          mcmc_outcome = mcmc_small, mcmc_ps = mcmc_small)
 #' fit <- run_mcmc_causal(cb)
 #' ate_rm <- ate_rmean(fit, cutoff = 10, interval = "credible")
 #' }
@@ -2249,10 +2297,16 @@ ate_rmean <- function(fit,
 #' @seealso \code{\link{predict.mixgpd_fit}}, \code{\link{ate}},
 #'   \code{\link{qte}}, \code{\link{cate}}, \code{\link{cqte}}.
 #' @examples
-#' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
+#' \donttest{
+#' N <- 25
+#' X <- data.frame(x1 = stats::rnorm(N))
+#' A <- stats::rbinom(N, 1, 0.5)
+#' y <- abs(stats::rnorm(N)) + 0.1
+#' mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
+#'                          mcmc_outcome = mcmc_small, mcmc_ps = mcmc_small)
 #' fit <- run_mcmc_causal(cb)
-#' predict(fit, newdata = X[1:10, ], type = "quantile", index = c(0.25, 0.5, 0.75))
+#' predict(fit, newdata = X[1:10, , drop = FALSE], type = "quantile", index = c(0.25, 0.5, 0.75))
 #' predict(fit, newdata = X[1:10, ], type = "mean", interval = "hpd")  # HPD intervals
 #' predict(fit, newdata = X[1:10, ], type = "mean", interval = NULL)   # No intervals
 #' }

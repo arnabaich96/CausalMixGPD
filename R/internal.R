@@ -2318,7 +2318,6 @@ stick_breaking <- nimble::nimbleFunction(
     stop("Posterior draws not found or malformed in fitted object.", call. = FALSE)
   }
   if (!is.null(ndraws_pred) && ndraws_pred < nrow(draw_mat)) {
-    set.seed(1L)
     keep_idx <- sort(sample.int(nrow(draw_mat), size = ndraws_pred, replace = FALSE))
     draw_mat <- draw_mat[keep_idx, , drop = FALSE]
   }
