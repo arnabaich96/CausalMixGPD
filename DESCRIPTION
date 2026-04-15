@@ -2,7 +2,6 @@ Package: CausalMixGPD
 Type: Package
 Title:  An R Package for Bayesian Nonparametric Conditional Density Modeling in Causal Inference and Clustering with a Heavy-Tail Extension
 Version: 0.6.0
-Author: Arnab Aich [aut, cre]
 Maintainer: Arnab Aich <aaich@fsu.edu>
 Authors@R: person("Arnab", "Aich", role = c("aut", "cre"), email = "aaich@fsu.edu",
             comment = c(ORCID = "0009-0005-7801-6701"))
