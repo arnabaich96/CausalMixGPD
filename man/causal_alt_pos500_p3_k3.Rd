@@ -22,7 +22,6 @@ Causal dataset (N=500, p=3) with different positive-support kernels by arm.
 Intended for alternating-kernel causal vignettes (GPD=FALSE).
 }
 \examples{
-data("causal_alt_pos500_p3_k3")
 head(causal_alt_pos500_p3_k3$X)
 }
 \keyword{datasets}

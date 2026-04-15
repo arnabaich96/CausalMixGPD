@@ -21,7 +21,6 @@ Positive-support dataset with covariates (p=5) and K=4 mixture components.
 Intended for covariate and prediction vignettes (GPD=FALSE).
 }
 \examples{
-data("nc_posX100_p5_k4")
 head(nc_posX100_p5_k4$X)
 }
 \keyword{datasets}

@@ -21,7 +21,6 @@ Positive-support, tail-designed mixture dataset with K=4 components and no covar
 Intended for GPD vignettes (gamma/lognormal/invgauss/amoroso with GPD=TRUE).
 }
 \examples{
-data("nc_pos_tail200_k4")
 head(nc_pos_tail200_k4$y)
 }
 \keyword{datasets}

@@ -103,15 +103,15 @@ The object contains:
 }
 }
 \examples{
-\dontrun{
-y <- abs(rnorm(60)) + 0.1
+\donttest{
+y <- abs(rnorm(25)) + 0.1
 bundle <- build_nimble_bundle(
   y = y,
   backend = "sb",
   kernel = "normal",
   GPD = FALSE,
-  components = 4,
-  mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+  components = 3,
+  mcmc = list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
 )
 bundle
 }

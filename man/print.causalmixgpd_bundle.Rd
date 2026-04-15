@@ -35,10 +35,10 @@ artifacts match the intended model before you compile and sample with
 \code{\link{run_mcmc_bundle_manual}}.
 }
 \examples{
-\dontrun{
-y <- abs(stats::rnorm(50)) + 0.1
+\donttest{
+y <- abs(stats::rnorm(25)) + 0.1
 bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
-                             GPD = FALSE, components = 6)
+                             GPD = FALSE, components = 3)
 print(bundle)
 print(bundle, code = TRUE, max_code_lines = 30)
 }

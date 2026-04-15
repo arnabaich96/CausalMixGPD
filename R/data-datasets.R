@@ -139,7 +139,6 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #'   \item{truth}{List with kernel, weights, params, threshold, tail_params.}
 #' }
 #' @examples
-#' data("nc_real200_k2")
 #' head(nc_real200_k2$y)
 #' @keywords datasets
 "nc_real200_k2"
@@ -157,7 +156,6 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #'   \item{truth}{List with kernel, weights, params, threshold, tail_params.}
 #' }
 #' @examples
-#' data("nc_pos200_k3")
 #' head(nc_pos200_k3$y)
 #' @keywords datasets
 "nc_pos200_k3"
@@ -175,7 +173,6 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #'   \item{truth}{List with kernel, weights, params, threshold, tail_params.}
 #' }
 #' @examples
-#' data("nc_pos_tail200_k4")
 #' head(nc_pos_tail200_k4$y)
 #' @keywords datasets
 "nc_pos_tail200_k4"
@@ -193,7 +190,6 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #'   \item{truth}{List with kernel, weights, params, threshold, tail_params.}
 #' }
 #' @examples
-#' data("nc_posX100_p3_k2")
 #' head(nc_posX100_p3_k2$X)
 #' @keywords datasets
 "nc_posX100_p3_k2"
@@ -211,7 +207,6 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #'   \item{truth}{List with kernel, weights, params, threshold, tail_params.}
 #' }
 #' @examples
-#' data("nc_posX100_p4_k3")
 #' head(nc_posX100_p4_k3$X)
 #' @keywords datasets
 "nc_posX100_p4_k3"
@@ -229,7 +224,6 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #'   \item{truth}{List with kernel, weights, params, threshold, tail_params.}
 #' }
 #' @examples
-#' data("nc_posX100_p5_k4")
 #' head(nc_posX100_p5_k4$X)
 #' @keywords datasets
 "nc_posX100_p5_k4"
@@ -247,7 +241,6 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #'   \item{truth}{List with kernel, weights, params, threshold, tail_params.}
 #' }
 #' @examples
-#' data("nc_realX100_p3_k2")
 #' head(nc_realX100_p3_k2$X)
 #' @keywords datasets
 "nc_realX100_p3_k2"
@@ -265,7 +258,6 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #'   \item{truth}{List with kernel, weights, params, threshold, tail_params.}
 #' }
 #' @examples
-#' data("nc_realX100_p5_k3")
 #' head(nc_realX100_p5_k3$X)
 #' @keywords datasets
 "nc_realX100_p5_k3"
@@ -284,7 +276,6 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #'   \item{truth}{List with kernel0, kernel1, params0, params1, tail_params.}
 #' }
 #' @examples
-#' data("causal_pos500_p3_k2")
 #' head(causal_pos500_p3_k2$X)
 #' @keywords datasets
 "causal_pos500_p3_k2"
@@ -303,7 +294,6 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #'   \item{truth}{List with kernel0, kernel1, params0, params1, tail_params.}
 #' }
 #' @examples
-#' data("causal_alt_pos500_p3_k3")
 #' head(causal_alt_pos500_p3_k3$X)
 #' @keywords datasets
 "causal_alt_pos500_p3_k3"
@@ -322,7 +312,6 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #'   \item{truth}{List with kernel0, kernel1, params0, params1, tail_params.}
 #' }
 #' @examples
-#' data("causal_alt_real500_p4_k2")
 #' head(causal_alt_real500_p4_k2$X)
 #' @keywords datasets
 "causal_alt_real500_p4_k2"
@@ -341,7 +330,6 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #'   \item{truth}{List with kernel0, kernel1, params0, params1, tail_params.}
 #' }
 #' @examples
-#' data("causal_alt_pos500_p5_k4_tail")
 #' head(causal_alt_pos500_p5_k4_tail$X)
 #' @keywords datasets
 "causal_alt_pos500_p5_k4_tail"

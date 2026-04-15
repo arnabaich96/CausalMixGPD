@@ -21,7 +21,6 @@ Positive-support, bulk-only mixture dataset with K=3 components and no covariate
 Intended for non-causal bulk-only positive-kernel vignettes (gamma/lognormal/invgauss/amoroso).
 }
 \examples{
-data("nc_pos200_k3")
 head(nc_pos200_k3$y)
 }
 \keyword{datasets}

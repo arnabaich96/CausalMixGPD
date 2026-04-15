@@ -22,7 +22,6 @@ Causal dataset (N=500, p=4) with different real-line kernels by arm.
 Intended for alternating-kernel causal vignettes (GPD=FALSE).
 }
 \examples{
-data("causal_alt_real500_p4_k2")
 head(causal_alt_real500_p4_k2$X)
 }
 \keyword{datasets}

@@ -74,10 +74,16 @@ covariates. For marginal mean contrasts, use \code{\link{ate}} or
 \code{\link{att}}.
 }
 \examples{
-\dontrun{
-cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
+\donttest{
+N <- 25
+X <- data.frame(x1 = stats::rnorm(N))
+A <- stats::rbinom(N, 1, 0.5)
+y <- abs(stats::rnorm(N)) + 0.1
+mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
+                         components = 3, mcmc_outcome = mcmc_small, mcmc_ps = mcmc_small)
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
-cate(fit, newdata = X[1:5, ])
+cate(fit, newdata = X[1:5, , drop = FALSE])
 cate(fit, interval = "credible", level = 0.90)  # 90\% CI
 cate(fit, interval = "hpd")  # HPD intervals
 cate(fit, interval = NULL)   # No intervals

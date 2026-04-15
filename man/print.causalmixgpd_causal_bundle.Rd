@@ -35,7 +35,11 @@ structural assumptions that will later support estimands such as
 \eqn{Q_{Y^1}(\tau \mid X = x) - Q_{Y^0}(\tau \mid X = x)}.
 }
 \examples{
-\dontrun{
+\donttest{
+N <- 25
+X <- data.frame(x1 = stats::rnorm(N))
+A <- stats::rbinom(N, 1, 0.5)
+y <- abs(stats::rnorm(N)) + 0.1
 cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 print(cb)
 }

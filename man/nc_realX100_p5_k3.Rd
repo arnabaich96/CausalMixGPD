@@ -21,7 +21,6 @@ Real-line dataset with covariates (p=5) and K=3 mixture components.
 Intended for covariate and prediction vignettes (GPD=FALSE).
 }
 \examples{
-data("nc_realX100_p5_k3")
 head(nc_realX100_p5_k3$X)
 }
 \keyword{datasets}

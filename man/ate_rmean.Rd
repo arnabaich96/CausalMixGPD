@@ -52,9 +52,15 @@ The restricted-mean estimand replaces \eqn{Y(a)} by
 GPD tail implies \eqn{\xi \ge 1}.
 }
 \examples{
-\dontrun{
+\donttest{
+N <- 25
+X <- data.frame(x1 = stats::rnorm(N))
+A <- stats::rbinom(N, 1, 0.5)
+y <- abs(stats::rnorm(N)) + 0.1
+mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
 cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
-                         GPD = TRUE, components = 6)
+                         GPD = TRUE, components = 3,
+                         mcmc_outcome = mcmc_small, mcmc_ps = mcmc_small)
 fit <- run_mcmc_causal(cb)
 ate_rm <- ate_rmean(fit, cutoff = 10, interval = "credible")
 }

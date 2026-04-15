@@ -22,7 +22,6 @@ Causal dataset (N=500, p=5) with different positive-support kernels by arm
 and tail-designed exceedances (GPD=TRUE).
 }
 \examples{
-data("causal_alt_pos500_p5_k4_tail")
 head(causal_alt_pos500_p5_k4_tail$X)
 }
 \keyword{datasets}

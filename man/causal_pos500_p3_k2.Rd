@@ -22,7 +22,6 @@ Causal dataset (N=500, p=3) with the same positive-support kernel for both arms.
 Intended for same-kernel causal baselines (GPD=FALSE).
 }
 \examples{
-data("causal_pos500_p3_k2")
 head(causal_pos500_p3_k2$X)
 }
 \keyword{datasets}

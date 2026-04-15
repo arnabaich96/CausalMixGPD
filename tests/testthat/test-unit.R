@@ -2846,7 +2846,7 @@ test_that("plot.causalmixgpd_qte defaults CQTE to effect plot faceted by id", {
   expect_true(is.factor(result$data$x_plot))
   expect_equal(levels(result$data$x_plot), c("0.25", "0.5", "0.75"))
 
-  build <- ggplot2::ggplot_build(result)
+  expect_warning(build <- ggplot2::ggplot_build(result), NA)
   line_data <- build$data[[1]]
   panel_unique_x <- vapply(split(line_data$x, line_data$PANEL), function(z) length(unique(z)), integer(1))
 
@@ -2932,7 +2932,7 @@ test_that("plot.causalmixgpd_qte effect facets by id using quantile levels on x-
   result <- plot_causalmixgpd_qte(qte, type = "effect", facet_by = "id")
   expect_true(is.factor(result$data$x_plot))
   expect_equal(levels(result$data$x_plot), c("0.25", "0.5", "0.75"))
-  build <- ggplot2::ggplot_build(result)
+  expect_warning(build <- ggplot2::ggplot_build(result), NA)
   line_data <- build$data[[1]]
   panel_unique_x <- vapply(split(line_data$x, line_data$PANEL), function(z) length(unique(z)), integer(1))
 
@@ -3006,7 +3006,7 @@ test_that("plot.causalmixgpd_qte arms facets by id using quantile levels on x-ax
   result <- plot_causalmixgpd_qte(qte, type = "arms", facet_by = "id")
   expect_true(is.factor(result$data$x_plot))
   expect_equal(levels(result$data$x_plot), c("0.25", "0.5", "0.75"))
-  build <- ggplot2::ggplot_build(result)
+  expect_warning(build <- ggplot2::ggplot_build(result), NA)
   line_data <- build$data[[1]]
   panel_unique_x <- vapply(split(line_data$x, line_data$PANEL), function(z) length(unique(z)), integer(1))
 
@@ -3029,7 +3029,7 @@ test_that("plot.causalmixgpd_qte single quantile mentions tau in x-axis label", 
   qte$con$fit <- data.frame(id = 1:3, index = 0.5, estimate = c(0.9, 1.0, 1.1))
 
   result <- plot_causalmixgpd_qte(qte)
-  expect_match(result$labels$x, "\u03C4 = 0.5", fixed = TRUE)
+  expect_match(result$labels$x, "tau = 0.5", fixed = TRUE)
 })
 
 test_that("plot.causalmixgpd_qte applies categorical quantile axis and error bars to QTT", {
@@ -3116,6 +3116,7 @@ test_that("plot.causalmixgpd_ate defaults CATE to effect plot", {
   expect_true(inherits(result, "gg") || inherits(result, "ggplot"))
   expect_true(is.factor(result$data$x_plot))
   expect_equal(result$labels$x, "Index")
+  expect_warning(ggplot2::ggplot_build(result), NA)
 })
 
 test_that("plot.causalmixgpd_ate uses profile labels for CATE when available", {
@@ -3129,6 +3130,7 @@ test_that("plot.causalmixgpd_ate uses profile labels for CATE when available", {
   expect_true(is.factor(result$data$x_plot))
   expect_equal(levels(result$data$x_plot), ate$profile)
   expect_equal(result$labels$x, "Profile")
+  expect_warning(ggplot2::ggplot_build(result), NA)
 })
 
 test_that("plot.causalmixgpd_ate effect type works", {

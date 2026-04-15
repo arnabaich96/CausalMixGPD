@@ -21,7 +21,6 @@ Real-line, bulk-only mixture dataset with K=2 components and no covariates.
 Intended for non-causal bulk-only vignettes (normal/laplace/cauchy, GPD=FALSE).
 }
 \examples{
-data("nc_real200_k2")
 head(nc_real200_k2$y)
 }
 \keyword{datasets}

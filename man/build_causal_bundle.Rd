@@ -154,9 +154,9 @@ as an augmented covariate in the arm-specific outcome models. This mirrors
 the workflow described in the manuscript vignette.
 }
 \examples{
-\dontrun{
+\donttest{
 set.seed(1)
-N <- 100
+N <- 25
 X <- cbind(x1 = rnorm(N), x2 = runif(N))
 A <- rbinom(N, 1, plogis(0.3 + 0.5 * X[, 1]))
 y <- rexp(N) + 0.1
@@ -168,7 +168,7 @@ cb <- build_causal_bundle(
   backend = "sb",
   kernel = "gamma",
   GPD = TRUE,
-  components = 10,
+  components = 3,
   PS = "probit"
 )
 }
