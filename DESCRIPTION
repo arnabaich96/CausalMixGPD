@@ -3,7 +3,7 @@ Type: Package
 Title:  An R Package for Bayesian Nonparametric Conditional Density Modeling in Causal Inference and Clustering with a Heavy-Tail Extension
 Version: 0.6.0
 Maintainer: Arnab Aich <aaich@fsu.edu>
-Authors@R: person("Arnab", "Aich", role = c("aut", "cre"), email = "aaich@fsu.edu",
+Author: person("Arnab", "Aich", role = c("aut", "cre"), email = "aaich@fsu.edu",
             comment = c(ORCID = "0009-0005-7801-6701"))
 Description: The presence of a heavy tail is a feature of many scenarios when risk management 
             involves extremely rare events. While parametric distributions may give adequate 
