@@ -23,7 +23,6 @@ remotes::install_github(
 ## Documentation
 
 - [**Function reference**](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/index.html)
-- [**Coverage report**](https://arnabaich96.github.io/CausalMixGPD/coverage/)
 
 ## Additional Docs
 
