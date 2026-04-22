@@ -141,7 +141,7 @@ comparisons between treatment regimes.  In clinical trials, for
 instance, investigators may wish to characterize how a treatment alters
 outcomes across the entire outcome scale, including effects among
 individuals in the upper tail where events are rare but consequences
-can be severe.  This shift from  to distribution-based causal
+can be severe.  This shift from mean-based to distribution-based causal
 questions ties the credibility of causal analyses directly to the
 quality of the underlying outcome distribution estimates under
 competing treatment assignments.
@@ -150,11 +150,13 @@ A growing \proglang{R} ecosystem supports Bayesian causal inference
 through flexible outcome modeling and posterior uncertainty
 quantification, including tree-based and model-averaging approaches
 such as
-\href{https://cran.r-project.org/package=bcf}{\textsf{bcf}},
-\href{https://cran.r-project.org/package=bartCause}{\textsf{bartCause}},
+\href{https://cran.r-project.org/package=bcf}{\textsf{bcf}}
+\citep{bcf_pkg},
+\href{https://cran.r-project.org/package=bartCause}{\textsf{bartCause}}
+\citep{bartCause_pkg},
 and
 \href{https://cran.r-project.org/package=BCEE}{\textsf{BCEE}}
-\citep{bcf_pkg,bartCause_pkg,BCEE_pkg}.  While these tools are
+\citep{BCEE_pkg}.  While these tools are
 effective for mean and heterogeneous effect estimation, quantile and tail
 reporting poses additional challenges: quantiles estimated
 independently can cross, and tail-focused contrasts require the full
@@ -223,11 +225,7 @@ summaries for extreme-event quantities \citep{evdbayes_pkg}.  For
 peaks-over-threshold (POT) approaches,
 \href{https://cran.r-project.org/package=POT}{\textsf{POT}} implements
 a focused collection of tools for GPD modeling and threshold-based tail
-analysis \citep{POT_pkg}.  For extreme quantile estimation and
-rare-event tail summaries,
-\href{https://cran.r-project.org/package=extremefit}{\textsf{extremefit}}
-provides a dedicated software implementation
-\citep{durrieu2018extremefit}.  These existing tools typically
+analysis \citep{POT_pkg}.  These existing tools typically
 emphasize either flexible bulk modeling or dedicated tail analysis;
 applications requiring both predictor-dependent clustering and causal
 contrasts in the upper tail still oblige users to integrate multiple
@@ -262,7 +260,9 @@ Overall, \pkg{CausalMixGPD} provides a common interface for
 density estimation, prediction, clustering, and causal inference when
 tail behavior is of concern.  The package is implemented in
 \proglang{R}, with computationally intensive components delegated to
-\pkg{nimble} \citep{nimble_pkg}.  The remainder of this article is
+\pkg{nimble} \citep{nimble_pkg}; version 0.7.0 is available from
+CRAN \citep{CausalMixGPD_pkg}.
+The remainder of this article is
 organized as follows.  Section~\ref{sec:prelim} introduces the spliced
 model and the reported causal estimands.
 Section~\ref{sec:overview} describes the package workflow and user
@@ -270,6 +270,8 @@ interface.  Sections~\ref{sec:app-clustering}
 and~\ref{sec:app-causal} illustrate the clustering and causal
 workflows through data analyses, and Section~\ref{sec:discussion}
 concludes with a discussion of limitations and future directions.
+Finally, Section~\ref{sec:software} provides details for
+software availability, installation and usage instructions.
 
 \section{Background and preliminaries}
 \label{sec:prelim}
@@ -1671,6 +1673,15 @@ observational studies, but it is not a substitute for careful study
 design, overlap diagnostics, or sensitivity analysis for unmeasured
 confounding.
 
+\section{Software Availability}
+\label{sec:software}
+
+Version 0.7.0 of the \pkg{CausalMixGPD} R package is on CRAN
+and can be installed using \code{install.packages("CausalMixGPD")}. The package is licensed under GPL-3.
+The development version is available directly on GitHub
+through the command
+
+\code{remotes::install_github("arnabaich96/CausalMixGPD")}.
 
 
 
