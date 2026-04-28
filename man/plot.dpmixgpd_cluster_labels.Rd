@@ -64,6 +64,7 @@ additional occupied groups.
 \code{\link[=summary.dpmixgpd_cluster_labels]{summary.dpmixgpd_cluster_labels()}}, \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}}.
 
 Other cluster workflow: 
+\code{\link{cluster_profiles}()},
 \code{\link{dpmgpd.cluster}()},
 \code{\link{dpmix.cluster}()},
 \code{\link{plot.dpmixgpd_cluster_bundle}()},

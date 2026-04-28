@@ -51,6 +51,7 @@ than the number of components available in the truncated sampler.
 \code{\link[=summary.dpmixgpd_cluster_labels]{summary.dpmixgpd_cluster_labels()}}.
 
 Other cluster workflow: 
+\code{\link{cluster_profiles}()},
 \code{\link{dpmgpd.cluster}()},
 \code{\link{dpmix.cluster}()},
 \code{\link{plot.dpmixgpd_cluster_bundle}()},

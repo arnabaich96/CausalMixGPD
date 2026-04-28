@@ -35,3 +35,4 @@ with shape \code{components x P}.
 initializes \code{threshold[1:N]} and scalar \code{sdlog_u} (non-link thresholds are scalar).
 }
 }
+\keyword{internal}

@@ -36,12 +36,29 @@ jobs:
 
       - name: Run coverage
         env:
-          DPMIXGPD_TEST_LEVEL: ci
+          DPMIXGPD_COVERAGE_SUITE: historical85
+          DPMIXGPD_COVERAGE_LEVEL: ci
           COVERAGE: "1"
           DPMIXGPD_CI_COVERAGE_ONLY: "1"
           DPMIXGPD_SKIP_COVR_CAUSAL_BRANCHES: "1"
-        run: source("tools/.Rscripts/coverage.R"); coverage_report()
+        run: |
+          cat("Coverage target under historical85 profile: >= 85%")
+          source("tools/.Rscripts/coverage.R")
+          coverage_report()
         shell: Rscript {0}
+
+      - name: Verify Cobertura artifact
+        shell: bash
+        run: |
+          report="covr/assets/cobertura.xml"
+          if [ ! -s "$report" ]; then
+            echo "Missing Cobertura report: $report"
+            exit 1
+          fi
+          if ! grep -q "<coverage" "$report"; then
+            echo "Invalid Cobertura XML in: $report"
+            exit 1
+          fi
 
       - name: Upload to Codecov
         uses: codecov/codecov-action@v5

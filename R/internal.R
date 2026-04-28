@@ -340,6 +340,15 @@
   )]
 }
 
+.nimble_support_names <- function() {
+  c(
+    "getNimbleOption",
+    "messageIfVerbose",
+    "nimSwitch",
+    "nimbleInternalFunctions"
+  )
+}
+
 .register_nimble_exports <- function(pkgname = "CausalMixGPD", envir = parent.frame()) {
   src_env <- .nimble_export_source_env(pkgname)
   exports <- .nimble_export_names(pkgname)
@@ -347,12 +356,20 @@
     if (!exists(nm, envir = src_env, inherits = FALSE)) next
     assign(nm, get(nm, envir = src_env, inherits = FALSE), envir = envir)
   }
-  invisible(exports)
+  nimble_ns <- asNamespace("nimble")
+  support <- .nimble_support_names()
+  for (nm in support) {
+    if (!exists(nm, envir = nimble_ns, inherits = FALSE)) next
+    assign(nm, get(nm, envir = nimble_ns, inherits = FALSE), envir = envir)
+  }
+  invisible(c(exports, support))
 }
 
 .with_nimble_exports <- function(expr, pkgname = "CausalMixGPD", envir = .GlobalEnv) {
   src_env <- .nimble_export_source_env(pkgname)
-  exports <- .nimble_export_names(pkgname)
+  custom_exports <- .nimble_export_names(pkgname)
+  support_exports <- .nimble_support_names()
+  exports <- c(custom_exports, support_exports)
   if (!length(exports)) {
     return(eval.parent(substitute(expr)))
   }
@@ -365,7 +382,10 @@
     if (isTRUE(had_binding[[nm]])) {
       old_values[[nm]] <- get(nm, envir = envir, inherits = FALSE)
     }
-    assign(nm, get(nm, envir = src_env, inherits = FALSE), envir = envir)
+    src <- if (nm %in% support_exports) asNamespace("nimble") else src_env
+    if (exists(nm, envir = src, inherits = FALSE)) {
+      assign(nm, get(nm, envir = src, inherits = FALSE), envir = envir)
+    }
   }
 
   on.exit({
@@ -565,6 +585,7 @@
 #' with the underlying code object without repeatedly checking both cases.
 #' @keywords internal
 .extract_nimble_code <- function(code) {
+  .register_nimble_exports(envir = .GlobalEnv)
   if (is.list(code) && !inherits(code, "nimbleCode")) {
     if (!is.null(code$nimble)) return(code$nimble)
     if (!is.null(code$code)) return(code$code)
@@ -2431,7 +2452,7 @@ stick_breaking <- nimble::nimbleFunction(
           for (j in seq_along(beta_cols)) {
             beta_mat[idx1[j], idx2[j]] <- draw_mat[s, beta_cols[j]]
           }
-          eta_mat <- Xpred %*% t(beta_mat)
+          eta_mat <- tcrossprod(Xpred, beta_mat)
           out[[nm]] <- .apply_link(eta_mat, link, pw)
         } else {
           beta_cols_1d <- grep(paste0("^beta_", nm, "\\[[0-9]+\\]$"), colnames(draw_mat), value = TRUE)
@@ -2444,7 +2465,7 @@ stick_breaking <- nimble::nimbleFunction(
             if (length(beta_cols_1d) == Kb * Pb) {
               beta_vec <- as.numeric(draw_mat[s, beta_cols_1d])
               beta_mat <- matrix(beta_vec, nrow = Kb, ncol = Pb)
-              eta_mat <- Xpred %*% t(beta_mat)
+              eta_mat <- tcrossprod(Xpred, beta_mat)
               out[[nm]] <- .apply_link(eta_mat, link, pw)
             } else {
               beta_nm <- .indexed_block(draw_mat, paste0("beta_", nm), K = P) # S x P
@@ -2730,7 +2751,7 @@ stick_breaking <- nimble::nimbleFunction(
       ent <- spliced_gpd_link[[nm]]
       beta_mat <- ent$beta[s, , , drop = TRUE]
       if (is.null(dim(beta_mat))) beta_mat <- matrix(beta_mat, nrow = ncol(W_draws), ncol = P)
-      eta_mat <- Xpred %*% t(beta_mat)
+      eta_mat <- tcrossprod(Xpred, beta_mat)
       out[[nm]] <- .apply_link(eta_mat, ent$link, ent$link_power)
     }
     out

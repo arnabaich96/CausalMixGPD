@@ -9,7 +9,7 @@ predict.mixgpd_fit for conditional models."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -109,19 +109,147 @@ matrix. It is available only when the fitted model stored covariates.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="co"># Conditional model (with covariates X)</span></span></span>
-<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">50</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1</span></span></span>
-<span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">50</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">50</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">25</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1</span></span></span>
+<span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">25</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">25</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_nimble_bundle.html">build_nimble_bundle</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, X <span class="op">=</span> <span class="va">X</span>, backend <span class="op">=</span> <span class="st">"sb"</span>, kernel <span class="op">=</span> <span class="st">"normal"</span>,</span></span>
-<span class="r-in"><span>                             GPD <span class="op">=</span> <span class="cn">TRUE</span>, components <span class="op">=</span> <span class="fl">6</span>,</span></span>
-<span class="r-in"><span>                             mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">200</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">1</span>, nchains <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                             GPD <span class="op">=</span> <span class="cn">TRUE</span>, components <span class="op">=</span> <span class="fl">3</span>,</span></span>
+<span class="r-in"><span>                             mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">100</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">1</span>, nchains <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="run_mcmc_bundle_manual.html">run_mcmc_bundle_manual</a></span><span class="op">(</span><span class="va">bundle</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00AFFF;">[mixgpd] Validating configuration</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00D7FF;">[mixgpd] Checking build/compile cache</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFFF;">[mixgpd] Building model and MCMC configuration</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFD7;">[mixgpd] Compiling NIMBLE model</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFAF;">[mixgpd] Initializing chains</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FF87;">[mixgpd] Running MCMC</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FF5F;">[mixgpd] Finalizing WAIC and diagnostics</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FF00;">[mixgpd] Assembling fit object</span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00AFFF;">[predict_mixgpd] Validating prediction inputs</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00D7FF;">[predict_mixgpd] Extracting posterior draws</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFFF;">[predict_mixgpd] Computing posterior summaries</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFD7;">[predict_mixgpd] Assembling prediction output</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             fit      lower      upper residuals</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  -0.137844708 -0.4015448 0.12543383 0.6670157</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  -0.107184615 -0.3327693 0.08011055 0.4288305</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  -0.001528761 -0.2427112 0.32436075 0.7843265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  -0.036011726 -0.2195284 0.09354108 0.4781796</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  -0.114233327 -0.3587995 0.13567649 1.2213985</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  -0.072555424 -0.2588915 0.06448799 1.1210418</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  -0.099940952 -0.3180770 0.07542794 0.4245665</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  -0.004311994 -0.2035797 0.17775033 2.2871491</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  -0.146150363 -0.4210200 0.12102086 1.3093515</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 -0.060774856 -0.2973570 0.29927904 0.8438332</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11 -0.117446843 -0.3345290 0.11191342 0.8604083</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12  0.021507282 -0.2507034 0.46647472 1.9157100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 -0.086479196 -0.2905966 0.07158354 0.8812904</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14 -0.115478340 -0.3326636 0.09821612 1.2918690</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15 -0.137440502 -0.3902392 0.11076055 0.6966442</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16 -0.063630012 -0.2499352 0.05374555 1.3035068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17 -0.130091725 -0.3670486 0.11064810 0.3687356</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18 -0.134228569 -0.3775809 0.11589957 1.4664903</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19 -0.024279756 -0.2142548 0.11993065 1.9547894</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 -0.093428157 -0.2898281 0.12885299 0.5118388</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21 -0.139103707 -0.4164418 0.10523679 1.0129575</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22 -0.125623149 -0.3842722 0.11998722 0.8552477</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23 -0.080243723 -0.2707207 0.13855523 0.9483501</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24 -0.137968807 -0.4042290 0.12083928 1.0510353</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25 -0.033843873 -0.2477778 0.17686425 1.3976087</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">fit</span>, level <span class="op">=</span> <span class="fl">0.90</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00AFFF;">[predict_mixgpd] Validating prediction inputs</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00D7FF;">[predict_mixgpd] Extracting posterior draws</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFFF;">[predict_mixgpd] Computing posterior summaries</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFD7;">[predict_mixgpd] Assembling prediction output</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             fit      lower      upper residuals</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  -0.137844708 -0.3471485 0.06383905 0.6670157</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  -0.107184615 -0.2861716 0.06652476 0.4288305</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  -0.001528761 -0.2141012 0.26869621 0.7843265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  -0.036011726 -0.2076551 0.08498833 0.4781796</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  -0.114233327 -0.3113510 0.05231331 1.2213985</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  -0.072555424 -0.2437264 0.04989450 1.1210418</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  -0.099940952 -0.2699493 0.05255102 0.4245665</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  -0.004311994 -0.1794000 0.15801906 2.2871491</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  -0.146150363 -0.3627920 0.06884455 1.3093515</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 -0.060774856 -0.2932251 0.19378313 0.8438332</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11 -0.117446843 -0.3178055 0.03235647 0.8604083</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12  0.021507282 -0.2183117 0.36791304 1.9157100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 -0.086479196 -0.2464349 0.05961112 0.8812904</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14 -0.115478340 -0.3093543 0.01791537 1.2918690</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15 -0.137440502 -0.3468084 0.03329134 0.6966442</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16 -0.063630012 -0.2285502 0.04998070 1.3035068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17 -0.130091725 -0.3361768 0.02008063 0.3687356</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18 -0.134228569 -0.3437525 0.02463583 1.4664903</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19 -0.024279756 -0.1944556 0.10550474 1.9547894</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 -0.093428157 -0.2838919 0.08723265 0.5118388</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21 -0.139103707 -0.3595531 0.09291596 1.0129575</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22 -0.125623149 -0.3332913 0.06855453 0.8552477</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23 -0.080243723 -0.2627646 0.08546870 0.9483501</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24 -0.137968807 -0.3496137 0.07209921 1.0510353</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25 -0.033843873 -0.2319713 0.15794859 1.3976087</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">fit</span>, interval <span class="op">=</span> <span class="st">"hpd"</span><span class="op">)</span>  <span class="co"># HPD intervals</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00AFFF;">[predict_mixgpd] Validating prediction inputs</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00D7FF;">[predict_mixgpd] Extracting posterior draws</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFFF;">[predict_mixgpd] Computing posterior summaries</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFD7;">[predict_mixgpd] Assembling prediction output</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             fit      lower      upper residuals</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  -0.137844708 -0.4288305 0.13253502 0.6670157</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  -0.107184615 -0.3649412 0.08318867 0.4288305</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  -0.001528761 -0.2675449 0.33569199 0.7843265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  -0.036011726 -0.2216595 0.09526185 0.4781796</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  -0.114233327 -0.4130114 0.15983090 1.2213985</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  -0.072555424 -0.2853117 0.06640453 1.1210418</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  -0.099940952 -0.3340408 0.07748816 0.4245665</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  -0.004311994 -0.2229704 0.17966263 2.2871491</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  -0.146150363 -0.4374930 0.13077611 1.3093515</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 -0.060774856 -0.3363083 0.32534781 0.8438332</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11 -0.117446843 -0.3859923 0.13489128 0.8604083</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12  0.021507282 -0.2842261 0.49163802 1.9157100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 -0.086479196 -0.3146479 0.07372831 0.8812904</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14 -0.115478340 -0.3760022 0.11953940 1.2918690</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15 -0.137440502 -0.4177385 0.13149828 0.6966442</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16 -0.063630012 -0.2649798 0.05422633 1.3035068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17 -0.130091725 -0.4057259 0.13625130 0.3687356</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18 -0.134228569 -0.4145869 0.14166964 1.4664903</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19 -0.024279756 -0.2175516 0.12358693 1.9547894</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 -0.093428157 -0.3431809 0.13326052 0.5118388</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21 -0.139103707 -0.4647031 0.10674876 1.0129575</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22 -0.125623149 -0.4346648 0.13405370 0.8552477</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23 -0.080243723 -0.2718122 0.17745069 0.9483501</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24 -0.137968807 -0.4394089 0.12870719 1.0510353</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25 -0.033843873 -0.2520106 0.17902425 1.3976087</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">fit</span>, interval <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>   <span class="co"># No intervals</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00AFFF;">[predict_mixgpd] Validating prediction inputs</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00D7FF;">[predict_mixgpd] Extracting posterior draws</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFFF;">[predict_mixgpd] Computing posterior summaries</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFD7;">[predict_mixgpd] Assembling prediction output</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             fit lower upper residuals</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  -0.137844708    NA    NA 0.6670157</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  -0.107184615    NA    NA 0.4288305</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  -0.001528761    NA    NA 0.7843265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  -0.036011726    NA    NA 0.4781796</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  -0.114233327    NA    NA 1.2213985</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  -0.072555424    NA    NA 1.1210418</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  -0.099940952    NA    NA 0.4245665</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  -0.004311994    NA    NA 2.2871491</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  -0.146150363    NA    NA 1.3093515</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 -0.060774856    NA    NA 0.8438332</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11 -0.117446843    NA    NA 0.8604083</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12  0.021507282    NA    NA 1.9157100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 -0.086479196    NA    NA 0.8812904</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14 -0.115478340    NA    NA 1.2918690</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15 -0.137440502    NA    NA 0.6966442</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16 -0.063630012    NA    NA 1.3035068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17 -0.130091725    NA    NA 0.3687356</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18 -0.134228569    NA    NA 1.4664903</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19 -0.024279756    NA    NA 1.9547894</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 -0.093428157    NA    NA 0.5118388</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21 -0.139103707    NA    NA 1.0129575</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22 -0.125623149    NA    NA 0.8552477</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23 -0.080243723    NA    NA 0.9483501</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24 -0.137968807    NA    NA 1.0510353</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25 -0.033843873    NA    NA 1.3976087</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -133,7 +261,7 @@ matrix. It is available only when the fitted model stored covariates.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

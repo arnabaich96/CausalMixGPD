@@ -9,7 +9,7 @@ user-supplied covariate rows."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -108,14 +108,183 @@ predictions before differencing.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="va">cb</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_causal_bundle.html">build_causal_bundle</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, X <span class="op">=</span> <span class="va">X</span>, A <span class="op">=</span> <span class="va">A</span>, backend <span class="op">=</span> <span class="st">"sb"</span>, kernel <span class="op">=</span> <span class="st">"normal"</span>, components <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">25</span></span></span>
+<span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">N</span>, <span class="fl">1</span>, <span class="fl">0.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1</span></span></span>
+<span class="r-in"><span><span class="va">mcmc_small</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">100</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">1</span>, nchains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cb</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_causal_bundle.html">build_causal_bundle</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, X <span class="op">=</span> <span class="va">X</span>, A <span class="op">=</span> <span class="va">A</span>, backend <span class="op">=</span> <span class="st">"sb"</span>, kernel <span class="op">=</span> <span class="st">"normal"</span>,</span></span>
+<span class="r-in"><span>                         components <span class="op">=</span> <span class="fl">3</span>, mcmc_outcome <span class="op">=</span> <span class="va">mcmc_small</span>, mcmc_ps <span class="op">=</span> <span class="va">mcmc_small</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="run_mcmc_causal.html">run_mcmc_causal</a></span><span class="op">(</span><span class="va">cb</span>, show_progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">cqte</span><span class="op">(</span><span class="va">fit</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span>, newdata <span class="op">=</span> <span class="va">X</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Defining model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Building model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Setting data and initial values</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Checking model sizes and dimensions</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This model is not fully initialized. This is not an error.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>          To see which variables are not initialized, use model$initializeInfo().</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>          For more information on model initialization, see help(modelInitialization).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ===== Monitors =====</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> thin = 1: beta</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ===== Samplers =====</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RW sampler (2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - beta[]  (2 elements)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> running chain 1...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Defining model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Building model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Setting data and initial values</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Checking model sizes and dimensions</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This model is not fully initialized. This is not an error.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>          To see which variables are not initialized, use model$initializeInfo().</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>          For more information on model initialization, see help(modelInitialization).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ===== Monitors =====</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> thin = 1: alpha, beta_mean, beta_ps_mean, sd, w</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ===== Samplers =====</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> conjugate sampler (3)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - sd[]  (3 elements)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> categorical sampler (12)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - z[]  (12 elements)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RW sampler (9)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - alpha</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - beta_mean[]  (3 elements)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - beta_ps_mean[]  (3 elements)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - v[]  (2 elements)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Assigning an RW_block sampler to nodes with very different scales can result in low MCMC efficiency.  If all nodes assigned to RW_block are not on a similar scale, we recommend providing an informed value for the "propCov" control list argument, or using the "barker" sampler instead.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Warning] To calculate WAIC, set 'WAIC = TRUE', in addition to having enabled WAIC in building the MCMC.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> running chain 1...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Defining model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Building model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Setting data and initial values</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Checking model sizes and dimensions</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This model is not fully initialized. This is not an error.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>          To see which variables are not initialized, use model$initializeInfo().</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>          For more information on model initialization, see help(modelInitialization).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ===== Monitors =====</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> thin = 1: alpha, beta_mean, beta_ps_mean, sd, w</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ===== Samplers =====</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> conjugate sampler (3)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - sd[]  (3 elements)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> categorical sampler (13)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - z[]  (13 elements)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RW sampler (9)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - alpha</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - beta_mean[]  (3 elements)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - beta_ps_mean[]  (3 elements)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - v[]  (2 elements)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Assigning an RW_block sampler to nodes with very different scales can result in low MCMC efficiency.  If all nodes assigned to RW_block are not on a similar scale, we recommend providing an informed value for the "propCov" control list argument, or using the "barker" sampler instead.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Warning] To calculate WAIC, set 'WAIC = TRUE', in addition to having enabled WAIC in building the MCMC.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> running chain 1...</span>
+<span class="r-in"><span><span class="fu">cqte</span><span class="op">(</span><span class="va">fit</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span>, newdata <span class="op">=</span> <span class="va">X</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00AFFF;">[cqte] Preparing CQTE inputs</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00D7FF;">[cqte] Preparing propensity-score adjustment</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFFF;">[cqte] Predicting treated-arm quantiles</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFD7;">[cqte] Predicting control-arm quantiles</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFAF;">[cqte] Aggregating CQTE estimates</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CQTE (Conditional Quantile Treatment Effect)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Prediction points: 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Quantile grid: 0.5, 0.9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Conditional (covariates): YES</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Propensity score used: YES</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   PS scale: logit</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Credible interval: credible (95%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CQTE estimates (treated - control):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    profile index   mean  lower upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Profile 1   0.5 -0.099  -0.73 0.566</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Profile 1   0.9  0.226 -3.815 4.091</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Profile 2   0.5   0.24 -1.451   1.8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Profile 2   0.9  0.786 -3.915 5.245</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Profile 3   0.5  0.282 -1.804 2.143</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Profile 3   0.9  0.917 -3.856 5.561</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... (4 more rows)</span>
 <span class="r-in"><span><span class="fu">cqte</span><span class="op">(</span><span class="va">fit</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span>, interval <span class="op">=</span> <span class="st">"credible"</span>, level <span class="op">=</span> <span class="fl">0.90</span><span class="op">)</span>  <span class="co"># 90% CI</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00AFFF;">[cqte] Preparing CQTE inputs</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00D7FF;">[cqte] Preparing propensity-score adjustment</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFFF;">[cqte] Predicting treated-arm quantiles</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFD7;">[cqte] Predicting control-arm quantiles</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFAF;">[cqte] Aggregating CQTE estimates</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CQTE (Conditional Quantile Treatment Effect)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Prediction points: 25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Quantile grid: 0.5, 0.9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Conditional (covariates): YES</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Propensity score used: YES</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   PS scale: logit</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Credible interval: credible (90%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CQTE estimates (treated - control):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  id index   mean  lower upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1   0.5 -0.099 -0.685 0.511</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1   0.9  0.226 -3.339 3.384</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   2   0.5   0.24 -1.311 1.738</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   2   0.9  0.786 -3.572  4.73</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3   0.5  0.282 -1.629 2.092</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3   0.9  0.917 -3.611 4.891</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... (44 more rows)</span>
 <span class="r-in"><span><span class="fu">cqte</span><span class="op">(</span><span class="va">fit</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span>, interval <span class="op">=</span> <span class="st">"hpd"</span><span class="op">)</span>  <span class="co"># HPD intervals</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00AFFF;">[cqte] Preparing CQTE inputs</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00D7FF;">[cqte] Preparing propensity-score adjustment</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFFF;">[cqte] Predicting treated-arm quantiles</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFD7;">[cqte] Predicting control-arm quantiles</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFAF;">[cqte] Aggregating CQTE estimates</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CQTE (Conditional Quantile Treatment Effect)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Prediction points: 25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Quantile grid: 0.5, 0.9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Conditional (covariates): YES</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Propensity score used: YES</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   PS scale: logit</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Credible interval: hpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CQTE estimates (treated - control):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  id index   mean  lower upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1   0.5 -0.099 -0.741 0.589</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1   0.9  0.226 -5.601 4.262</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   2   0.5   0.24 -1.509 1.816</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   2   0.9  0.786  -5.14 5.248</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3   0.5  0.282 -1.875 2.144</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3   0.9  0.917 -4.961 5.607</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... (44 more rows)</span>
 <span class="r-in"><span><span class="fu">cqte</span><span class="op">(</span><span class="va">fit</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span>, interval <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>   <span class="co"># No intervals</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00AFFF;">[cqte] Preparing CQTE inputs</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00D7FF;">[cqte] Preparing propensity-score adjustment</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFFF;">[cqte] Predicting treated-arm quantiles</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFD7;">[cqte] Predicting control-arm quantiles</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFAF;">[cqte] Aggregating CQTE estimates</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CQTE (Conditional Quantile Treatment Effect)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Prediction points: 25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Quantile grid: 0.5, 0.9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Conditional (covariates): YES</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Propensity score used: YES</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   PS scale: logit</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Credible interval: none</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CQTE estimates (treated - control):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  id index   mean lower upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1   0.5 -0.099    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1   0.9  0.226    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   2   0.5   0.24    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   2   0.9  0.786    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3   0.5  0.282    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3   0.9  0.917    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... (44 more rows)</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -127,7 +296,7 @@ predictions before differencing.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

@@ -49,11 +49,28 @@ so cluster assignment can be informed by both central behavior and tail behavior
 This interface is preferable when cluster separation is driven by upper-tail differences rather
 than bulk-only shape or location differences.
 }
+\examples{
+\donttest{
+data("nc_posX100_p3_k2", package = "CausalMixGPD")
+dat <- data.frame(y = nc_posX100_p3_k2$y[1:20],
+                  nc_posX100_p3_k2$X[1:20, , drop = FALSE])
+fit <- dpmgpd.cluster(
+  y ~ x1 + x2 + x3,
+  data = dat,
+  kernel = "gamma",
+  type = "param",
+  components = 3,
+  mcmc = list(niter = 60, nburnin = 30, thin = 1, nchains = 1, seed = 1)
+)
+cluster_profiles(fit)
+}
+}
 \seealso{
 \code{\link[=dpmix.cluster]{dpmix.cluster()}}, \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}},
 \code{\link[=dpmgpd]{dpmgpd()}}, \code{\link[=sim_bulk_tail]{sim_bulk_tail()}}.
 
 Other cluster workflow: 
+\code{\link{cluster_profiles}()},
 \code{\link{dpmix.cluster}()},
 \code{\link{plot.dpmixgpd_cluster_bundle}()},
 \code{\link{plot.dpmixgpd_cluster_fit}()},

@@ -22,3 +22,4 @@ Dispatches to the backend-specific code generators:
 \details{
 The model size is controlled by \code{spec$meta$components} only.
 }
+\keyword{internal}

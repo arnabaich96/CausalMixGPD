@@ -20,3 +20,4 @@ hyperparameters for priors implied by \code{spec$plan}.
 \details{
 This function is pre-run only; it does not compile or execute NIMBLE.
 }
+\keyword{internal}

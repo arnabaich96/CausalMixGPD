@@ -770,16 +770,18 @@ print.summary.causalmixgpd_ps_fit <- function(x, digits = 3, max_rows = 60, show
 #'
 #' @param x A \code{"causalmixgpd_causal_fit"} object.
 #' @param arm Integer or character; \code{1} or \code{"treated"} for treatment,
-#'   \code{0} or \code{"control"} for control.
+#'   \code{0} or \code{"control"} for control, or \code{"both"} for both arms.
 #' @param ... Additional arguments forwarded to the underlying outcome plot method.
 #' @return The result of the underlying plot call (invisibly).
 #' @seealso \code{\link{plot.mixgpd_fit}},
 #'   \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
 #'   \code{\link{qte}}.
 #' @export
-plot.causalmixgpd_causal_fit <- function(x, arm = "both", ...) {
-  stopifnot(inherits(x, "causalmixgpd_causal_fit"))
-  if (is.null(arm)) arm <- "both"
+plot.causalmixgpd_causal_fit <- function(x, arm = "treated", ...) {
+  if (!inherits(x, "causalmixgpd_causal_fit")) {
+    stop("x must be a 'causalmixgpd_causal_fit' object.", call. = FALSE)
+  }
+  if (is.null(arm)) arm <- "treated"
   if (is.character(arm)) {
     arm_chr <- tolower(arm)
     # accept common aliases
@@ -1749,9 +1751,10 @@ summary.mixgpd_ess_summary <- function(object, ...) {
 #'
 #' @param x A fitted object of class \code{"mixgpd_fit"}.
 #' @param family Character vector of plot names (ggmcmc plot types)
-#'   or a single one. Use \code{"auto"} (or \code{"all"}) to include
-#'   all plots supported for the available number of
-#'   chains/parameters. Supported types:
+#'   or a single one. The default \code{"traceplot"} returns one diagnostic.
+#'   Use \code{"all"} to include all plots supported for the available number
+#'   of chains/parameters. \code{"auto"} is accepted as an alias for the
+#'   default single diagnostic. Supported types:
 #'   \itemize{
 #'     \item \code{"histogram"}: posterior histograms
 #'     \item \code{"density"}: posterior density curves
@@ -1789,11 +1792,13 @@ summary.mixgpd_ess_summary <- function(object, ...) {
 #' }
 #' @export
 plot.mixgpd_fit <- function(x,
-                            family = "auto",
+                            family = "traceplot",
                             params = NULL,
                             nLags = 50,
                             ...) {
-  stopifnot(inherits(x, "mixgpd_fit"))
+  if (!inherits(x, "mixgpd_fit")) {
+    stop("x must be a 'mixgpd_fit' object.", call. = FALSE)
+  }
   if (!requireNamespace("ggmcmc", quietly = TRUE)) {
     stop("Package 'ggmcmc' is required for plot.mixgpd_fit(). Install it first.", call. = FALSE)
   }
@@ -1866,7 +1871,10 @@ plot.mixgpd_fit <- function(x,
   allowed <- c("histogram", "density", "traceplot", "running", "compare_partial",
                "autocorrelation", "crosscorrelation", "Rhat", "grb", "effective",
                "geweke", "caterpillar", "pairs")
-  if (length(family) == 1L && family %in% c("auto", "all")) {
+  if (length(family) == 1L && identical(family, "auto")) {
+    family <- "traceplot"
+  }
+  if (length(family) == 1L && identical(family, "all")) {
     family <- allowed
   }
   bad <- setdiff(family, allowed)
@@ -2518,7 +2526,7 @@ residuals.mixgpd_fit <- function(object,
           for (j in seq_along(beta_cols)) {
             beta_mat[idx1[j], idx2[j]] <- draw_mat[s, beta_cols[j]]
           }
-          eta_mat <- X %*% t(beta_mat)
+          eta_mat <- tcrossprod(X, beta_mat)
           out[[nm]] <- .apply_link(eta_mat, link, pw)
         } else {
           beta_cols_1d <- grep(paste0("^beta_", nm, "\\[[0-9]+\\]$"), colnames(draw_mat), value = TRUE)
@@ -2531,7 +2539,7 @@ residuals.mixgpd_fit <- function(object,
             if (length(beta_cols_1d) == Kb * Pb) {
               beta_vec <- as.numeric(draw_mat[s, beta_cols_1d])
               beta_mat <- matrix(beta_vec, nrow = Kb, ncol = Pb)
-              eta_mat <- X %*% t(beta_mat)
+              eta_mat <- tcrossprod(X, beta_mat)
               out[[nm]] <- .apply_link(eta_mat, link, pw)
             } else {
               beta_nm <- .indexed_block(draw_mat, paste0("beta_", nm), K = P)
@@ -2768,7 +2776,7 @@ residuals.mixgpd_fit <- function(object,
       ent <- spliced_gpd_link[[nm]]
       beta_mat <- ent$beta[s, , , drop = TRUE]
       if (is.null(dim(beta_mat))) beta_mat <- matrix(beta_mat, nrow = ncol(W_draws), ncol = P)
-      eta_mat <- X %*% t(beta_mat)
+      eta_mat <- tcrossprod(X, beta_mat)
       out[[nm]] <- .apply_link(eta_mat, ent$link, ent$link_power)
     }
     out
@@ -2985,6 +2993,7 @@ plot.mixgpd_predict <- function(x, y = NULL, ...) {
          sample = .plot_sample_pred(x, ...),
          fit = .plot_fit_pred(x, ...),
          mean = .plot_mean_pred(x, ...),
+         rmean = .plot_mean_pred(x, ...),
          density = .plot_density_pred(x, ...),
          survival = .plot_survival_pred(x, ...),
          location = .plot_location_pred(x, ...),
@@ -2994,6 +3003,44 @@ plot.mixgpd_predict <- function(x, y = NULL, ...) {
     class(result) <- c("mixgpd_predict_plots", class(result))
   }
   .wrap_plotly(result)
+}
+
+#' Print Prediction Results
+#'
+#' Compact print method for objects returned by \code{\link{predict.mixgpd_fit}}.
+#'
+#' @param x A prediction object returned by \code{predict.mixgpd_fit()}.
+#' @param digits Number of digits to print for numeric summaries.
+#' @param max_rows Maximum rows to print when the prediction contains a data frame.
+#' @param ... Unused.
+#' @return The input object, invisibly.
+#' @export
+print.mixgpd_predict <- function(x, digits = 3, max_rows = 10L, ...) {
+  if (!is.list(x)) {
+    stop("x must be a prediction object from predict.mixgpd_fit().", call. = FALSE)
+  }
+  pred_type <- x$type %||% attr(x, "type") %||% "<unknown>"
+  cat("MixGPD prediction\n")
+  cat("type:", pred_type, "\n")
+  fit <- x$fit %||% NULL
+  if (is.data.frame(fit)) {
+    out <- fit
+    num_cols <- vapply(out, is.numeric, logical(1))
+    out[num_cols] <- lapply(out[num_cols], round, digits = digits)
+    max_rows <- as.integer(max_rows)[1]
+    if (!is.finite(max_rows) || max_rows < 1L) max_rows <- 10L
+    if (nrow(out) > max_rows) {
+      cat(sprintf("showing first %d of %d rows\n", max_rows, nrow(out)))
+      out <- out[seq_len(max_rows), , drop = FALSE]
+    }
+    print(out, row.names = FALSE)
+  } else if (is.numeric(fit)) {
+    cat("length:", length(fit), "\n")
+    print(round(utils::head(fit, max_rows), digits = digits))
+  } else if (!is.null(fit)) {
+    print(fit)
+  }
+  invisible(x)
 }
 
 #' Plot causal prediction outputs

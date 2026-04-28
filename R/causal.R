@@ -773,6 +773,29 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
   list(compute_interval = compute_interval, interval = interval_use, level = as.numeric(level))
 }
 
+.causal_validate_fit <- function(fit) {
+  if (!inherits(fit, "causalmixgpd_causal_fit")) {
+    stop("'fit' must be a 'causalmixgpd_causal_fit' object.", call. = FALSE)
+  }
+  invisible(fit)
+}
+
+.causal_validate_probs <- function(probs) {
+  probs <- as.numeric(probs)
+  if (!length(probs) || anyNA(probs) || any(!is.finite(probs)) || any(probs <= 0 | probs >= 1)) {
+    stop("'probs' must be a numeric vector with values strictly between 0 and 1.", call. = FALSE)
+  }
+  probs
+}
+
+.causal_validate_nsim_mean <- function(nsim_mean) {
+  nsim_mean <- as.integer(nsim_mean)[1]
+  if (!is.finite(nsim_mean) || nsim_mean < 1L) {
+    stop("'nsim_mean' must be an integer >= 1.", call. = FALSE)
+  }
+  nsim_mean
+}
+
 .causal_warn_ignored_marginal_inputs <- function(fn, newdata = NULL, y = NULL, conditional_fn) {
   ignored <- character(0)
   if (!is.null(newdata)) ignored <- c(ignored, "'newdata'")
@@ -860,7 +883,11 @@ cqte <- function(fit,
                 interval = "credible",
                 level = 0.95,
                 show_progress = TRUE) {
-  stopifnot(inherits(fit, "causalmixgpd_causal_fit"))
+  .causal_validate_fit(fit)
+  probs <- .causal_validate_probs(probs)
+  iv <- .causal_validate_interval(interval = interval, level = level)
+  .causal_require_conditional(fit, fn = "cqte")
+  x_pred <- .causal_resolve_conditional_x(fit = fit, newdata = newdata, fn = "cqte")
   progress_ctx <- .cmgpd_progress_start(
     total_steps = 5L,
     enabled = isTRUE(show_progress),
@@ -870,12 +897,9 @@ cqte <- function(fit,
   on.exit(.cmgpd_progress_done(progress_ctx, final_label = NULL), add = TRUE)
   .cmgpd_progress_step(progress_ctx, "Preparing CQTE inputs")
 
-  .causal_require_conditional(fit, fn = "cqte")
-  iv <- .causal_validate_interval(interval = interval, level = level)
   compute_interval <- iv$compute_interval
   interval <- iv$interval
   level <- iv$level
-  x_pred <- .causal_resolve_conditional_x(fit = fit, newdata = newdata, fn = "cqte")
 
   ps_meta <- fit$bundle$meta$ps %||% list()
   ps_enabled <- isTRUE(ps_meta$enabled) && isTRUE(fit$bundle$meta$has_x)
@@ -1115,7 +1139,12 @@ cate <- function(fit,
                 level = 0.95,
                 nsim_mean = 200L,
                 show_progress = TRUE) {
-  stopifnot(inherits(fit, "causalmixgpd_causal_fit"))
+  .causal_validate_fit(fit)
+  type <- match.arg(type)
+  nsim_mean <- .causal_validate_nsim_mean(nsim_mean)
+  iv <- .causal_validate_interval(interval = interval, level = level)
+  .causal_require_conditional(fit, fn = "cate")
+  x_pred <- .causal_resolve_conditional_x(fit = fit, newdata = newdata, fn = "cate")
   progress_ctx <- .cmgpd_progress_start(
     total_steps = 5L,
     enabled = isTRUE(show_progress),
@@ -1125,14 +1154,9 @@ cate <- function(fit,
   on.exit(.cmgpd_progress_done(progress_ctx, final_label = NULL), add = TRUE)
   .cmgpd_progress_step(progress_ctx, "Preparing CATE inputs")
 
-  .causal_require_conditional(fit, fn = "cate")
-
-  type <- match.arg(type)
-  iv <- .causal_validate_interval(interval = interval, level = level)
   compute_interval <- iv$compute_interval
   interval <- iv$interval
   level <- iv$level
-  x_pred <- .causal_resolve_conditional_x(fit = fit, newdata = newdata, fn = "cate")
 
   ps_meta <- fit$bundle$meta$ps %||% list()
   ps_enabled <- isTRUE(ps_meta$enabled) && isTRUE(fit$bundle$meta$has_x)
@@ -1607,7 +1631,9 @@ qte <- function(fit,
                 interval = "credible",
                 level = 0.95,
                 show_progress = TRUE) {
-  stopifnot(inherits(fit, "causalmixgpd_causal_fit"))
+  .causal_validate_fit(fit)
+  probs <- .causal_validate_probs(probs)
+  iv <- .causal_validate_interval(interval = interval, level = level)
   progress_ctx <- .cmgpd_progress_start(
     total_steps = 5L,
     enabled = isTRUE(show_progress),
@@ -1618,11 +1644,6 @@ qte <- function(fit,
   .cmgpd_progress_step(progress_ctx, "Preparing QTE inputs")
 
   .causal_warn_ignored_marginal_inputs(fn = "qte", newdata = newdata, y = y, conditional_fn = "cqte")
-  probs <- as.numeric(probs)
-  if (!length(probs) || anyNA(probs) || any(!is.finite(probs)) || any(probs <= 0 | probs >= 1)) {
-    stop("'probs' must be a numeric vector with values strictly between 0 and 1.", call. = FALSE)
-  }
-  iv <- .causal_validate_interval(interval = interval, level = level)
   compute_interval <- iv$compute_interval
   interval <- iv$interval
   level <- iv$level
@@ -1748,7 +1769,9 @@ qtt <- function(fit,
                 interval = "credible",
                 level = 0.95,
                 show_progress = TRUE) {
-  stopifnot(inherits(fit, "causalmixgpd_causal_fit"))
+  .causal_validate_fit(fit)
+  probs <- .causal_validate_probs(probs)
+  iv <- .causal_validate_interval(interval = interval, level = level)
   progress_ctx <- .cmgpd_progress_start(
     total_steps = 5L,
     enabled = isTRUE(show_progress),
@@ -1759,11 +1782,6 @@ qtt <- function(fit,
   .cmgpd_progress_step(progress_ctx, "Preparing QTT inputs")
 
   .causal_warn_ignored_marginal_inputs(fn = "qtt", newdata = newdata, y = y, conditional_fn = "cqte")
-  probs <- as.numeric(probs)
-  if (!length(probs) || anyNA(probs) || any(!is.finite(probs)) || any(probs <= 0 | probs >= 1)) {
-    stop("'probs' must be a numeric vector with values strictly between 0 and 1.", call. = FALSE)
-  }
-  iv <- .causal_validate_interval(interval = interval, level = level)
   compute_interval <- iv$compute_interval
   interval <- iv$interval
   level <- iv$level
@@ -1921,7 +1939,10 @@ ate <- function(fit,
                 level = 0.95,
                 nsim_mean = 200L,
                 show_progress = TRUE) {
-  stopifnot(inherits(fit, "causalmixgpd_causal_fit"))
+  .causal_validate_fit(fit)
+  type <- match.arg(type)
+  nsim_mean <- .causal_validate_nsim_mean(nsim_mean)
+  iv <- .causal_validate_interval(interval = interval, level = level)
   progress_ctx <- .cmgpd_progress_start(
     total_steps = 5L,
     enabled = isTRUE(show_progress),
@@ -1932,8 +1953,6 @@ ate <- function(fit,
   .cmgpd_progress_step(progress_ctx, "Preparing ATE inputs")
 
   .causal_warn_ignored_marginal_inputs(fn = "ate", newdata = newdata, y = y, conditional_fn = "cate")
-  type <- match.arg(type)
-  iv <- .causal_validate_interval(interval = interval, level = level)
   compute_interval <- iv$compute_interval
   interval <- iv$interval
   level <- iv$level
@@ -2066,7 +2085,10 @@ att <- function(fit,
                 level = 0.95,
                 nsim_mean = 200L,
                 show_progress = TRUE) {
-  stopifnot(inherits(fit, "causalmixgpd_causal_fit"))
+  .causal_validate_fit(fit)
+  type <- match.arg(type)
+  nsim_mean <- .causal_validate_nsim_mean(nsim_mean)
+  iv <- .causal_validate_interval(interval = interval, level = level)
   progress_ctx <- .cmgpd_progress_start(
     total_steps = 5L,
     enabled = isTRUE(show_progress),
@@ -2077,8 +2099,6 @@ att <- function(fit,
   .cmgpd_progress_step(progress_ctx, "Preparing ATT inputs")
 
   .causal_warn_ignored_marginal_inputs(fn = "att", newdata = newdata, y = y, conditional_fn = "cate")
-  type <- match.arg(type)
-  iv <- .causal_validate_interval(interval = interval, level = level)
   compute_interval <- iv$compute_interval
   interval <- iv$interval
   level <- iv$level
@@ -2212,6 +2232,9 @@ ate_rmean <- function(fit,
                       level = 0.95,
                       nsim_mean = 200L,
                       show_progress = TRUE) {
+  .causal_validate_fit(fit)
+  .causal_validate_interval(interval = interval, level = level)
+  nsim_mean <- .causal_validate_nsim_mean(nsim_mean)
   if (.causal_is_conditional_model(fit)) {
     cate(fit = fit,
          newdata = newdata,
@@ -3168,7 +3191,7 @@ predict.causalmixgpd_causal_fit <- function(object,
     inv_link <- if (model_type == "logit") plogis else if (model_type == "probit") pnorm else plogis
 
     # Posterior predictive PS: average inverse link over beta draws
-    eta <- beta_mat %*% t(design)  # S x n_pred
+    eta <- tcrossprod(beta_mat, design)  # S x n_pred
     ps_draws <- inv_link(eta)
     ps_vec <- if (summary == "mean") {
       colMeans(ps_draws)

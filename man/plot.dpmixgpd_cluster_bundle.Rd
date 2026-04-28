@@ -36,6 +36,7 @@ fitting when you need substantive clustering output.
 \code{\link[=summary.dpmixgpd_cluster_bundle]{summary.dpmixgpd_cluster_bundle()}}, \code{\link[=dpmix.cluster]{dpmix.cluster()}}, \code{\link[=dpmgpd.cluster]{dpmgpd.cluster()}}.
 
 Other cluster workflow: 
+\code{\link{cluster_profiles}()},
 \code{\link{dpmgpd.cluster}()},
 \code{\link{dpmix.cluster}()},
 \code{\link{plot.dpmixgpd_cluster_fit}()},

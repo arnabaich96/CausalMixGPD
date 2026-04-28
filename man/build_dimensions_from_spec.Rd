@@ -22,3 +22,4 @@ The model size is controlled by a single parameter: \code{components}.
 For SB this is the truncation level of the stick-breaking mixture.
 For CRP this is the maximum number of clusters represented in the finite model.
 }
+\keyword{internal}

@@ -88,7 +88,9 @@ format:
     code-summary: "Code"
     mermaid:
       theme: dark
-
+    css:
+      - assets/theme-runtime.css   # existing (keep first)
+      - assets/theme.css           # new (loads after, overrides)
 execute:
   enabled: true
   cache: true

@@ -144,7 +144,7 @@ check_glue_validity <- function(fit,
           for (j in seq_along(beta_cols)) {
             beta_mat[idx1[j], idx2[j]] <- draw_mat[s, beta_cols[j]]
           }
-          eta_mat <- X %*% t(beta_mat)
+          eta_mat <- tcrossprod(X, beta_mat)
           out[[nm]] <- .apply_link(eta_mat, link, pw)
         } else {
           beta_cols_1d <- grep(paste0("^beta_", nm, "\\[[0-9]+\\]$"), colnames(draw_mat), value = TRUE)
@@ -157,7 +157,7 @@ check_glue_validity <- function(fit,
             if (length(beta_cols_1d) == Kb * Pb) {
               beta_vec <- as.numeric(draw_mat[s, beta_cols_1d])
               beta_mat <- matrix(beta_vec, nrow = Kb, ncol = Pb)
-              eta_mat <- X %*% t(beta_mat)
+              eta_mat <- tcrossprod(X, beta_mat)
               out[[nm]] <- .apply_link(eta_mat, link, pw)
             } else {
               beta_nm <- .indexed_block(draw_mat, paste0("beta_", nm), K = P)
@@ -370,7 +370,7 @@ check_glue_validity <- function(fit,
       ent <- spliced_gpd_link[[nm]]
       beta_mat <- ent$beta[s, , , drop = TRUE]
       if (is.null(dim(beta_mat))) beta_mat <- matrix(beta_mat, nrow = ncol(W_draws), ncol = P)
-      eta_mat <- X %*% t(beta_mat)
+      eta_mat <- tcrossprod(X, beta_mat)
       out[[nm]] <- .apply_link(eta_mat, ent$link, ent$link_power)
     }
     out

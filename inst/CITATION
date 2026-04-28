@@ -4,9 +4,9 @@ pkg_version <- meta$Version
 
 bibentry(
   bibtype = "Manual",
-  title   = "CausalMixGPD: Dirichlet Process Mixtures with Generalized Pareto Tail",
+  title   = "CausalMixGPD: Bayesian Nonparametric Conditional Density Modeling in Causal Inference and Clustering with a Heavy-Tail Extension",
   author  = person("Arnab", "Aich"),
   year    = "2026",
   note    = paste("R package version", pkg_version),
-  doi     = 10.32614/CRAN.package.CausalMixGPD
+  url     = "https://arnabaich96.github.io/CausalMixGPD/pkgdown/"
 )

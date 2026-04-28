@@ -32,6 +32,7 @@ The printed header reports only matrix size and bookkeeping information. Use
 \code{\link[=plot.dpmixgpd_cluster_psm]{plot.dpmixgpd_cluster_psm()}}.
 
 Other cluster workflow: 
+\code{\link{cluster_profiles}()},
 \code{\link{dpmgpd.cluster}()},
 \code{\link{dpmix.cluster}()},
 \code{\link{plot.dpmixgpd_cluster_bundle}()},

@@ -128,6 +128,17 @@ The main exported functions used in this vignette are:
 - `predict()` with `type = "psm"` or `type = "label"`.
 - `summary()` for cluster sizes and profiles.
 - `plot()` for PSM heatmaps and cluster-summary graphics.
+- `cluster_profiles()` for extracting the profile table shown by `summary()`.
+
+Across the package, the public workflow is organized around a small set of
+model-fitting wrappers and standard S3 methods. One-arm density models use
+`dpmix()` and `dpmgpd()`, causal models use `dpmix.causal()` and
+`dpmgpd.causal()`, and clustering models use `dpmix.cluster()` and
+`dpmgpd.cluster()`. The lower-level bundle constructors are available for
+advanced workflows, while code-generation helpers are internal implementation
+details. Fitted objects are inspected through `print()`, `summary()`,
+`predict()`, `plot()`, `params()`, `fitted()`, and `residuals()` where those
+methods are meaningful for the object class.
 
 # Package setup
 
@@ -283,11 +294,14 @@ z_test
 ```{r test-cluster-profiles-display, eval=FALSE}
 summary(
   predict(fit_cluster, newdata = test_dat, type = "label", return_scores = TRUE)
-)$cluster_profiles
+)
+cluster_profiles(
+  predict(fit_cluster, newdata = test_dat, type = "label", return_scores = TRUE)
+)
 ```
 
 ```{r test-cluster-profiles, echo=FALSE}
-clust_out$cluster_profiles
+cluster_profiles(z_test)
 ```
 
 ```{r sizes-plot-test-display, eval=FALSE}

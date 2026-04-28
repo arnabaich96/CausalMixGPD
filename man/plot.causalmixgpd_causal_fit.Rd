@@ -4,13 +4,13 @@
 \alias{plot.causalmixgpd_causal_fit}
 \title{Plot the treated and control outcome fits from a causal model}
 \usage{
-\method{plot}{causalmixgpd_causal_fit}(x, arm = "both", ...)
+\method{plot}{causalmixgpd_causal_fit}(x, arm = "treated", ...)
 }
 \arguments{
 \item{x}{A \code{"causalmixgpd_causal_fit"} object.}
 
 \item{arm}{Integer or character; \code{1} or \code{"treated"} for treatment,
-\code{0} or \code{"control"} for control.}
+\code{0} or \code{"control"} for control, or \code{"both"} for both arms.}
 
 \item{...}{Additional arguments forwarded to the underlying outcome plot method.}
 }

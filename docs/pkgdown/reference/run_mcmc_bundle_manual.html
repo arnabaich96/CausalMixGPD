@@ -11,7 +11,7 @@ executes MCMC, and returns a "mixgpd_fit" object.'></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -111,20 +111,52 @@ frequently those latent indicators are refreshed during sampling.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-nimble.org" class="external-link">nimble</a></span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">40</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1</span></span></span>
+<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">25</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1</span></span></span>
 <span class="r-in"><span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_nimble_bundle.html">build_nimble_bundle</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  y <span class="op">=</span> <span class="va">y</span>,</span></span>
 <span class="r-in"><span>  backend <span class="op">=</span> <span class="st">"sb"</span>,</span></span>
 <span class="r-in"><span>  kernel <span class="op">=</span> <span class="st">"normal"</span>,</span></span>
 <span class="r-in"><span>  GPD <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>  components <span class="op">=</span> <span class="fl">3</span>,</span></span>
-<span class="r-in"><span>  mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">200</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">1</span>, nchains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">100</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">1</span>, nchains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span><span class="op">(</span><span class="va">bundle</span>, show_progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Defining model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] 'P' is provided in 'constants' but not used in the model code and is being ignored.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Building model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Setting data and initial values</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Checking model sizes and dimensions</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This model is not fully initialized. This is not an error.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>          To see which variables are not initialized, use model$initializeInfo().</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>          For more information on model initialization, see help(modelInitialization).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ===== Monitors =====</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> thin = 1: alpha, mean, sd, w</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ===== Samplers =====</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> conjugate sampler (6)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - mean[]  (3 elements)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - sd[]  (3 elements)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> categorical sampler (25)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - z[]  (25 elements)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RW sampler (3)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - alpha</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - v[]  (2 elements)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Warning] To calculate WAIC, set 'WAIC = TRUE', in addition to having enabled WAIC in building the MCMC.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> running chain 1...</span>
 <span class="r-in"><span><span class="va">fit</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> n = 25 | components = 3 | epsilon = 0.025</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> MCMC: niter=100, nburnin=50, thin=1, nchains=1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Fit</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -136,7 +168,7 @@ frequently those latent indicators are refreshed during sampling.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

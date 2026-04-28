@@ -7,6 +7,7 @@
 \method{plot}{dpmixgpd_cluster_psm}(
   x,
   psm_max_n = x$psm_max_n \%||\% 2000L,
+  order_by = c("label", "hclust", "input"),
   plotly = getOption("CausalMixGPD.plotly", FALSE),
   ...
 )
@@ -15,6 +16,13 @@
 \item{x}{Cluster PSM object.}
 
 \item{psm_max_n}{Maximum allowed matrix size for plotting.}
+
+\item{order_by}{Ordering rule for rows and columns:
+\itemize{
+\item \code{"label"}: order by representative cluster labels when available
+\item \code{"hclust"}: order by hierarchical clustering of \code{1 - PSM}
+\item \code{"input"}: preserve input order
+}}
 
 \item{plotly}{Logical; if \code{TRUE}, convert the \code{ggplot2} output to a \code{plotly} /
 \code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults to
@@ -45,6 +53,7 @@ deliberate guard against accidental quadratic memory use.
 \code{\link[=plot.dpmixgpd_cluster_fit]{plot.dpmixgpd_cluster_fit()}}.
 
 Other cluster workflow: 
+\code{\link{cluster_profiles}()},
 \code{\link{dpmgpd.cluster}()},
 \code{\link{dpmix.cluster}()},
 \code{\link{plot.dpmixgpd_cluster_bundle}()},

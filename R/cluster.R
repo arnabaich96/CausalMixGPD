@@ -429,6 +429,21 @@ build_cluster_bundle <- function(formula,
 #'   [summary.dpmixgpd_cluster_fit()], [plot.dpmixgpd_cluster_fit()],
 #'   [build_nimble_bundle()], [dpmix()].
 #' @family cluster workflow
+#' @examples
+#' \donttest{
+#' data("nc_realX100_p3_k2", package = "CausalMixGPD")
+#' dat <- data.frame(y = nc_realX100_p3_k2$y[1:20],
+#'                   nc_realX100_p3_k2$X[1:20, , drop = FALSE])
+#' fit <- dpmix.cluster(
+#'   y ~ x1 + x2 + x3,
+#'   data = dat,
+#'   kernel = "normal",
+#'   type = "param",
+#'   components = 3,
+#'   mcmc = list(niter = 60, nburnin = 30, thin = 1, nchains = 1, seed = 1)
+#' )
+#' summary(fit)
+#' }
 #' @export
 dpmix.cluster <- function(formula,
                           data,
@@ -478,6 +493,21 @@ dpmix.cluster <- function(formula,
 #' @seealso [dpmix.cluster()], [predict.dpmixgpd_cluster_fit()],
 #'   [dpmgpd()], [sim_bulk_tail()].
 #' @family cluster workflow
+#' @examples
+#' \donttest{
+#' data("nc_posX100_p3_k2", package = "CausalMixGPD")
+#' dat <- data.frame(y = nc_posX100_p3_k2$y[1:20],
+#'                   nc_posX100_p3_k2$X[1:20, , drop = FALSE])
+#' fit <- dpmgpd.cluster(
+#'   y ~ x1 + x2 + x3,
+#'   data = dat,
+#'   kernel = "gamma",
+#'   type = "param",
+#'   components = 3,
+#'   mcmc = list(niter = 60, nburnin = 30, thin = 1, nchains = 1, seed = 1)
+#' )
+#' cluster_profiles(fit)
+#' }
 #' @export
 dpmgpd.cluster <- function(formula,
                            data,
@@ -503,6 +533,40 @@ dpmgpd.cluster <- function(formula,
   fit <- run_cluster_mcmc(bundle)
   fit$call <- match.call()
   fit
+}
+
+#' Extract Cluster Profiles
+#'
+#' Access descriptive cluster profiles without reaching into summary internals.
+#'
+#' @param object A cluster fit, cluster-label object, or corresponding summary object.
+#' @param ... Additional arguments passed to summary methods for fitted or label objects.
+#' @return A data frame of cluster-level descriptive summaries, or \code{NULL}
+#'   when profiles are unavailable.
+#' @family cluster workflow
+#' @export
+cluster_profiles <- function(object, ...) {
+  UseMethod("cluster_profiles")
+}
+
+#' @export
+cluster_profiles.dpmixgpd_cluster_fit <- function(object, ...) {
+  cluster_profiles(summary(object, ...))
+}
+
+#' @export
+cluster_profiles.dpmixgpd_cluster_labels <- function(object, ...) {
+  cluster_profiles(summary(object, ...))
+}
+
+#' @export
+cluster_profiles.summary.dpmixgpd_cluster_fit <- function(object, ...) {
+  object$cluster_profiles %||% NULL
+}
+
+#' @export
+cluster_profiles.summary.dpmixgpd_cluster_labels <- function(object, ...) {
+  object$cluster_profiles %||% NULL
 }
 
 
@@ -1099,6 +1163,12 @@ summary.dpmixgpd_cluster_psm <- function(object, ...) {
 #'
 #' @param x Cluster PSM object.
 #' @param psm_max_n Maximum allowed matrix size for plotting.
+#' @param order_by Ordering rule for rows and columns:
+#'   \itemize{
+#'     \item \code{"label"}: order by representative cluster labels when available
+#'     \item \code{"hclust"}: order by hierarchical clustering of \code{1 - PSM}
+#'     \item \code{"input"}: preserve input order
+#'   }
 #' @param plotly Logical; if `TRUE`, convert the `ggplot2` output to a `plotly` /
 #'   `htmlwidget` representation via `.wrap_plotly()`. Defaults to
 #'   `getOption("CausalMixGPD.plotly", FALSE)`.
@@ -1112,10 +1182,12 @@ summary.dpmixgpd_cluster_psm <- function(object, ...) {
 #' @export
 plot.dpmixgpd_cluster_psm <- function(x,
                                       psm_max_n = x$psm_max_n %||% 2000L,
+                                      order_by = c("label", "hclust", "input"),
                                       plotly = getOption("CausalMixGPD.plotly", FALSE),
                                       ...) {
   stopifnot(inherits(x, "dpmixgpd_cluster_psm"))
   .cluster_require_ggplot()
+  order_by <- match.arg(order_by)
   psm_max_n <- as.integer(psm_max_n)[1]
   if (!is.finite(psm_max_n) || psm_max_n < 1L) {
     stop("'psm_max_n' must be an integer >= 1.", call. = FALSE)
@@ -1131,7 +1203,7 @@ plot.dpmixgpd_cluster_psm <- function(x,
       call. = FALSE
     )
   }
-  .cluster_plot_psm(x$psm, plotly = plotly)
+  .cluster_plot_psm(x$psm, labels = x$labels %||% NULL, order_by = order_by, plotly = plotly)
 }
 
 
@@ -1445,9 +1517,33 @@ dahl_labels <- function(z_draws, psm) {
   .cluster_maybe_wrap_plotly(p, plotly = plotly)
 }
 
+.cluster_psm_order <- function(psm, labels = NULL, order_by = c("label", "hclust", "input")) {
+  order_by <- match.arg(order_by)
+  n <- nrow(psm)
+  if (identical(order_by, "input") || n < 2L) return(seq_len(n))
+  if (identical(order_by, "label") && !is.null(labels) && length(labels) == n) {
+    labels_chr <- as.character(labels)
+    labels_num <- suppressWarnings(as.numeric(labels_chr))
+    row_score <- rowMeans(psm, na.rm = TRUE)
+    return(order(ifelse(is.na(labels_num), Inf, labels_num), labels_chr, -row_score, seq_len(n)))
+  }
+  if (n > 2L) {
+    return(tryCatch(
+      stats::hclust(stats::as.dist(1 - psm), method = "average")$order,
+      error = function(e) seq_len(n)
+    ))
+  }
+  seq_len(n)
+}
+
 .cluster_plot_psm <- function(psm,
+                              labels = NULL,
+                              order_by = c("label", "hclust", "input"),
                               plotly = getOption("CausalMixGPD.plotly", FALSE)) {
   .cluster_require_ggplot()
+  order_by <- match.arg(order_by)
+  ord <- .cluster_psm_order(psm, labels = labels, order_by = order_by)
+  psm <- psm[ord, ord, drop = FALSE]
   n <- nrow(psm)
   df <- expand.grid(
     row = seq_len(n),
@@ -1467,7 +1563,11 @@ dahl_labels <- function(z_draws, psm) {
       x = "Observation index",
       y = "Observation index",
       fill = "PSM",
-      title = "Posterior Similarity Matrix"
+      title = if (identical(order_by, "input")) {
+        "Posterior Similarity Matrix"
+      } else {
+        sprintf("Posterior Similarity Matrix (ordered by %s)", order_by)
+      }
     ) +
     ggplot2::theme(
       axis.text = ggplot2::element_blank(),

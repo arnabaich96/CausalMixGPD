@@ -306,7 +306,7 @@ build_data_from_inputs <- function(y, X = NULL, ps = NULL) {
 #' @param monitor_v Logical; for SB, whether to also monitor stick breaks \code{v}.
 #' @param monitor_latent Logical; whether to monitor latent cluster labels \code{z}.
 #' @return Character vector of node names to monitor.
-#' @export
+#' @keywords internal
 build_monitors_from_spec <- function(spec, monitor_v = FALSE, monitor_latent = FALSE) {
   stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
 
@@ -494,7 +494,7 @@ build_monitors_from_spec <- function(spec, monitor_v = FALSE, monitor_latent = F
 #' @param y Optional numeric vector of observed outcomes used for heuristic initializations.
 #' @param X Optional numeric matrix of covariates used for link-mode parameter initializations.
 #' @return Named list of initial values.
-#' @export
+#' @keywords internal
 build_inits_from_spec <- function(spec, seed = NULL, y = NULL, X = NULL) {
   stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
 
@@ -802,7 +802,7 @@ build_inits_from_spec <- function(spec, seed = NULL, y = NULL, X = NULL) {
 #'
 #' @param spec A compiled model specification produced by \code{compile_model_spec()}.
 #' @return Named list of constants.
-#' @export
+#' @keywords internal
 build_constants_from_spec <- function(spec) {
   stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
 
@@ -963,7 +963,7 @@ build_constants_from_spec <- function(spec) {
 #'
 #' @param spec A compiled model specification produced by \code{compile_model_spec()}.
 #' @return Named list of dimensions (integer vectors). Scalars are omitted.
-#' @export
+#' @keywords internal
 build_dimensions_from_spec <- function(spec) {
   stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
 
@@ -1169,7 +1169,7 @@ build_dimensions_from_spec <- function(spec) {
 #'
 #' @param spec A compiled model specification produced by \code{compile_model_spec()}.
 #' @return A \code{nimbleCode} object.
-#' @export
+#' @keywords internal
 build_code_from_spec <- function(spec) {
   stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$meta$backend))
 

@@ -9,7 +9,7 @@ effects when the ordinary mean is unstable or undefined."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -107,12 +107,50 @@ GPD tail implies \(\xi \ge 1\).</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">25</span></span></span>
+<span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">N</span>, <span class="fl">1</span>, <span class="fl">0.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1</span></span></span>
+<span class="r-in"><span><span class="va">mcmc_small</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">100</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">1</span>, nchains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">cb</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_causal_bundle.html">build_causal_bundle</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, X <span class="op">=</span> <span class="va">X</span>, A <span class="op">=</span> <span class="va">A</span>, backend <span class="op">=</span> <span class="st">"sb"</span>, kernel <span class="op">=</span> <span class="st">"normal"</span>,</span></span>
-<span class="r-in"><span>                         GPD <span class="op">=</span> <span class="cn">TRUE</span>, components <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                         GPD <span class="op">=</span> <span class="cn">TRUE</span>, components <span class="op">=</span> <span class="fl">3</span>,</span></span>
+<span class="r-in"><span>                         mcmc_outcome <span class="op">=</span> <span class="va">mcmc_small</span>, mcmc_ps <span class="op">=</span> <span class="va">mcmc_small</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="run_mcmc_causal.html">run_mcmc_causal</a></span><span class="op">(</span><span class="va">cb</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00AFFF;">[causal] Validating causal MCMC configuration</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00D7FF;">[causal] Running propensity score block</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00AFFF;">[ps] Validating PS MCMC inputs</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00D7FF;">[ps] Building PS NIMBLE model</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFFF;">[ps] Compiling PS model</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFD7;">[ps] Running PS MCMC</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFAF;">[ps] Assembling PS fit</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFFF;">[causal] Validating outcome-arm bundles</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFD7;">[causal] Running control-arm outcome MCMC</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00AFFF;">[mixgpd] Validating configuration</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00D7FF;">[mixgpd] Checking build/compile cache</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFFF;">[mixgpd] Building model and MCMC configuration</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFD7;">[mixgpd] Compiling NIMBLE model</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFAF;">[mixgpd] Initializing chains</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FF87;">[mixgpd] Running MCMC</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FF5F;">[mixgpd] Finalizing WAIC and diagnostics</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FF00;">[mixgpd] Assembling fit object</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFAF;">[causal] Running treated-arm outcome MCMC</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00AFFF;">[mixgpd] Validating configuration</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00D7FF;">[mixgpd] Checking build/compile cache</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFFF;">[mixgpd] Building model and MCMC configuration</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFD7;">[mixgpd] Compiling NIMBLE model</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFAF;">[mixgpd] Initializing chains</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FF87;">[mixgpd] Running MCMC</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FF5F;">[mixgpd] Finalizing WAIC and diagnostics</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FF00;">[mixgpd] Assembling fit object</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FF87;">[causal] Assembling causal fit object</span></span>
 <span class="r-in"><span><span class="va">ate_rm</span> <span class="op">&lt;-</span> <span class="fu">ate_rmean</span><span class="op">(</span><span class="va">fit</span>, cutoff <span class="op">=</span> <span class="fl">10</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00AFFF;">[cate] Preparing CATE inputs</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00D7FF;">[cate] Preparing propensity-score adjustment</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFFF;">[cate] Predicting treated-arm effects</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFD7;">[cate] Predicting control-arm effects</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFAF;">[cate] Aggregating CATE estimates</span></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -124,7 +162,7 @@ GPD tail implies \(\xi \ge 1\).</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

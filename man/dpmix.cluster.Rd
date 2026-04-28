@@ -54,12 +54,29 @@ later by \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit
 Use \code{type = "weights"} or \code{type = "both"} only when the formula includes predictors and when an
 explicit number of \code{components} is supplied. Otherwise the builder stops before fitting.
 }
+\examples{
+\donttest{
+data("nc_realX100_p3_k2", package = "CausalMixGPD")
+dat <- data.frame(y = nc_realX100_p3_k2$y[1:20],
+                  nc_realX100_p3_k2$X[1:20, , drop = FALSE])
+fit <- dpmix.cluster(
+  y ~ x1 + x2 + x3,
+  data = dat,
+  kernel = "normal",
+  type = "param",
+  components = 3,
+  mcmc = list(niter = 60, nburnin = 30, thin = 1, nchains = 1, seed = 1)
+)
+summary(fit)
+}
+}
 \seealso{
 \code{\link[=dpmgpd.cluster]{dpmgpd.cluster()}}, \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}},
 \code{\link[=summary.dpmixgpd_cluster_fit]{summary.dpmixgpd_cluster_fit()}}, \code{\link[=plot.dpmixgpd_cluster_fit]{plot.dpmixgpd_cluster_fit()}},
 \code{\link[=build_nimble_bundle]{build_nimble_bundle()}}, \code{\link[=dpmix]{dpmix()}}.
 
 Other cluster workflow: 
+\code{\link{cluster_profiles}()},
 \code{\link{dpmgpd.cluster}()},
 \code{\link{plot.dpmixgpd_cluster_bundle}()},
 \code{\link{plot.dpmixgpd_cluster_fit}()},

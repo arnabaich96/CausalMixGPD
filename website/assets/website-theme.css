@@ -1,0 +1,336 @@
+/* =============================================================
+   CausalMixGPD — Website theme
+   Drop-in for Quarto / pkgdown. Matches the prototype variations
+   (light mode · gold accent · all-serif pairing · comfortable density).
+
+   USAGE
+   -----
+   1) Save this file into:    CausalMixGPD/website/assets/theme.css
+   2) In _quarto.yml, include it:
+
+        format:
+          html:
+            css:
+              - assets/theme-runtime.css
+              - assets/theme.css      # <-- add this line
+
+      (Keep theme-runtime.css — this file only overrides the variables
+       and a few component styles; runtime remains the engine.)
+
+   VARIATIONS
+   ----------
+   Four token blocks below. Uncomment ONE :root{} to pick a direction.
+   All blocks share the same structure, so swapping them is safe.
+   ============================================================= */
+
+
+/* --- A · Current prototype state  (light · gold · all-serif) --- */
+:root{
+  /* palette */
+  --rt-bg:        #f7f4ec;
+  --rt-fg:        #1a1a1a;
+  --rt-muted:     #6b6458;
+  --rt-border:    rgba(26,26,26,.12);
+  --rt-panel:     #ffffff;
+
+  --rt-primary:   #E8C547;   /* gold accent */
+  --rt-primary-ink: #2a1f05;  /* dark ink that reads on gold */
+  --rt-link:      #8a6a00;
+
+  /* typography — all-serif pairing */
+  --rt-font-base:    "Source Serif Pro", "Iowan Old Style", Georgia, serif;
+  --rt-font-heading: Fraunces, "Source Serif Pro", Georgia, serif;
+  --rt-font-mono:    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --rt-base-size: 17px;
+  --rt-line-height: 1.65;
+
+  --rt-radius: 10px;
+  --rt-space: 1;
+
+  /* code blocks — light surface, not the default navy */
+  --rt-code-bg:     #1a1a1a;
+  --rt-code-fg:     #f7f4ec;
+  --rt-code-border: rgba(255,255,255,.08);
+
+  --rt-shadow: 0 10px 30px rgba(0,0,0,.06);
+}
+
+/* --- B · Balanced alternate (light · teal · serif+sans) ---------
+:root{
+  --rt-bg: #ffffff;             --rt-fg: #111827;
+  --rt-muted: #6b7280;          --rt-border: #e5e7eb;
+  --rt-panel: #fafafa;
+  --rt-primary: #18BC9C;        --rt-primary-ink: #062f2a;
+  --rt-link: #147a65;
+  --rt-font-base:    Inter, system-ui, -apple-system, sans-serif;
+  --rt-font-heading: "Source Serif Pro", Iowan Old Style, Georgia, serif;
+  --rt-font-mono:    "JetBrains Mono", ui-monospace, monospace;
+  --rt-base-size: 16px; --rt-line-height: 1.6; --rt-radius: 8px; --rt-space: 1;
+  --rt-code-bg: #0b1220; --rt-code-fg: #e5e7eb; --rt-code-border: rgba(255,255,255,.08);
+  --rt-shadow: 0 8px 24px rgba(0,0,0,.05);
+}
+*/
+
+/* --- C · Bold dark mode (mirrors Variation 3) --------------------
+:root{
+  --rt-bg: #0a0f1c;             --rt-fg: #f0f4fb;
+  --rt-muted: rgba(240,244,251,.55);
+  --rt-border: rgba(240,244,251,.12);
+  --rt-panel: #0c1222;
+  --rt-primary: #18BC9C;        --rt-primary-ink: #062f2a;
+  --rt-link: #18BC9C;
+  --rt-font-base:    "JetBrains Mono", ui-monospace, monospace;
+  --rt-font-heading: "Source Serif Pro", Iowan Old Style, Georgia, serif;
+  --rt-font-mono:    "JetBrains Mono", ui-monospace, monospace;
+  --rt-base-size: 15px; --rt-line-height: 1.7; --rt-radius: 2px; --rt-space: 1;
+  --rt-code-bg: #0c1222; --rt-code-fg: #f0f4fb; --rt-code-border: rgba(240,244,251,.1);
+  --rt-shadow: none;
+}
+*/
+
+
+/* ===========================================================
+   Base — applied regardless of which :root{} was chosen above
+   =========================================================== */
+
+html { font-size: var(--rt-base-size); scroll-behavior: smooth; }
+
+body{
+  background: var(--rt-bg);
+  color: var(--rt-fg);
+  font-family: var(--rt-font-base);
+  line-height: var(--rt-line-height);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Headings — editorial, tight, unapologetic */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--rt-font-heading);
+  font-weight: 500;
+  letter-spacing: -0.022em;
+  line-height: 1.12;
+  color: var(--rt-fg);
+}
+h1 { font-size: clamp(2.4rem, 4vw, 3.6rem); margin-top: 0; margin-bottom: .6em; }
+h2 { font-size: clamp(1.8rem, 2.6vw, 2.4rem); margin-top: 2.2em; margin-bottom: .5em;
+     padding-bottom: .35em; border-bottom: 1px solid var(--rt-border); }
+h3 { font-size: 1.45rem; margin-top: 1.8em; }
+h4 { font-size: 1.15rem; margin-top: 1.4em; }
+
+p { margin: 0 0 1em; text-wrap: pretty; }
+p + p { margin-top: 0; }
+
+/* Links — underline-on-hover, accent color */
+a {
+  color: var(--rt-link);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color .15s ease, color .15s ease;
+}
+a:hover {
+  color: var(--rt-primary);
+  border-bottom-color: currentColor;
+}
+
+/* Navbar — light, with a gold accent rule underneath */
+.navbar {
+  background: var(--rt-panel) !important;
+  border-bottom: 1px solid var(--rt-border) !important;
+  box-shadow: 0 2px 0 var(--rt-primary);
+  padding: .55rem 1rem;
+}
+.navbar .navbar-brand {
+  font-family: var(--rt-font-heading);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--rt-fg) !important;
+}
+.navbar .nav-link {
+  color: var(--rt-fg) !important;
+  font-size: .92rem;
+  padding: .45rem .8rem !important;
+  border-bottom: 2px solid transparent;
+}
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+  color: var(--rt-fg) !important;
+  border-bottom-color: var(--rt-primary);
+}
+
+/* Sidebar (Quarto) */
+.sidebar nav[role="doc-toc"] ul,
+.sidebar-menu,
+.quarto-secondary-nav-title { font-family: var(--rt-font-base); }
+.sidebar a.active,
+.sidebar a.sidebar-link:hover {
+  color: var(--rt-fg) !important;
+  border-left-color: var(--rt-primary) !important;
+}
+
+/* pkgdown cards / content boxes */
+.card,
+.contents,
+.ref-index, .ref-usage, .ref-arguments, .ref-examples, .ref-details {
+  background: var(--rt-panel) !important;
+  border-radius: var(--rt-radius) !important;
+  border: 1px solid var(--rt-border) !important;
+  box-shadow: var(--rt-shadow);
+  padding: 1.2rem 1.3rem;
+}
+
+/* Tables */
+.table, table {
+  color: var(--rt-fg);
+  border-color: var(--rt-border);
+  font-size: .94em;
+  margin-left: auto; margin-right: auto;
+}
+table th {
+  font-family: var(--rt-font-base);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-size: .78em;
+  color: var(--rt-muted);
+  border-bottom: 2px solid var(--rt-primary) !important;
+}
+table td, table th { padding: .55em .8em; }
+
+table.kableExtra,
+.kableExtra table,
+.kable_wrapper table {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Inline code */
+code {
+  font-family: var(--rt-font-mono);
+  font-size: .88em;
+  border-radius: 4px;
+  padding: .08em .38em;
+  background: rgba(232,197,71,.12);
+  border: 1px solid rgba(232,197,71,.25);
+  color: var(--rt-fg);
+}
+
+/* Code blocks */
+pre {
+  font-family: var(--rt-font-mono);
+  background: var(--rt-code-bg) !important;
+  color: var(--rt-code-fg) !important;
+  border: 1px solid var(--rt-code-border);
+  border-radius: var(--rt-radius);
+  padding: 1.1rem 1.2rem !important;
+  overflow: auto;
+  font-size: .88em;
+  line-height: 1.55;
+}
+pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-size: 1em;
+}
+
+/* Blockquote — pull-quote feel */
+blockquote {
+  font-family: var(--rt-font-heading);
+  font-style: italic;
+  font-size: 1.12em;
+  color: var(--rt-fg);
+  border-left: 3px solid var(--rt-primary);
+  padding: .2em 1em .2em 1.2em;
+  margin: 1.4em 0;
+}
+
+/* Buttons */
+.btn {
+  font-family: var(--rt-font-base);
+  font-weight: 600;
+  border-radius: var(--rt-radius);
+  padding: .55rem 1.1rem;
+}
+.btn-primary {
+  background-color: var(--rt-primary) !important;
+  border-color: var(--rt-primary) !important;
+  color: var(--rt-primary-ink) !important;
+}
+.btn-primary:hover {
+  filter: brightness(.94);
+}
+.btn-outline-primary {
+  color: var(--rt-fg) !important;
+  border-color: var(--rt-border) !important;
+}
+.btn-outline-primary:hover {
+  background-color: var(--rt-primary) !important;
+  border-color: var(--rt-primary) !important;
+  color: var(--rt-primary-ink) !important;
+}
+
+/* Callout boxes (Quarto) — tinted with accent */
+.callout {
+  border-radius: var(--rt-radius) !important;
+  border: 1px solid var(--rt-border) !important;
+  background: var(--rt-panel) !important;
+  box-shadow: var(--rt-shadow);
+}
+.callout.callout-style-default > .callout-header {
+  background: rgba(232,197,71,.14) !important;
+  border-bottom: 1px solid var(--rt-border) !important;
+  font-family: var(--rt-font-heading);
+  font-weight: 600;
+}
+
+/* Figures & images */
+figure, .figure { margin: 1.6em auto; }
+figcaption, .caption {
+  color: var(--rt-muted);
+  font-size: .88em;
+  font-style: italic;
+  text-align: center;
+  margin-top: .5em;
+}
+
+/* Horizontal rule — let it breathe */
+hr {
+  border: none;
+  height: 1px;
+  background: var(--rt-border);
+  margin: 2.4em 0;
+}
+
+/* Container widths — a little wider, better for density plots */
+main .container,
+.container {
+  max-width: 1100px;
+  padding-left: calc(1rem * var(--rt-space));
+  padding-right: calc(1rem * var(--rt-space));
+}
+
+/* Footer (pkgdown / quarto) */
+.pkgdown-footer, .nav-footer {
+  border-top: 1px solid var(--rt-border);
+  color: var(--rt-muted);
+  font-size: .85em;
+  padding: 1.4rem 0;
+}
+
+/* Small niceties -------------------------------------------------- */
+
+/* Section anchor hover */
+.header-section-number { color: var(--rt-muted); margin-right: .4em; }
+h1:hover .header-anchor,
+h2:hover .header-anchor,
+h3:hover .header-anchor { color: var(--rt-primary); }
+
+/* Print */
+@media print {
+  body { background: #fff; color: #000; }
+  pre { background: #f4f1e7 !important; color: #1a1a1a !important; }
+  .navbar, .sidebar { display: none !important; }
+}

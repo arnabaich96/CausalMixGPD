@@ -4,15 +4,16 @@
 \alias{plot.mixgpd_fit}
 \title{Plot MCMC diagnostics for a MixGPD fit (ggmcmc backend)}
 \usage{
-\method{plot}{mixgpd_fit}(x, family = "auto", params = NULL, nLags = 50, ...)
+\method{plot}{mixgpd_fit}(x, family = "traceplot", params = NULL, nLags = 50, ...)
 }
 \arguments{
 \item{x}{A fitted object of class \code{"mixgpd_fit"}.}
 
 \item{family}{Character vector of plot names (ggmcmc plot types)
-or a single one. Use \code{"auto"} (or \code{"all"}) to include
-all plots supported for the available number of
-chains/parameters. Supported types:
+or a single one. The default \code{"traceplot"} returns one diagnostic.
+Use \code{"all"} to include all plots supported for the available number
+of chains/parameters. \code{"auto"} is accepted as an alias for the
+default single diagnostic. Supported types:
 \itemize{
 \item \code{"histogram"}: posterior histograms
 \item \code{"density"}: posterior density curves

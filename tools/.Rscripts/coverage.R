@@ -79,21 +79,40 @@ setwd(.coverage_project_root)
   lvl
 }
 
+.coverage_suite <- function() {
+  suite <- tolower(Sys.getenv("DPMIXGPD_COVERAGE_SUITE", unset = "bounded"))
+  if (!nzchar(suite)) {
+    suite <- "bounded"
+  }
+  if (!suite %in% c("bounded", "full", "historical85")) {
+    warning(
+      "Unknown DPMIXGPD_COVERAGE_SUITE='", suite,
+      "'; using bounded coverage suite.",
+      call. = FALSE
+    )
+    suite <- "bounded"
+  }
+  suite
+}
+
 .coverage_modes <- function() {
   valid <- c("custom", "tests", "file")
   # Prefer package-aware modes first because some nimble-generated paths expect
   # the package namespace and .onLoad initialization to be available.
-  raw <- Sys.getenv("DPMIXGPD_COVERAGE_MODES", unset = "custom,tests,file")
+  suite <- .coverage_suite()
+  default_modes <- if (suite %in% c("full", "historical85")) "custom,tests,file" else "custom"
+  raw <- Sys.getenv("DPMIXGPD_COVERAGE_MODES", unset = default_modes)
   parts <- trimws(strsplit(raw, ",", fixed = TRUE)[[1]])
   modes <- unique(parts[nzchar(parts) & parts %in% valid])
   if (!length(modes)) {
-    modes <- c("custom", "tests", "file")
+    modes <- strsplit(default_modes, ",", fixed = TRUE)[[1]]
   }
   modes
 }
 
 .coverage_ci_coverage_only <- function() {
-  Sys.getenv("DPMIXGPD_CI_COVERAGE_ONLY", unset = "1")
+  default_value <- if (.coverage_suite() %in% c("full", "historical85")) "1" else "0"
+  Sys.getenv("DPMIXGPD_CI_COVERAGE_ONLY", unset = default_value)
 }
 
 .coverage_include_coverage_only_file <- function() {
@@ -192,19 +211,51 @@ setwd(.coverage_project_root)
 }
 
 .coverage_selected_test_basenames <- function() {
-  # Historical high-coverage filenames, trimmed to the smallest practical
-  # coverage-oriented subset. Performance-only files add hours of runtime
-  # under covr with little incremental line coverage.
+  suite <- .coverage_suite()
+
+  if (identical(suite, "historical85")) {
+    # Historical 85.62% profile from commit 5f60fe6d.
+    # Keep this list stable for CI comparability.
+    return(c(
+      "test-progress.R",
+      "test-unit.R",
+      "test-coverage-heavy.R",
+      "test-integration.R",
+      "test-ci.R",
+      "test_cluster_methods.R",
+      "test_cluster_coverage_edges.R",
+      "test-performance-acceptance.R",
+      "test-performance-phase2-ess.R",
+      "test-performance-phase2-predict.R",
+      "test-performance-phase2-samplers.R",
+      "test-performance-phase2-zupdate.R",
+      "test-ci-level-only.R"
+    ))
+  }
+
+  if (identical(suite, "full")) {
+    # Historical high-coverage filenames. These compile many NIMBLE models and
+    # are intentionally opt-in because covr instrumentation can make them run
+    # for hours on local Windows installations.
+    return(c(
+      "test-ci-level-only.R",
+      "test-ci.R",
+      "test-coverage-heavy.R",
+      "test-integration.R",
+      "test-progress.R",
+      "test-unit.R",
+      "test_cluster_coverage_edges.R",
+      "test_cluster_fit_predict.R",
+      "test_cluster_methods.R",
+      "test_cluster_ordering_summary.R"
+    ))
+  }
+
+  # Default coverage report: bounded, deterministic, and still package-wide in
+  # reporting scope. It runs at the CI test level for pipeline metadata, while
+  # selecting only fast R-level tests so covr does not enter compiled-MCMC loops.
   c(
-    "test-ci-level-only.R",
-    "test-ci.R",
-    "test-coverage-heavy.R",
-    "test-integration.R",
-    "test-progress.R",
-    "test-unit.R",
     "test_cluster_coverage_edges.R",
-    "test_cluster_fit_predict.R",
-    "test_cluster_methods.R",
     "test_cluster_ordering_summary.R"
   )
 }

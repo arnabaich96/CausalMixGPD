@@ -48,6 +48,23 @@ functionals of these two predictive laws, for example
 \deqn{\mathrm{QTE}(\tau) = Q_1(\tau) - Q_0(\tau), \qquad
 \mathrm{ATE} = E(Y_1) - E(Y_0).}
 }
+\examples{
+\donttest{
+data("causal_pos500_p3_k2", package = "CausalMixGPD")
+idx <- seq_len(30)
+fit <- dpmgpd.causal(
+  y = causal_pos500_p3_k2$y[idx],
+  X = causal_pos500_p3_k2$X[idx, , drop = FALSE],
+  treat = causal_pos500_p3_k2$A[idx],
+  kernel = "gamma",
+  backend = "sb",
+  components = 3,
+  mcmc = list(niter = 60, nburnin = 30, thin = 1, nchains = 1, seed = 1,
+              show_progress = FALSE, quiet = TRUE)
+)
+ate(fit, show_progress = FALSE)
+}
+}
 \seealso{
 \code{\link{build_causal_bundle}},
 \code{\link{bundle}}, \code{\link{dpmix.causal}},

@@ -9,7 +9,7 @@ layout implied by the fitted model specification."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,15 +81,45 @@ component-by-covariate beta blocks are returned.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">50</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">25</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1</span></span></span>
 <span class="r-in"><span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_nimble_bundle.html">build_nimble_bundle</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, backend <span class="op">=</span> <span class="st">"sb"</span>, kernel <span class="op">=</span> <span class="st">"normal"</span>,</span></span>
-<span class="r-in"><span>                             GPD <span class="op">=</span> <span class="cn">TRUE</span>, components <span class="op">=</span> <span class="fl">6</span>,</span></span>
-<span class="r-in"><span>                             mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">200</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">1</span>, nchains <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                             GPD <span class="op">=</span> <span class="cn">TRUE</span>, components <span class="op">=</span> <span class="fl">3</span>,</span></span>
+<span class="r-in"><span>                             mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">100</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">1</span>, nchains <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="run_mcmc_bundle_manual.html">run_mcmc_bundle_manual</a></span><span class="op">(</span><span class="va">bundle</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00AFFF;">[mixgpd] Validating configuration</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00D7FF;">[mixgpd] Checking build/compile cache</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFFF;">[mixgpd] Building model and MCMC configuration</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFD7;">[mixgpd] Compiling NIMBLE model</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFAF;">[mixgpd] Initializing chains</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FF87;">[mixgpd] Running MCMC</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FF5F;">[mixgpd] Finalizing WAIC and diagnostics</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FF00;">[mixgpd] Assembling fit object</span></span>
 <span class="r-in"><span><span class="fu">params</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Posterior mean parameters</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $alpha</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.7618</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $w</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.90370 0.08178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $mean</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.497 1.934</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $sd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.133 1.396</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $threshold</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.09749</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $tail_scale</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.039</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $tail_shape</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.04916</span>
 <span class="r-in"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu">params</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -101,7 +131,7 @@ component-by-covariate beta blocks are returned.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>
