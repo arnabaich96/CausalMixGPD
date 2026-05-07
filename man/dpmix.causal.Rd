@@ -45,6 +45,23 @@ The resulting fit supports conditional outcome prediction
 functionals such as \code{\link{ate}}, \code{\link{qte}},
 \code{\link{cate}}, and \code{\link{cqte}}.
 }
+\examples{
+\donttest{
+N <- 30
+X <- data.frame(x1 = stats::rnorm(N), x2 = stats::runif(N))
+A <- stats::rbinom(N, 1, 0.5)
+y <- abs(stats::rnorm(N) + A + 0.5 * X$x1) + 0.1
+mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+
+fit <- dpmix.causal(
+  y = y, X = X, treat = A,
+  backend = "sb", kernel = "normal",
+  components = 3, mcmc = mcmc_small
+)
+summary(fit)
+ate(fit, show_progress = FALSE)
+}
+}
 \seealso{
 \code{\link{build_causal_bundle}},
 \code{\link{bundle}}, \code{\link{dpmgpd.causal}},

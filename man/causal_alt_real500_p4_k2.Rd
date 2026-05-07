@@ -3,7 +3,7 @@
 \docType{data}
 \name{causal_alt_real500_p4_k2}
 \alias{causal_alt_real500_p4_k2}
-\title{causal_alt_real500_p4_k2 dataset}
+\title{Alternative Real-Line Causal Data Set With Four Predictors}
 \format{
 A list with:
 \describe{

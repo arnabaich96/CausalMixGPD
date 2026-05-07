@@ -622,8 +622,11 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
 
   if (ps_enabled) {
     .cmgpd_progress_step(progress_ctx, "Running propensity score block")
+    t_ps <- proc.time()[["elapsed"]]
     ps_fit <- .run_ps_mcmc_bundle(bundle$design, show_progress = show_progress, quiet = quiet, timing = timing)
-    timing_info$ps <- ps_fit$timing$total %||% ps_fit$timing$mcmc %||% NA_real_
+    ps_elapsed <- proc.time()[["elapsed"]] - t_ps
+    ps_recorded <- suppressWarnings(as.numeric(ps_fit$timing$total %||% ps_fit$timing$mcmc %||% NA_real_))[1]
+    timing_info$ps <- if (is.finite(ps_recorded)) ps_recorded else ps_elapsed
     ps_training_X <- bundle$data$X
     if (is.null(ps_training_X)) {
       stop("Training design matrix 'X' is missing from causal bundle.", call. = FALSE)
@@ -674,18 +677,27 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
     old_plan <- future::plan()
     on.exit(future::plan(old_plan), add = TRUE)
     future::plan(future::multisession, workers = min(workers, 2L))
-    fit_list <- future.apply::future_lapply(c("con", "trt"), function(arm) {
-      run_mcmc_bundle_manual(
+    fit_results <- future.apply::future_lapply(c("con", "trt"), function(arm) {
+      t_arm <- proc.time()[["elapsed"]]
+      fit_arm <- run_mcmc_bundle_manual(
         bundle$outcome[[arm]],
         show_progress = FALSE,
         quiet = TRUE,
         timing = timing,
         z_update_every = z_update_every
       )
+      elapsed_arm <- proc.time()[["elapsed"]] - t_arm
+      if (is.null(fit_arm$timing)) fit_arm$timing <- list()
+      recorded_arm <- suppressWarnings(as.numeric(fit_arm$timing$mcmc %||% fit_arm$timing$total %||% NA_real_))[1]
+      if (!is.finite(recorded_arm)) fit_arm$timing$mcmc <- elapsed_arm
+      list(fit = fit_arm, elapsed = elapsed_arm)
     }, future.seed = TRUE)
+    fit_list <- lapply(fit_results, `[[`, "fit")
     timing_info$parallel_arms <- TRUE
-    timing_info$con <- fit_list[[1]]$timing$mcmc %||% NA_real_
-    timing_info$trt <- fit_list[[2]]$timing$mcmc %||% NA_real_
+    con_recorded <- suppressWarnings(as.numeric(fit_list[[1]]$timing$mcmc %||% fit_list[[1]]$timing$total %||% NA_real_))[1]
+    trt_recorded <- suppressWarnings(as.numeric(fit_list[[2]]$timing$mcmc %||% fit_list[[2]]$timing$total %||% NA_real_))[1]
+    timing_info$con <- if (is.finite(con_recorded)) con_recorded else fit_results[[1]]$elapsed
+    timing_info$trt <- if (is.finite(trt_recorded)) trt_recorded else fit_results[[2]]$elapsed
     con_fit <- fit_list[[1]]
     trt_fit <- fit_list[[2]]
   } else {
@@ -703,6 +715,9 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
       z_update_every = z_update_every
     )
     timing_info$con <- proc.time()[["elapsed"]] - t_con
+    if (is.null(con_fit$timing)) con_fit$timing <- list()
+    con_recorded <- suppressWarnings(as.numeric(con_fit$timing$mcmc %||% con_fit$timing$total %||% NA_real_))[1]
+    if (!is.finite(con_recorded)) con_fit$timing$mcmc <- timing_info$con
     .cmgpd_progress_step(progress_ctx, "Running treated-arm outcome MCMC")
     t_trt <- proc.time()[["elapsed"]]
     trt_fit <- run_mcmc_bundle_manual(
@@ -713,6 +728,9 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
       z_update_every = z_update_every
     )
     timing_info$trt <- proc.time()[["elapsed"]] - t_trt
+    if (is.null(trt_fit$timing)) trt_fit$timing <- list()
+    trt_recorded <- suppressWarnings(as.numeric(trt_fit$timing$mcmc %||% trt_fit$timing$total %||% NA_real_))[1]
+    if (!is.finite(trt_recorded)) trt_fit$timing$mcmc <- timing_info$trt
   }
   timing_info$total <- proc.time()[["elapsed"]] - t0_total
 
@@ -732,7 +750,7 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
     timing = timing_info,
     call = match.call()
   )
-  class(out) <- "causalmixgpd_causal_fit"
+  class(out) <- c("causalmixgpd_causal_fit", "causalmixgpd_fit", "list")
   out
 }
 
@@ -825,6 +843,26 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
   x_pred
 }
 
+#' @export
+cqte <- function(fit,
+                 probs = c(0.1, 0.5, 0.9),
+                 newdata = NULL,
+                 interval = "credible",
+                 level = 0.95,
+                 show_progress = TRUE) {
+  UseMethod("cqte")
+}
+
+#' @export
+cqte.default <- function(fit,
+                         probs = c(0.1, 0.5, 0.9),
+                         newdata = NULL,
+                         interval = "credible",
+                         level = 0.95,
+                         show_progress = TRUE) {
+  .causal_validate_fit(fit)
+}
+
 #' Conditional quantile treatment effects
 #'
 #' \code{cqte()} evaluates treated-minus-control predictive quantiles at
@@ -876,8 +914,10 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
 #' cqte(fit, probs = c(0.5, 0.9), interval = "hpd")  # HPD intervals
 #' cqte(fit, probs = c(0.5, 0.9), interval = NULL)   # No intervals
 #' }
+#' @method cqte causalmixgpd_causal_fit
+#' @aliases cqte
 #' @export
-cqte <- function(fit,
+cqte.causalmixgpd_causal_fit <- function(fit,
                 probs = c(0.1, 0.5, 0.9),
                 newdata = NULL,
                 interval = "credible",
@@ -1060,10 +1100,34 @@ cqte <- function(fit,
       GPD = meta$GPD
     )
   )
-  class(out) <- "causalmixgpd_qte"
+  class(out) <- c("causalmixgpd_qte", "causalmixgpd_effect", "list")
   out
 }
 
+
+#' @export
+cate <- function(fit,
+                 newdata = NULL,
+                 type = c("mean", "rmean"),
+                 cutoff = NULL,
+                 interval = "credible",
+                 level = 0.95,
+                 nsim_mean = 200L,
+                 show_progress = TRUE) {
+  UseMethod("cate")
+}
+
+#' @export
+cate.default <- function(fit,
+                         newdata = NULL,
+                         type = c("mean", "rmean"),
+                         cutoff = NULL,
+                         interval = "credible",
+                         level = 0.95,
+                         nsim_mean = 200L,
+                         show_progress = TRUE) {
+  .causal_validate_fit(fit)
+}
 
 #' Conditional average treatment effects
 #'
@@ -1130,8 +1194,10 @@ cqte <- function(fit,
 #' cate(fit, interval = "hpd")  # HPD intervals
 #' cate(fit, interval = NULL)   # No intervals
 #' }
+#' @method cate causalmixgpd_causal_fit
+#' @aliases cate
 #' @export
-cate <- function(fit,
+cate.causalmixgpd_causal_fit <- function(fit,
                 newdata = NULL,
                 type = c("mean", "rmean"),
                 cutoff = NULL,
@@ -1292,7 +1358,7 @@ cate <- function(fit,
       GPD = meta$GPD
     )
   )
-  class(out) <- "causalmixgpd_ate"
+  class(out) <- c("causalmixgpd_ate", "causalmixgpd_effect", "list")
   out
 }
 
@@ -1490,7 +1556,7 @@ cate <- function(fit,
     type = effect_type,
     meta = obj$meta %||% list()
   )
-  class(out) <- "causalmixgpd_qte"
+  class(out) <- c("causalmixgpd_qte", "causalmixgpd_effect", "list")
   out
 }
 
@@ -1571,8 +1637,30 @@ cate <- function(fit,
     type = effect_type,
     meta = obj$meta %||% list()
   )
-  class(out) <- "causalmixgpd_ate"
+  class(out) <- c("causalmixgpd_ate", "causalmixgpd_effect", "list")
   out
+}
+
+#' @export
+qte <- function(fit,
+                probs = c(0.1, 0.5, 0.9),
+                newdata = NULL,
+                y = NULL,
+                interval = "credible",
+                level = 0.95,
+                show_progress = TRUE) {
+  UseMethod("qte")
+}
+
+#' @export
+qte.default <- function(fit,
+                        probs = c(0.1, 0.5, 0.9),
+                        newdata = NULL,
+                        y = NULL,
+                        interval = "credible",
+                        level = 0.95,
+                        show_progress = TRUE) {
+  .causal_validate_fit(fit)
 }
 
 #' Quantile treatment effects, marginal over the empirical covariate distribution
@@ -1623,8 +1711,10 @@ cate <- function(fit,
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' qte(fit, probs = c(0.5, 0.9))
 #' }
+#' @method qte causalmixgpd_causal_fit
+#' @aliases qte
 #' @export
-qte <- function(fit,
+qte.causalmixgpd_causal_fit <- function(fit,
                 probs = c(0.1, 0.5, 0.9),
                 newdata = NULL,
                 y = NULL,
@@ -1743,7 +1833,7 @@ qte <- function(fit,
 #' where marginalization is over the empirical covariate distribution of the
 #' treated units only.
 #'
-#' @inheritParams qte
+#' @inheritParams qte.causalmixgpd_causal_fit
 #' @return An object of class \code{"causalmixgpd_qte"} containing the QTT
 #'   summary, the probability grid, and the arm-specific predictive objects used
 #'   in the aggregation. The returned object includes a top-level
@@ -1871,6 +1961,32 @@ qtt <- function(fit,
   .causal_aggregate_qte(cq, idx = idx, effect_type = "qtt")
 }
 
+#' @export
+ate <- function(fit,
+                newdata = NULL,
+                y = NULL,
+                type = c("mean", "rmean"),
+                cutoff = NULL,
+                interval = "credible",
+                level = 0.95,
+                nsim_mean = 200L,
+                show_progress = TRUE) {
+  UseMethod("ate")
+}
+
+#' @export
+ate.default <- function(fit,
+                        newdata = NULL,
+                        y = NULL,
+                        type = c("mean", "rmean"),
+                        cutoff = NULL,
+                        interval = "credible",
+                        level = 0.95,
+                        nsim_mean = 200L,
+                        show_progress = TRUE) {
+  .causal_validate_fit(fit)
+}
+
 #' Average treatment effects, marginal over the empirical covariate distribution
 #'
 #' \code{ate()} computes the posterior predictive average treatment effect.
@@ -1929,8 +2045,10 @@ qtt <- function(fit,
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' ate(fit, interval = "credible", level = 0.90, nsim_mean = 100)
 #' }
+#' @method ate causalmixgpd_causal_fit
+#' @aliases ate
 #' @export
-ate <- function(fit,
+ate.causalmixgpd_causal_fit <- function(fit,
                 newdata = NULL,
                 y = NULL,
                 type = c("mean", "rmean"),
@@ -2057,7 +2175,7 @@ ate <- function(fit,
 #' approximated by marginalizing over the empirical covariate distribution of
 #' treated units.
 #'
-#' @inheritParams ate
+#' @inheritParams ate.causalmixgpd_causal_fit
 #' @return An object of class \code{"causalmixgpd_ate"} containing the ATT
 #'   summary, optional intervals, and the arm-specific predictive objects used
 #'   in the aggregation. The returned object includes a top-level
@@ -2204,7 +2322,7 @@ att <- function(fit,
 #' \eqn{\min\{Y(a), c\}}, so the contrast remains finite even when the fitted
 #' GPD tail implies \eqn{\xi \ge 1}.
 #'
-#' @inheritParams cate
+#' @inheritParams cate.causalmixgpd_causal_fit
 #' @param cutoff Finite numeric cutoff for the restricted mean.
 #' @return A \code{"causalmixgpd_ate"} object computed via \code{\link{ate}}
 #'   for unconditional fits or \code{\link{cate}} for conditional fits. The

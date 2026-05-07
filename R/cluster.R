@@ -679,6 +679,7 @@ summary.dpmixgpd_cluster_bundle <- function(object, ...) {
 #'
 #' @seealso [summary.dpmixgpd_cluster_bundle()], [dpmix.cluster()], [dpmgpd.cluster()].
 #' @family cluster workflow
+#' @rdname plot.dpmixgpd_cluster_fit
 #' @export
 plot.dpmixgpd_cluster_bundle <- function(x,
                                          plotly = getOption("CausalMixGPD.plotly", FALSE),
@@ -1041,6 +1042,7 @@ summary.dpmixgpd_cluster_labels <- function(object,
 #'
 #' @seealso [summary.dpmixgpd_cluster_labels()], [predict.dpmixgpd_cluster_fit()].
 #' @family cluster workflow
+#' @rdname plot.dpmixgpd_cluster_fit
 #' @export
 plot.dpmixgpd_cluster_labels <- function(x,
                                          type = c("sizes", "certainty", "summary"),
@@ -1179,6 +1181,7 @@ summary.dpmixgpd_cluster_psm <- function(object, ...) {
 #' @seealso [predict.dpmixgpd_cluster_fit()], [summary.dpmixgpd_cluster_psm()],
 #'   [plot.dpmixgpd_cluster_fit()].
 #' @family cluster workflow
+#' @rdname plot.dpmixgpd_cluster_fit
 #' @export
 plot.dpmixgpd_cluster_psm <- function(x,
                                       psm_max_n = x$psm_max_n %||% 2000L,
@@ -2098,7 +2101,7 @@ run_cluster_mcmc <- function(bundle, ...) {
     psm = NULL,
     dahl = NULL
   )
-  class(out) <- c("dpmixgpd_cluster_fit", "list")
+  class(out) <- c("dpmixgpd_cluster_fit", "causalmixgpd_fit", "list")
   out
 }
 

@@ -126,7 +126,7 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 
 
 
-#' nc_real200_k2 dataset
+#' Real-Line Bulk-Only Data Set With Two Components
 #'
 #' Real-line, bulk-only mixture dataset with K=2 components and no covariates.
 #' Intended for non-causal bulk-only vignettes (normal/laplace/cauchy, GPD=FALSE).
@@ -143,7 +143,7 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #' @keywords datasets
 "nc_real200_k2"
 
-#' nc_pos200_k3 dataset
+#' Positive-Support Bulk-Only Data Set With Three Components
 #'
 #' Positive-support, bulk-only mixture dataset with K=3 components and no covariates.
 #' Intended for non-causal bulk-only positive-kernel vignettes (gamma/lognormal/invgauss/amoroso).
@@ -160,7 +160,7 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #' @keywords datasets
 "nc_pos200_k3"
 
-#' nc_pos_tail200_k4 dataset
+#' Positive-Support Tail Data Set With Four Components
 #'
 #' Positive-support, tail-designed mixture dataset with K=4 components and no covariates.
 #' Intended for GPD vignettes (gamma/lognormal/invgauss/amoroso with GPD=TRUE).
@@ -177,7 +177,7 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #' @keywords datasets
 "nc_pos_tail200_k4"
 
-#' nc_posX100_p3_k2 dataset
+#' Positive-Support Covariate Data Set With Three Predictors
 #'
 #' Positive-support dataset with covariates (p=3) and K=2 mixture components.
 #' Intended for covariate and prediction vignettes (GPD=FALSE).
@@ -194,7 +194,7 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #' @keywords datasets
 "nc_posX100_p3_k2"
 
-#' nc_posX100_p4_k3 dataset
+#' Positive-Support Covariate Data Set With Four Predictors
 #'
 #' Positive-support dataset with covariates (p=4) and K=3 mixture components.
 #' Intended for covariate and prediction vignettes (GPD=FALSE).
@@ -211,7 +211,7 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #' @keywords datasets
 "nc_posX100_p4_k3"
 
-#' nc_posX100_p5_k4 dataset
+#' Positive-Support Covariate Data Set With Five Predictors
 #'
 #' Positive-support dataset with covariates (p=5) and K=4 mixture components.
 #' Intended for covariate and prediction vignettes (GPD=FALSE).
@@ -228,7 +228,7 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #' @keywords datasets
 "nc_posX100_p5_k4"
 
-#' nc_realX100_p3_k2 dataset
+#' Real-Line Covariate Data Set With Three Predictors
 #'
 #' Real-line dataset with covariates (p=3) and K=2 mixture components.
 #' Intended for covariate and prediction vignettes (GPD=FALSE).
@@ -245,7 +245,7 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #' @keywords datasets
 "nc_realX100_p3_k2"
 
-#' nc_realX100_p5_k3 dataset
+#' Real-Line Covariate Data Set With Five Predictors
 #'
 #' Real-line dataset with covariates (p=5) and K=3 mixture components.
 #' Intended for covariate and prediction vignettes (GPD=FALSE).
@@ -262,7 +262,7 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #' @keywords datasets
 "nc_realX100_p5_k3"
 
-#' causal_pos500_p3_k2 dataset
+#' Positive-Support Causal Data Set With Three Predictors
 #'
 #' Causal dataset (N=500, p=3) with the same positive-support kernel for both arms.
 #' Intended for same-kernel causal baselines (GPD=FALSE).
@@ -280,7 +280,7 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #' @keywords datasets
 "causal_pos500_p3_k2"
 
-#' causal_alt_pos500_p3_k3 dataset
+#' Alternative Positive-Support Causal Data Set With Three Predictors
 #'
 #' Causal dataset (N=500, p=3) with different positive-support kernels by arm.
 #' Intended for alternating-kernel causal vignettes (GPD=FALSE).
@@ -298,7 +298,7 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #' @keywords datasets
 "causal_alt_pos500_p3_k3"
 
-#' causal_alt_real500_p4_k2 dataset
+#' Alternative Real-Line Causal Data Set With Four Predictors
 #'
 #' Causal dataset (N=500, p=4) with different real-line kernels by arm.
 #' Intended for alternating-kernel causal vignettes (GPD=FALSE).
@@ -316,7 +316,7 @@ sim_survival_tail <- function(n = 250, seed = NULL) {
 #' @keywords datasets
 "causal_alt_real500_p4_k2"
 
-#' causal_alt_pos500_p5_k4_tail dataset
+#' Alternative Positive-Support Tail Causal Data Set With Five Predictors
 #'
 #' Causal dataset (N=500, p=5) with different positive-support kernels by arm
 #' and tail-designed exceedances (GPD=TRUE).

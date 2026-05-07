@@ -128,3 +128,4 @@
 ^tests/perf$
 ^tests/perf/
 ^tests/testthat/Rplots\.pdf$
+^\.positai$

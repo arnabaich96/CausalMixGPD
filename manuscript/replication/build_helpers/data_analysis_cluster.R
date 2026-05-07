@@ -126,7 +126,7 @@ z_test <- predict(
 )
 
 # Per-cluster covariate profile table for the test observations.
-summary(z_test)$cluster_profiles
+cluster_profiles(z_test)
 
 # Bar chart of test-observation counts per predicted cluster.
 plot(z_test, type = "sizes")

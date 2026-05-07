@@ -14,7 +14,10 @@ Use package citation metadata and include version information in analysis output
 
 - Package: `CausalMixGPD`
 - Repository: `https://github.com/arnabaich96/CausalMixGPD`
+- CRAN package DOI: `10.32614/CRAN.package.CausalMixGPD`
+- Aich-Bhattacharya methodology paper: `https://doi.org/10.5281/zenodo.19672760`
 - Version: report the exact package version used
+- Scope: cite the CRAN package DOI for the package implementation and the Aich-Bhattacharya methodology paper for the statistical method.
 
 <!-- cmgpd-footer:start -->
 ## Prereqs
@@ -30,8 +33,3 @@ Use package citation metadata and include version information in analysis output
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
-
-
-
-

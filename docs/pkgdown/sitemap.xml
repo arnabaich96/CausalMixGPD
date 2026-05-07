@@ -15,7 +15,7 @@
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/amoroso_lowercase.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/amoroso_mix.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/amoroso_mixgpd.html</loc></url>
-<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/ate.html</loc></url>
+<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/ate.causalmixgpd_causal_fit.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/ate_rmean.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/att.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/base_lowercase.html</loc></url>
@@ -27,7 +27,7 @@
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/build_monitors_from_spec.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/build_nimble_bundle.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/bundle.html</loc></url>
-<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cate.html</loc></url>
+<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cate.causalmixgpd_causal_fit.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cauchy.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cauchy_mix.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cauchy_mix_lowercase.html</loc></url>
@@ -36,7 +36,8 @@
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/causal_alt_real500_p4_k2.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/causal_pos500_p3_k2.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/check_glue_validity.html</loc></url>
-<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cqte.html</loc></url>
+<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cluster_profiles.html</loc></url>
+<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cqte.causalmixgpd_causal_fit.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/dot-compute_cluster_probs.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/dot-compute_psm.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/dot-dahl_representative.html</loc></url>
@@ -109,17 +110,12 @@
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/normal_mix.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/normal_mixgpd.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/params.html</loc></url>
-<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.causalmixgpd_ate.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.causalmixgpd_causal_fit.html</loc></url>
-<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.causalmixgpd_causal_predict.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.causalmixgpd_qte.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.dpmixgpd_cluster_bundle.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.dpmixgpd_cluster_fit.html</loc></url>
-<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.dpmixgpd_cluster_labels.html</loc></url>
-<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.dpmixgpd_cluster_psm.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.mixgpd_allocation.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.mixgpd_fit.html</loc></url>
-<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.mixgpd_fitted.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.mixgpd_predict.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/predict.causalmixgpd_causal_fit.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/predict.dpmixgpd_cluster_fit.html</loc></url>
@@ -141,6 +137,7 @@
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.mixgpd_fit.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.mixgpd_fitted_plots.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.mixgpd_fit_plots.html</loc></url>
+<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.mixgpd_predict.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.mixgpd_predict_plots.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.mixgpd_summary.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.summary.causalmixgpd_ate.html</loc></url>
@@ -148,7 +145,7 @@
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.summary.causalmixgpd_ps_fit.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.summary.causalmixgpd_qte.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.summary.mixgpd_allocation.html</loc></url>
-<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qte.html</loc></url>
+<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qte.causalmixgpd_causal_fit.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qtt.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/residuals.mixgpd_fit.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/run_mcmc_bundle_manual.html</loc></url>

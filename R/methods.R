@@ -307,6 +307,68 @@ summary.causalmixgpd_causal_bundle <- function(object, code = FALSE, max_code_li
   invisible(object)
 }
 
+.finite_scalar_or_na <- function(...) {
+  vals <- list(...)
+  for (val in vals) {
+    z <- tryCatch(suppressWarnings(as.numeric(val))[1], error = function(e) NA_real_)
+    if (is.finite(z)) return(z)
+  }
+  NA_real_
+}
+
+.causal_timing_values <- function(x) {
+  timing <- x$timing %||% list()
+  ps_fit <- x$ps_fit %||% NULL
+  outcome_fit <- x$outcome_fit %||% list()
+  parallel_arms <- isTRUE(timing$parallel_arms)
+
+  ps <- .finite_scalar_or_na(
+    timing$ps,
+    if (!is.null(ps_fit)) ps_fit$timing$total else NULL,
+    if (!is.null(ps_fit)) ps_fit$timing$mcmc else NULL
+  )
+  con <- .finite_scalar_or_na(
+    timing$con,
+    timing$control,
+    outcome_fit$con$timing$total,
+    outcome_fit$con$timing$mcmc
+  )
+  trt <- .finite_scalar_or_na(
+    timing$trt,
+    timing$treated,
+    outcome_fit$trt$timing$total,
+    outcome_fit$trt$timing$mcmc
+  )
+  total <- .finite_scalar_or_na(timing$total)
+  if (!is.finite(total)) {
+    stage_vals <- c(ps = ps, con = con, trt = trt)
+    if (isTRUE(parallel_arms)) {
+      arm_vals <- c(con, trt)
+      arm_vals <- arm_vals[is.finite(arm_vals)]
+      total <- sum(c(ps, if (length(arm_vals)) max(arm_vals) else NA_real_), na.rm = TRUE)
+    } else {
+      total <- sum(stage_vals, na.rm = TRUE)
+    }
+    if (!is.finite(total) || total <= 0) total <- NA_real_
+  }
+
+  list(total = total, ps = ps, con = con, trt = trt, parallel_arms = parallel_arms)
+}
+
+.cat_causal_timing <- function(x, trailing_blank = FALSE) {
+  vals <- .causal_timing_values(x)
+  pieces <- character(0)
+  if (is.finite(vals$total)) pieces <- c(pieces, paste("total =", fmt3(vals$total)))
+  if (is.finite(vals$ps)) pieces <- c(pieces, paste("PS =", fmt3(vals$ps)))
+  if (is.finite(vals$con)) pieces <- c(pieces, paste("control =", fmt3(vals$con)))
+  if (is.finite(vals$trt)) pieces <- c(pieces, paste("treated =", fmt3(vals$trt)))
+  if (!length(pieces)) return(invisible(FALSE))
+  if (isTRUE(vals$parallel_arms)) pieces <- c(pieces, "parallel_arms = TRUE")
+  cat("Timing (sec): ", paste(pieces, collapse = " | "), "\n", sep = "")
+  if (isTRUE(trailing_blank)) cat("\n")
+  invisible(TRUE)
+}
+
 #' Print a propensity score bundle
 #'
 #' @details
@@ -407,23 +469,7 @@ print.causalmixgpd_causal_fit <- function(x, ...) {
   cat("GPD tail (treated/control):", ifelse(isTRUE((meta$GPD %||% list())$trt), "TRUE", "FALSE"),
       "/", ifelse(isTRUE((meta$GPD %||% list())$con), "TRUE", "FALSE"), "\n")
 
-  timing <- x$timing %||% list()
-  timing_vals <- suppressWarnings(as.numeric(c(
-    total = timing$total %||% NA_real_,
-    ps = timing$ps %||% NA_real_,
-    control = timing$con %||% NA_real_,
-    treated = timing$trt %||% NA_real_
-  )))
-  if (any(is.finite(timing_vals))) {
-    cat(
-      "Timing (sec): total =", fmt3(timing_vals["total"]),
-      "| PS =", fmt3(timing_vals["ps"]),
-      "| control =", fmt3(timing_vals["control"]),
-      "| treated =", fmt3(timing_vals["treated"]),
-      if (isTRUE(timing$parallel_arms)) "| parallel_arms = TRUE" else "",
-      "\n"
-    )
-  }
+  .cat_causal_timing(x)
   invisible(x)
 }
 
@@ -473,7 +519,7 @@ summary.causalmixgpd_causal_fit <- function(object, pars = NULL, ps_pars = NULL,
       treated = summary(object$outcome_fit$trt, pars = pars, probs = probs)
     ),
     probs = probs,
-    timing = object$timing %||% list()
+    timing = .causal_timing_values(object)
   )
   class(out) <- "summary.causalmixgpd_causal_fit"
   out
@@ -588,23 +634,7 @@ summary.causalmixgpd_causal_fit <- function(object, pars = NULL, ps_pars = NULL,
 #' @export
 print.summary.causalmixgpd_causal_fit <- function(x, digits = 3, max_rows = 60, ...) {
   stopifnot(inherits(x, "summary.causalmixgpd_causal_fit"))
-  timing <- x$timing %||% list()
-  timing_vals <- suppressWarnings(as.numeric(c(
-    total = timing$total %||% NA_real_,
-    ps = timing$ps %||% NA_real_,
-    control = timing$con %||% NA_real_,
-    treated = timing$trt %||% NA_real_
-  )))
-  if (any(is.finite(timing_vals))) {
-    cat(
-      "Timing (sec): total =", fmt3(timing_vals["total"]),
-      "| PS =", fmt3(timing_vals["ps"]),
-      "| control =", fmt3(timing_vals["control"]),
-      "| treated =", fmt3(timing_vals["treated"]),
-      if (isTRUE(timing$parallel_arms)) "| parallel_arms = TRUE" else "",
-      "\n\n"
-    )
-  }
+  .cat_causal_timing(x, trailing_blank = TRUE)
   if (!is.null(x$ps)) {
     cat("-- PS fit --\n")
     print(x$ps, digits = digits, max_rows = max_rows)
@@ -776,6 +806,7 @@ print.summary.causalmixgpd_ps_fit <- function(x, digits = 3, max_rows = 60, show
 #' @seealso \code{\link{plot.mixgpd_fit}},
 #'   \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
 #'   \code{\link{qte}}.
+#' @rdname plot.mixgpd_fit
 #' @export
 plot.causalmixgpd_causal_fit <- function(x, arm = "treated", ...) {
   if (!inherits(x, "causalmixgpd_causal_fit")) {
@@ -1887,13 +1918,14 @@ plot.mixgpd_fit <- function(x,
       expr,
       warning = function(w) {
         msg <- conditionMessage(w)
-        known_noisy <- c(
+        noisy_fixed <- c(
           "Arguments in `...` must be used.",
-          "Groups with fewer than two data points have been dropped.",
-          "Scale for colour is already present.",
-          "Scale for fill is already present."
+          "Groups with fewer than two data points have been dropped."
         )
-        if (any(vapply(known_noisy, grepl, logical(1), x = msg, fixed = TRUE))) {
+        if (any(vapply(noisy_fixed, grepl, logical(1), x = msg, fixed = TRUE))) {
+          invokeRestart("muffleWarning")
+        }
+        if (grepl("^Scale for .+ is already present(?:[[:punct:][:space:]].*)?$", msg, ignore.case = TRUE)) {
           invokeRestart("muffleWarning")
         }
       }
@@ -2543,12 +2575,12 @@ residuals.mixgpd_fit <- function(object,
               out[[nm]] <- .apply_link(eta_mat, link, pw)
             } else {
               beta_nm <- .indexed_block(draw_mat, paste0("beta_", nm), K = P)
-              eta <- as.numeric(X %*% beta_nm[s, ])
+              eta <- as.numeric(tcrossprod(X, beta_nm[s, , drop = FALSE]))
               out[[nm]] <- matrix(as.numeric(.apply_link(eta, link, pw)), nrow = n)
             }
           } else {
             beta_nm <- .indexed_block(draw_mat, paste0("beta_", nm), K = P)
-            eta <- as.numeric(X %*% beta_nm[s, ])
+            eta <- as.numeric(tcrossprod(X, beta_nm[s, , drop = FALSE]))
             out[[nm]] <- matrix(as.numeric(.apply_link(eta, link, pw)), nrow = n)
           }
         }
@@ -2603,7 +2635,7 @@ residuals.mixgpd_fit <- function(object,
         thr_link <- gpd_plan$threshold$link %||% "exp"
         thr_power <- gpd_plan$threshold$link_power %||% NULL
         for (s in seq_len(S)) {
-          eta <- as.numeric(X %*% beta_thr[s, ])
+          eta <- as.numeric(tcrossprod(X, beta_thr[s, , drop = FALSE]))
           threshold_mat[s, ] <- as.numeric(.apply_link(eta, thr_link, thr_power))
         }
       } else {
@@ -2625,7 +2657,7 @@ residuals.mixgpd_fit <- function(object,
         ts_link <- gpd_plan$tail_scale$link %||% "exp"
         ts_power <- gpd_plan$tail_scale$link_power %||% NULL
         for (s in seq_len(S)) {
-          eta <- as.numeric(X %*% beta_ts[s, ])
+          eta <- as.numeric(tcrossprod(X, beta_ts[s, , drop = FALSE]))
           tail_scale[s, ] <- as.numeric(.apply_link(eta, ts_link, ts_power))
         }
       } else if ("tail_scale" %in% colnames(draw_mat)) {
@@ -2644,7 +2676,7 @@ residuals.mixgpd_fit <- function(object,
         tsh_link <- gpd_plan$tail_shape$link %||% "identity"
         tsh_power <- gpd_plan$tail_shape$link_power %||% NULL
         for (s in seq_len(S)) {
-          eta <- as.numeric(X %*% beta_tsh[s, ])
+          eta <- as.numeric(tcrossprod(X, beta_tsh[s, , drop = FALSE]))
           tail_shape[s, ] <- as.numeric(.apply_link(eta, tsh_link, tsh_power))
         }
       } else if ("tail_shape" %in% colnames(draw_mat)) {
@@ -3066,6 +3098,7 @@ print.mixgpd_predict <- function(x, digits = 3, max_rows = 10L, ...) {
 #' @param y Ignored.
 #' @param ... Additional arguments passed to ggplot2 functions.
 #' @return A ggplot object or a list of ggplot objects.
+#' @rdname plot.mixgpd_predict
 #' @export
 plot.causalmixgpd_causal_predict <- function(x, y = NULL, ...) {
 
@@ -4292,6 +4325,7 @@ print.summary.causalmixgpd_ate <- function(x, digits = 3, ...) {
 #'     \item \code{"arms"}: treated and control quantile curves
 #'       with pointwise CI error bars
 #'   }
+#'   For CQTE objects, omitted \code{type} defaults to \code{"effect"}.
 #' @param facet_by Character; faceting strategy when multiple
 #'   prediction points exist:
 #'   \itemize{
@@ -4733,6 +4767,7 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
 #'     \item \code{"arms"}: treated vs control mean with
 #'       pointwise CI error bars
 #'   }
+#'   For CATE objects, omitted \code{type} defaults to \code{"effect"}.
 #' @param plotly Logical; if \code{TRUE}, convert the \code{ggplot2} output to a
 #'   \code{plotly} / \code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults
 #'   to \code{getOption("CausalMixGPD.plotly", FALSE)}.
@@ -4758,6 +4793,7 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
 #' plot(ate_result, type = "effect")  # single ATE plot
 #' plot(ate_result, type = "arms")    # single arms plot
 #' }
+#' @rdname plot.causalmixgpd_qte
 #' @export
 plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"),
                               plotly = getOption("CausalMixGPD.plotly", FALSE), ...) {
@@ -5071,6 +5107,7 @@ print.causalmixgpd_causal_predict_plots <- function(x, ...) {
 #' @param y Ignored; included for S3 compatibility.
 #' @param ... Additional arguments (ignored).
 #' @return Invisibly returns a list with the two plots.
+#' @rdname plot.mixgpd_fit
 #' @export
 plot.mixgpd_fitted <- function(x, y = NULL, ...) {
 

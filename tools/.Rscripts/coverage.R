@@ -87,10 +87,10 @@ setwd(.coverage_project_root)
   if (!suite %in% c("bounded", "full", "historical85")) {
     warning(
       "Unknown DPMIXGPD_COVERAGE_SUITE='", suite,
-      "'; using bounded coverage suite.",
+      "'; using historical85 coverage suite.",
       call. = FALSE
     )
-    suite <- "bounded"
+    suite <- "historical85"
   }
   suite
 }
@@ -100,7 +100,7 @@ setwd(.coverage_project_root)
   # Prefer package-aware modes first because some nimble-generated paths expect
   # the package namespace and .onLoad initialization to be available.
   suite <- .coverage_suite()
-  default_modes <- if (suite %in% c("full", "historical85")) "custom,tests,file" else "custom"
+  default_modes <- if (suite %in% c("full", "historical85")) "custom,file" else "custom"
   raw <- Sys.getenv("DPMIXGPD_COVERAGE_MODES", unset = default_modes)
   parts <- trimws(strsplit(raw, ",", fixed = TRUE)[[1]])
   modes <- unique(parts[nzchar(parts) & parts %in% valid])
@@ -213,6 +213,11 @@ setwd(.coverage_project_root)
 .coverage_selected_test_basenames <- function() {
   suite <- .coverage_suite()
 
+  if (identical(suite, "full")) {
+    # Full suite means all testthat entrypoints in tests/testthat.
+    return(character(0))
+  }
+
   if (identical(suite, "historical85")) {
     # Historical 85.62% profile from commit 5f60fe6d.
     # Keep this list stable for CI comparability.
@@ -233,30 +238,13 @@ setwd(.coverage_project_root)
     ))
   }
 
-  if (identical(suite, "full")) {
-    # Historical high-coverage filenames. These compile many NIMBLE models and
-    # are intentionally opt-in because covr instrumentation can make them run
-    # for hours on local Windows installations.
-    return(c(
-      "test-ci-level-only.R",
-      "test-ci.R",
-      "test-coverage-heavy.R",
-      "test-integration.R",
-      "test-progress.R",
-      "test-unit.R",
-      "test_cluster_coverage_edges.R",
-      "test_cluster_fit_predict.R",
-      "test_cluster_methods.R",
-      "test_cluster_ordering_summary.R"
-    ))
-  }
-
-  # Default coverage report: bounded, deterministic, and still package-wide in
-  # reporting scope. It runs at the CI test level for pipeline metadata, while
-  # selecting only fast R-level tests so covr does not enter compiled-MCMC loops.
+  # Explicit bounded coverage report: deterministic and package-wide in
+  # reporting scope, but intentionally limited to fast R-level tests so covr
+  # does not enter compiled-MCMC loops.
   c(
     "test_cluster_coverage_edges.R",
-    "test_cluster_ordering_summary.R"
+    "test_cluster_ordering_summary.R",
+    "test-reviewer-fixes.R"
   )
 }
 
@@ -273,7 +261,10 @@ setwd(.coverage_project_root)
   if (!.coverage_include_coverage_only_file()) {
     tests <- tests[basename(tests) != "test-ci-level-only.R"]
   }
-  tests <- tests[basename(tests) %in% .coverage_selected_test_basenames()]
+  selected <- .coverage_selected_test_basenames()
+  if (length(selected)) {
+    tests <- tests[basename(tests) %in% selected]
+  }
   if (!length(tests)) {
     stop("Coverage found no matching canonical coverage test entrypoints.", call. = FALSE)
   }

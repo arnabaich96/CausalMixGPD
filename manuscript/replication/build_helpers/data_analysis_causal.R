@@ -164,7 +164,7 @@ fit <- dpmgpd.causal(
 # =============================================================================
 # Wall-clock timing for each stage: ps / control arm / treated arm.
 # =============================================================================
-data.frame(fit$timing)
+print(fit)
 
 # Average Treatment Effect: ATE = E[Y(1)] - E[Y(0)], 95% HPD interval.
 ate_fit <- ate(fit, interval = "hpd", level = 0.95)
@@ -278,7 +278,7 @@ cqte_fit <- cqte(
   newdata  = xnew,
   interval = "credible"
 )
-cqte_fit$fit_df
+summary(cqte_fit)$effect_table
 
 # Profile-specific CATE point estimates with 95% HPD bars.
 cate_plot_obj <- plot(cate_fit) +

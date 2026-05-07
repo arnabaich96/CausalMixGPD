@@ -13,7 +13,7 @@ converted into labels and posterior similarity matrices with predict.dpmixgpd_cl
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -110,22 +110,75 @@ explicit number of <code>components</code> is supplied. Otherwise the builder st
 <code><a href="summary.dpmixgpd_cluster_fit.html">summary.dpmixgpd_cluster_fit()</a></code>, <code><a href="plot.dpmixgpd_cluster_fit.html">plot.dpmixgpd_cluster_fit()</a></code>,
 <code><a href="build_nimble_bundle.html">build_nimble_bundle()</a></code>, <code><a href="dpmix.html">dpmix()</a></code>.</p>
 <p>Other cluster workflow:
-<code><a href="dpmgpd.cluster.html">dpmgpd.cluster()</a></code>,
-<code><a href="plot.dpmixgpd_cluster_bundle.html">plot.dpmixgpd_cluster_bundle()</a></code>,
-<code><a href="plot.dpmixgpd_cluster_fit.html">plot.dpmixgpd_cluster_fit()</a></code>,
-<code><a href="plot.dpmixgpd_cluster_labels.html">plot.dpmixgpd_cluster_labels()</a></code>,
-<code><a href="plot.dpmixgpd_cluster_psm.html">plot.dpmixgpd_cluster_psm()</a></code>,
-<code><a href="predict.dpmixgpd_cluster_fit.html">predict.dpmixgpd_cluster_fit()</a></code>,
-<code><a href="print.dpmixgpd_cluster_bundle.html">print.dpmixgpd_cluster_bundle()</a></code>,
-<code><a href="print.dpmixgpd_cluster_fit.html">print.dpmixgpd_cluster_fit()</a></code>,
-<code><a href="print.dpmixgpd_cluster_labels.html">print.dpmixgpd_cluster_labels()</a></code>,
-<code><a href="print.dpmixgpd_cluster_psm.html">print.dpmixgpd_cluster_psm()</a></code>,
-<code><a href="summary.dpmixgpd_cluster_bundle.html">summary.dpmixgpd_cluster_bundle()</a></code>,
-<code><a href="summary.dpmixgpd_cluster_fit.html">summary.dpmixgpd_cluster_fit()</a></code>,
-<code><a href="summary.dpmixgpd_cluster_labels.html">summary.dpmixgpd_cluster_labels()</a></code>,
-<code><a href="summary.dpmixgpd_cluster_psm.html">summary.dpmixgpd_cluster_psm()</a></code></p></div>
+<code><a href="cluster_profiles.html">cluster_profiles</a>()</code>,
+<code><a href="dpmgpd.cluster.html">dpmgpd.cluster</a>()</code>,
+<code><a href="plot.dpmixgpd_cluster_fit.html">plot.dpmixgpd_cluster_bundle</a>()</code>,
+<code><a href="predict.dpmixgpd_cluster_fit.html">predict.dpmixgpd_cluster_fit</a>()</code>,
+<code><a href="print.dpmixgpd_cluster_bundle.html">print.dpmixgpd_cluster_bundle</a>()</code>,
+<code><a href="print.dpmixgpd_cluster_fit.html">print.dpmixgpd_cluster_fit</a>()</code>,
+<code><a href="print.dpmixgpd_cluster_labels.html">print.dpmixgpd_cluster_labels</a>()</code>,
+<code><a href="print.dpmixgpd_cluster_psm.html">print.dpmixgpd_cluster_psm</a>()</code>,
+<code><a href="summary.dpmixgpd_cluster_bundle.html">summary.dpmixgpd_cluster_bundle</a>()</code>,
+<code><a href="summary.dpmixgpd_cluster_fit.html">summary.dpmixgpd_cluster_fit</a>()</code>,
+<code><a href="summary.dpmixgpd_cluster_labels.html">summary.dpmixgpd_cluster_labels</a>()</code>,
+<code><a href="summary.dpmixgpd_cluster_psm.html">summary.dpmixgpd_cluster_psm</a>()</code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"nc_realX100_p3_k2"</span>, package <span class="op">=</span> <span class="st">"CausalMixGPD"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">nc_realX100_p3_k2</span><span class="op">$</span><span class="va">y</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">20</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>                  <span class="va">nc_realX100_p3_k2</span><span class="op">$</span><span class="va">X</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">20</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">dpmix.cluster</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">+</span> <span class="va">x3</span>,</span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">dat</span>,</span></span>
+<span class="r-in"><span>  kernel <span class="op">=</span> <span class="st">"normal"</span>,</span></span>
+<span class="r-in"><span>  type <span class="op">=</span> <span class="st">"param"</span>,</span></span>
+<span class="r-in"><span>  components <span class="op">=</span> <span class="fl">3</span>,</span></span>
+<span class="r-in"><span>  mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">60</span>, nburnin <span class="op">=</span> <span class="fl">30</span>, thin <span class="op">=</span> <span class="fl">1</span>, nchains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00AFFF;">[cluster] Validating configuration</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00D7FF;">[cluster] Checking build/compile cache</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFFF;">[cluster] Building model and MCMC configuration</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFD7;">[cluster] Compiling NIMBLE model</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFAF;">[cluster] Initializing chains</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FF87;">[cluster] Running MCMC</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FF5F;">[cluster] Finalizing WAIC and diagnostics</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FF00;">[cluster] Assembling fit object</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $K_star</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $cluster_sizes</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $cluster_profiles</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   cluster  n y_mean  y_sd x1_mean x1_sd x2_mean x2_sd x3_mean x3_sd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      C1 20 -0.178 1.313   0.144 0.999  -0.104 0.543   0.386 1.007</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   certainty_mean certainty_sd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1              1            0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $certainty</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       1       1       1       1       1       1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "train"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $burnin</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $thin</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "summary.dpmixgpd_cluster_fit" "list"                        </span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
@@ -135,7 +188,7 @@ explicit number of <code>components</code> is supplied. Otherwise the builder st
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

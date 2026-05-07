@@ -2,6 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{plot.causalmixgpd_qte}
 \alias{plot.causalmixgpd_qte}
+\alias{plot.causalmixgpd_ate}
 \title{Plot QTE-style effect summaries}
 \usage{
 \method{plot}{causalmixgpd_qte}(
@@ -12,21 +13,30 @@
   plotly = getOption("CausalMixGPD.plotly", FALSE),
   ...
 )
+
+\method{plot}{causalmixgpd_ate}(
+  x,
+  y = NULL,
+  type = c("both", "effect", "arms"),
+  plotly = getOption("CausalMixGPD.plotly", FALSE),
+  ...
+)
 }
 \arguments{
-\item{x}{Object of class \code{causalmixgpd_qte}.}
+\item{x}{Object of class \code{causalmixgpd_ate}.}
 
 \item{y}{Ignored.}
 
 \item{type}{Character; plot type:
 \itemize{
 \item \code{"both"} (default): returns a list with both
-arm curves and treatment-effect plots
-\item \code{"effect"}: QTE curve with pointwise CI
+arm means and treatment-effect plots
+\item \code{"effect"}: ATE curve/points with pointwise CI
 error bars
-\item \code{"arms"}: treated and control quantile curves
-with pointwise CI error bars
-}}
+\item \code{"arms"}: treated vs control mean with
+pointwise CI error bars
+}
+For CATE objects, omitted \code{type} defaults to \code{"effect"}.}
 
 \item{facet_by}{Character; faceting strategy when multiple
 prediction points exist:
@@ -45,6 +55,10 @@ to \code{getOption("CausalMixGPD.plotly", FALSE)}.}
 A list of ggplot objects with elements \code{trt_control} and \code{treatment_effect}
 (if \code{type="both"}), or a single ggplot object (if \code{type} is \code{"effect"} or
 \code{"arms"}).
+
+A list of ggplot objects with elements \code{trt_control} and \code{treatment_effect}
+(if \code{type="both"}), or a single ggplot object (if \code{type} is \code{"effect"} or
+\code{"arms"}).
 }
 \description{
 \code{plot.causalmixgpd_qte()} visualizes objects returned by
@@ -60,6 +74,18 @@ control quantile curves) and \code{treatment_effect} (QTE curve) plots
 \item \code{"effect"}: QTE curve vs quantile levels (\code{probs}) with pointwise CI error bars
 \item \code{"arms"}: Treated and control quantile curves vs \code{probs}, with pointwise CI error bars
 }
+
+\code{plot.causalmixgpd_ate()} visualizes objects returned by
+\code{\link{ate}}, \code{\link{att}}, \code{\link{cate}}, and
+\code{\link{ate_rmean}}. The \code{type} parameter controls the plot style.
+When \code{type} is omitted, \code{cate()} objects default to
+\code{"effect"}:
+\itemize{
+\item \code{"both"} (default): Returns a list with both \code{trt_control} (treated vs
+control means) and \code{treatment_effect} (ATE curve) plots
+\item \code{"effect"}: ATE curve/points vs index/PS with pointwise CI error bars
+\item \code{"arms"}: Treated mean vs control mean, with pointwise CI error bars
+}
 }
 \details{
 The effect view emphasizes the quantile contrast
@@ -71,6 +97,15 @@ same quantile contrast is compared across prediction settings.
 These graphics visualize posterior summaries of the effect object itself. They
 are therefore downstream of model fitting and downstream of the causal
 prediction step.
+
+The effect panel visualizes the posterior summary of the treatment contrast on
+the mean scale, namely \eqn{E(Y^1) - E(Y^0)} or its conditional or
+treated-standardized analogue. The arms panel instead shows the treated and
+control mean predictions whose difference defines that contrast.
+
+For \code{cate()} objects, the x-axis follows the prediction profiles; otherwise it
+uses the estimated propensity score when available or a simple index order.
+This keeps the comparison aligned with how the effect object was standardized.
 }
 \examples{
 \donttest{
@@ -88,8 +123,26 @@ plot(qte_result)  # CQTE default: effect plot (faceted by id when needed)
 plot(qte_result, type = "effect")  # single QTE plot
 plot(qte_result, type = "arms")    # single arms plot
 }
+\donttest{
+N <- 25
+X <- data.frame(x1 = stats::rnorm(N))
+A <- stats::rbinom(N, 1, 0.5)
+y <- abs(stats::rnorm(N)) + 0.1
+X_new <- X[1:5, , drop = FALSE]
+mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
+                         components = 3, mcmc_outcome = mcmc_small, mcmc_ps = mcmc_small)
+fit <- run_mcmc_causal(cb, show_progress = FALSE)
+ate_result <- cate(fit, newdata = X_new, interval = "credible")
+plot(ate_result)  # CATE default: effect plot
+plot(ate_result, type = "effect")  # single ATE plot
+plot(ate_result, type = "arms")    # single arms plot
+}
 }
 \seealso{
 \code{\link{qte}}, \code{\link{cqte}},
 \code{\link{summary.causalmixgpd_qte}}.
+
+\code{\link{ate}}, \code{\link{cate}},
+\code{\link{summary.causalmixgpd_ate}}.
 }

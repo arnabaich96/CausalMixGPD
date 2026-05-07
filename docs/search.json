@@ -2958,7 +2958,7 @@
     "href": "cite.html#minimum-citation-guidance",
     "title": "Cite",
     "section": "Minimum citation guidance",
-    "text": "Minimum citation guidance\n\nPackage: CausalMixGPD\nRepository: https://github.com/arnabaich96/CausalMixGPD\nVersion: report the exact package version used"
+    "text": "Minimum citation guidance\n\nPackage: CausalMixGPD\nRepository: https://github.com/arnabaich96/CausalMixGPD\nCRAN package DOI: 10.32614/CRAN.package.CausalMixGPD\nAich-Bhattacharya methodology paper: https://doi.org/10.5281/zenodo.19672760\nVersion: report the exact package version used\nScope: cite the CRAN package DOI for the package implementation and the Aich-Bhattacharya methodology paper for the statistical method."
   },
   {
     "objectID": "cite.html#prereqs",

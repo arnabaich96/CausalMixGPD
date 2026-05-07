@@ -2,19 +2,24 @@
 % Please edit documentation in R/methods.R
 \name{plot.mixgpd_predict}
 \alias{plot.mixgpd_predict}
+\alias{plot.causalmixgpd_causal_predict}
 \title{Plot prediction results}
 \usage{
 \method{plot}{mixgpd_predict}(x, y = NULL, ...)
+
+\method{plot}{causalmixgpd_causal_predict}(x, y = NULL, ...)
 }
 \arguments{
-\item{x}{A prediction object returned by \code{predict.mixgpd_fit()}.}
+\item{x}{Object of class \code{causalmixgpd_causal_predict}.}
 
-\item{y}{Ignored; included for S3 compatibility.}
+\item{y}{Ignored.}
 
 \item{...}{Additional arguments passed to ggplot2 functions.}
 }
 \value{
 Invisibly returns the ggplot object.
+
+A ggplot object or a list of ggplot objects.
 }
 \description{
 Generates type-specific visualizations for prediction objects returned by
@@ -26,6 +31,11 @@ Generates type-specific visualizations for prediction objects returned by
 \item \code{density}: Density values vs evaluation points
 \item \code{survival}: Survival function (decreasing y values)
 }
+
+S3 method for visualizing causal predictions from \code{predict.causalmixgpd_causal_fit()}.
+For mean/quantile, plots treated/control and treatment effect versus PS (or index).
+For \code{type = "sample"}, plots arm-level posterior predictive samples alongside
+treatment-effect samples. For density/prob, plots treated/control values versus y.
 }
 \details{
 The plotting method is tied to the predictive functional stored in the input
@@ -38,6 +48,17 @@ In every case the plot reflects the quantity requested from
 \code{predict.mixgpd_fit()} after integrating over the retained posterior draws. It
 is therefore distinct from parameter-level summaries and from chain
 diagnostics.
+
+The causal prediction object carries arm-specific predictions together with the
+implied contrast. For mean predictions, the contrast is
+\eqn{m_1(x) - m_0(x)}. For quantile predictions, the contrast is
+\eqn{Q_{Y^1}(\tau \mid x) - Q_{Y^0}(\tau \mid x)}. The plotting method keeps
+those arm and contrast views synchronized.
+
+Unlike \code{plot.causalmixgpd_causal_fit()}, which diagnoses MCMC behavior inside
+the outcome models, this method visualizes predictive quantities after
+posterior integration. It is therefore the natural plotting method once the
+user has already accepted the fitted-model diagnostics.
 }
 \examples{
 \donttest{

@@ -3,7 +3,7 @@
 \docType{data}
 \name{nc_pos_tail200_k4}
 \alias{nc_pos_tail200_k4}
-\title{nc_pos_tail200_k4 dataset}
+\title{Positive-Support Tail Data Set With Four Components}
 \format{
 A list with:
 \describe{

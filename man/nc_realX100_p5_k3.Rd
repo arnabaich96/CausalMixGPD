@@ -3,7 +3,7 @@
 \docType{data}
 \name{nc_realX100_p5_k3}
 \alias{nc_realX100_p5_k3}
-\title{nc_realX100_p5_k3 dataset}
+\title{Real-Line Covariate Data Set With Five Predictors}
 \format{
 A list with:
 \describe{

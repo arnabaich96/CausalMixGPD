@@ -3,7 +3,7 @@
 \docType{data}
 \name{causal_alt_pos500_p5_k4_tail}
 \alias{causal_alt_pos500_p5_k4_tail}
-\title{causal_alt_pos500_p5_k4_tail dataset}
+\title{Alternative Positive-Support Tail Causal Data Set With Five Predictors}
 \format{
 A list with:
 \describe{

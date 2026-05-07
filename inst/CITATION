@@ -8,5 +8,16 @@ bibentry(
   author  = person("Arnab", "Aich"),
   year    = "2026",
   note    = paste("R package version", pkg_version),
-  url     = "https://arnabaich96.github.io/CausalMixGPD/pkgdown/"
+  doi     = "10.32614/CRAN.package.CausalMixGPD"
+)
+
+citHeader("For the main methodology paper use:")
+
+bibentry(
+  bibtype = "Article",
+  title   = "A Semiparametric Bayesian Approach for Estimating Extreme Conditional Quantile Treatment Effect for Heavy-tailed Data",
+  author  = c(person("Arnab", "Aich"), person("Indrabati", "Bhattacharya")),
+  year    = "2026",
+  journal = "Zenodo",
+  doi     = "10.5281/zenodo.19672760"
 )

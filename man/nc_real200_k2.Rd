@@ -3,7 +3,7 @@
 \docType{data}
 \name{nc_real200_k2}
 \alias{nc_real200_k2}
-\title{nc_real200_k2 dataset}
+\title{Real-Line Bulk-Only Data Set With Two Components}
 \format{
 A list with:
 \describe{

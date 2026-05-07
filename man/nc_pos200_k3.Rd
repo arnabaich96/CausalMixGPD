@@ -3,7 +3,7 @@
 \docType{data}
 \name{nc_pos200_k3}
 \alias{nc_pos200_k3}
-\title{nc_pos200_k3 dataset}
+\title{Positive-Support Bulk-Only Data Set With Three Components}
 \format{
 A list with:
 \describe{

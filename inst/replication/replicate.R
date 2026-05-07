@@ -29,6 +29,7 @@ if (file.exists("DESCRIPTION") &&
 }
 
 set.seed(2026)
+replication_seed <- 2026
 mcmc_rep <- list(
   niter = 80,
   nburnin = 40,
@@ -43,10 +44,33 @@ write_table <- function(x, name) {
   utils::write.csv(x, file.path(out_dir, name), row.names = FALSE)
 }
 
+write_text <- function(x, name) {
+  writeLines(x, file.path(out_dir, name), useBytes = TRUE)
+}
+
 save_plot <- function(p, name, width = 7, height = 5) {
   if (requireNamespace("ggplot2", quietly = TRUE)) {
     ggplot2::ggsave(file.path(out_dir, name), plot = p, width = width, height = height)
   }
+}
+
+pkg_version <- tryCatch(as.character(utils::packageVersion("CausalMixGPD")), error = function(e) NA_character_)
+output_manifest <- data.frame(
+  file = character(),
+  workflow = character(),
+  manuscript_use = character(),
+  stringsAsFactors = FALSE
+)
+record_output <- function(file, workflow, manuscript_use) {
+  output_manifest <<- rbind(
+    output_manifest,
+    data.frame(
+      file = file,
+      workflow = workflow,
+      manuscript_use = manuscript_use,
+      stringsAsFactors = FALSE
+    )
+  )
 }
 
 # One-arm workflow -----------------------------------------------------------
@@ -60,9 +84,12 @@ fit_one <- dpmix(
   mcmc = mcmc_rep
 )
 write_table(summary(fit_one)$table, "one_arm_summary.csv")
+record_output("one_arm_summary.csv", "one-arm", "Package overview one-arm posterior summary")
 pred_one <- predict(fit_one, type = "quantile", index = c(0.25, 0.5, 0.75), show_progress = FALSE)
 write_table(pred_one$fit, "one_arm_quantiles.csv")
+record_output("one_arm_quantiles.csv", "one-arm", "Package overview quantile prediction table")
 save_plot(plot(pred_one), "one_arm_quantiles.png")
+record_output("one_arm_quantiles.png", "one-arm", "Package overview quantile prediction figure")
 
 # Clustering workflow --------------------------------------------------------
 data("nc_realX100_p3_k2", package = "CausalMixGPD")
@@ -80,7 +107,9 @@ fit_cluster <- dpmix.cluster(
 )
 labels_cluster <- predict(fit_cluster, type = "label", return_scores = TRUE)
 write_table(cluster_profiles(labels_cluster), "cluster_profiles.csv")
+record_output("cluster_profiles.csv", "clustering", "Cluster profile table via public accessor")
 save_plot(plot(labels_cluster, type = "sizes"), "cluster_sizes.png")
+record_output("cluster_sizes.png", "clustering", "Cluster assignment size figure")
 
 # Causal workflow ------------------------------------------------------------
 data("causal_pos500_p3_k2", package = "CausalMixGPD")
@@ -96,6 +125,25 @@ fit_causal <- dpmix.causal(
 )
 ate_rep <- ate(fit_causal, interval = "credible", show_progress = FALSE)
 write_table(summary(ate_rep)$effect_table, "causal_ate.csv")
+record_output("causal_ate.csv", "causal", "Causal ATE summary table")
 save_plot(plot(ate_rep, type = "effect"), "causal_ate.png")
+record_output("causal_ate.png", "causal", "Causal ATE effect figure")
+
+write_table(output_manifest, "manifest.csv")
+write_text(
+  c(
+    "CausalMixGPD replication run",
+    paste("Package version:", pkg_version),
+    paste("Seed:", replication_seed),
+    paste("Output directory:", normalizePath(out_dir, winslash = "/")),
+    "",
+    "Session info:",
+    utils::capture.output(utils::sessionInfo())
+  ),
+  "session-info.txt"
+)
+record_output("manifest.csv", "metadata", "Output-to-manuscript mapping")
+record_output("session-info.txt", "metadata", "R session, package version, seed, and platform")
+write_table(output_manifest, "manifest.csv")
 
 cat("Replication outputs written to:", normalizePath(out_dir, winslash = "/"), "\n")

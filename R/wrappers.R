@@ -665,6 +665,22 @@ dpmgpd <- function(y = NULL, X = NULL, treat = NULL, data = NULL, mcmc = list(),
 #'   \code{\link{bundle}}, \code{\link{dpmgpd.causal}},
 #'   \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
 #'   \code{\link{qte}}.
+#' @examples
+#' \donttest{
+#' N <- 30
+#' X <- data.frame(x1 = stats::rnorm(N), x2 = stats::runif(N))
+#' A <- stats::rbinom(N, 1, 0.5)
+#' y <- abs(stats::rnorm(N) + A + 0.5 * X$x1) + 0.1
+#' mcmc_small <- list(niter = 100, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+#'
+#' fit <- dpmix.causal(
+#'   y = y, X = X, treat = A,
+#'   backend = "sb", kernel = "normal",
+#'   components = 3, mcmc = mcmc_small
+#' )
+#' summary(fit)
+#' ate(fit, show_progress = FALSE)
+#' }
 #' @export
 dpmix.causal <- function(y = NULL, X = NULL, treat = NULL, data = NULL, mcmc = list(), formula = NULL, ...) {
   treat_expr <- substitute(treat)

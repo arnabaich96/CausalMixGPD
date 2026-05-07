@@ -2579,7 +2579,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = FALSE,
     fit$mcmc$parallel_chains <- TRUE
     fit$samples <- samples
     fit$timing <- timing_info
-    class(fit) <- unique(c("mixgpd_fit", "list"))
+    class(fit) <- unique(c("mixgpd_fit", "causalmixgpd_fit", "list"))
     return(fit)
   }
 
@@ -2815,6 +2815,6 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = FALSE,
   fit$samples <- samples
   fit$waic <- waic_obj
 
-  class(fit) <- unique(c("mixgpd_fit", "list"))
+  class(fit) <- unique(c("mixgpd_fit", "causalmixgpd_fit", "list"))
   fit
 }

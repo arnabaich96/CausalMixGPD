@@ -8,6 +8,15 @@
   pages   = {792--804},
   doi     = {10.1214/aop/1176996548}
 }
+@misc{Aich2026ExtremeCQTE,
+  author       = {Aich, Arnab},
+  title        = {A Semiparametric Bayesian Approach for Estimating Extreme Conditional Quantile Treatment Effect for Heavy-tailed Data},
+  year         = {2026},
+  note         = {Zenodo record},
+  doi          = {10.5281/zenodo.19672760},
+  url          = {https://zenodo.org/records/19672760}
+}
+
 @manual{bartCause_pkg,
   author       = {Dorie, Vincent and Hill, Jennifer},
   title        = {{bartCause}: Causal Inference Using Bayesian Additive Regression Trees},
@@ -17,13 +26,15 @@
   url          = {https://cran.r-project.org/package=bartCause}
 }
 
-@manual{BCEE_pkg,
-  author       = {Talbot, Denis and Lefebvre, Genevieve and Atherton, Juli and Chiu, Yohann},
-  title        = {{BCEE}: The Bayesian Causal Effect Estimation Algorithm},
-  year         = {2023},
-  note         = {R package on CRAN},
-  doi          = {10.32614/CRAN.package.BCEE},
-  url          = {https://cran.r-project.org/package=BCEE}
+@article{bartCause_method,
+  author  = {Hill, Jennifer L.},
+  title   = {Bayesian Nonparametric Modeling for Causal Inference},
+  journal = {Journal of Computational and Graphical Statistics},
+  year    = {2011},
+  volume  = {20},
+  number  = {1},
+  pages   = {217--240},
+  doi     = {10.1198/jcgs.2010.08162}
 }
 
 @manual{bcf_pkg,
@@ -33,6 +44,18 @@
   note         = {R package on CRAN},
   doi          = {10.32614/CRAN.package.bcf},
   url          = {https://cran.r-project.org/package=bcf}
+}
+
+@article{bcf_method,
+  author  = {Hahn, P. Richard and Murray, Jared S. and Carvalho, Carlos M.},
+  title   = {Bayesian Regression Tree Models for Causal Inference: Regularization, Confounding, and Heterogeneous Effects},
+  journal = {Bayesian Analysis},
+  year    = {2020},
+  volume  = {15},
+  number  = {3},
+  pages   = {965--1056},
+  doi     = {10.1214/19-BA1195},
+  url     = {https://projecteuclid.org/journals/bayesian-analysis/volume-15/issue-3/Bayesian-Regression-Tree-Models-for-Causal-Inference--Regularization-Confounding/10.1214/19-BA1195.full}
 }
 
 @article{Behrens2004,
@@ -70,8 +93,9 @@
   author       = {Aich, Arnab},
   title        = {{CausalMixGPD}: Bayesian Nonparametric Conditional Density Modeling in Causal Inference and Clustering with a Heavy-Tail Extension},
   year         = {2026},
-  note         = {R package version 0.7.0},
-  doi          = {10.32614/CRAN.package.CausalMixGPD}
+  note         = {R package version 0.8.0},
+  doi          = {10.32614/CRAN.package.CausalMixGPD},
+  url          = {https://cran.r-project.org/package=CausalMixGPD}
 }
 
 @manual{dirichletprocess_pkg,
@@ -92,15 +116,6 @@
   number  = {430},
   pages   = {577--588},
   doi     = {10.1080/01621459.1995.10476550}
-}
-
-@manual{evdbayes_pkg,
-  author       = {Stephenson, Alec and Ribatet, Mathieu},
-  title        = {{evdbayes}: Bayesian Analysis in Extreme Value Theory},
-  year         = {2023},
-  note         = {R package on CRAN},
-  doi          = {10.32614/CRAN.package.evdbayes},
-  url          = {https://cran.r-project.org/package=evdbayes}
 }
 
 @article{Ferguson1973,
@@ -130,18 +145,8 @@
   title     = {Causal Inference for Statistics, Social, and Biomedical Sciences: An Introduction},
   publisher = {Cambridge University Press},
   address   = {Cambridge},
-  year      = {2015}
-}
-
-@article{jara2011DPpackage,
-  author  = {Jara, Alejandro and Hanson, Timothy and Quintana, Fernando and M{\"u}ller, Peter and Rosner, Gary},
-  title   = {DPpackage: Bayesian Semi- and Nonparametric Modeling in {R}},
-  journal = {Journal of Statistical Software},
-  year    = {2011},
-  volume  = {40},
-  number  = {5},
-  pages   = {1--30},
-  doi     = {10.18637/jss.v040.i05}
+  year      = {2015},
+  doi       = {10.1017/CBO9781139025751}
 }
 
 @article{Neal2000,
@@ -164,6 +169,17 @@
   url          = {https://cran.r-project.org/package=nimble}
 }
 
+@article{nimble_method,
+  author  = {de Valpine, Perry and Turek, Daniel and Paciorek, Christopher and Anderson-Bergman, Cliff and Temple Lang, Duncan and Bodik, Ras},
+  title   = {Programming with Models: Writing Statistical Algorithms for General Model Structures with {NIMBLE}},
+  journal = {Journal of Computational and Graphical Statistics},
+  year    = {2017},
+  volume  = {26},
+  number  = {2},
+  pages   = {403--413},
+  doi     = {10.1080/10618600.2016.1172487}
+}
+
 @article{Pickands1975,
   author  = {Pickands, James},
   title   = {Statistical Inference Using Extreme Order Statistics},
@@ -176,8 +192,8 @@
 }
 
 @manual{POT_pkg,
-  author       = {Dutang, Christophe and Ribatet, Mathieu},
-  title        = {{POT}: Generalized Pareto Distribution and Peaks over Threshold},
+  author       = {Ribatet, Mathieu and Dutang, Christophe},
+  title        = {{POT}: Generalized Pareto Distribution and Peaks Over Threshold},
   year         = {2024},
   note         = {R package on CRAN},
   doi          = {10.32614/CRAN.package.POT},
@@ -213,7 +229,8 @@
   year    = {1994},
   volume  = {4},
   number  = {2},
-  pages   = {639--650}
+  pages   = {639--650},
+  url     = {https://www3.stat.sinica.edu.tw/statistica/j4n2/j4n216/j4n216.htm}
 }
 
 @article{Binder1978,
@@ -276,12 +293,118 @@
   url          = {https://u.osu.edu/maceachern.1/files/2025/05/2000-MacEachern-DDP-Tech-Report.pdf}
 }
 
-@book{Dahl2006,
+@incollection{Dahl2006,
   author    = {Dahl, David B.},
   title     = {Model-Based Clustering for Expression Data via a {D}irichlet Process Mixture Model},
-  year      = {2006},
+  booktitle = {Bayesian Inference for Gene Expression and Proteomics},
+  editor    = {Do, Kim-Anh and M{\"u}ller, Peter and Vannucci, Marina},
   publisher = {Cambridge University Press},
-  note      = {In: \emph{Bayesian Inference for Gene Expression and Proteomics}, Kim-Anh Do, Peter M{\"u}ller, Marina Vannucci (Eds.)}
+  address   = {Cambridge},
+  year      = {2006},
+  pages     = {201--218},
+  doi       = {10.1017/CBO9780511584589.011},
+  url       = {https://doi.org/10.1017/CBO9780511584589.011}
+}
+
+@misc{dowhy_pkg,
+  author       = {{DoWhy Contributors}},
+  title        = {{DoWhy}: An End-to-End Library for Causal Inference},
+  year         = {2026},
+  note         = {Python software; accessed 2026-05-07},
+  url          = {https://github.com/py-why/dowhy}
+}
+
+@misc{econml_pkg,
+  author       = {{EconML Contributors}},
+  title        = {{EconML}: A Python Package for Machine Learning-Based Heterogeneous Treatment Effects},
+  year         = {2026},
+  note         = {Python software; accessed 2026-05-07},
+  url          = {https://github.com/py-why/EconML}
+}
+
+@article{scikit_learn,
+  author  = {Pedregosa, Fabian and Varoquaux, Ga{\"e}l and Gramfort, Alexandre and Michel, Vincent and Thirion, Bertrand and Grisel, Olivier and Blondel, Mathieu and Prettenhofer, Peter and Weiss, Ron and Dubourg, Vincent and Vanderplas, Jake and Passos, Alexandre and Cournapeau, David and Brucher, Matthieu and Perrot, Matthieu and Duchesnay, {\'E}douard},
+  title   = {Scikit-Learn: Machine Learning in {Python}},
+  journal = {Journal of Machine Learning Research},
+  year    = {2011},
+  volume  = {12},
+  pages   = {2825--2830},
+  url     = {https://jmlr.org/papers/v12/pedregosa11a.html}
+}
+
+@article{PReMiuM_pkg,
+  author  = {Liverani, Silvia and Hastie, David I. and Azizi, Lamiae and Papathomas, Michail and Richardson, Sylvia},
+  title   = {{PReMiuM}: An {R} Package for Profile Regression Mixture Models Using {D}irichlet Processes},
+  journal = {Journal of Statistical Software},
+  year    = {2015},
+  volume  = {64},
+  number  = {7},
+  pages   = {1--30},
+  doi     = {10.18637/jss.v064.i07}
+}
+
+@article{pyrichlet_pkg,
+  author  = {Selva, Fidel and Fuentes-Garc{\'i}a, Ruth and Gil-Leyva, Mar{\'i}a Fernanda},
+  title   = {{pyrichlet}: A Python Package for Density Estimation and Clustering Using Gaussian Mixture Models},
+  journal = {Journal of Statistical Software},
+  year    = {2025},
+  volume  = {112},
+  number  = {8},
+  pages   = {1--39},
+  doi     = {10.18637/jss.v112.i08}
+}
+
+@article{BayesMix_pkg,
+  author  = {Beraha, Mario and Guindani, Bruno and Gianella, Matteo and Guglielmi, Alessandra},
+  title   = {{BayesMix}: Bayesian Mixture Models in {C++}},
+  journal = {Journal of Statistical Software},
+  year    = {2025},
+  volume  = {112},
+  number  = {9},
+  pages   = {1--41},
+  doi     = {10.18637/jss.v112.i09}
+}
+
+@inproceedings{DPMMSubClustersjl_pkg,
+  author    = {Dinari, Or and Yu, Angel and Freifeld, Oren and Fisher, John W.},
+  title     = {Distributed {MCMC} Inference in {D}irichlet Process Mixture Models Using {Julia}},
+  booktitle = {2019 19th IEEE/ACM International Symposium on Cluster, Cloud and Grid Computing (CCGRID)},
+  pages     = {518--525},
+  year      = {2019},
+  doi       = {10.1109/CCGRID.2019.00066}
+}
+
+@article{evmix_pkg,
+  author  = {Hu, Yang and Scarrott, Carl},
+  title   = {{evmix}: An {R} Package for Extreme Value Mixture Modeling, Threshold Estimation and Boundary Corrected Kernel Density Estimation},
+  journal = {Journal of Statistical Software},
+  year    = {2018},
+  volume  = {84},
+  number  = {5},
+  pages   = {1--27},
+  doi     = {10.18637/jss.v084.i05}
+}
+
+@article{Wade2014EDP,
+  author  = {Wade, Sara and Dunson, David B. and Petrone, Sonia and Trippa, Lorenzo},
+  title   = {Improving Prediction from {D}irichlet Process Mixtures via Enrichment},
+  journal = {Journal of Machine Learning Research},
+  year    = {2014},
+  volume  = {15},
+  number  = {30},
+  pages   = {1041--1071},
+  url     = {https://jmlr.org/papers/v15/wade14a.html}
+}
+
+@misc{BurnsDaniels2023EDPM,
+  author        = {Burns, Natalie and Daniels, Michael J.},
+  title         = {Truncation Approximation for Enriched {D}irichlet Process Mixture Models},
+  year          = {2023},
+  eprint        = {2305.01631},
+  archiveprefix = {arXiv},
+  primaryclass  = {stat.ME},
+  doi           = {10.48550/arXiv.2305.01631},
+  url           = {https://arxiv.org/abs/2305.01631}
 }
 
 

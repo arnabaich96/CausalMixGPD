@@ -78,12 +78,12 @@ causal_xgrid <- expand.grid(lapply(
   na.rm = TRUE
 ))
 causal_xgrid <- as.matrix(causal_xgrid)
-causal_xgrid <- causal_xgrid[, colnames(causal_fit$bundle$data$X), drop = FALSE]
+causal_xgrid <- causal_xgrid[, c("x1", "x2", "x3"), drop = FALSE]
 
 predict(causal_fit,
            newdata = causal_xgrid,
            type    = "survival",
-             y       = rep(4,length=nrow(causal_xgrid)))
+             y       = rep(4, length.out = nrow(causal_xgrid)))
 
 
 

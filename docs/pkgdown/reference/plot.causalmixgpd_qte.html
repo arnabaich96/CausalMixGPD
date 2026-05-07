@@ -11,6 +11,17 @@ control quantile curves) and treatment_effect (QTE curve) plots
 "effect": QTE curve vs quantile levels (probs) with pointwise CI error bars
 "arms": Treated and control quantile curves vs probs, with pointwise CI error bars
 
+
+plot.causalmixgpd_ate() visualizes objects returned by
+ate, att, cate, and
+ate_rmean. The type parameter controls the plot style.
+When type is omitted, cate() objects default to
+"effect":
+"both" (default): Returns a list with both trt_control (treated vs
+control means) and treatment_effect (ATE curve) plots
+"effect": ATE curve/points vs index/PS with pointwise CI error bars
+"arms": Treated mean vs control mean, with pointwise CI error bars
+
 '><meta property="og:description" content='plot.causalmixgpd_qte() visualizes objects returned by
 qte, qtt, and cqte. The
 type parameter controls the plot style. When type is omitted,
@@ -23,6 +34,17 @@ control quantile curves) and treatment_effect (QTE curve) plots
 "effect": QTE curve vs quantile levels (probs) with pointwise CI error bars
 "arms": Treated and control quantile curves vs probs, with pointwise CI error bars
 
+
+plot.causalmixgpd_ate() visualizes objects returned by
+ate, att, cate, and
+ate_rmean. The type parameter controls the plot style.
+When type is omitted, cate() objects default to
+"effect":
+"both" (default): Returns a list with both trt_control (treated vs
+control means) and treatment_effect (ATE curve) plots
+"effect": ATE curve/points vs index/PS with pointwise CI error bars
+"arms": Treated mean vs control mean, with pointwise CI error bars
+
 '></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
@@ -31,7 +53,7 @@ control quantile curves) and treatment_effect (QTE curve) plots
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,15 +78,23 @@ control quantile curves) and treatment_effect (QTE curve) plots
 
     <div class="ref-description section level2">
     <p><code>plot.causalmixgpd_qte()</code> visualizes objects returned by
-<code><a href="qte.html">qte</a></code>, <code><a href="qtt.html">qtt</a></code>, and <code><a href="cqte.html">cqte</a></code>. The
+<code><a href="qte.causalmixgpd_causal_fit.html">qte</a></code>, <code><a href="qtt.html">qtt</a></code>, and <code><a href="cqte.causalmixgpd_causal_fit.html">cqte</a></code>. The
 <code>type</code> parameter controls the plot style. When <code>type</code> is omitted,
-<code><a href="cqte.html">cqte()</a></code> objects default to <code>"effect"</code> and, when multiple
+<code><a href="cqte.causalmixgpd_causal_fit.html">cqte()</a></code> objects default to <code>"effect"</code> and, when multiple
 quantile levels are present, <code>facet_by = "id"</code>. Whenever quantile index
 appears on the x-axis, it is shown as an ordered categorical axis with
 equidistant spacing:</p><ul><li><p><code>"both"</code> (default): Returns a list with both <code>trt_control</code> (treated vs
 control quantile curves) and <code>treatment_effect</code> (QTE curve) plots</p></li>
 <li><p><code>"effect"</code>: QTE curve vs quantile levels (<code>probs</code>) with pointwise CI error bars</p></li>
 <li><p><code>"arms"</code>: Treated and control quantile curves vs <code>probs</code>, with pointwise CI error bars</p></li>
+</ul><p><code>plot.causalmixgpd_ate()</code> visualizes objects returned by
+<code><a href="ate.causalmixgpd_causal_fit.html">ate</a></code>, <code><a href="att.html">att</a></code>, <code><a href="cate.causalmixgpd_causal_fit.html">cate</a></code>, and
+<code><a href="ate_rmean.html">ate_rmean</a></code>. The <code>type</code> parameter controls the plot style.
+When <code>type</code> is omitted, <code><a href="cate.causalmixgpd_causal_fit.html">cate()</a></code> objects default to
+<code>"effect"</code>:</p><ul><li><p><code>"both"</code> (default): Returns a list with both <code>trt_control</code> (treated vs
+control means) and <code>treatment_effect</code> (ATE curve) plots</p></li>
+<li><p><code>"effect"</code>: ATE curve/points vs index/PS with pointwise CI error bars</p></li>
+<li><p><code>"arms"</code>: Treated mean vs control mean, with pointwise CI error bars</p></li>
 </ul></div>
 
     <div class="section level2">
@@ -77,6 +107,15 @@ control quantile curves) and <code>treatment_effect</code> (QTE curve) plots</p>
 <span>  facet_by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tau"</span>, <span class="st">"id"</span><span class="op">)</span>,</span>
 <span>  plotly <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"CausalMixGPD.plotly"</span>, <span class="cn">FALSE</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'causalmixgpd_ate'</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  y <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"both"</span>, <span class="st">"effect"</span>, <span class="st">"arms"</span><span class="op">)</span>,</span>
+<span>  plotly <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"CausalMixGPD.plotly"</span>, <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -85,7 +124,7 @@ control quantile curves) and <code>treatment_effect</code> (QTE curve) plots</p>
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>Object of class <code>causalmixgpd_qte</code>.</p></dd>
+<dd><p>Object of class <code>causalmixgpd_ate</code>.</p></dd>
 
 
 <dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
@@ -94,12 +133,12 @@ control quantile curves) and <code>treatment_effect</code> (QTE curve) plots</p>
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>Character; plot type:</p><ul><li><p><code>"both"</code> (default): returns a list with both
-arm curves and treatment-effect plots</p></li>
-<li><p><code>"effect"</code>: QTE curve with pointwise CI
+arm means and treatment-effect plots</p></li>
+<li><p><code>"effect"</code>: ATE curve/points with pointwise CI
 error bars</p></li>
-<li><p><code>"arms"</code>: treated and control quantile curves
-with pointwise CI error bars</p></li>
-</ul></dd>
+<li><p><code>"arms"</code>: treated vs control mean with
+pointwise CI error bars</p></li>
+</ul><p>For CATE objects, omitted <code>type</code> defaults to <code>"effect"</code>.</p></dd>
 
 
 <dt id="arg-facet-by">facet_by<a class="anchor" aria-label="anchor" href="#arg-facet-by"></a></dt>
@@ -124,6 +163,9 @@ to <code>getOption("CausalMixGPD.plotly", FALSE)</code>.</p></dd>
     <p>A list of ggplot objects with elements <code>trt_control</code> and <code>treatment_effect</code>
 (if <code>type="both"</code>), or a single ggplot object (if <code>type</code> is <code>"effect"</code> or
 <code>"arms"</code>).</p>
+<p>A list of ggplot objects with elements <code>trt_control</code> and <code>treatment_effect</code>
+(if <code>type="both"</code>), or a single ggplot object (if <code>type</code> is <code>"effect"</code> or
+<code>"arms"</code>).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -135,16 +177,123 @@ same quantile contrast is compared across prediction settings.</p>
 <p>These graphics visualize posterior summaries of the effect object itself. They
 are therefore downstream of model fitting and downstream of the causal
 prediction step.</p>
+<p>The effect panel visualizes the posterior summary of the treatment contrast on
+the mean scale, namely \(E(Y^1) - E(Y^0)\) or its conditional or
+treated-standardized analogue. The arms panel instead shows the treated and
+control mean predictions whose difference defines that contrast.</p>
+<p>For <code><a href="cate.causalmixgpd_causal_fit.html">cate()</a></code> objects, the x-axis follows the prediction profiles; otherwise it
+uses the estimated propensity score when available or a simple index order.
+This keeps the comparison aligned with how the effect object was standardized.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="qte.html">qte</a></code>, <code><a href="cqte.html">cqte</a></code>,
-<code><a href="summary.causalmixgpd_qte.html">summary.causalmixgpd_qte</a></code>.</p></div>
+    <div class="dont-index"><p><code><a href="qte.causalmixgpd_causal_fit.html">qte</a></code>, <code><a href="cqte.causalmixgpd_causal_fit.html">cqte</a></code>,
+<code><a href="summary.causalmixgpd_qte.html">summary.causalmixgpd_qte</a></code>.</p>
+<p><code><a href="ate.causalmixgpd_causal_fit.html">ate</a></code>, <code><a href="cate.causalmixgpd_causal_fit.html">cate</a></code>,
+<code><a href="summary.causalmixgpd_ate.html">summary.causalmixgpd_ate</a></code>.</p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">25</span></span></span>
+<span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">N</span>, <span class="fl">1</span>, <span class="fl">0.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1</span></span></span>
+<span class="r-in"><span><span class="va">X_new</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">mcmc_small</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">100</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">1</span>, nchains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cb</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_causal_bundle.html">build_causal_bundle</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, X <span class="op">=</span> <span class="va">X</span>, A <span class="op">=</span> <span class="va">A</span>, backend <span class="op">=</span> <span class="st">"sb"</span>, kernel <span class="op">=</span> <span class="st">"normal"</span>,</span></span>
+<span class="r-in"><span>                         components <span class="op">=</span> <span class="fl">3</span>, mcmc_outcome <span class="op">=</span> <span class="va">mcmc_small</span>, mcmc_ps <span class="op">=</span> <span class="va">mcmc_small</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="run_mcmc_causal.html">run_mcmc_causal</a></span><span class="op">(</span><span class="va">cb</span>, show_progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Defining model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Building model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Setting data and initial values</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Checking model sizes and dimensions</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This model is not fully initialized. This is not an error.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>          To see which variables are not initialized, use model$initializeInfo().</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>          For more information on model initialization, see help(modelInitialization).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ===== Monitors =====</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> thin = 1: beta</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ===== Samplers =====</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RW sampler (2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - beta[]  (2 elements)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> running chain 1...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Defining model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Building model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Setting data and initial values</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Checking model sizes and dimensions</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This model is not fully initialized. This is not an error.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>          To see which variables are not initialized, use model$initializeInfo().</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>          For more information on model initialization, see help(modelInitialization).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ===== Monitors =====</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> thin = 1: alpha, beta_mean, beta_ps_mean, sd, w</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ===== Samplers =====</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> conjugate sampler (3)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - sd[]  (3 elements)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> categorical sampler (14)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - z[]  (14 elements)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RW sampler (9)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - alpha</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - beta_mean[]  (3 elements)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - beta_ps_mean[]  (3 elements)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - v[]  (2 elements)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Assigning an RW_block sampler to nodes with very different scales can result in low MCMC efficiency.  If all nodes assigned to RW_block are not on a similar scale, we recommend providing an informed value for the "propCov" control list argument, or using the "barker" sampler instead.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Warning] To calculate WAIC, set 'WAIC = TRUE', in addition to having enabled WAIC in building the MCMC.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> running chain 1...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Defining model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Building model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Setting data and initial values</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Checking model sizes and dimensions</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This model is not fully initialized. This is not an error.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>          To see which variables are not initialized, use model$initializeInfo().</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>          For more information on model initialization, see help(modelInitialization).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ===== Monitors =====</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> thin = 1: alpha, beta_mean, beta_ps_mean, sd, w</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ===== Samplers =====</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> conjugate sampler (3)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - sd[]  (3 elements)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> categorical sampler (11)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - z[]  (11 elements)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RW sampler (9)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - alpha</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - beta_mean[]  (3 elements)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - beta_ps_mean[]  (3 elements)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - v[]  (2 elements)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Assigning an RW_block sampler to nodes with very different scales can result in low MCMC efficiency.  If all nodes assigned to RW_block are not on a similar scale, we recommend providing an informed value for the "propCov" control list argument, or using the "barker" sampler instead.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Warning] To calculate WAIC, set 'WAIC = TRUE', in addition to having enabled WAIC in building the MCMC.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> running chain 1...</span>
+<span class="r-in"><span><span class="va">qte_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="cqte.causalmixgpd_causal_fit.html">cqte</a></span><span class="op">(</span><span class="va">fit</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span>, newdata <span class="op">=</span> <span class="va">X_new</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00AFFF;">[cqte] Preparing CQTE inputs</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00D7FF;">[cqte] Preparing propensity-score adjustment</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFFF;">[cqte] Predicting treated-arm quantiles</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFD7;">[cqte] Predicting control-arm quantiles</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFAF;">[cqte] Aggregating CQTE estimates</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">qte_result</span><span class="op">)</span>  <span class="co"># CQTE default: effect plot (faceted by id when needed)</span></span></span>
+<span class="r-plt img"><img src="plot.causalmixgpd_qte-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">qte_result</span>, type <span class="op">=</span> <span class="st">"effect"</span><span class="op">)</span>  <span class="co"># single QTE plot</span></span></span>
+<span class="r-plt img"><img src="plot.causalmixgpd_qte-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">qte_result</span>, type <span class="op">=</span> <span class="st">"arms"</span><span class="op">)</span>    <span class="co"># single arms plot</span></span></span>
+<span class="r-plt img"><img src="plot.causalmixgpd_qte-3.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">25</span></span></span>
 <span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">N</span>, <span class="fl">1</span>, <span class="fl">0.5</span><span class="op">)</span></span></span>
@@ -229,18 +378,18 @@ prediction step.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   [Warning] To calculate WAIC, set 'WAIC = TRUE', in addition to having enabled WAIC in building the MCMC.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> running chain 1...</span>
-<span class="r-in"><span><span class="va">qte_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="cqte.html">cqte</a></span><span class="op">(</span><span class="va">fit</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span>, newdata <span class="op">=</span> <span class="va">X_new</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00AFFF;">[cqte] Preparing CQTE inputs</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00D7FF;">[cqte] Preparing propensity-score adjustment</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFFF;">[cqte] Predicting treated-arm quantiles</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFD7;">[cqte] Predicting control-arm quantiles</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFAF;">[cqte] Aggregating CQTE estimates</span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">qte_result</span><span class="op">)</span>  <span class="co"># CQTE default: effect plot (faceted by id when needed)</span></span></span>
-<span class="r-plt img"><img src="plot.causalmixgpd_qte-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">qte_result</span>, type <span class="op">=</span> <span class="st">"effect"</span><span class="op">)</span>  <span class="co"># single QTE plot</span></span></span>
-<span class="r-plt img"><img src="plot.causalmixgpd_qte-2.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">qte_result</span>, type <span class="op">=</span> <span class="st">"arms"</span><span class="op">)</span>    <span class="co"># single arms plot</span></span></span>
-<span class="r-plt img"><img src="plot.causalmixgpd_qte-3.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="va">ate_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="cate.causalmixgpd_causal_fit.html">cate</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="va">X_new</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00AFFF;">[cate] Preparing CATE inputs</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00D7FF;">[cate] Preparing propensity-score adjustment</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFFF;">[cate] Predicting treated-arm effects</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFD7;">[cate] Predicting control-arm effects</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00FFAF;">[cate] Aggregating CATE estimates</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ate_result</span><span class="op">)</span>  <span class="co"># CATE default: effect plot</span></span></span>
+<span class="r-plt img"><img src="plot.causalmixgpd_qte-4.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ate_result</span>, type <span class="op">=</span> <span class="st">"effect"</span><span class="op">)</span>  <span class="co"># single ATE plot</span></span></span>
+<span class="r-plt img"><img src="plot.causalmixgpd_qte-5.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ate_result</span>, type <span class="op">=</span> <span class="st">"arms"</span><span class="op">)</span>    <span class="co"># single arms plot</span></span></span>
+<span class="r-plt img"><img src="plot.causalmixgpd_qte-6.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

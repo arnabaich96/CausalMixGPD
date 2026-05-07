@@ -3519,6 +3519,22 @@ test_that("print.causalmixgpd_causal_fit shows PS info", {
   expect_output(print_causalmixgpd_causal_fit(fit), "PS model")
 })
 
+test_that("print.causalmixgpd_causal_fit derives finite timing values", {
+  fit <- make_mock_causal_fit()
+  fit$bundle$meta$ps <- list(enabled = TRUE, model_type = "logit")
+  fit$timing <- list(total = NA_real_, ps = NA_real_, con = NA_real_, trt = NA_real_)
+  fit$ps_fit <- list(timing = list(total = 0.1))
+  fit$outcome_fit$con$timing <- list(mcmc = 0.2)
+  fit$outcome_fit$trt$timing <- list(mcmc = 0.3)
+
+  out <- capture.output(print_causalmixgpd_causal_fit(fit))
+  expect_true(any(grepl("Timing \\(sec\\)", out)))
+  expect_false(any(grepl("\\bNA\\b", out)))
+  expect_true(any(grepl("PS = 0.1", out)))
+  expect_true(any(grepl("control = 0.2", out)))
+  expect_true(any(grepl("treated = 0.3", out)))
+})
+
 test_that("summary.causalmixgpd_causal_fit returns arm summaries", {
   fit <- make_mock_causal_fit()
   fit$bundle$data$X <- cbind(x1 = c(-1, 1))
@@ -6093,6 +6109,37 @@ test_that("run_mcmc_causal orchestration covers PS, fallback, and validation bra
   expect_identical(fit_ps$bundle$outcome$con$code, bundle_ps$outcome$con$code)
   expect_identical(fit_ps$bundle$outcome$trt$code, bundle_ps$outcome$trt$code)
   expect_error(run_mcmc_causal(bundle_ps, z_update_every = 0L, show_progress = FALSE, quiet = TRUE), ">= 1")
+})
+
+test_that("run_mcmc_causal records stage timings when child fits omit timing", {
+  x <- cbind(x1 = c(-1, 0, 1, 2), x2 = c(0.5, 1.5, -0.5, 2.5))
+  y <- abs(c(1.2, 0.8, 1.5, 2.2))
+  A <- c(0L, 1L, 0L, 1L)
+  bundle_no_ps <- build_causal_bundle(
+    y = y,
+    X = x,
+    A = A,
+    backend = "sb",
+    kernel = "normal",
+    components = 3,
+    PS = FALSE,
+    mcmc_outcome = mcmc_fast(seed = 14L)
+  )
+
+  testthat::local_mocked_bindings(
+    run_mcmc_bundle_manual = function(bundle, ...) {
+      list(samples = NULL, mcmc = list(samples = NULL), bundle = bundle)
+    },
+    .package = "CausalMixGPD"
+  )
+
+  fit <- run_mcmc_causal(bundle_no_ps, show_progress = FALSE, quiet = TRUE, timing = TRUE)
+  expect_true(is.finite(fit$timing$total))
+  expect_true(is.finite(fit$timing$con))
+  expect_true(is.finite(fit$timing$trt))
+  expect_true(is.finite(fit$outcome_fit$con$timing$mcmc))
+  expect_true(is.finite(fit$outcome_fit$trt$timing$mcmc))
+  expect_false(any(grepl("\\bNA\\b", capture.output(print_causalmixgpd_causal_fit(fit)))))
 })
 
 test_that("cluster wrapper functions cover bundle-fit orchestration with mocked MCMC", {

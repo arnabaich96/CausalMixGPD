@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -220,7 +220,22 @@ tail.</li>
 <li>
 <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> for PSM heatmaps and cluster-summary
 graphics.</li>
+<li>
+<code><a href="../reference/cluster_profiles.html">cluster_profiles()</a></code> for extracting the profile table
+shown by <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>.</li>
 </ul>
+<p>Across the package, the public workflow is organized around a small
+set of model-fitting wrappers and standard S3 methods. One-arm density
+models use <code><a href="../reference/dpmix.html">dpmix()</a></code> and <code><a href="../reference/dpmgpd.html">dpmgpd()</a></code>, causal models
+use <code><a href="../reference/dpmix.causal.html">dpmix.causal()</a></code> and <code><a href="../reference/dpmgpd.causal.html">dpmgpd.causal()</a></code>, and
+clustering models use <code><a href="../reference/dpmix.cluster.html">dpmix.cluster()</a></code> and
+<code><a href="../reference/dpmgpd.cluster.html">dpmgpd.cluster()</a></code>. The lower-level bundle constructors are
+available for advanced workflows, while code-generation helpers are
+internal implementation details. Fitted objects are inspected through
+<code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>,
+<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>, <code><a href="../reference/params.html">params()</a></code>, <code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code>, and
+<code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code> where those methods are meaningful for the
+object class.</p>
 </div>
 <div class="section level2">
 <h2 id="package-setup">Package setup<a class="anchor" aria-label="anchor" href="#package-setup"></a>
@@ -357,7 +372,10 @@ prediction for new observations.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_cluster</span>, newdata <span class="op">=</span> <span class="va">test_dat</span>, type <span class="op">=</span> <span class="st">"label"</span>, return_scores <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="op">)</span><span class="op">$</span><span class="va">cluster_profiles</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/cluster_profiles.html">cluster_profiles</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_cluster</span>, newdata <span class="op">=</span> <span class="va">test_dat</span>, type <span class="op">=</span> <span class="st">"label"</span>, return_scores <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt;   cluster n    y_mean     y_sd    x1_mean     x1_sd      x2_mean     x2_sd</span></span>
 <span><span class="co">#&gt; 1      C3 8 0.3647947 1.788025  0.7937694 0.3171469  0.138712164 0.4022500</span></span>
 <span><span class="co">#&gt; 2      C2 7 0.5136280 1.420225 -0.5704476 0.4665936 -0.103106058 0.5569255</span></span>
@@ -466,7 +484,7 @@ label-summary graphics such as cluster sizes and certainty.</p>
 <span><span class="co">#&gt; [1] stats     graphics  grDevices datasets  utils     methods   base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt; [1] ggplot2_4.0.2      CausalMixGPD_0.7.0 nimble_1.4.0      </span></span>
+<span><span class="co">#&gt; [1] ggplot2_4.0.2      CausalMixGPD_0.8.0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;  [1] gtable_0.3.6        jsonlite_2.0.0      dplyr_1.2.0        </span></span>
@@ -475,17 +493,18 @@ label-summary graphics such as cluster sizes and certainty.</p>
 <span><span class="co">#&gt; [10] scales_1.4.0        textshaping_1.0.4   yaml_2.3.12        </span></span>
 <span><span class="co">#&gt; [13] fastmap_1.2.0       lattice_0.22-9      coda_0.19-4.1      </span></span>
 <span><span class="co">#&gt; [16] R6_2.6.1            labeling_0.4.3      generics_0.1.4     </span></span>
-<span><span class="co">#&gt; [19] igraph_2.2.1        knitr_1.51          htmlwidgets_1.6.4  </span></span>
-<span><span class="co">#&gt; [22] tibble_3.3.0        desc_1.4.3          pillar_1.11.1      </span></span>
-<span><span class="co">#&gt; [25] bslib_0.10.0        RColorBrewer_1.1-3  rlang_1.1.7        </span></span>
-<span><span class="co">#&gt; [28] cachem_1.1.0        xfun_0.56           S7_0.2.1           </span></span>
-<span><span class="co">#&gt; [31] fs_1.6.6            sass_0.4.10         viridisLite_0.4.3  </span></span>
-<span><span class="co">#&gt; [34] cli_3.6.5           withr_3.0.2         pkgdown_2.1.3      </span></span>
-<span><span class="co">#&gt; [37] magrittr_2.0.4      digest_0.6.39       grid_4.5.3         </span></span>
-<span><span class="co">#&gt; [40] lifecycle_1.0.5     vctrs_0.7.1         evaluate_1.0.5     </span></span>
-<span><span class="co">#&gt; [43] pracma_2.4.6        glue_1.8.0          farver_2.1.2       </span></span>
-<span><span class="co">#&gt; [46] numDeriv_2016.8-1.1 ragg_1.5.0          rmarkdown_2.30     </span></span>
-<span><span class="co">#&gt; [49] tools_4.5.3         pkgconfig_2.0.3     htmltools_0.5.9</span></span></code></pre></div>
+<span><span class="co">#&gt; [19] igraph_2.2.1        nimble_1.4.0        knitr_1.51         </span></span>
+<span><span class="co">#&gt; [22] htmlwidgets_1.6.4   tibble_3.3.0        desc_1.4.3         </span></span>
+<span><span class="co">#&gt; [25] bslib_0.10.0        pillar_1.11.1       RColorBrewer_1.1-3 </span></span>
+<span><span class="co">#&gt; [28] rlang_1.1.7         cachem_1.1.0        xfun_0.56          </span></span>
+<span><span class="co">#&gt; [31] fs_1.6.6            sass_0.4.10         S7_0.2.1           </span></span>
+<span><span class="co">#&gt; [34] viridisLite_0.4.3   cli_3.6.5           withr_3.0.2        </span></span>
+<span><span class="co">#&gt; [37] pkgdown_2.1.3       magrittr_2.0.4      digest_0.6.39      </span></span>
+<span><span class="co">#&gt; [40] grid_4.5.3          lifecycle_1.0.5     vctrs_0.7.1        </span></span>
+<span><span class="co">#&gt; [43] pracma_2.4.6        evaluate_1.0.5      glue_1.8.0         </span></span>
+<span><span class="co">#&gt; [46] numDeriv_2016.8-1.1 farver_2.1.2        ragg_1.5.0         </span></span>
+<span><span class="co">#&gt; [49] rmarkdown_2.30      tools_4.5.3         pkgconfig_2.0.3    </span></span>
+<span><span class="co">#&gt; [52] htmltools_0.5.9</span></span></code></pre></div>
 <div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-Binder1978" class="csl-entry">
 Binder, David A. 1978. <span>“<span>B</span>ayesian Cluster

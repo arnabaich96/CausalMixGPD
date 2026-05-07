@@ -3,7 +3,7 @@
 \docType{data}
 \name{nc_posX100_p3_k2}
 \alias{nc_posX100_p3_k2}
-\title{nc_posX100_p3_k2 dataset}
+\title{Positive-Support Covariate Data Set With Three Predictors}
 \format{
 A list with:
 \describe{
