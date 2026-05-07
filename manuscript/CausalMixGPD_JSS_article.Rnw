@@ -227,49 +227,22 @@ regression estimation in line with DP-type mixture models
 Some of the closest packages to the present paper in terms of regression
 and clustering include \pkg{PReMiuM}, implementing profile regression with
 DP-type mixtures for response-driven clustering, prediction, variable
-selection, and post-analysis \citep{PReMiuM_pkg}.In addition to \proglang{R}, \pkg{pyrichlet} implements Bayesian nonparametric
-
-density estimation and clustering via Gaussian mixtures with random partition priors like
-
-Dirichlet, Pitman-Yor processes, etc. \citep{pyrichlet_pkg},
-
+selection, and post-analysis \citep{PReMiuM_pkg}.In addition to \proglang{R}, \pkg{pyrichlet} implements Bayesian nonparametric density estimation and clustering via Gaussian mixtures with random partition priors like Dirichlet, Pitman-Yor processes, etc. \citep{pyrichlet_pkg},
 whereas \pkg{BayesMix} is a \proglang{C++} library for MCMC sampling from
-
 the posterior distribution of Bayesian mixture models with interfaces to
-
 \proglang{Python} and \proglang{R} \citep{BayesMix_pkg}. In \proglang{Julia},
-
 \pkg{DPMMSubClusters.jl} provides distributed MCMC sampling of Dirichlet process mixtures \citep{DPMMSubClustersjl_pkg}.
-
 For causal and treatment effect inference, the packages \pkg{DoWhy} and \pkg{EconML} both
-
 support \proglang{Python}, and \pkg{scikit-learn} provides several clustering and machine
-
 learning benchmarks \citep{dowhy_pkg,econml_pkg,scikit_learn}.
-
 On a conceptual level, enriched Dirichlet process mixtures address some limitations of
-
 joint DPM regression and conditional density modeling when there is a strong influence of predictor
-
-likelihood on clustering, while better truncation approximations help to implement them efficiently in standard MCMC schemes
-
-\citep{Wade2014EDP,BurnsDaniels2023EDPM}.
-
-These and other similar software implementations and techniques are highly relevant to
-
+likelihood on clustering, while better truncation approximations help to implement them efficiently in standard MCMC schemes \citep{Wade2014EDP,BurnsDaniels2023EDPM}.These and other similar software implementations and techniques are highly relevant to
 the density, regression, and clustering components of the BNP approach described herein,
-
 but do not offer the distributional-causal interface provided by this paper.
-
 These modeling techniques are similar to those used for density, regression, and clustering within our current approach,
-
 with the exception that they lack the unified distribution/cause interface
-
-that we have added: the DPM body model,
-
-the GPD tail extrapolation method, the predictor-dependent clustering,
-
-the posterior predictions, and the treatment effect comparison using \proglang{R} generics.
+that we have added: the DPM body model, the GPD tail extrapolation method, the predictor-dependent clustering, the posterior predictions, and the treatment effect comparison using \proglang{R} generics.
 
 The clustering approach is crucial for the software being developed at present.
 As DP mixtures yield random partitions through allocation variables,
