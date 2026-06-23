@@ -1,0 +1,43 @@
+% !TeX program = pdflatex
+% Cover letter for submission of CausalMixGPD_CSDA_article.tex to
+% Computational Statistics & Data Analysis (Elsevier).
+\documentclass[11pt]{letter}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{hyperref}
+\hypersetup{hidelinks}
+
+% Tighten the default letter-class vertical spacing to keep to one page.
+\makeatletter
+\longindentation=0pt
+\let\@texttop\relax
+\makeatother
+\setlength{\parskip}{4pt}
+
+\signature{Arnab Aich \\ Department of Statistics \\ Florida State University \\ Tallahassee, FL 32306, USA \\ aaich@fsu.edu}
+\address{Arnab Aich \\ Department of Statistics \\ Florida State University \\ Tallahassee, FL 32306, USA}
+\date{}
+
+\begin{document}
+
+\begin{letter}{The Editors \\ Computational Statistics \& Data Analysis}
+
+\opening{Dear Editors,}
+
+Hereby, I submit the manuscript "CausalMixGPD: An R Package for Bayesian Nonparametric Conditional Density Modeling in Causal Inference and Clustering with a Heavy-Tail Extension" for potential publication in Computational Statistics \& Data Analysis. This is a computational statistics software contribution in line with the scope of the journal.
+
+Applications often involve heavy tails because the outcomes are rare risks/costs/policies. Parametric models do a good job capturing the central portion but miss the tail whereas flexible nonparametric techniques fail at capturing the extremes. I introduce CausalMixGPD, an R package based on Dirichlet process mixtures for the central part and generalized Pareto tail using extreme value theory. To the best of our knowledge, no such package exists which implements a distributional interface with predictor-dependent clustering and causal inference.
+
+Unconditional and covariate-dependent spliced models can be fitted with posterior inference using nimble, with posterior predictive distributions of density, survival, quantiles, mean, and restricted-mean functional values (including extreme quantiles). Predictor-dependent Dirichlet process mixture clustering and causal inference for binary treatment and continuous outcome can be carried out, where I provide estimates for six estimands (ATE, ATT, QTE, QTT, CATE, CQTE) with propensity-score adjustment for observational data. All the above methods share a unified predictive framework and are implemented via R generics. Examples of clustering and causal inference, such as Lalonde (1978) earnings data are provided as reproducible illustrations.
+
+The software package CausalMixGPD v0.8.0 is GPL-3 licensed and is available at CRAN; development version is available at https://github.com/arnabaich96/CausalMixGPD, where all manuscript results are reproducible.
+
+I certify the manuscript is original, unpublished and not currently being considered by other journals. No conflicts of interest and funding sources to declare.
+
+\closing{Sincerely,}
+
+\end{letter}
+
+\end{document}
