@@ -1,8 +1,6 @@
 # CausalMixGPD
 
-**CausalMixGPD** provides Dirichlet process mixture modeling (CRP, stick-breaking, and spliced variants) with optional generalized Pareto tails and a unified prediction/causal inference API.
-
-Current package title: **Bayesian Nonparametric Conditional Density Modeling in Causal Inference and Clustering with a Heavy-Tail Extension**.
+**Bayesian Nonparametric Conditional Density Modeling in Causal Inference and Clustering with a Heavy-Tail Extension**.
 
 Current package version: see the `Version` field in `DESCRIPTION`.
 
