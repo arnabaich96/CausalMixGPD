@@ -32,7 +32,6 @@ remotes::install_github(
 
 - [**Function reference**](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/index.html)
 - CRAN package DOI: `10.32614/CRAN.package.CausalMixGPD`
-- [**Aich-Bhattacharya methodology paper**](https://doi.org/10.5281/zenodo.19672760)
 
 ## Citation
 
