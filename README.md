@@ -8,8 +8,6 @@ Current package version: see the `Version` field in `DESCRIPTION`.
 
 CRAN package DOI: `10.32614/CRAN.package.CausalMixGPD`.
 
-Methodology paper by Aich and Bhattacharya: <https://doi.org/10.5281/zenodo.19672760>.
-
 ## Installation
 
 ```r
